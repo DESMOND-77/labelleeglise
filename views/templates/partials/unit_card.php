@@ -7,8 +7,8 @@ $delMsg  = $delMsg  ?? 'Supprimer ?';
 $actions = '';
 if ($editUrl || $delUrl) {
     $actions = '<div class="card-actions">'
-        . ($editUrl ? '<a class="icon-btn" title="Modifier" href="' . h($editUrl) . '">✎</a>' : '')
-        . ($delUrl ? '<a class="icon-btn danger" title="Supprimer" data-confirm="' . h($delMsg) . '" href="' . h($delUrl) . '">🗑</a>' : '')
+        . ($editUrl ? '<a class="icon-btn" title="Modifier" href="' . h($editUrl) . '"><i class="fa-solid fa-pen"></i></a>' : '')
+        . ($delUrl ? '<a class="icon-btn danger" title="Supprimer" data-confirm="' . h($delMsg) . '" href="' . h($delUrl) . '"><i class="fa-solid fa-trash"></i></a>' : '')
         . '</div>';
 }
 ?>

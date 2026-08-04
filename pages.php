@@ -121,7 +121,7 @@ function render_profile_page(): void
 {
     $user = nav('membre') ? get_user(nav('membre')) : null;
     if (!$user) {
-        render_page(SECTION_LABELS['personProfile'], empty_state('🚫', 'Membre introuvable.'));
+        render_page(SECTION_LABELS['personProfile'], empty_state('fa-ban', 'Membre introuvable.'));
         return;
     }
     $charts = ['doughnut' => member_presence_counts($user)];

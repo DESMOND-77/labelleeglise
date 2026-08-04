@@ -13,7 +13,7 @@ require_once __DIR__ . '/auth.php';
 function render_parametres_page(): void
 {
     if (current_user()['role'] !== 'admin') {
-        render_page(SECTION_LABELS['parametres'], empty_state('🚫', 'Accès réservé à l\'administrateur.'));
+        render_page(SECTION_LABELS['parametres'], empty_state('fa-ban', 'Accès réservé à l\'administrateur.'));
         return;
     }
 
@@ -40,8 +40,8 @@ function render_parametres_page(): void
 
     $tab = nav('param_tab');
     $tabs = [
-        'comptes' => ['label' => '🔑 Comptes application', 'url' => url('index.php', ['page' => 'parametres', 'param_tab' => 'comptes'])],
-        'acces'   => ['label' => '🪪 Accès & Responsables', 'url' => url('index.php', ['page' => 'parametres', 'param_tab' => 'acces'])],
+        'comptes' => ['label' => '<i class="fa-solid fa-key"></i> Comptes application', 'url' => url('index.php', ['page' => 'parametres', 'param_tab' => 'comptes'])],
+        'acces'   => ['label' => '<i class="fa-solid fa-id-card"></i> Accès & Responsables', 'url' => url('index.php', ['page' => 'parametres', 'param_tab' => 'acces'])],
     ];
     $tabRow = tab_row($tabs, $tab);
 
@@ -55,16 +55,16 @@ function parametres_comptes(): string
     foreach (get_users() as $u) {
         $role = ROLE_LABELS[$u['role']] ?? $u['role'];
         $badge = $u['role'] === 'admin' ? 'neutral' : ($u['role'] === 'membre' ? 'neutral' : 'present');
-        $actif = (int) $u['compte_actif'] === 1 ? '✔' : '✖';
+        $actif = (int) $u['compte_actif'] === 1 ? '<i class="fa-solid fa-check"></i>' : '<i class="fa-solid fa-xmark"></i>';
         $rows .= '<tr><td>' . h(full_name($u)) . '</td><td>' . h($u['email']) . '</td>'
             . '<td><span class="badge ' . $badge . '">' . h($role) . '</span></td>'
-            . '<td>' . h($actif) . '</td>'
+            . '<td>' . $actif . '</td>'
             . '<td class="row-actions">'
-            . '<a class="icon-btn" title="Modifier" href="' . h(url('index.php', ['page' => 'parametres', 'form' => 'user', 'id' => $u['id']])) . '">✎</a>'
-            . '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer cet utilisateur ?" href="' . h(url('index.php', ['page' => 'parametres', 'action' => 'delete_user', 'id' => $u['id']])) . '">🗑</a>'
+            . '<a class="icon-btn" title="Modifier" href="' . h(url('index.php', ['page' => 'parametres', 'form' => 'user', 'id' => $u['id']])) . '"><i class="fa-solid fa-pen"></i></a>'
+            . '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer cet utilisateur ?" href="' . h(url('index.php', ['page' => 'parametres', 'action' => 'delete_user', 'id' => $u['id']])) . '"><i class="fa-solid fa-trash"></i></a>'
             . '</td></tr>';
     }
-    $rows = $rows ?: '<tr><td colspan="5">' . empty_state('📭', 'Aucun utilisateur.') . '</td></tr>';
+    $rows = $rows ?: '<tr><td colspan="5">' . empty_state('fa-inbox', 'Aucun utilisateur.') . '</td></tr>';
 
     return section_toolbar('Comptes application', 'Gérer les comptes (connexion par email)',
              add_button('Ajouter un utilisateur', ['page' => 'parametres', 'form' => 'user']))
@@ -96,7 +96,7 @@ function parametres_acces(): string
             . responsable_select($b['responsable_id'] ? (int) $b['responsable_id'] : 0, $candidates)
             . '<button type="submit" class="btn btn-outline btn-sm">OK</button></form></td></tr>';
     }
-    $bacRows = $bacRows ?: '<tr><td colspan="3">' . empty_state('📭', 'Aucun bacenta.') . '</td></tr>';
+    $bacRows = $bacRows ?: '<tr><td colspan="3">' . empty_state('fa-inbox', 'Aucun bacenta.') . '</td></tr>';
 
     // Basontas
     $basRows = '';
@@ -108,7 +108,7 @@ function parametres_acces(): string
             . responsable_select($b['responsable_id'] ? (int) $b['responsable_id'] : 0, $candidates)
             . '<button type="submit" class="btn btn-outline btn-sm">OK</button></form></td></tr>';
     }
-    $basRows = $basRows ?: '<tr><td colspan="2">' . empty_state('📭', 'Aucun basonta.') . '</td></tr>';
+    $basRows = $basRows ?: '<tr><td colspan="2">' . empty_state('fa-inbox', 'Aucun basonta.') . '</td></tr>';
 
     // Cultes
     $culRows = '';
@@ -120,7 +120,7 @@ function parametres_acces(): string
             . responsable_select($c['responsable_id'] ? (int) $c['responsable_id'] : 0, $candidates)
             . '<button type="submit" class="btn btn-outline btn-sm">OK</button></form></td></tr>';
     }
-    $culRows = $culRows ?: '<tr><td colspan="2">' . empty_state('📭', 'Aucun culte.') . '</td></tr>';
+    $culRows = $culRows ?: '<tr><td colspan="2">' . empty_state('fa-inbox', 'Aucun culte.') . '</td></tr>';
 
     $html = '<div class="dash-section-title"><h2>Responsables de bacentas</h2><span>Attribuez le responsable de chaque bacenta</span></div>'
         . '<div class="table-wrap"><table class="data-table"><thead><tr><th>Bacenta</th><th>Centre</th><th>Responsable</th></tr></thead><tbody>' . $bacRows . '</tbody></table></div>'

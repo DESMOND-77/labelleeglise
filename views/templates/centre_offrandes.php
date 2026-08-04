@@ -20,7 +20,7 @@
   <input type="hidden" name="centre" value="<?= h($centre['id']) ?>">
   <input type="hidden" name="mois" value="<?= h($monthKey) ?>">
   <div class="suivi-block">
-    <h3>💰 Offrandes — <?= h($monthLabel ?? month_label($monthKey)) ?></h3>
+    <h3><i class="fa-solid fa-sack-dollar"></i> Offrandes — <?= h($monthLabel ?? month_label($monthKey)) ?></h3>
     <div class="table-wrap">
       <table class="data-table">
         <thead><tr><th>Semaine</th><th>Montant (FCFA)</th></tr></thead>

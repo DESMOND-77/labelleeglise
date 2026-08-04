@@ -150,7 +150,7 @@ a {
   display: flex;
   min-height: 100vh;
   background-image:
-    linear-gradient(rgba(44, 45, 46, 0.85), rgba(2, 13, 77, 0.85)),
+    linear-gradient(rgba(84, 85, 87, 0.85), rgba(198, 202, 223, 0.85)),
     url("/assets/images/pasteur-bg.jpg");
   background-size: cover;
   background-position: center 18%;

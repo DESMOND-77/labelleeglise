@@ -22,5 +22,5 @@ $rows = [
 <div class="fiche-card">
   <?= info_rows_html($rows) ?>
 </div>
-<div class="dash-section-title"><h2>📊 Présence</h2><span>Culte, Basonta, Centre, Bacenta</span></div>
+<div class="dash-section-title"><h2><i class="fa-solid fa-chart-column"></i> Présence</h2><span>Culte, Basonta, Centre, Bacenta</span></div>
 <div class="chart-card"><canvas id="profileChart"></canvas></div>

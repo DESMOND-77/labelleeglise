@@ -25,12 +25,12 @@ function render_berger_fiche_page(): void
     }
     $member = get_user($memberId);
     if (!$member || !in_array($member['role'], BERGER_ROLES, true)) {
-        render_page(SECTION_LABELS['bergerFiche'], empty_state('🚫', 'Berger introuvable.'));
+        render_page(SECTION_LABELS['bergerFiche'], empty_state('fa-ban', 'Berger introuvable.'));
         return;
     }
 
     $tab = nav('tab') ?: 'infos';
-    $labels = ['infos' => '👤 Infos', 'dimes' => '💰 Dîmes', 'examens' => '🎓 Examens', 'veillees' => '🌙 Veillées'];
+    $labels = ['infos' => '<i class="fa-solid fa-user"></i> Infos', 'dimes' => '<i class="fa-solid fa-sack-dollar"></i> Dîmes', 'examens' => '<i class="fa-solid fa-graduation-cap"></i> Examens', 'veillees' => '<i class="fa-solid fa-moon"></i> Veillées'];
     $tabs = [];
     foreach ($labels as $k => $lbl) {
         $tabs[$k] = ['label' => $lbl, 'url' => url('index.php', ['page' => 'bergerFiche', 'membre' => $memberId, 'tab' => $k])];

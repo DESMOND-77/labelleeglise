@@ -70,13 +70,13 @@ function team_card_html(array $m, bool $isAdmin): string
     $actions = '';
     if ($isAdmin) {
         $actions = '<div class="card-actions">'
-            . '<a class="icon-btn" title="Modifier" href="' . h(url('index.php', ['page' => 'apropos', 'form' => 'equipe', 'id' => $m['id']])) . '">✎</a>'
-            . '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer ce membre de l\'équipe ?" href="' . h(url('index.php', ['page' => 'apropos', 'action' => 'delete_equipe', 'id' => $m['id']])) . '">🗑</a>'
+            . '<a class="icon-btn" title="Modifier" href="' . h(url('index.php', ['page' => 'apropos', 'form' => 'equipe', 'id' => $m['id']])) . '"><i class="fa-solid fa-pen"></i></a>'
+            . '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer ce membre de l\'équipe ?" href="' . h(url('index.php', ['page' => 'apropos', 'action' => 'delete_equipe', 'id' => $m['id']])) . '"><i class="fa-solid fa-trash"></i></a>'
             . '</div>';
     }
-    $avatar = !empty($m['photo'])
+$avatar = !empty($m['photo'])
         ? '<img src="' . h($m['photo']) . '" class="team-avatar-img" alt="' . h($m['nom_affichage']) . '">'
-        : '<div class="team-avatar">' . h($m['emoji'] ?: '👤') . '</div>';
+        : '<div class="team-avatar">' . ($m['emoji'] ?? '<i class="fa-solid fa-user"></i>') . '</div>';
     return '<div class="team-card">' . $actions . $avatar
         . '<h3>' . h($m['nom_affichage']) . '</h3>'
         . '<div class="team-role">' . h($m['role_affichage']) . '</div>'
@@ -131,15 +131,15 @@ function render_centres_presentation_page(): void
         $actions = '';
         if ($isAdmin) {
             $actions = '<div class="card-actions">'
-                . '<a class="icon-btn" title="Modifier" href="' . h(url('index.php', ['page' => 'centresPresentation', 'form' => 'article', 'id' => $c['id']])) . '">✎</a>'
-                . '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer cet article ?" href="' . h(url('index.php', ['page' => 'centresPresentation', 'action' => 'delete_article', 'id' => $c['id']])) . '">🗑</a>'
+                . '<a class="icon-btn" title="Modifier" href="' . h(url('index.php', ['page' => 'centresPresentation', 'form' => 'article', 'id' => $c['id']])) . '"><i class="fa-solid fa-pen"></i></a>'
+                . '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer cet article ?" href="' . h(url('index.php', ['page' => 'centresPresentation', 'action' => 'delete_article', 'id' => $c['id']])) . '"><i class="fa-solid fa-trash"></i></a>'
                 . '</div>';
         }
         $intro = (string) ($c['intro'] ?? '');
         $sub = function_exists('mb_substr') ? mb_substr($intro, 0, 90) : substr($intro, 0, 90);
         $sub .= (function_exists('mb_strlen') ? mb_strlen($intro) : strlen($intro)) > 90 ? '…' : '';
         $cards .= '<div class="unit-card" onclick="location.href=\'' . h(url('index.php', ['page' => 'centresPresentation', 'id' => $c['id']])) . '\'">'
-            . $actions . '<div class="icon-wrap">🏫</div><h3>' . h($c['centre_nom']) . '</h3><p>' . h($sub) . '</p></div>';
+            . $actions . '<div class="icon-wrap"><i class="fa-solid fa-school"></i></div><h3>' . h($c['centre_nom']) . '</h3><p>' . h($sub) . '</p></div>';
     }
     $addCard = $isAdmin
         ? '<a class="unit-card add-card" href="' . h(url('index.php', ['page' => 'centresPresentation', 'form' => 'article'])) . '"><div class="plus">+</div> Ajouter un article</a>'

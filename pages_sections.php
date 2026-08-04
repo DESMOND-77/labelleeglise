@@ -91,14 +91,14 @@ function bacenta_card_html(array $b, bool $canEdit): string
     $actions = '';
     if ($canEdit) {
         $actions = '<div class="card-actions">'
-            . '<a class="icon-btn" title="Modifier" href="' . h(url('index.php', ['page' => 'bacentas', 'form' => 'bacenta', 'id' => $b['id']])) . '">✎</a>'
-            . '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer ce bacenta et tous ses membres ?" href="' . h(url('index.php', ['page' => 'bacentas', 'action' => 'delete_bacenta', 'id' => $b['id']])) . '">🗑</a>'
+            . '<a class="icon-btn" title="Modifier" href="' . h(url('index.php', ['page' => 'bacentas', 'form' => 'bacenta', 'id' => $b['id']])) . '"><i class="fa-solid fa-pen"></i></a>'
+            . '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer ce bacenta et tous ses membres ?" href="' . h(url('index.php', ['page' => 'bacentas', 'action' => 'delete_bacenta', 'id' => $b['id']])) . '"><i class="fa-solid fa-trash"></i></a>'
             . '</div>';
     }
     $sub = ($b['centre_nom'] ?? '') . ($b['centre_nom'] ? ' · ' : '') . (int) $b['nb_membres'] . ' membre(s)';
     return '<div class="unit-card" onclick="location.href=\'' . h(url('index.php', ['page' => 'bacentas', 'id' => $b['id']])) . '\'">'
         . $actions
-        . '<div class="icon-wrap">⛪</div><h3>' . h($b['nom']) . '</h3><p>' . h($sub) . '</p></div>';
+        . '<div class="icon-wrap"><i class="fa-solid fa-church"></i></div><h3>' . h($b['nom']) . '</h3><p>' . h($sub) . '</p></div>';
 }
 
 function render_bacentas_grid(): void
@@ -123,7 +123,7 @@ function render_bacentas_grid(): void
 
     $content = section_toolbar(SECTION_LABELS['bacentas'], 'Choisissez un bacenta', $addCard ? '<a class="btn btn-primary" href="' . h(url('index.php', ['page' => 'bacentas', 'form' => 'bacenta'])) . '">+ Ajouter un bacenta</a>' : '')
         . '<div class="card-grid">' . $cards . $addCard . '</div>'
-        . ($cards === '' ? empty_state('📭', 'Aucun bacenta pour le moment.') : '');
+        . ($cards === '' ? empty_state('fa-inbox', 'Aucun bacenta pour le moment.') : '');
     render_page(SECTION_LABELS['bacentas'], $content);
 }
 
@@ -135,20 +135,20 @@ function render_centres_grid(): void
     foreach (get_centres() as $c) {
         $actions = $isAdmin
             ? '<div class="card-actions">'
-            . '<a class="icon-btn" title="Modifier" href="' . h(url('index.php', ['page' => 'centres', 'form' => 'centre', 'id' => $c['id']])) . '">✎</a>'
-            . '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer ce centre et toutes ses données ?" href="' . h(url('index.php', ['page' => 'centres', 'action' => 'delete_centre', 'id' => $c['id']])) . '">🗑</a>'
+            . '<a class="icon-btn" title="Modifier" href="' . h(url('index.php', ['page' => 'centres', 'form' => 'centre', 'id' => $c['id']])) . '"><i class="fa-solid fa-pen"></i></a>'
+            . '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer ce centre et toutes ses données ?" href="' . h(url('index.php', ['page' => 'centres', 'action' => 'delete_centre', 'id' => $c['id']])) . '"><i class="fa-solid fa-trash"></i></a>'
             . '</div>'
             : '';
         $sub = (int) $c['nb_bacentas'] . ' bacenta(s)';
         $cards .= '<div class="unit-card" onclick="location.href=\'' . h(url('index.php', ['page' => 'centres', 'id' => $c['id']])) . '\'">'
-            . $actions . '<div class="icon-wrap">🏛️</div><h3>' . h($c['nom']) . '</h3><p>' . h($sub) . '</p></div>';
+            . $actions . '<div class="icon-wrap"><i class="fa-solid fa-landmark"></i></div><h3>' . h($c['nom']) . '</h3><p>' . h($sub) . '</p></div>';
     }
     $addCard = $isAdmin
         ? '<a class="unit-card add-card" href="' . h(url('index.php', ['page' => 'centres', 'form' => 'centre'])) . '"><div class="plus">+</div> Ajouter un centre</a>'
         : '';
     $content = section_toolbar(SECTION_LABELS['centres'], 'La structure des centres', $addCard ? '<a class="btn btn-primary" href="' . h(url('index.php', ['page' => 'centres', 'form' => 'centre'])) . '">+ Ajouter un centre</a>' : '')
         . '<div class="card-grid">' . $cards . $addCard . '</div>'
-        . ($cards === '' ? empty_state('🏛️', 'Aucun centre pour le moment.') : '');
+        . ($cards === '' ? empty_state('fa-landmark', 'Aucun centre pour le moment.') : '');
     render_page(SECTION_LABELS['centres'], $content);
 }
 
@@ -165,21 +165,21 @@ function render_cultes_grid(): void
     foreach ($cultes as $c) {
         $actions = $isAdmin
             ? '<div class="card-actions">'
-            . '<a class="icon-btn" title="Modifier" href="' . h(url('index.php', ['page' => 'cultes', 'form' => 'culte', 'id' => $c['id']])) . '">✎</a>'
-            . '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer ce culte ?" href="' . h(url('index.php', ['page' => 'cultes', 'action' => 'delete_culte', 'id' => $c['id']])) . '">🗑</a>'
+            . '<a class="icon-btn" title="Modifier" href="' . h(url('index.php', ['page' => 'cultes', 'form' => 'culte', 'id' => $c['id']])) . '"><i class="fa-solid fa-pen"></i></a>'
+            . '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer ce culte ?" href="' . h(url('index.php', ['page' => 'cultes', 'action' => 'delete_culte', 'id' => $c['id']])) . '"><i class="fa-solid fa-trash"></i></a>'
             . '</div>'
             : '';
         $date = $c['date_culte'] ? date('d/m/Y', strtotime($c['date_culte'])) : 'Date à définir';
         $sub = $date . ' · ' . (int) $c['nb_presents'] . ' présent(s)';
         $cards .= '<div class="unit-card" onclick="location.href=\'' . h(url('index.php', ['page' => 'cultes', 'id' => $c['id']])) . '\'">'
-            . $actions . '<div class="icon-wrap">🙏</div><h3>' . h($c['nom']) . '</h3><p>' . h($sub) . '</p></div>';
+            . $actions . '<div class="icon-wrap"><i class="fa-solid fa-hands-praying"></i></div><h3>' . h($c['nom']) . '</h3><p>' . h($sub) . '</p></div>';
     }
     $addCard = $isAdmin
         ? '<a class="unit-card add-card" href="' . h(url('index.php', ['page' => 'cultes', 'form' => 'culte'])) . '"><div class="plus">+</div> Ajouter un culte</a>'
         : '';
     $content = section_toolbar(SECTION_LABELS['cultes'], 'Cultes et réunions', $addCard ? '<a class="btn btn-primary" href="' . h(url('index.php', ['page' => 'cultes', 'form' => 'culte'])) . '">+ Ajouter un culte</a>' : '')
         . '<div class="card-grid">' . $cards . $addCard . '</div>'
-        . ($cards === '' ? empty_state('🙏', 'Aucun culte pour le moment.') : '');
+        . ($cards === '' ? empty_state('fa-hands-praying', 'Aucun culte pour le moment.') : '');
     render_page(SECTION_LABELS['cultes'], $content);
 }
 
@@ -196,19 +196,19 @@ function render_basontas_grid(): void
     foreach ($basontas as $b) {
         $actions = $isAdmin
             ? '<div class="card-actions">'
-            . '<a class="icon-btn" title="Modifier" href="' . h(url('index.php', ['page' => 'basontas', 'form' => 'basonta', 'id' => $b['id']])) . '">✎</a>'
-            . '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer ce basonta ?" href="' . h(url('index.php', ['page' => 'basontas', 'action' => 'delete_basonta', 'id' => $b['id']])) . '">🗑</a>'
+            . '<a class="icon-btn" title="Modifier" href="' . h(url('index.php', ['page' => 'basontas', 'form' => 'basonta', 'id' => $b['id']])) . '"><i class="fa-solid fa-pen"></i></a>'
+            . '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer ce basonta ?" href="' . h(url('index.php', ['page' => 'basontas', 'action' => 'delete_basonta', 'id' => $b['id']])) . '"><i class="fa-solid fa-trash"></i></a>'
             . '</div>'
             : '';
         $cards .= '<div class="unit-card" onclick="location.href=\'' . h(url('index.php', ['page' => 'basontas', 'id' => $b['id']])) . '\'">'
-            . $actions . '<div class="icon-wrap">🎤</div><h3>' . h($b['nom']) . '</h3><p>' . (int) $b['nb_membres'] . ' membre(s)</p></div>';
+            . $actions . '<div class="icon-wrap"><i class="fa-solid fa-microphone"></i></div><h3>' . h($b['nom']) . '</h3><p>' . (int) $b['nb_membres'] . ' membre(s)</p></div>';
     }
     $addCard = $isAdmin
         ? '<a class="unit-card add-card" href="' . h(url('index.php', ['page' => 'basontas', 'form' => 'basonta'])) . '"><div class="plus">+</div> Ajouter un basonta</a>'
         : '';
     $content = section_toolbar(SECTION_LABELS['basontas'], 'Ministères et départements', $addCard ? '<a class="btn btn-primary" href="' . h(url('index.php', ['page' => 'basontas', 'form' => 'basonta'])) . '">+ Ajouter un basonta</a>' : '')
         . '<div class="card-grid">' . $cards . $addCard . '</div>'
-        . ($cards === '' ? empty_state('🎤', 'Aucun basonta pour le moment.') : '');
+        . ($cards === '' ? empty_state('fa-microphone', 'Aucun basonta pour le moment.') : '');
     render_page(SECTION_LABELS['basontas'], $content);
 }
 
@@ -240,8 +240,8 @@ function render_bacenta_detail(int $bacentaId): void
     }
 
     $tabs = [
-        'membres' => ['label' => '👥 Membres', 'url' => url('index.php', ['page' => 'bacentas', 'id' => $bacentaId, 'tab' => 'membres'])],
-        'suivi'   => ['label' => '📊 Suivi & Offrandes', 'url' => url('index.php', ['page' => 'bacentas', 'id' => $bacentaId, 'tab' => 'suivi'])],
+        'membres' => ['label' => '<i class="fa-solid fa-users"></i> Membres', 'url' => url('index.php', ['page' => 'bacentas', 'id' => $bacentaId, 'tab' => 'membres'])],
+        'suivi'   => ['label' => '<i class="fa-solid fa-chart-column"></i> Suivi & Offrandes', 'url' => url('index.php', ['page' => 'bacentas', 'id' => $bacentaId, 'tab' => 'suivi'])],
     ];
     $content = tab_row($tabs, 'membres')
              . members_table('bacentas', $bacentaId, $b['nom'], count(get_members_of_bacenta($bacentaId)));
@@ -256,8 +256,8 @@ function render_centre_detail(int $centreId): void
     }
     $tab = nav('tab');
     $tabs = [
-        'bacentas' => ['label' => '⛪ Bacentas', 'url' => url('index.php', ['page' => 'centres', 'id' => $centreId, 'tab' => 'bacentas'])],
-        'suivi'    => ['label' => '💰 Offrandes', 'url' => url('index.php', ['page' => 'centres', 'id' => $centreId, 'tab' => 'suivi'])],
+        'bacentas' => ['label' => '<i class="fa-solid fa-church"></i> Bacentas', 'url' => url('index.php', ['page' => 'centres', 'id' => $centreId, 'tab' => 'bacentas'])],
+        'suivi'    => ['label' => '<i class="fa-solid fa-sack-dollar"></i> Offrandes', 'url' => url('index.php', ['page' => 'centres', 'id' => $centreId, 'tab' => 'suivi'])],
     ];
     $tabRow = tab_row($tabs, $tab);
 
@@ -284,7 +284,7 @@ function render_centre_detail(int $centreId): void
         $cards .= bacenta_card_html($b, current_user()['role'] === 'admin');
     }
     $content = $tabRow . '<div class="card-grid">' . $cards . '</div>'
-             . ($cards === '' ? empty_state('⛪', 'Aucun bacenta dans ce centre pour le moment.') : '');
+             . ($cards === '' ? empty_state('fa-church', 'Aucun bacenta dans ce centre pour le moment.') : '');
     render_page($c['nom'], $content);
 }
 
@@ -338,9 +338,9 @@ function render_basonta_detail(int $basontaId): void
     foreach ($members as $m) {
         $rows .= '<tr><td>' . h(full_name($m)) . '</td><td>' . h($m['telephone'] ?? '') . '</td>'
             . '<td>' . presence_badge(presence_status($m, 'presenceBasonta')) . '</td>'
-            . '<td class="row-actions"><a class="icon-btn danger" title="Retirer" data-confirm="Retirer ce membre du basonta ?" href="' . h(url('index.php', ['page' => 'basontas', 'action' => 'basonta_remove_member', 'basonta' => $basontaId, 'membre' => $m['id']])) . '">🗑</a></td></tr>';
+            . '<td class="row-actions"><a class="icon-btn danger" title="Retirer" data-confirm="Retirer ce membre du basonta ?" href="' . h(url('index.php', ['page' => 'basontas', 'action' => 'basonta_remove_member', 'basonta' => $basontaId, 'membre' => $m['id']])) . '"><i class="fa-solid fa-trash"></i></a></td></tr>';
     }
-    $rows = $rows ?: '<tr><td colspan="4">' . empty_state('📭', 'Aucun membre dans ce basonta.') . '</td></tr>';
+    $rows = $rows ?: '<tr><td colspan="4">' . empty_state('fa-inbox', 'Aucun membre dans ce basonta.') . '</td></tr>';
 
     $content = section_toolbar(h($b['nom']), count($members) . ' membre(s)')
         . '<form class="inline-add-form" method="post" action="index.php">'
@@ -477,10 +477,10 @@ function members_table(string $section, ?int $entityId, string $label, int $coun
         }
         $extra = '';
         if ($section === 'bergers') {
-            $extra = '<a class="icon-btn" title="Fiche berger" href="' . h(url('index.php', ['page' => 'bergerFiche', 'membre' => $m['id']])) . '">📋</a>'
-                   . '<a class="icon-btn" title="Suivi hebdomadaire" href="' . h(url('index.php', ['page' => 'suiviBergers', 'membre' => $m['id']])) . '">📅</a>';
+            $extra = '<a class="icon-btn" title="Fiche berger" href="' . h(url('index.php', ['page' => 'bergerFiche', 'membre' => $m['id']])) . '"><i class="fa-solid fa-clipboard-list"></i></a>'
+                   . '<a class="icon-btn" title="Suivi hebdomadaire" href="' . h(url('index.php', ['page' => 'suiviBergers', 'membre' => $m['id']])) . '"><i class="fa-solid fa-calendar-days"></i></a>';
         } elseif ($section === 'suiviBergers') {
-            $extra = '<a class="icon-btn" title="Suivi hebdomadaire" href="' . h(url('index.php', ['page' => 'suiviBergers', 'membre' => $m['id']])) . '">📅</a>';
+            $extra = '<a class="icon-btn" title="Suivi hebdomadaire" href="' . h(url('index.php', ['page' => 'suiviBergers', 'membre' => $m['id']])) . '"><i class="fa-solid fa-calendar-days"></i></a>';
         }
         $formParams = ['page' => $section, 'form' => 'membre', 'id' => $m['id']];
         if ($entityId) {
@@ -491,12 +491,12 @@ function members_table(string $section, ?int $entityId, string $label, int $coun
             $delParams['id'] = $m['id'];
             $delParams['id_ent'] = $entityId;
         }
-        $edit = '<a class="icon-btn" title="Modifier" href="' . h(url('index.php', $formParams)) . '">✎</a>';
-        $del = '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer ce membre ?" href="' . h(url('index.php', $delParams)) . '">🗑</a>';
+        $edit = '<a class="icon-btn" title="Modifier" href="' . h(url('index.php', $formParams)) . '"><i class="fa-solid fa-pen"></i></a>';
+        $del = '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer ce membre ?" href="' . h(url('index.php', $delParams)) . '"><i class="fa-solid fa-trash"></i></a>';
         $rows .= '<tr>' . $cells . '<td class="row-actions">' . $extra . $edit . $del . '</td></tr>';
     }
     if ($members === []) {
-        $rows = '<tr><td colspan="' . (count($cols) + 1) . '">' . empty_state('📭', 'Aucun membre pour le moment.') . '</td></tr>';
+        $rows = '<tr><td colspan="' . (count($cols) + 1) . '">' . empty_state('fa-inbox', 'Aucun membre pour le moment.') . '</td></tr>';
     }
 
     $addParams = ['page' => $section, 'form' => 'membre'];
@@ -508,7 +508,7 @@ function members_table(string $section, ?int $entityId, string $label, int $coun
     if (in_array($section, ['nouveaux', 'generale', 'bergers'], true)) {
         $filterBox = '<form method="get" action="index.php" class="filter-row">'
             . '<input type="hidden" name="page" value="' . h($section) . '">'
-            . '<input type="search" class="search-input" name="q" placeholder="🔎 Filtrer (nom, quartier)…" value="' . h($filter ?? '') . '">'
+            . '<input type="search" class="search-input" name="q" placeholder="Filtrer (nom, quartier)…" value="' . h($filter ?? '') . '">'
             . '<button class="btn btn-outline btn-sm" type="submit">Filtrer</button>'
             . ($filter ? '<a class="btn btn-outline btn-sm" href="' . h(url('index.php', ['page' => $section])) . '">Effacer</a>' : '')
             . '</form>';

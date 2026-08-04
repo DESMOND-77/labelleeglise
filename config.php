@@ -65,19 +65,19 @@ const SECTION_LABELS = [
 ];
 
 const SECTION_ICONS = [
-    'apropos'            => 'ℹ️',
-    'centresPresentation'=> '🏫',
-    'accueil'            => '🏠',
-    'bacentas'           => '⛪',
-    'centres'            => '🏛️',
-    'cultes'             => '🙏',
-    'basontas'           => '🎤',
-    'nouveaux'           => '✨',
-    'generale'           => '📋',
-    'bergers'            => '🐑',
-    'suiviBergers'       => '📅',
-    'finances'           => '💰',
-    'parametres'         => '⚙️',
+    'apropos'            => '<i class="fa-solid fa-circle-info"></i>',
+    'centresPresentation'=> '<i class="fa-solid fa-school"></i>',
+    'accueil'            => '<i class="fa-solid fa-house"></i>',
+    'bacentas'           => '<i class="fa-solid fa-church"></i>',
+    'centres'            => '<i class="fa-solid fa-landmark"></i>',
+    'cultes'             => '<i class="fa-solid fa-hands-praying"></i>',
+    'basontas'           => '<i class="fa-solid fa-microphone"></i>',
+    'nouveaux'           => '<i class="fa-solid fa-star"></i>',
+    'generale'           => '<i class="fa-solid fa-clipboard-list"></i>',
+    'bergers'            => '<i class="fa-solid fa-people-roof"></i>',
+    'suiviBergers'       => '<i class="fa-solid fa-calendar-days"></i>',
+    'finances'           => '<i class="fa-solid fa-sack-dollar"></i>',
+    'parametres'         => '<i class="fa-solid fa-gear"></i>',
 ];
 
 // "apropos" doit rester en toute première position du menu (exigence produit).

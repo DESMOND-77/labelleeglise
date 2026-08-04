@@ -9,7 +9,7 @@
 <div class="table-wrap">
   <table class="data-table">
     <thead><tr><th>Bacenta</th><th>Total semaine (mois en cours)</th><th>Total du mois</th><th>Total annuel <?= $year ?></th></tr></thead>
-    <tbody><?= $bacentasRows ?: '<tr><td colspan="4">' . empty_state('📭', 'Aucune donnée.') . '</td></tr>' ?></tbody>
+    <tbody><?= $bacentasRows ?: '<tr><td colspan="4">' . empty_state('fa-inbox', 'Aucune donnée.') . '</td></tr>' ?></tbody>
   </table>
 </div>
 
@@ -17,7 +17,7 @@
 <div class="table-wrap">
   <table class="data-table">
     <thead><tr><th>Centre</th><th>Total semaine (mois en cours)</th><th>Total du mois</th><th>Total annuel <?= $year ?></th></tr></thead>
-    <tbody><?= $centresRows ?: '<tr><td colspan="4">' . empty_state('📭', 'Aucune donnée.') . '</td></tr>' ?></tbody>
+    <tbody><?= $centresRows ?: '<tr><td colspan="4">' . empty_state('fa-inbox', 'Aucune donnée.') . '</td></tr>' ?></tbody>
   </table>
 </div>
 

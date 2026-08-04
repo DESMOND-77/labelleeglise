@@ -5,5 +5,5 @@
   <?= $addCard ?>
 </div>
 <?php if ($count === 0): ?>
-  <?= empty_state('🏫', 'Aucun centre présenté pour le moment.') ?>
+  <?= empty_state('fa-school', 'Aucun centre présenté pour le moment.') ?>
 <?php endif; ?>

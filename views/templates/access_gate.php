@@ -1,6 +1,6 @@
 <?php /* Porte d'accès d'une liste. Variables : $title, $page, $id. */ ?>
 <div class="empty-state gate-state">
-  <div class="emoji">🔒</div>
+  <div class="emoji"><i class="fa-solid fa-lock"></i></div>
   <p>Cette liste est protégée. Confirmez votre identité (email ou nom + mot de passe) pour la consulter.</p>
 </div>
 <div class="gate-card">

@@ -17,15 +17,15 @@ $publicLis = [
 
 $navLis = [];
 if ($scope && $scope['kind'] === 'berger') {
-    $navLis[] = '<li><a class="nav-item' . ($page === 'bergerFiche' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'bergerFiche', 'membre' => $scope['user_id']])) . '"><span class="ico">📋</span><span class="label">Ma fiche berger</span></a></li>';
-    $navLis[] = '<li><a class="nav-item' . ($page === 'suiviBergers' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'suiviBergers', 'membre' => $scope['user_id']])) . '"><span class="ico">📅</span><span class="label">Mon suivi hebdomadaire</span></a></li>';
+    $navLis[] = '<li><a class="nav-item' . ($page === 'bergerFiche' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'bergerFiche', 'membre' => $scope['user_id']])) . '"><span class="ico"><i class="fa-solid fa-clipboard-list"></i></span><span class="label">Ma fiche berger</span></a></li>';
+    $navLis[] = '<li><a class="nav-item' . ($page === 'suiviBergers' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'suiviBergers', 'membre' => $scope['user_id']])) . '"><span class="ico"><i class="fa-solid fa-calendar-days"></i></span><span class="label">Mon suivi hebdomadaire</span></a></li>';
     if ($scope['bacenta_id']) {
         $grp = get_bacenta($scope['bacenta_id']);
-        $navLis[] = '<li><a class="nav-item' . ($page === 'bacentas' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'bacentas', 'id' => $scope['bacenta_id']])) . '"><span class="ico">⛪</span><span class="label">Mon Bacenta — ' . h($grp['nom'] ?? '') . '</span></a></li>';
+        $navLis[] = '<li><a class="nav-item' . ($page === 'bacentas' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'bacentas', 'id' => $scope['bacenta_id']])) . '"><span class="ico"><i class="fa-solid fa-church"></i></span><span class="label">Mon Bacenta — ' . h($grp['nom'] ?? '') . '</span></a></li>';
     }
 } elseif ($scope && $scope['kind'] === 'responsable') {
     $target = scope_target();
-    $navLis[] = '<li><a class="nav-item' . ($page === 'bacentas' ? ' active' : '') . '" href="' . h(url('index.php', $target)) . '"><span class="ico">🔒</span><span class="label">Mon Bacenta</span></a></li>';
+    $navLis[] = '<li><a class="nav-item' . ($page === 'bacentas' ? ' active' : '') . '" href="' . h(url('index.php', $target)) . '"><span class="ico"><i class="fa-solid fa-lock"></i></span><span class="label">Mon Bacenta</span></a></li>';
 } elseif ($user && $user['role'] !== 'admin') {
     // compte public : pages publiques uniquement
 } else {
@@ -83,6 +83,7 @@ if (in_array($page, ['bacentas', 'cultes', 'basontas'], true) && nav('id')) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= h($title) ?> — <?= h(APP_NAME) ?></title>
 <link rel="stylesheet" href="assets/css/app.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -106,13 +107,13 @@ if (in_array($page, ['bacentas', 'cultes', 'basontas'], true) && nav('id')) {
         <strong id="userName"><?= h(full_name($user)) ?></strong>
         <span id="userRole"><?= h(ROLE_LABELS[$user['role']] ?? $user['role']) ?></span>
       </div>
-      <a class="logout-btn" href="<?= h(url('index.php', ['action' => 'logout'])) ?>" title="Déconnexion">⎋</a>
+      <a class="logout-btn" href="<?= h(url('index.php', ['action' => 'logout'])) ?>" title="Déconnexion"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
     </div>
   </aside>
 
   <main class="main">
     <header class="topbar">
-      <button class="menu-toggle" id="menuToggle" title="Menu">☰</button>
+      <button class="menu-toggle" id="menuToggle" title="Menu"><i class="fa-solid fa-bars"></i></button>
       <div class="topbar-left">
         <h1 id="pageTitle"><?= h(SECTION_LABELS[$page] ?? $title) ?></h1>
         <div class="breadcrumb" id="breadcrumb"><?= breadcrumb_html($crumbs) ?></div>
@@ -121,7 +122,7 @@ if (in_array($page, ['bacentas', 'cultes', 'basontas'], true) && nav('id')) {
       <div class="global-search">
         <form action="index.php" method="get">
           <input type="hidden" name="page" value="recherche">
-          <input type="search" id="globalSearchInput" name="q" placeholder="🔎 Rechercher une personne…"
+          <input type="search" id="globalSearchInput" name="q" placeholder="Rechercher une personne…"
                  value="<?= h(nav('q')) ?>" autocomplete="off">
         </form>
       </div>

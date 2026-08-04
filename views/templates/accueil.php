@@ -1,9 +1,9 @@
 <?php /* Accueil : carrousel + stats + graphiques + synthèse.
            Variables : $slides, $poles, $counts, $year, $offrandes, $stats, $narrative. */
 $trendMeta = [
-    'up'   => ['icon' => '📈 Hausse', 'cls' => 'up'],
-    'down' => ['icon' => '📉 Baisse', 'cls' => 'down'],
-    'flat' => ['icon' => '➡️ Stable', 'cls' => 'flat'],
+    'up'   => ['icon' => '<i class="fa-solid fa-arrow-trend-up"></i> Hausse', 'cls' => 'up'],
+    'down' => ['icon' => '<i class="fa-solid fa-arrow-trend-down"></i> Baisse', 'cls' => 'down'],
+    'flat' => ['icon' => '<i class="fa-solid fa-arrow-right"></i> Stable', 'cls' => 'flat'],
 ];
 $fmt = fn($n) => ($n >= 0 ? '+' : '') . $n;
 ?>
@@ -16,8 +16,8 @@ $fmt = fn($n) => ($n >= 0 ? '+' : '') . $n;
       </div>
     <?php endforeach; ?>
   </div>
-  <button class="carousel-arrow prev" id="carouselPrev">‹</button>
-  <button class="carousel-arrow next" id="carouselNext">›</button>
+  <button class="carousel-arrow prev" id="carouselPrev"><i class="fa-solid fa-chevron-left"></i></button>
+  <button class="carousel-arrow next" id="carouselNext"><i class="fa-solid fa-chevron-right"></i></button>
   <div class="carousel-dots" id="carouselDots">
     <?php foreach ($slides as $i => $s): ?>
       <span data-dot="<?= $i ?>" class="<?= $i === 0 ? 'active' : '' ?>"></span>

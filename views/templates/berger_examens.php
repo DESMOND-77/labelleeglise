@@ -12,7 +12,7 @@
     <thead><tr><th>Examen</th><th>Date</th><th>Actions</th></tr></thead>
     <tbody>
       <?php if (!$examens): ?>
-        <tr><td colspan="3"><?= empty_state('🎓', 'Aucun examen enregistré.') ?></td></tr>
+        <tr><td colspan="3"><?= empty_state('fa-graduation-cap', 'Aucun examen enregistré.') ?></td></tr>
       <?php else: ?>
         <?php foreach ($examens as $ex): ?>
           <tr>
@@ -20,7 +20,7 @@
             <td><?= h($ex['date_examen'] ?? '') ?: '—' ?></td>
             <td class="row-actions">
               <a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer cet examen ?"
-                 href="<?= h(url('index.php', ['page' => 'bergerFiche', 'tab' => 'examens', 'membre' => $member['id'], 'action' => 'delete_examen', 'id' => $ex['id']])) ?>">🗑</a>
+                 href="<?= h(url('index.php', ['page' => 'bergerFiche', 'tab' => 'examens', 'membre' => $member['id'], 'action' => 'delete_examen', 'id' => $ex['id']])) ?>"><i class="fa-solid fa-trash"></i></a>
             </td>
           </tr>
         <?php endforeach; ?>

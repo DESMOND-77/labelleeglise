@@ -38,7 +38,7 @@ function breadcrumb_html(array $crumbs): string
         if ($i === 0) {
             $parts[] = '<span class="crumb-link"><a href="' . h($c['url']) . '">' . h($c['label']) . '</a></span>';
         } else {
-            $parts[] = '<span class="crumb-sep">›</span><span class="crumb-item">' . h($c['label']) . '</span>';
+            $parts[] = '<span class="crumb-sep"><i class="fa-solid fa-chevron-right"></i></span><span class="crumb-item">' . h($c['label']) . '</span>';
         }
     }
     return implode('', $parts);
@@ -52,12 +52,14 @@ function section_toolbar(string $title, string $sub = '', string $extraRight = '
 
 function back_button(string $label, string $url): string
 {
-    return '<a class="btn-back" href="' . h($url) . '">‹ ' . h($label) . '</a>';
+    return '<a class="btn-back" href="' . h($url) . '"><i class="fa-solid fa-chevron-left"></i> ' . h($label) . '</a>';
 }
 
-function empty_state(string $emoji, string $text): string
+function empty_state(string $icon, string $text): string
 {
-    return '<div class="empty-state"><div class="emoji">' . $emoji . '</div><p>' . h($text) . '</p></div>';
+    // Accepte soit une classe Font Awesome, soit un markup <i> complet.
+    $html = str_starts_with($icon, '<') ? $icon : '<i class="fa-solid ' . $icon . '"></i>';
+    return '<div class="empty-state"><div class="emoji">' . $html . '</div><p>' . h($text) . '</p></div>';
 }
 
 function tab_row(array $tabs, string $active): string

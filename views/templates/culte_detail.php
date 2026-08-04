@@ -4,7 +4,7 @@ $date = $culte['date_culte'] ? date('d/m/Y', strtotime($culte['date_culte'])) : 
 $allUsers = qall("SELECT id, prenom, nom FROM users WHERE role IN ('membre','leader','assistant','pasteur','reverant') ORDER BY prenom, nom");
 $presentIds = array_map(fn($p) => (int) $p['id'], $presents);
 ?>
-<div class="dash-section-title"><h2>🙌 Pointer la présence</h2><span><?= h($culte['nom']) ?> — <?= h($date) ?></span></div>
+<div class="dash-section-title"><h2><i class="fa-solid fa-hands"></i> Pointer la présence</h2><span><?= h($culte['nom']) ?> — <?= h($date) ?></span></div>
 <form method="post" action="index.php" class="suivi-block">
   <input type="hidden" name="action" value="point_culte">
   <?= $csrf ?>
@@ -26,13 +26,13 @@ $presentIds = array_map(fn($p) => (int) $p['id'], $presents);
   </div>
 </form>
 
-<div class="dash-section-title"><h2>👥 Présents (<?= count($presents) ?>)</h2></div>
+<div class="dash-section-title"><h2><i class="fa-solid fa-users"></i> Présents (<?= count($presents) ?>)</h2></div>
 <div class="table-wrap">
   <table class="data-table">
     <thead><tr><th>Nom</th><th>Téléphone</th><th>Quartier</th><th>Présence</th></tr></thead>
     <tbody>
       <?php if (!$presents): ?>
-        <tr><td colspan="4"><?= empty_state('📭', 'Aucune présence enregistrée pour ce culte.') ?></td></tr>
+        <tr><td colspan="4"><?= empty_state('fa-inbox', 'Aucune présence enregistrée pour ce culte.') ?></td></tr>
       <?php else: ?>
         <?php foreach ($presents as $p): ?>
           <tr>

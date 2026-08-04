@@ -14,6 +14,6 @@ $rows = [
 <div class="fiche-card">
   <?= info_rows_html($rows) ?>
   <div class="modal-actions" style="justify-content:flex-start;margin-top:18px;">
-    <a class="btn btn-outline" href="<?= h(url('index.php', ['page' => 'bergers', 'form' => 'membre', 'id' => $member['id'], 'retour' => 'fiche'])) ?>">✎ Modifier les informations</a>
+    <a class="btn btn-outline" href="<?= h(url('index.php', ['page' => 'bergers', 'form' => 'membre', 'id' => $member['id'], 'retour' => 'fiche'])) ?>"><i class="fa-solid fa-pen"></i> Modifier les informations</a>
   </div>
 </div>

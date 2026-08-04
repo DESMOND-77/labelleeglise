@@ -15,7 +15,7 @@
     <thead><tr><th>Date</th><th>Statut</th><th>Actions</th></tr></thead>
     <tbody>
       <?php if (!$veillees): ?>
-        <tr><td colspan="3"><?= empty_state('🌙', 'Aucune veillée enregistrée.') ?></td></tr>
+        <tr><td colspan="3"><?= empty_state('fa-moon', 'Aucune veillée enregistrée.') ?></td></tr>
       <?php else: ?>
         <?php foreach ($veillees as $v): ?>
           <tr>
@@ -23,7 +23,7 @@
             <td><span class="badge <?= $v['present'] ? 'present' : 'absent' ?>"><?= $v['present'] ? 'Présent' : 'Absent' ?></span></td>
             <td class="row-actions">
               <a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer cette veillée ?"
-                 href="<?= h(url('index.php', ['page' => 'bergerFiche', 'tab' => 'veillees', 'membre' => $member['id'], 'action' => 'delete_veillee', 'id' => $v['id']])) ?>">🗑</a>
+                 href="<?= h(url('index.php', ['page' => 'bergerFiche', 'tab' => 'veillees', 'membre' => $member['id'], 'action' => 'delete_veillee', 'id' => $v['id']])) ?>"><i class="fa-solid fa-trash"></i></a>
             </td>
           </tr>
         <?php endforeach; ?>

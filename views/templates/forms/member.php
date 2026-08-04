@@ -50,7 +50,7 @@ $isNew = !$member;
     </div>
 
     <?php if (in_array('invite_par', $extraFields, true) || in_array('recu_par', $extraFields, true) || in_array('date_recu', $extraFields, true)): ?>
-      <h3 class="form-section-title">🕊️ Accueil & intégration</h3>
+      <h3 class="form-section-title"><i class="fa-solid fa-dove"></i> Accueil & intégration</h3>
       <div class="form-grid">
         <div class="form-group">
           <label>Invité par</label>
@@ -64,7 +64,7 @@ $isNew = !$member;
       </div>
     <?php endif; ?>
 
-    <h3 class="form-section-title">🙌 Présence (dernier événement de chaque type)</h3>
+    <h3 class="form-section-title"><i class="fa-solid fa-hands"></i> Présence (dernier événement de chaque type)</h3>
     <div class="form-grid">
       <?php foreach (PRESENCE_FIELDS as $f): ?>
         <div class="form-group">
