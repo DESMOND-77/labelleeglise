@@ -1,0 +1,191 @@
+/* ============================================================
+   Composants divers — login, avatar, divers
+   ============================================================ */
+
+/* ---- Écran de connexion : fullscreen hero + glassmorphism ---- */
+.login-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  overflow-y: auto;
+  background:
+    linear-gradient(rgba(15, 23, 42, 0.72), rgba(15, 23, 42, 0.82)),
+    url('/assets/images/pasteur-bg.jpg') center / cover no-repeat;
+}
+
+.login-screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(1000px 500px at 10% -10%, rgba(79, 70, 229, 0.35), transparent),
+    radial-gradient(800px 400px at 110% 110%, rgba(99, 102, 241, 0.25), transparent);
+  pointer-events: none;
+}
+
+.login-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  width: 400px;
+  max-width: 100%;
+  border-radius: var(--radius-lg);
+  padding: var(--space-8) var(--space-8);
+  box-shadow: var(--shadow-xl);
+  text-align: center;
+  animation: scaleIn 0.4s var(--ease-out);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.login-logo {
+  width: 96px;
+  height: 96px;
+  margin: 0 auto var(--space-5);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-primary);
+}
+
+.login-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.login-card h1 {
+  font-size: 24px;
+  letter-spacing: -0.02em;
+}
+
+.login-sub {
+  color: var(--text-soft);
+  margin: 8px 0 var(--space-6);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.login-card .field {
+  text-align: left;
+}
+
+/* ---- Libellés flottants (login) ---- */
+.floating-field {
+  position: relative;
+  margin-bottom: var(--space-4);
+  text-align: left;
+}
+
+.floating-field input {
+  width: 100%;
+  padding: 16px 12px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.7);
+  outline: none;
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease),
+              background var(--dur) var(--ease);
+}
+
+.floating-field input:focus {
+  border-color: var(--primary);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+}
+
+.floating-field label {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: var(--text-muted);
+  pointer-events: none;
+  transition: all var(--dur) var(--ease);
+  background: transparent;
+  padding: 0 2px;
+}
+
+.floating-field input:focus + label,
+.floating-field input:not(:placeholder-shown) + label {
+  top: 22px;
+  transform: translateY(-50%) scale(0.78);
+  color: var(--primary);
+  background: #fff;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+/* ---- Toggle mot de passe ---- */
+.password-wrap {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 14px;
+  display: grid;
+  place-items: center;
+  transition: color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+
+.password-toggle:hover {
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.password-wrap input {
+  padding-right: 44px;
+}
+
+/* ---- Hints de connexion ---- */
+.login-hint {
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: left;
+}
+
+.login-hint strong {
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.login-hint code {
+  background: var(--bg);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--primary);
+}
+
+/* ---- Avatar générique ---- */
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #fff;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}

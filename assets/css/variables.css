@@ -1,0 +1,83 @@
+/* ============================================================
+   La Belle Église — Design Tokens
+   ============================================================ */
+
+:root {
+  /* ---- Couleurs primaires ---- */
+  --primary: #4F46E5;
+  --primary-hover: #4338CA;
+  --primary-soft: #EEF2FF;
+  --secondary: #6366F1;
+  --accent: #2563EB;
+
+  /* ---- Surfaces ---- */
+  --bg: #F8FAFC;
+  --card: #FFFFFF;
+  --border: #E5E7EB;
+  --border-strong: #D1D5DB;
+
+  /* ---- Texte ---- */
+  --text: #111827;
+  --text-soft: #6B7280;
+  --text-muted: #9CA3AF;
+
+  /* ---- État ---- */
+  --success: #22C55E;
+  --success-soft: #E7F8EE;
+  --danger: #EF4444;
+  --danger-soft: #FDEBEB;
+  --warning: #F59E0B;
+  --warning-soft: #FEF3E2;
+
+  /* ---- Sidebar ---- */
+  --sidebar-bg: #0F172A;
+  --sidebar-bg-2: #111827;
+  --sidebar-text: #94A3B8;
+  --sidebar-text-active: #FFFFFF;
+  --sidebar-hover: rgba(255, 255, 255, 0.06);
+
+  /* ---- Typographie ---- */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+               'Helvetica Neue', Arial, sans-serif;
+
+  /* ---- Échelle d'espacement ---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* ---- Échelle de rayon ---- */
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 999px;
+
+  /* ---- Échelle d'ombre ---- */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.05);
+  --shadow-lg: 0 20px 25px -5px rgba(15, 23, 42, 0.10), 0 8px 10px -6px rgba(15, 23, 42, 0.05);
+  --shadow-xl: 0 25px 50px -12px rgba(15, 23, 42, 0.18);
+  --shadow-primary: 0 4px 14px rgba(79, 70, 229, 0.28);
+
+  /* ---- Animations ---- */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast: 120ms;
+  --dur: 200ms;
+  --dur-slow: 320ms;
+
+  /* ---- Dimensions ---- */
+  --sidebar-w: 264px;
+  --sidebar-w-collapsed: 76px;
+  --topbar-h: 64px;
+  --content-max: 1280px;
+}

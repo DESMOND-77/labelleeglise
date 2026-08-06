@@ -1,0 +1,246 @@
+/* ============================================================
+   Formulaires — inputs, sélecteurs, checkbox, upload
+   ============================================================ */
+
+.form-page {
+  max-width: 720px;
+}
+
+.form-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: var(--space-4);
+}
+
+.form-grid .form-group {
+  margin-bottom: 0;
+}
+
+.form-group label,
+.field label,
+.field > span {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea,
+.field input,
+.suivi-toolbar select,
+.suivi-toolbar input[type="date"],
+.inline-add-form input,
+.inline-add-form select,
+.inline-resp-form select,
+.search-input {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-family: inherit;
+  background: var(--card);
+  outline: none;
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease),
+              background var(--dur) var(--ease);
+  color: var(--text);
+}
+
+.form-group input::placeholder,
+.field input::placeholder,
+.search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus,
+.field input:focus,
+.suivi-toolbar select:focus,
+.suivi-toolbar input:focus,
+.inline-add-form input:focus,
+.inline-add-form select:focus,
+.inline-resp-form select:focus,
+.search-input:focus {
+  border-color: var(--primary);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.form-group select,
+.inline-add-form select,
+.inline-resp-form select {
+  cursor: pointer;
+  appearance: auto;
+}
+
+/* ---- Champ "field" (login, gate) ---- */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: var(--space-4);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.field input {
+  font-weight: 400;
+}
+
+/* ---- Checkbox / radio personnalisés ---- */
+.check-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  padding: 6px 0;
+}
+
+.check-label input {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.presence-check-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 4px 16px;
+  margin: var(--space-3) 0;
+}
+
+/* ---- Aperçu photo ---- */
+.photo-input-preview {
+  max-width: 140px;
+  max-height: 140px;
+  border-radius: var(--radius-md);
+  margin-top: 8px;
+  border: 1px solid var(--border);
+  object-fit: cover;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---- Formulaires inline ---- */
+.inline-add-form {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  align-items: center;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+  box-shadow: var(--shadow-xs);
+}
+
+.inline-add-form input,
+.inline-add-form select {
+  flex: 1;
+  min-width: 140px;
+}
+
+.inline-resp-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.inline-resp-form select {
+  padding: 7px 10px;
+  font-size: 13px;
+}
+
+/* ---- Filtre / recherche ---- */
+.filter-row {
+  margin-bottom: var(--space-4);
+}
+
+.filter-row form {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.search-input {
+  flex: 1;
+  max-width: 380px;
+}
+
+/* ---- Titres de section formulaire ---- */
+.form-section-title {
+  font-size: 15px;
+  margin: var(--space-6) 0 var(--space-4);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-hint {
+  font-size: 12.5px;
+  color: var(--text-soft);
+  margin-top: var(--space-3);
+}
+
+/* ---- Toolbar suivi ---- */
+.suivi-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.suivi-toolbar label {
+  font-size: 13px;
+  color: var(--text-soft);
+  font-weight: 600;
+}
+
+/* ---- Inputs dans les tableaux ---- */
+.data-table td input,
+.data-table td select {
+  width: 100%;
+  min-width: 90px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  background: var(--card);
+  outline: none;
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+
+.data-table td input:focus,
+.data-table td select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}

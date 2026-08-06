@@ -119,19 +119,19 @@ const SECTION_EXTRA_FIELDS = [
 ];
 
 const CHART_POLES = [
-    [ 'key' => 'bacentas', 'label' => 'Bacentas',               'color' => '#6C63FF' ],
-    [ 'key' => 'centres',  'label' => 'Centres',                'color' => '#8B85FF' ],
-    [ 'key' => 'cultes',   'label' => 'Cultes',                 'color' => '#FF9F7A' ],
-    [ 'key' => 'basontas', 'label' => 'Basontas',               'color' => '#4CAF8E' ],
-    [ 'key' => 'nouveaux', 'label' => 'Nouveaux membres',       'color' => '#4FB6E8' ],
-    [ 'key' => 'generale', 'label' => 'Liste générale des membres', 'color' => '#F2B84B' ],
-    [ 'key' => 'bergers',  'label' => 'Liste des bergers',      'color' => '#E86A6A' ],
+    [ 'key' => 'bacentas', 'label' => 'Bacentas',               'color' => '#4F46E5' ],
+    [ 'key' => 'centres',  'label' => 'Centres',                'color' => '#6366F1' ],
+    [ 'key' => 'cultes',   'label' => 'Cultes',                 'color' => '#2563EB' ],
+    [ 'key' => 'basontas', 'label' => 'Basontas',               'color' => '#22C55E' ],
+    [ 'key' => 'nouveaux', 'label' => 'Nouveaux membres',       'color' => '#F59E0B' ],
+    [ 'key' => 'generale', 'label' => 'Liste générale des membres', 'color' => '#EF4444' ],
+    [ 'key' => 'bergers',  'label' => 'Liste des bergers',      'color' => '#8B5CF6' ],
 ];
 
 const SLIDES = [
-    [ 'gradient' => 'linear-gradient(135deg,#6C63FF,#8B85FF)', 'title' => 'Bienvenue à la belle église', 'subtitle' => 'Ensemble, grandissons dans la foi et la communion fraternelle.' ],
-    [ 'gradient' => 'linear-gradient(135deg,#4CAF8E,#6C63FF)', 'title' => 'Une famille unie', 'subtitle' => 'Chaque bacenta, chaque centre, chaque basonta compte.' ],
-    [ 'gradient' => 'linear-gradient(135deg,#FF9F7A,#E86A6A)', 'title' => 'Accueillons les nouveaux membres', 'subtitle' => 'Chaque visage est important à nos yeux.' ],
+    [ 'gradient' => 'linear-gradient(135deg,#4F46E5,#6366F1)', 'title' => 'Bienvenue à la belle église', 'subtitle' => 'Ensemble, grandissons dans la foi et la communion fraternelle.' ],
+    [ 'gradient' => 'linear-gradient(135deg,#22C55E,#4F46E5)', 'title' => 'Une famille unie', 'subtitle' => 'Chaque bacenta, chaque centre, chaque basonta compte.' ],
+    [ 'gradient' => 'linear-gradient(135deg,#2563EB,#8B5CF6)', 'title' => 'Accueillons les nouveaux membres', 'subtitle' => 'Chaque visage est important à nos yeux.' ],
 ];
 
 const OFFERING_DAY_LABEL = [ 'bacentas' => 'Vendredi', 'centres' => 'Mercredi' ];

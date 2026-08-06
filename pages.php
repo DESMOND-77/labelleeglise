@@ -89,7 +89,8 @@ function render_accueil_page(): void
         ];
     }
 
-    $content = view('accueil', [
+$content = view('accueil', [
+        'user'      => current_user(),
         'slides'    => SLIDES,
         'poles'     => $poles,
         'counts'    => array_map(fn($p) => count_members($p['key']), $poles),

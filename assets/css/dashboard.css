@@ -1,0 +1,332 @@
+/* ============================================================
+   Dashboard — stats, graphiques, cartes de synthèse
+   ============================================================ */
+
+/* ---- Bandeau de bienvenue ---- */
+.welcome-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #fff;
+  border-radius: var(--radius-lg);
+  padding: var(--space-6) var(--space-8);
+  margin-bottom: var(--space-6);
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.welcome-banner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(800px 250px at 100% 0%, rgba(255, 255, 255, 0.14), transparent);
+  pointer-events: none;
+}
+
+.welcome-banner h2 {
+  color: #fff;
+  font-size: 20px;
+  letter-spacing: -0.02em;
+}
+
+.welcome-banner p {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 13.5px;
+  margin-top: 4px;
+}
+
+.welcome-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  backdrop-filter: blur(6px);
+}
+
+.welcome-badge i {
+  font-size: 22px;
+  opacity: 0.9;
+}
+
+.welcome-badge span {
+  display: block;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.welcome-badge strong {
+  font-size: 17px;
+  font-weight: 800;
+}
+
+/* ---- Carrousel ---- */
+.carousel {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: var(--space-6);
+  box-shadow: var(--shadow-md);
+}
+
+.carousel-track {
+  display: flex;
+  transition: transform 0.5s var(--ease-in-out);
+}
+
+.slide {
+  min-width: 100%;
+  padding: 56px 40px;
+  color: #fff;
+  text-align: center;
+  position: relative;
+}
+
+.slide::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(1200px 400px at 50% -10%, rgba(255, 255, 255, 0.12), transparent);
+  pointer-events: none;
+}
+
+.slide h2 {
+  font-size: 26px;
+  color: #fff;
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+
+.slide p {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.92);
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-full);
+  border: none;
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  z-index: 3;
+  transition: background var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+
+.carousel-arrow:hover {
+  background: rgba(255, 255, 255, 0.4);
+  transform: translateY(-50%) scale(1.05);
+}
+
+.carousel-arrow.prev { left: 16px; }
+.carousel-arrow.next { right: 16px; }
+
+.carousel-dots {
+  position: absolute;
+  bottom: 16px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  z-index: 3;
+}
+
+.carousel-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all var(--dur) var(--ease);
+}
+
+.carousel-dots span.active {
+  background: #fff;
+  width: 22px;
+}
+
+/* ---- Grille de stats ---- */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  transition: all var(--dur) var(--ease);
+}
+
+.stat-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  border-color: var(--primary-soft);
+}
+
+.stat-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+}
+
+.stat-label {
+  color: var(--text-soft);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+/* ---- Cartes de graphiques ---- */
+.chart-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  margin-bottom: var(--space-5);
+  box-shadow: var(--shadow-xs);
+}
+
+.chart-card canvas {
+  max-height: 320px;
+}
+
+.mini-charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-4);
+}
+
+.mini-chart-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  transition: all var(--dur) var(--ease);
+}
+
+.mini-chart-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-soft);
+}
+
+.mini-chart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.mini-chart-head h4 {
+  font-size: 13.5px;
+  color: var(--text);
+}
+
+.mini-chart-head .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  display: inline-block;
+}
+
+/* ---- Cartes de synthèse ---- */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.summary-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  transition: all var(--dur) var(--ease);
+}
+
+.summary-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.summary-card h4 {
+  font-size: 14px;
+  margin-bottom: var(--space-3);
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 3px 0;
+  color: var(--text-soft);
+}
+
+.summary-row b {
+  color: var(--text);
+}
+
+.trend-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.trend-pill.up { background: var(--success-soft); color: var(--success); }
+.trend-pill.down { background: var(--danger-soft); color: var(--danger); }
+.trend-pill.flat { background: var(--primary-soft); color: var(--primary); }
+
+/* ---- Carte narrative ---- */
+.narrative-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-xs);
+}
+
+.narrative-card h3 {
+  font-size: 15px;
+  margin-bottom: var(--space-3);
+}
+
+.narrative-card ul {
+  padding-left: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--text-soft);
+  font-size: 14px;
+}

@@ -1,0 +1,208 @@
+/* ============================================================
+   Layout applicatif — shell + topbar + content
+   ============================================================ */
+
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+/* ---- Contenu principal ---- */
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  padding: var(--space-6) var(--space-8) 64px;
+  max-width: var(--content-max);
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ---- Topbar ---- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  height: var(--topbar-h);
+  padding: 0 var(--space-8);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: saturate(180%) blur(12px);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.topbar-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.topbar h1 {
+  font-size: 18px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
+.crumb-link a {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.crumb-link a:hover {
+  text-decoration: underline;
+}
+
+.crumb-sep {
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.crumb-item {
+  color: var(--text-soft);
+}
+
+/* ---- Recherche globale ---- */
+.global-search {
+  position: relative;
+}
+
+.global-search form {
+  display: flex;
+  align-items: center;
+}
+
+.global-search input {
+  width: 300px;
+  padding: 8px 14px 8px 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  font-size: 13.5px;
+  background: var(--bg);
+  outline: none;
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease),
+              background var(--dur) var(--ease);
+}
+
+.global-search input::placeholder {
+  color: var(--text-muted);
+}
+
+.global-search input:focus {
+  border-color: var(--primary);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+}
+
+.global-search::before {
+  content: '\f002';
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+/* ---- Bouton menu mobile ---- */
+.menu-toggle {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size: 17px;
+  place-items: center;
+  flex-shrink: 0;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+
+.menu-toggle:hover {
+  background: var(--bg);
+  border-color: var(--border-strong);
+}
+
+/* ---- Toolbar de section ---- */
+.section-toolbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+  flex-wrap: wrap;
+}
+
+.section-toolbar h2 {
+  font-size: 18px;
+}
+
+.section-toolbar .sub {
+  color: var(--text-soft);
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+/* ---- Titres de section dashboard ---- */
+.dash-section-title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin: var(--space-8) 0 var(--space-4);
+}
+
+.dash-section-title h2 {
+  font-size: 16px;
+}
+
+.dash-section-title span {
+  color: var(--text-soft);
+  font-size: 12.5px;
+}
+
+/* ---- Bouton retour ---- */
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: var(--space-4);
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--text-soft);
+  font-size: 13px;
+  font-weight: 600;
+  transition: all var(--dur) var(--ease);
+}
+
+.btn-back:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}

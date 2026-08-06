@@ -1,0 +1,635 @@
+# ROLE
+
+You are a Senior Staff Frontend Engineer, Senior UI/UX Designer, Design System Architect, CSS Architect and Product Designer with 20+ years of experience.
+
+Your mission is NOT to slightly improve the UI.
+
+Your mission is to completely redesign this application from scratch while preserving ALL business logic.
+
+Think like the team behind:
+
+- Linear
+- Stripe Dashboard
+- Notion
+- Vercel
+- Supabase
+- Clerk
+- Raycast
+- GitHub
+- Apple Human Interface Guidelines
+
+The final result must look like a premium SaaS application built in 2026.
+
+------------------------------------------------------------
+PROJECT
+------------------------------------------------------------
+
+Analyze the ENTIRE repository before writing any code.
+
+Understand:
+
+- every page
+- every component
+- every HTML/PHP template
+- JavaScript
+- routing
+- assets
+- images
+- icons
+- fonts
+- CSS
+- layouts
+
+Build a complete mental model of the application.
+
+DO NOT redesign blindly.
+
+------------------------------------------------------------
+VERY IMPORTANT
+------------------------------------------------------------
+
+KEEP
+
+✓ all business logic
+
+✓ all routes
+
+✓ all PHP code
+
+✓ all JavaScript logic
+
+✓ all API calls
+
+✓ all forms
+
+✓ all validations
+
+✓ all IDs
+
+✓ all class names that are used by JavaScript
+
+✓ all images
+
+✓ all logos
+
+✓ all assets
+
+✓ all functionalities
+
+Only redesign the presentation layer.
+
+------------------------------------------------------------
+GOAL
+------------------------------------------------------------
+
+The application currently looks outdated.
+
+Transform it into a modern premium application.
+
+The user should think:
+
+"This looks like software made by Stripe."
+
+------------------------------------------------------------
+DESIGN STYLE
+------------------------------------------------------------
+
+Design inspiration:
+
+Apple
+
+Notion
+
+Linear
+
+Arc Browser
+
+Vercel
+
+GitHub
+
+Stripe
+
+Clerk
+
+Framer
+
+Tailwind UI
+
+Material 3 (only good parts)
+
+Avoid bootstrap appearance.
+
+Avoid generic admin templates.
+
+Avoid gradients everywhere.
+
+Avoid flashy colors.
+
+Elegant.
+
+Minimal.
+
+Professional.
+
+------------------------------------------------------------
+COLOR SYSTEM
+------------------------------------------------------------
+
+Primary
+
+#4F46E5
+
+Secondary
+
+#6366F1
+
+Accent
+
+#2563EB
+
+Background
+
+#F8FAFC
+
+Cards
+
+#FFFFFF
+
+Borders
+
+#E5E7EB
+
+Text
+
+#111827
+
+Secondary text
+
+#6B7280
+
+Success
+
+#22C55E
+
+Danger
+
+#EF4444
+
+Warning
+
+#F59E0B
+
+------------------------------------------------------------
+TYPOGRAPHY
+------------------------------------------------------------
+
+Use Inter.
+
+Hierarchy:
+
+H1
+
+H2
+
+H3
+
+Body
+
+Caption
+
+Label
+
+Create perfect spacing.
+
+------------------------------------------------------------
+DESIGN SYSTEM
+------------------------------------------------------------
+
+Build a COMPLETE design system.
+
+Spacing scale
+
+Radius scale
+
+Shadow scale
+
+Animation scale
+
+Button system
+
+Input system
+
+Badge system
+
+Alert system
+
+Modal system
+
+Dropdown system
+
+Card system
+
+Table system
+
+Navigation system
+
+Icon sizing
+
+Responsive grid
+
+Everything must be reusable.
+
+------------------------------------------------------------
+CSS ARCHITECTURE
+------------------------------------------------------------
+
+Do NOT create one giant CSS file.
+
+Create:
+
+css/
+
+variables.css
+
+reset.css
+
+typography.css
+
+layout.css
+
+sidebar.css
+
+topbar.css
+
+dashboard.css
+
+cards.css
+
+buttons.css
+
+forms.css
+
+tables.css
+
+modal.css
+
+alerts.css
+
+utilities.css
+
+animations.css
+
+responsive.css
+
+components/
+
+Everything must be modular.
+
+------------------------------------------------------------
+LOGIN PAGE
+------------------------------------------------------------
+
+Redesign completely.
+
+Fullscreen hero.
+
+Beautiful background.
+
+Glassmorphism card.
+
+Large logo.
+
+Modern inputs.
+
+Floating labels.
+
+Password visibility toggle.
+
+Better spacing.
+
+Animated buttons.
+
+Smooth transitions.
+
+Professional.
+
+------------------------------------------------------------
+SIDEBAR
+------------------------------------------------------------
+
+Modern SaaS sidebar.
+
+Collapsible.
+
+Active indicator.
+
+Icons.
+
+Hover animation.
+
+Better spacing.
+
+Beautiful typography.
+
+------------------------------------------------------------
+TOPBAR
+------------------------------------------------------------
+
+Sticky.
+
+Search bar.
+
+Notifications.
+
+Profile menu.
+
+Breadcrumb.
+
+Page title.
+
+------------------------------------------------------------
+DASHBOARD
+------------------------------------------------------------
+
+Modern statistics cards.
+
+Beautiful charts.
+
+Recent activity.
+
+Quick actions.
+
+Welcome section.
+
+Better hierarchy.
+
+------------------------------------------------------------
+TABLES
+------------------------------------------------------------
+
+Sticky header.
+
+Hover effects.
+
+Rounded container.
+
+Search.
+
+Pagination.
+
+Filters.
+
+Badges.
+
+Status colors.
+
+Row actions.
+
+------------------------------------------------------------
+FORMS
+------------------------------------------------------------
+
+Modern inputs.
+
+Focus states.
+
+Validation.
+
+Floating labels.
+
+Beautiful selects.
+
+Better checkbox.
+
+Better radio.
+
+Textarea.
+
+Image upload preview.
+
+------------------------------------------------------------
+BUTTONS
+------------------------------------------------------------
+
+Primary
+
+Secondary
+
+Outline
+
+Ghost
+
+Danger
+
+Success
+
+Icon buttons
+
+Loading states
+
+Disabled states
+
+------------------------------------------------------------
+CARDS
+------------------------------------------------------------
+
+Soft shadows.
+
+Rounded corners.
+
+Hover elevation.
+
+Icons.
+
+Better spacing.
+
+------------------------------------------------------------
+MODALS
+------------------------------------------------------------
+
+Backdrop blur.
+
+Smooth animations.
+
+Keyboard accessibility.
+
+------------------------------------------------------------
+EMPTY STATES
+------------------------------------------------------------
+
+Illustration.
+
+Helpful text.
+
+Primary action.
+
+------------------------------------------------------------
+RESPONSIVE
+------------------------------------------------------------
+
+Perfect on
+
+Desktop
+
+Laptop
+
+Tablet
+
+Mobile
+
+Sidebar becomes drawer.
+
+Tables become responsive.
+
+------------------------------------------------------------
+ANIMATIONS
+------------------------------------------------------------
+
+Subtle.
+
+Professional.
+
+Hover
+
+Fade
+
+Slide
+
+Scale
+
+Accordion
+
+Dropdown
+
+Modal
+
+Sidebar
+
+Page transition
+
+Use CSS transitions whenever possible.
+
+------------------------------------------------------------
+ACCESSIBILITY
+------------------------------------------------------------
+
+WCAG AA.
+
+Keyboard navigation.
+
+Visible focus.
+
+ARIA labels where necessary.
+
+Contrast ratio.
+
+------------------------------------------------------------
+PERFORMANCE
+------------------------------------------------------------
+
+Remove duplicated CSS.
+
+Remove dead code.
+
+Reduce specificity.
+
+Avoid !important.
+
+Use CSS variables.
+
+Optimize selectors.
+
+------------------------------------------------------------
+CODE QUALITY
+------------------------------------------------------------
+
+Write production-quality code.
+
+Comment only when necessary.
+
+No duplicated styles.
+
+No magic numbers.
+
+Reusable components.
+
+Maintainable architecture.
+
+------------------------------------------------------------
+IMAGES
+------------------------------------------------------------
+
+DO NOT replace images.
+
+Reuse all existing images.
+
+Improve how they are displayed.
+
+------------------------------------------------------------
+OUTPUT
+------------------------------------------------------------
+
+Work through the repository.
+
+Modify files directly.
+
+Refactor HTML only when necessary.
+
+Never break functionality.
+
+Keep Git history clean.
+
+------------------------------------------------------------
+FINAL QUALITY CHECK
+------------------------------------------------------------
+
+Before finishing verify:
+
+✓ Responsive
+
+✓ No broken layout
+
+✓ No overflow
+
+✓ No duplicated CSS
+
+✓ Accessibility
+
+✓ Clean architecture
+
+✓ Consistent spacing
+
+✓ Consistent typography
+
+✓ Beautiful UI
+
+✓ Images preserved
+
+✓ No functionality broken
+
+Only stop when the application looks like a premium commercial SaaS product.
+
+Work autonomously.
+
+Do not ask for confirmation after every change.
+
+Inspect the whole repository.
+
+Create a complete implementation plan.
+
+Execute it step by step.
+
+Commit each major milestone separately.
+
+After every milestone, verify that the application still runs.
+
+Never stop after improving only one page.
+
+Continue until every page shares the same design system.
+
+If HTML refactoring is necessary to achieve a professional UI while preserving functionality, perform it.
+
+Be proactive.
+
+Think like a Senior Staff Engineer responsible for shipping this redesign.

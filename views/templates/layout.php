@@ -89,6 +89,9 @@ if (in_array($page, ['bacentas', 'cultes', 'basontas'], true) && nav('id')) {
 <body>
 <div class="app-shell" id="appShell">
   <aside class="sidebar" id="appSidebar">
+    <button class="sidebar-collapse-btn" id="sidebarCollapse" title="Réduire le menu" aria-label="Réduire le menu">
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
     <div class="brand">
       <div class="brand-logo"><img src="/assets/images/logo.png" alt="La Belle Église Internationale Franceville"></div>
       <div class="brand-text">
@@ -96,7 +99,7 @@ if (in_array($page, ['bacentas', 'cultes', 'basontas'], true) && nav('id')) {
         <span>Gestion des membres</span>
       </div>
     </div>
-    <nav class="side-nav">
+    <nav class="side-nav" aria-label="Navigation principale">
       <ul id="navLinks">
         <?= implode('', array_merge($publicLis, $navLis)) ?>
       </ul>
@@ -107,26 +110,47 @@ if (in_array($page, ['bacentas', 'cultes', 'basontas'], true) && nav('id')) {
         <strong id="userName"><?= h(full_name($user)) ?></strong>
         <span id="userRole"><?= h(ROLE_LABELS[$user['role']] ?? $user['role']) ?></span>
       </div>
-      <a class="logout-btn" href="<?= h(url('index.php', ['action' => 'logout'])) ?>" title="Déconnexion"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
+      <a class="logout-btn" href="<?= h(url('index.php', ['action' => 'logout'])) ?>" title="Déconnexion" aria-label="Déconnexion"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
     </div>
   </aside>
 
   <main class="main">
     <header class="topbar">
-      <button class="menu-toggle" id="menuToggle" title="Menu"><i class="fa-solid fa-bars"></i></button>
+      <button class="menu-toggle" id="menuToggle" title="Menu" aria-label="Ouvrir le menu"><i class="fa-solid fa-bars"></i></button>
       <div class="topbar-left">
         <h1 id="pageTitle"><?= h(SECTION_LABELS[$page] ?? $title) ?></h1>
         <div class="breadcrumb" id="breadcrumb"><?= breadcrumb_html($crumbs) ?></div>
       </div>
       <?php if ($isAdmin): ?>
       <div class="global-search">
-        <form action="index.php" method="get">
+        <form action="index.php" method="get" role="search">
           <input type="hidden" name="page" value="recherche">
           <input type="search" id="globalSearchInput" name="q" placeholder="Rechercher une personne…"
-                 value="<?= h(nav('q')) ?>" autocomplete="off">
+                 value="<?= h(nav('q')) ?>" autocomplete="off" aria-label="Rechercher une personne">
         </form>
       </div>
       <?php endif; ?>
+      <div class="topbar-actions">
+        <button class="topbar-icon-btn" title="Notifications" aria-label="Notifications">
+          <i class="fa-solid fa-bell"></i>
+          <span class="dot"></span>
+        </button>
+        <div class="profile-menu" id="profileMenu">
+          <button class="profile-trigger" id="profileTrigger" aria-haspopup="true" aria-expanded="false">
+            <div class="user-avatar"><?= h(strtoupper(first_char(trim($user['prenom'] ?? '?')))) ?></div>
+            <span class="profile-name"><?= h(full_name($user)) ?></span>
+            <i class="fa-solid fa-chevron-down chevron"></i>
+          </button>
+          <div class="profile-menu-list">
+            <div class="profile-menu-head">
+              <strong><?= h(full_name($user)) ?></strong>
+              <span><?= h(ROLE_LABELS[$user['role']] ?? $user['role']) ?></span>
+            </div>
+            <a class="profile-menu-item" href="<?= h(url('index.php', ['page' => 'apropos'])) ?>"><i class="fa-solid fa-circle-info"></i> À propos</a>
+            <a class="profile-menu-item danger" href="<?= h(url('index.php', ['action' => 'logout'])) ?>"><i class="fa-solid fa-arrow-right-from-bracket"></i> Déconnexion</a>
+          </div>
+        </div>
+      </div>
     </header>
     <section class="content" id="contentArea">
       <?= $content ?>

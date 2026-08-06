@@ -75,7 +75,7 @@
       });
     }
 
-    // Finances : Bacentas vs Centres
+// Finances : Bacentas vs Centres
     if (charts.finance) {
       makeChart("financeChart", {
         type: "bar",
@@ -83,7 +83,7 @@
           labels: ["Bacentas", "Centres"],
           datasets: [{
             data: [charts.finance.bacentas, charts.finance.centres],
-            backgroundColor: ["#6C63FF", "#8B85FF"],
+            backgroundColor: ["#4F46E5", "#6366F1"],
             borderRadius: 8,
             maxBarThickness: 70
           }]
@@ -106,14 +106,14 @@
         data: {
           labels: charts.suivi.map(function (s) { return s.week; }),
           datasets: [{
-            label: "% réalisation",
+label: "% réalisation",
             data: charts.suivi.map(function (s) { return s.pct; }),
-            borderColor: "#6C63FF",
-            backgroundColor: "#6C63FF26",
+            borderColor: "#4F46E5",
+            backgroundColor: "#4F46E526",
             tension: 0.4,
             fill: true,
             pointRadius: 3,
-            pointBackgroundColor: "#6C63FF"
+            pointBackgroundColor: "#4F46E5"
           }]
         },
         options: {
@@ -131,8 +131,8 @@
         data: {
           labels: ["Présent", "Absent", "Non renseigné"],
           datasets: [{
-            data: [charts.doughnut.present, charts.doughnut.absent, charts.doughnut.none],
-            backgroundColor: ["#4CAF8E", "#E86A6A", "#E4E3F5"]
+data: [charts.doughnut.present, charts.doughnut.absent, charts.doughnut.none],
+            backgroundColor: ["#22C55E", "#EF4444", "#E5E7EB"]
           }]
         },
         options: { responsive: true, plugins: { legend: { position: "bottom" } } }
@@ -186,19 +186,71 @@
     });
   }
 
-  /* ---------------- Menu mobile ---------------- */
+/* ---------------- Menu mobile ---------------- */
 
   function initMenuToggle() {
     var toggle = document.getElementById("menuToggle");
     var sidebar = document.getElementById("appSidebar");
     if (!toggle || !sidebar) return;
     toggle.addEventListener("click", function () {
+      sidebar.classList.remove("collapsed");
       sidebar.classList.toggle("open");
     });
     document.addEventListener("click", function (e) {
       if (sidebar.classList.contains("open") &&
           !sidebar.contains(e.target) && e.target.id !== "menuToggle") {
         sidebar.classList.remove("open");
+      }
+    });
+  }
+
+  /* ---------------- Repli de la sidebar (desktop) ---------------- */
+
+  function initSidebarCollapse() {
+    var btn = document.getElementById("sidebarCollapse");
+    var sidebar = document.getElementById("appSidebar");
+    if (!btn || !sidebar) return;
+
+    // Restaure l'état mémorisé.
+    if (localStorage.getItem("lbegf_sidebar") === "collapsed") {
+      sidebar.classList.add("collapsed");
+      btn.querySelector("i").className = "fa-solid fa-chevron-right";
+    }
+
+    btn.addEventListener("click", function () {
+      var collapsed = sidebar.classList.toggle("collapsed");
+      btn.querySelector("i").className = collapsed
+        ? "fa-solid fa-chevron-right"
+        : "fa-solid fa-chevron-left";
+      localStorage.setItem("lbegf_sidebar", collapsed ? "collapsed" : "expanded");
+    });
+  }
+
+  /* ---------------- Menu profil ---------------- */
+
+  function initProfileMenu() {
+    var menu = document.getElementById("profileMenu");
+    var trigger = document.getElementById("profileTrigger");
+    if (!menu || !trigger) return;
+
+    trigger.addEventListener("click", function (e) {
+      e.stopPropagation();
+      var open = menu.classList.toggle("open");
+      trigger.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+
+    document.addEventListener("click", function (e) {
+      if (menu.classList.contains("open") && !menu.contains(e.target)) {
+        menu.classList.remove("open");
+        trigger.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && menu.classList.contains("open")) {
+        menu.classList.remove("open");
+        trigger.setAttribute("aria-expanded", "false");
+        trigger.focus();
       }
     });
   }
@@ -210,5 +262,7 @@
     initCarousel();
     initConfirms();
     initMenuToggle();
+    initSidebarCollapse();
+    initProfileMenu();
   });
 })();

@@ -1,0 +1,61 @@
+/* ============================================================
+   Typographie — hiérarchie Inter
+   ============================================================ */
+
+body {
+  font-family: var(--font-sans);
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--text);
+  background: var(--bg);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+h1 {
+  font-size: 22px;
+}
+
+h2 {
+  font-size: 18px;
+}
+
+h3 {
+  font-size: 15.5px;
+}
+
+h4 {
+  font-size: 13.5px;
+}
+
+p {
+  color: var(--text-soft);
+}
+
+/* Taille de texte utilitaires */
+.text-xs { font-size: 12px; }
+.text-sm { font-size: 13px; }
+.text-base { font-size: 14px; }
+.text-lg { font-size: 16px; }
+.text-xl { font-size: 18px; }
+.text-2xl { font-size: 22px; }
+
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+
+.text-muted { color: var(--text-muted); }
+.text-soft { color: var(--text-soft); }
+
+.color-primary { color: var(--primary); }
+.color-success { color: var(--success); }
+.color-danger { color: var(--danger); }
+.color-warning { color: var(--warning); }

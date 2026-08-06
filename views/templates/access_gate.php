@@ -9,17 +9,23 @@
     <?= csrf_field() ?>
     <input type="hidden" name="page" value="<?= h($page) ?>">
     <input type="hidden" name="id" value="<?= h($id ?? '') ?>">
-    <h3><?= h($title) ?></h3>
+    <div class="gate-head">
+      <div class="gate-icon"><i class="fa-solid fa-lock-open"></i></div>
+      <h3><?= h($title) ?></h3>
+      <p>Vérification de votre identité</p>
+    </div>
     <label class="field"><span>Email ou nom</span>
       <input type="text" name="name" required autofocus value="<?= h($_POST['name'] ?? '') ?>">
     </label>
     <label class="field"><span>Mot de passe</span>
       <input type="password" name="password" required>
     </label>
-    <div class="modal-error" style="<?= isset($_GET['error']) ? 'display:block;' : 'display:none;' ?>">Identifiants incorrects.</div>
+    <div class="modal-error" style="<?= isset($_GET['error']) ? 'display:block;' : 'display:none;' ?>">
+      <i class="fa-solid fa-triangle-exclamation"></i> Identifiants incorrects.
+    </div>
     <div class="modal-actions">
-      <a class="btn btn-outline" href="<?= h(url('index.php', ['page' => $page])) ?>">Annuler</a>
-      <button type="submit" class="btn btn-primary">Déverrouiller</button>
+      <a class="btn btn-outline-neutral" href="<?= h(url('index.php', ['page' => $page])) ?>">Annuler</a>
+      <button type="submit" class="btn btn-primary"><i class="fa-solid fa-unlock"></i> Déverrouiller</button>
     </div>
   </form>
 </div>

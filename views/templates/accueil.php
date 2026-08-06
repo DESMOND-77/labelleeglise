@@ -7,6 +7,20 @@ $trendMeta = [
 ];
 $fmt = fn($n) => ($n >= 0 ? '+' : '') . $n;
 ?>
+<div class="welcome-banner">
+  <div>
+    <h2>Bonjour <?= h(trim($user['prenom'] ?? 'Administrateur')) ?> 👋</h2>
+    <p>Voici un aperçu de l'activité de l'église pour l'année <?= h($year) ?>.</p>
+  </div>
+  <div class="welcome-badge">
+    <i class="fa-solid fa-sack-dollar"></i>
+    <div>
+      <span>Offrandes cumulées</span>
+      <strong><?= format_fcfa($offrandes) ?></strong>
+    </div>
+  </div>
+</div>
+
 <div class="carousel">
   <div class="carousel-track" id="carouselTrack">
     <?php foreach ($slides as $s): ?>
@@ -25,11 +39,16 @@ $fmt = fn($n) => ($n >= 0 ? '+' : '') . $n;
   </div>
 </div>
 
+<div class="section-toolbar">
+  <div>
+    <h2>Indicateurs clés</h2>
+    <div class="sub">Répartition des membres par pôle</div>
+  </div>
+</div>
 <div class="stats-grid">
   <?php foreach ($poles as $i => $p): ?>
     <?= stat_card($p['label'], (string) $counts[$i], $p['color'], 'membres enregistrés') ?>
   <?php endforeach; ?>
-  <?= stat_card('Offrandes cumulées ' . $year, format_fcfa($offrandes), '#4CAF8E', 'Bacentas + Centres') ?>
 </div>
 
 <div class="dash-section-title"><h2>Évolution mensuelle par indicateur</h2><span>Cumul sur les 6 derniers mois</span></div>

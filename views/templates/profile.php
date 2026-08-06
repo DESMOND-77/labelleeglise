@@ -19,8 +19,28 @@ $rows = [
 ?>
 <?= back_button('Retour', url('index.php', ['page' => 'recherche'])) ?>
 <?= section_toolbar(h(full_name($member)), 'Fiche profil') ?>
-<div class="fiche-card">
-  <?= info_rows_html($rows) ?>
+
+<div class="profile-hero">
+  <div class="profile-avatar">
+    <?php if (!empty($member['photo_de_profil'])): ?>
+      <img src="<?= h($member['photo_de_profil']) ?>" alt="<?= h(full_name($member)) ?>">
+    <?php else: ?>
+      <span><?= h(strtoupper(first_char(trim($member['prenom'] ?: $member['nom'] ?: '?')))) ?></span>
+    <?php endif; ?>
+  </div>
+  <div class="profile-hero-info">
+    <h3><?= h(full_name($member)) ?></h3>
+    <span class="badge neutral"><?= h(ROLE_LABELS[$member['role']] ?? $member['role']) ?></span>
+    <?php if ($bacenta): ?><span class="badge success"><i class="fa-solid fa-church"></i> <?= h($bacenta['nom']) ?></span><?php endif; ?>
+  </div>
 </div>
-<div class="dash-section-title"><h2><i class="fa-solid fa-chart-column"></i> Présence</h2><span>Culte, Basonta, Centre, Bacenta</span></div>
-<div class="chart-card"><canvas id="profileChart"></canvas></div>
+
+<div class="profile-grid">
+  <div class="fiche-card">
+    <?= info_rows_html($rows) ?>
+  </div>
+  <div class="presence-card">
+    <div class="dash-section-title" style="margin-top:0;"><h2><i class="fa-solid fa-chart-column"></i> Présence</h2><span>Derniers événements</span></div>
+    <div class="chart-card" style="margin-bottom:0;"><canvas id="profileChart"></canvas></div>
+  </div>
+</div>
