@@ -1,21 +1,22 @@
-# ⛪ La Belle Église — Application PHP (rendu serveur + MySQL)
+# ⛪ La Belle Église — Application PHP modulaire
 
-Application **PHP** (server-side rendering) de gestion d'église, construite sur le
-**modèle de données fourni** : base `la_belle_eglise_db` (tables `centres`, `users`,
-`bacentas`, `basontas`, `cultes`, `presences`, `offrandes`, `dimes`, `visites`,
-`suivi_hebdo`, `examens`, `veillees`, `presentation`, `equipe`, `centres_presentation`).
+Application **PHP** (server-side rendering) de gestion d'église, construite sur un
+**modèle de données MySQL/MariaDB**. Ce projet a été réorganisé selon une
+**architecture modulaire professionnelle** inspirée de Laravel, tout en restant
+**100 % compatible hébergement mutualisé** : aucune dépendance, aucun Composer,
+aucun CLI, aucune installation. Il suffit de copier les fichiers dans la racine web.
 
-Toutes les pages sont générées côté serveur, les écritures passent par des formulaires
-POST avec jeton CSRF, les mots de passe sont hachés. Seul un JavaScript léger subsiste
-(graphiques Chart.js via CDN, carrousel, confirmations, menu mobile).
+- **Base de données** : `la_belle_eglise_db`
+- **Contrôleur frontal** : `index.php` (toutes les URL passent par `index.php?page=...`)
+- **Rendu** : server-side (PHP), JavaScript léger (Chart.js, confirmations, menu)
 
 ---
 
 ## 1. Installation
 
 ### Prérequis
-- PHP ≥ 8.0 avec **pdo_mysql** (mbstring recommandée, sinon repli automatique)
-- MySQL **ou** MariaDB ≥ 10.2
+- **PHP ≥ 8.0** avec `pdo_mysql` (mbstring recommandée, sinon repli automatique)
+- **MySQL** ou **MariaDB ≥ 10.2**
 - Un serveur web pointant vers ce dossier
 
 ### Étapes
@@ -29,10 +30,7 @@ POST avec jeton CSRF, les mots de passe sont hachés. Seul un JavaScript léger 
    FLUSH PRIVILEGES;
    ```
 
-   > Le schéma d'origine utilisait `utf8mb4_0900_ai_ci` (propre à MySQL 8) ;
-   > `utf8mb4_unicode_ci` est utilisé pour rester compatible MariaDB.
-
-3. **Adapter les identifiants** dans `config.php` (constantes `DB_*`).
+3. **Adapter les identifiants** dans `Config/database.php`.
 4. **Installer le schéma + les données de démonstration** :
 
    ```bash
@@ -41,10 +39,10 @@ POST avec jeton CSRF, les mots de passe sont hachés. Seul un JavaScript léger 
 
    (ou ouvrir `install.php` dans le navigateur).
 
-5. Ouvrir `index.php` et se connecter avec un email.
+5. Ouvrir `index.php` et se connecter.
 
-> ⚠️ Après installation, **supprimez `install.php`**. Relancer `php install.php`
-> **réinitialise** entièrement la base (drop des tables + seed).
+> ⚠️ Après installation, **supprimez `install.php`**. Le relancer **réinitialise**
+> entièrement la base (drop des tables + seed).
 
 ### Démarrage rapide en local
 
@@ -67,86 +65,70 @@ php -S 127.0.0.1:8000
 
 ---
 
-## 3. Modèle de données (correspondances avec l'ancienne app)
-
-| Table | Rôle |
-|---|---|
-| `centres` | **La structure** (l'ancien niveau "quartier" de navigation) |
-| `users` | Tous les membres / comptes. `quartier` = adresse/résidence (texte libre) |
-| `bacentas` | Bacentas, rattachés à un centre (`centre_id`) + `responsable_id` |
-| `basontas` | Ministères (Chorale…) — membres via `users_basontas` |
-| `cultes` | Événements de culte (date, heures, responsable) |
-| `presences` | Présences par événement (culte / bacenta / basonta / centre) |
-| `offrandes` | Offrandes d'un bacenta **ou** d'un centre (mois + semaine 0-3) |
-| `dimes`, `examens`, `veillees`, `suivi_hebdo` | Fiche berger + suivi hebdomadaire |
-| `visites` | Visites effectuées (membre connu ou nouveau contact) |
-| `presentation`, `equipe`, `centres_presentation` | Site vitrine (à propos, équipe, articles) |
-
-**Définitions clés**
-- **Centres** = structure de navigation (ex. Mingara, Mbaya…) ; les bacentas y sont
-  rattachés. Le champ `users.quartier` n'est **pas** une structure : c'est l'adresse.
-- **Bergers** = rôles `leader`, `pasteur`, `reverant` (constante `BERGER_ROLES` dans
-  `config.php`, modifiable).
-- **Nouveaux membres** = users ayant `invite_par`, `recu_par` ou `date_recu` renseignés.
-- **Présences** : pointage par événement (page d'un culte : cocher les présents) **et**
-  menu rapide « Présent / — » dans la fiche membre (dernier événement de chaque type).
-
----
-
-## 4. Structure du projet
+## 3. Structure du projet
 
 ```
 labelleeglise/
 ├── index.php              # Point d'entrée unique (front controller)
-├── config.php             # Identifiants MySQL + constantes métier
-├── helpers.php            # Échappement, dates, semaines ISO, CSRF, uploads…
-├── db.php                 # Connexion PDO + micro-requêtes (qall/qone/qval/qexec)
-├── auth.php               # Session, login (email), RBAC (responsable/berger), porte d'accès
-├── data.php               # Couche d'accès aux données (CRUD, présences, stats)
-├── actions.php            # Actions POST (écritures) + suppressions
-├── pages*.php             # Fonctions de rendu des pages
-├── install.php            # Création des tables + seed (à supprimer ensuite)
-├── seed.php               # Données de démonstration
-├── render.php             # Moteur de rendu (view/layout) + partiels
-├── uploads/               # Photos téléversées (profils, équipe, articles)
-├── assets/                # css/app.css + js/app.js (Chart.js, carrousel…)
-└── views/templates/       # Templates serveur (HTML + <?= ?>)
+├── install.php            # Installation (droppable en production)
+├── Bootstrap/             # Autoloader PSR-4 léger + initialisation
+├── Config/                # Configuration (BDD, app, auth, constantes, chemins)
+├── Routes/                # Déclaration des routes (web.php)
+├── app/
+│   ├── Core/              # Noyau framework-libre (Router, Database, View…)
+│   ├── Controllers/       # Contrôleurs (requêtes HTTP, rendu)
+│   ├── Services/          # Logique métier (business layer)
+│   ├── Repositories/      # Accès aux données (tout le SQL)
+│   ├── Middleware/        # Auth, Admin, CSRF, Gate
+│   ├── Auth/              # Session, RBAC, porte d'accès
+│   ├── Helpers/           # Fonctions utilitaires
+│   └── Compat/            # Wrappers de compatibilité pour les vues
+├── Views/
+│   ├── layouts/           # Coquille applicative
+│   ├── pages/             # Templates de pages (+ forms/, partials/)
+│   └── components/        # Composants réutilisables
+├── Database/
+│   ├── Migrations/        # Schéma SQL
+│   └── Seeders/           # Données de démonstration
+├── Storage/
+│   ├── logs/              # Journaux
+│   ├── cache/             # Cache
+│   └── sessions/          # (optionnel) sessions
+├── assets/                # CSS modulaire + JS + images (public)
+├── uploads/               # Photos téléversées (public)
+└── docs (README, ARCHITECTURE, CONTRIBUTING, PROJECT_STRUCTURE)
 ```
 
 ---
 
-## 5. Fonctionnalités
+## 4. Fonctionnalités
 
-- **Authentification par email**, comptes actifs (`compte_actif`), mots de passe hachés.
-- **RBAC** :
-  - `admin` → accès complet ;
-  - `responsable` → ses bacentas/cultes/basontas (responsable_id) + leurs centres ;
-  - `leader`/`pasteur`/`reverant` (berger) → sa fiche, son suivi hebdo, son bacenta ;
-  - `membre`/`assistant` → pages publiques ;
-  - porte d'accès : confirmation d'identité (email ou nom + mot de passe) pour
-    déverrouiller une liste/entité hors périmètre.
-- **Sections** : bacentas (détail : Membres / Suivi & Offrandes), centres (structure :
-  bacentas / offrandes), cultes (pointage de présence + présents), basontas (membres +
-  ajout/retrait), nouveaux, liste générale, bergers (avec filtres).
-- **Suivi & Offrandes** : 4 visites + 4 offrandes par mois et par bacenta ; offrandes
-  des centres ; totaux mois/année.
-- **Suivi hebdomadaire des bergers** : tableau Jour × Champ, % de réalisation
-  semaine/année, graphique admin, sélecteur de date → semaine ISO.
-- **Fiche berger** : infos, dîmes (12 mois/année), examens, veillées.
-- **Finances** : cumuls Bacentas/Centres, tableau par entité, graphique comparatif.
-- **Tableau de bord** : carrousel, compteurs par pôle, évolution cumulée sur 6 mois,
-  comparaison, résumé statistique + synthèse.
-- **Paramètres** : comptes (CRUD users, protection du dernier admin) + attribution des
-  responsables (bacentas/basontas/cultes).
-- **Présentation de l'église** : accroche + histoire (éditables), équipe regroupée par
-  catégorie (Révérends, Pasteurs, Bergers, Leaders, Autres), photos.
-- **Présentation des centres** : articles officiels liés aux centres (CRUD).
+- **Authentification par email**, comptes actifs, mots de passe hachés (BCrypt).
+- **RBAC** : admin, responsable, berger (leader/pasteur/reverant), membre, porte d'accès.
+- **Sections** : bacentas, centres, cultes (pointage), basontas, nouveaux, liste
+  générale, bergers.
+- **Suivi & offrandes** : visites + offrandes par bacenta/centre, totaux mois/année.
+- **Suivi hebdomadaire des bergers** : tableau Jour × Champ, % de réalisation.
+- **Fiche berger** : infos, dîmes, examens, veillées.
+- **Finances** : cumuls Bacentas/Centres, graphique comparatif.
+- **Tableau de bord** : carrousel, compteurs, évolution sur 6 mois, synthèse.
+- **Paramètres** : comptes (CRUD users) + attribution des responsables.
+- **Présentation** : à propos + équipe + articles des centres.
 - **Recherche globale** (admin) → fiche profil avec donut de présence.
 
 ---
 
-## 6. Sécurité
+## 5. Sécurité
 
 - Requêtes préparées PDO partout ; sorties échappées ; jetons CSRF sur tout POST.
 - Mots de passe hachés (BCrypt) ; `install.php` à supprimer en production.
-- `uploads/` accessible en écriture.
+- `uploads/` accessible en écriture ; validation des types/images au téléversement.
+
+---
+
+## 6. Documentation
+
+- [ARCHITECTURE.md](ARCHITECTURE.md) — décision d'architecture, principes SOLID/DRY/KISS.
+- [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) — rôle de chaque dossier/fichier.
+- [CONTRIBUTING.md](CONTRIBUTING.md) — conventions, PSR-12, workflow de contribution.
+</content>
