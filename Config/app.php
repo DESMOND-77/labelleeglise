@@ -10,7 +10,7 @@ return [
     'url'           => '',            // vide = chemins relatifs
     'timezone'      => 'Africa/Libreville',
     'charset'       => 'UTF-8',
-    'debug'         => false,
+    'debug'         => true,
     'session_name'  => 'LBEGF_SESSID',
     'upload_dir'    => 'uploads',     // relatif à la racine web
     'max_upload'    => 4 * 1024 * 1024, // 4 Mo
