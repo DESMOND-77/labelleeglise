@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Constantes métier de l'application.
  * (anciennement config.php : rôles, sections, champs, libellés…)
@@ -28,7 +29,7 @@ define('CULTES_DEFAULT', ["Culte d'Impact", 'Culte Aman', 'Cultes Tschalac', 'Cu
 
 define('SECTION_LABELS', [
     'apropos'            => 'Présentation de l\'église',
-    'centresPresentation'=> 'Présentation des centres',
+    'centresPresentation' => 'Présentation des centres',
     'accueil'            => 'Accueil',
     'bacentas'           => 'Bacentas',
     'centres'            => 'Centres',
@@ -49,7 +50,7 @@ define('SECTION_LABELS', [
 
 define('SECTION_ICONS', [
     'apropos'            => '<i class="fa-solid fa-circle-info"></i>',
-    'centresPresentation'=> '<i class="fa-solid fa-school"></i>',
+    'centresPresentation' => '<i class="fa-solid fa-school"></i>',
     'accueil'            => '<i class="fa-solid fa-house"></i>',
     'bacentas'           => '<i class="fa-solid fa-church"></i>',
     'centres'            => '<i class="fa-solid fa-landmark"></i>',
@@ -78,8 +79,21 @@ define('NOTIFICATION_TYPE_ICONS', [
 ]);
 
 // "apropos" doit rester en toute première position du menu (exigence produit).
-define('NAV_ORDER', ['apropos', 'centresPresentation', 'accueil', 'bacentas', 'centres', 'cultes',
-                     'basontas', 'nouveaux', 'generale', 'bergers', 'suiviBergers', 'finances', 'parametres']);
+define('NAV_ORDER', [
+    'apropos',
+    'centresPresentation',
+    'accueil',
+    'bacentas',
+    'centres',
+    'cultes',
+    'basontas',
+    'nouveaux',
+    'generale',
+    'bergers',
+    'suiviBergers',
+    'finances',
+    'parametres'
+]);
 
 /* ---------- Champs d'un membre (table users) ---------- */
 
@@ -98,7 +112,7 @@ define('FIELD_LABELS', [
     'invite_par'     => 'Invité par',
     'recu_par'       => 'Reçu par (Akwaba)',
     'date_recu'      => 'Date d\'arrivée',
-    'photo_de_profil'=> 'Photo de profil',
+    'photo_de_profil' => 'Photo de profil',
     'presenceCulte'   => 'Présence Culte',
     'presenceBasonta' => 'Présence Basonta',
     'presenceCentre'  => 'Présence Centre',
@@ -147,6 +161,6 @@ define('SUIVI_FIELDS', [
     ['key' => 'themeEveque',    'label' => 'Thème — Prédication de l\'Évêque écoutée', 'type' => 'text'],
     ['key' => 'themeReverend',  'label' => 'Thème — Prédication du Révérend écoutée', 'type' => 'text'],
     ['key' => 'visites',        'label' => 'Personne(s) visitée(s) en semaine', 'type' => 'text'],
-    ['key' => 'invitesDimanche','label' => 'Personne(s) invitée(s) pour dimanche', 'type' => 'text'],
+    ['key' => 'invitesDimanche', 'label' => 'Personne(s) invitée(s) pour dimanche', 'type' => 'text'],
     ['key' => 'invitesApres',   'label' => 'Invité(s) après le culte / deep sea fishing', 'type' => 'text', 'sundayOnly' => true],
 ]);

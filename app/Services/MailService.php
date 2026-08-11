@@ -27,10 +27,15 @@ class MailService
     public function baseUrl(): string
     {
         $base = trim((string) ($this->config['app_base_url'] ?? ''));
-        if ($base !== '') {
-            return rtrim($base, '/');
+        if ($base === '') {
+            return rtrim((string) APP_URL, '/');
         }
-        return rtrim((string) APP_URL, '/');
+        // Tolère une valeur .env incomplète (sans schéma http(s)://) plutôt
+        // que de générer des liens cassés dans les emails envoyés.
+        if (!preg_match('#^https?://#i', $base)) {
+            $base = 'http://' . $base;
+        }
+        return rtrim($base, '/');
     }
 
     public function buildUrl(string $path, array $params = []): string
@@ -76,6 +81,13 @@ class MailService
             }
             if ((bool) ($this->config['debug'] ?? false)) {
                 $mail->SMTPDebug = 2;
+                // Ne JAMAIS laisser PHPMailer écrire le transcript SMTP (qui peut
+                // contenir des identifiants/entêtes) directement dans la sortie
+                // HTTP (comportement par défaut de `Debugoutput` = 'echo') : on le
+                // redirige systématiquement vers le journal applicatif.
+                $mail->Debugoutput = function (string $str, int $level): void {
+                    $this->logDebug($str, $level);
+                };
             }
 
             $mail->setFrom(
@@ -106,6 +118,17 @@ class MailService
     private function logMail(string $status, string $to, string $subject): void
     {
         $line = '[' . date('Y-m-d H:i:s') . "] $status | to=$to | subject=" . str_replace(["\r", "\n"], ' ', $subject) . PHP_EOL;
+        @file_put_contents(APP_LOG_PATH . '/mail.log', $line, FILE_APPEND);
+    }
+
+    /**
+     * Transcript SMTP (SMTPDebug) — écrit UNIQUEMENT dans le journal, jamais
+     * dans la sortie HTTP. Peut contenir des identifiants/entêtes ; réservé au
+     * diagnostic (`SMTP_DEBUG=true`), à ne jamais activer durablement en prod.
+     */
+    private function logDebug(string $str, int $level): void
+    {
+        $line = '[' . date('Y-m-d H:i:s') . "] SMTP DEBUG [$level] " . trim($str) . PHP_EOL;
         @file_put_contents(APP_LOG_PATH . '/mail.log', $line, FILE_APPEND);
     }
 

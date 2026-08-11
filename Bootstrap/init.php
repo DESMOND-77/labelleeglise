@@ -57,7 +57,18 @@ require_once APP_PATH . '/app/Compat/notifications.php';
 
 // 7. Constantes publiques d'application (APP_NAME, APP_URL, UPLOAD_DIR…).
 define('APP_NAME', $appConfig['name'] ?? 'La Belle Église');
-define('APP_URL', $appConfig['url'] ?? '');
+// APP_URL est concaténée telle quelle devant les chemins relatifs (url(),
+// redirect() : `APP_URL . 'index.php' . $query`) : on normalise donc pour
+// tolérer une valeur .env incomplète (ex. `192.168.1.102:3000` sans schéma,
+// ou sans slash final) plutôt que de produire des redirections cassées.
+$appUrl = trim((string) ($appConfig['url'] ?? ''));
+if ($appUrl !== '') {
+    if (!preg_match('#^https?://#i', $appUrl)) {
+        $appUrl = 'http://' . $appUrl;
+    }
+    $appUrl = rtrim($appUrl, '/') . '/';
+}
+define('APP_URL', $appUrl);
 define('UPLOAD_DIR', (isset($appConfig['upload_dir']) && $appConfig['upload_dir'][0] === '/')
     ? $appConfig['upload_dir']
     : APP_PUBLIC_PATH . '/' . ($appConfig['upload_dir'] ?? 'uploads'));

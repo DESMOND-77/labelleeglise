@@ -6,3 +6,4 @@
 #Ignore vscode AI rules
 .github/instructions/codacy.instructions.md
 prompts/
+logs/

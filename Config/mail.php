@@ -25,11 +25,11 @@ return [
     'password'     => env_value('SMTP_PASSWORD', ''),
     // '', 'tls' ou 'ssl'.
     'encryption'   => env_value('SMTP_ENCRYPTION', 'tls'),
-    'auth'         => (bool) env_value('SMTP_AUTH', true),
+    'auth'         => env_bool('SMTP_AUTH', true),
     'from_address' => env_value('MAIL_FROM_ADDRESS', 'no-reply@labelleeglise.ga'),
     'from_name'    => env_value('MAIL_FROM_NAME', 'La Belle Église'),
     // URL absolue de base pour construire les liens dans les emails
     // (ex. https://gestion.labelleeglise.ga/). Vide = liens relatifs (APP_URL).
     'app_base_url' => env_value('APP_BASE_URL', ''),
-    'debug'        => (bool) env_value('SMTP_DEBUG', false),
+    'debug'        => env_bool('SMTP_DEBUG', false),
 ];

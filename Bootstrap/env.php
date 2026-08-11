@@ -66,3 +66,20 @@ if (!function_exists('env_value')) {
         return $value;
     }
 }
+
+if (!function_exists('env_bool')) {
+    /**
+     * Lit une variable d'environnement booléenne. Un simple `(bool)` sur une
+     * valeur d'environnement (toujours une chaîne) est un piège classique :
+     * `(bool) "false"` vaut `true` en PHP. On interprète donc explicitement
+     * les chaînes "false"/"0"/"no"/"off"/"" comme fausses.
+     */
+    function env_bool(string $key, bool $default = false): bool
+    {
+        $value = getenv($key);
+        if ($value === false || $value === '') {
+            return $default;
+        }
+        return !in_array(strtolower(trim((string) $value)), ['false', '0', 'no', 'off', ''], true);
+    }
+}

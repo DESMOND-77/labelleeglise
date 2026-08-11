@@ -115,7 +115,7 @@
 .floating-field input:focus + label,
 .floating-field input:not(:placeholder-shown) + label {
   top: 22px;
-  transform: translateY(-50%) scale(0.78);
+  transform: translateY(-145%) scale(0.78);
   color: var(--primary);
   background: #fff;
   border-radius: 4px;
