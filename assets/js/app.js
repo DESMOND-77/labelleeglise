@@ -226,6 +226,29 @@ data: [charts.doughnut.present, charts.doughnut.absent, charts.doughnut.none],
     });
   }
 
+  /* ---------------- Position de scroll du menu (persiste entre pages) ---------------- */
+  // Application multi-pages (chaque clic recharge la page) : le navigateur
+  // ne mémorise pas nativement le scroll d'un conteneur interne comme
+  // .side-nav (contrairement au scroll de la fenêtre). Sans ce correctif,
+  // atteindre un onglet bas de liste ramène le menu tout en haut à chaque
+  // clic. On restaure donc la position juste avant l'affichage, et on
+  // enregistre en continu pendant le scroll.
+
+  function initSidebarScrollRestore() {
+    var nav = document.querySelector(".side-nav");
+    if (!nav) return;
+    var KEY = "lbegf_sidebar_scroll";
+
+    var saved = sessionStorage.getItem(KEY);
+    if (saved !== null) {
+      nav.scrollTop = parseInt(saved, 10) || 0;
+    }
+
+    nav.addEventListener("scroll", function () {
+      sessionStorage.setItem(KEY, String(nav.scrollTop));
+    }, { passive: true });
+  }
+
   /* ---------------- Menu profil ---------------- */
 
   function initProfileMenu() {
@@ -292,6 +315,7 @@ data: [charts.doughnut.present, charts.doughnut.absent, charts.doughnut.none],
     initConfirms();
     initMenuToggle();
     initSidebarCollapse();
+    initSidebarScrollRestore();
     initProfileMenu();
     initNotifMenu();
   });

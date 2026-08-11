@@ -29,7 +29,13 @@ if ($scope && $scope['kind'] === 'berger') {
 } elseif ($user && $user['role'] !== 'admin') {
     // compte public : pages publiques uniquement
 } else {
+    // 'apropos' et 'centresPresentation' sont déjà fournis par $publicLis
+    // (toujours en première position — voir array_merge ci-dessous) : les
+    // ignorer ici pour ne pas les afficher deux fois dans le menu admin.
     foreach (NAV_ORDER as $key) {
+        if (in_array($key, ['apropos', 'centresPresentation'], true)) {
+            continue;
+        }
         $active = $page === $key ? ' active' : '';
         $navLis[] = '<li><a class="nav-item' . $active . '" href="' . h(url('index.php', ['page' => $key])) . '"><span class="ico">' . SECTION_ICONS[$key] . '</span><span class="label">' . h(SECTION_LABELS[$key]) . '</span></a></li>';
     }

@@ -59,13 +59,13 @@ $errorMessage = $error ? ($errorMessages[$error] ?? $errorMessages['invalid']) :
 
       <button type="submit" class="btn btn-primary btn-block btn-lg">Se connecter</button>
 
-      <div class="login-hint">
+      <!-- <div class="login-hint">
         <strong>Comptes de démonstration</strong>
         <span><code>admin@labelleeglise.ga</code> / <code>LBEGF</code> — accès complet</span>
         <span><code>user@labelleeglise.ga</code> / <code>user1111</code> — accès limité</span>
         <span><code>resp.bacenta.sion@labelleeglise.ga</code> / <code>ESKLna</code></span>
         <span><code>berger.eric.bongo@labelleeglise.ga</code> / <code>BergerEB1</code></span>
-      </div>
+      </div> -->
 
       <div class="login-hint register-back">
         <span>Pas encore de compte ? <a href="<?= h(url('index.php', ['page' => 'register'])) ?>">Créer un compte</a></span>
