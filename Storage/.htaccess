@@ -1,0 +1,10 @@
+# Journaux, cache, sessions : jamais accessibles en HTTP (déjà bloqué par
+# la règle RewriteRule racine — présent ici en défense en profondeur, au
+# cas où AllowOverride serait limité au niveau du .htaccess racine).
+<IfModule mod_authz_core.c>
+  Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+  Order allow,deny
+  Deny from all
+</IfModule>

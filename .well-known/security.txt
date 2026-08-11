@@ -1,0 +1,8 @@
+# La Belle Église — politique de divulgation responsable (RFC 9116)
+# TODO : remplacez Contact/Canonical par les vraies valeurs de production
+# avant mise en ligne, et mettez à jour Expires chaque année.
+
+Contact: mailto:admin@labelleeglise.ga
+Expires: 2027-08-11T00:00:00.000Z
+Preferred-Languages: fr, en
+Canonical: https://lbegf.rf.gd/.well-known/security.txt

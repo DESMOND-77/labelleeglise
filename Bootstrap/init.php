@@ -8,6 +8,16 @@
 
 declare(strict_types=1);
 
+// 0. Sur certains hébergements durcis (mmap exécutable restreint), la
+// compilation JIT de PCRE échoue et émet un warning PHP au premier
+// `preg_match()` de la requête ; l'application transforme les warnings en
+// exceptions (voir Logger::handleError), ce qui ferait planter tout le
+// boot. On désactive donc le JIT PCRE au runtime (aucun accès à php.ini
+// requis) avant tout `preg_match()` de l'application.
+if (function_exists('ini_set')) {
+    @ini_set('pcre.jit', '0');
+}
+
 // 1. Autoloader (légers, sans Composer).
 require_once __DIR__ . '/autoload.php';
 

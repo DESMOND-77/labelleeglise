@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  La Belle Église — sitemap.xml
+  ------------------------------------------------------------
+  À maintenir manuellement (pas de génération dynamique — voir
+  ARCHITECTURE.md : aucune dépendance, aucun build).
+
+  Seules deux URLs sont réellement accessibles sans compte aujourd'hui
+  (voir index.php) : l'écran de connexion et l'inscription publique. Si
+  les pages de présentation (?page=apropos, ?page=centresPresentation)
+  sont un jour rendues publiques, ajoutez-les ici.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://lbegf.rf.gd/index.php</loc>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://lbegf.rf.gd/index.php?page=register</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+</urlset>

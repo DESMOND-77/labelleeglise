@@ -1,0 +1,69 @@
+# ============================================================
+# La Belle Église — sécurité Apache (racine du projet = racine web)
+# ------------------------------------------------------------
+# Ce projet ne pointe pas la racine web vers un dossier public/
+# séparé (compatibilité hébergement mutualisé — voir ARCHITECTURE.md) :
+# app/, Config/, Database/, Storage/, .env, .git, etc. sont physiquement
+# à côté d'index.php. Ce fichier empêche leur accès direct par HTTP.
+# ============================================================
+
+Options -Indexes -MultiViews
+ServerSignature Off
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  Header always unset X-Powered-By
+  Header unset X-Powered-By
+</IfModule>
+
+# ---- Fichiers cachés (.env, .git*, .htaccess…) : jamais accessibles ----
+<FilesMatch "^\.">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+# ---- Extensions sensibles : jamais servies telles quelles ----
+<FilesMatch "\.(env|log|sql|md|lock|ini|yml|yaml|dist|bak|sh)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+# ---- install.php : réinitialise entièrement la base si relancé.  ----
+# ---- À SUPPRIMER après l'installation initiale (voir README §1). ----
+# ---- Bloqué par défaut ici comme filet de sécurité supplémentaire. --
+<Files "install.php">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</Files>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Dossiers applicatifs : jamais accessibles directement en HTTP —
+  # uniquement via index.php (front controller) côté serveur.
+  RewriteRule ^(app|Bootstrap|Config|Database|Routes|Storage|Views|views|prompts|Bootstrap)(/|$) - [F,L,NC]
+</IfModule>
+
+# ---- N'affiche jamais les erreurs PHP au visiteur (voir aussi APP_DEBUG) ----
+<IfModule mod_php.c>
+  php_flag display_errors Off
+  php_flag expose_php Off
+</IfModule>

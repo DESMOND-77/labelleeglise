@@ -1,0 +1,21 @@
+# Dossier public (photos de profil, articles…). L'upload (app/Core/Upload.php)
+# ne valide que de vraies images (getimagesize) et renomme aléatoirement les
+# fichiers, mais on désactive quand même toute exécution de code ici en
+# défense en profondeur (au cas où un fichier malveillant y parviendrait).
+
+Options -Indexes -ExecCGI
+AddHandler cgi-script .php .php3 .php4 .php5 .php7 .php8 .phtml .pl .py .jsp .asp .sh .cgi
+
+<IfModule mod_php.c>
+  php_flag engine off
+</IfModule>
+
+<FilesMatch "\.(php|php\d|phtml|pl|py|jsp|asp|sh|cgi)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
