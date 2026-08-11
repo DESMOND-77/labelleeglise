@@ -9,7 +9,9 @@
 declare(strict_types=1);
 
 use App\Auth\AuthenticationService;
+use App\Auth\AuthorizationService;
 use App\Auth\RbacService;
+use App\Services\ResponsibilityService;
 
 function auth_service(): AuthenticationService
 {
@@ -23,6 +25,78 @@ function rbac_service(): RbacService
     static $svc = null;
     $svc = $svc ?? new RbacService(auth_service());
     return $svc;
+}
+
+function authz_service(): AuthorizationService
+{
+    static $svc = null;
+    $svc = $svc ?? new AuthorizationService();
+    return $svc;
+}
+
+function responsibility_service(): ResponsibilityService
+{
+    static $svc = null;
+    $svc = $svc ?? new ResponsibilityService();
+    return $svc;
+}
+
+/* ---------- Nouveaux wrappers d'autorisation (couche rôle/responsabilité/périmètre) ---------- */
+
+/** $auth->can($user, 'permission', $resource?) — voir docs/authorization.md. */
+function auth_can(string $permission, $resource = null): bool
+{
+    return authz_service()->can(current_user(), $permission, $resource);
+}
+
+function auth_has_permission(string $permission): bool
+{
+    return authz_service()->hasPermission(current_user(), $permission);
+}
+
+function auth_is_responsible_for_center(int $centerId): bool
+{
+    return authz_service()->isResponsibleForCenter(current_user(), $centerId);
+}
+
+function auth_is_responsible_for_bacenta(int $bacentaId): bool
+{
+    return authz_service()->isResponsibleForBacenta(current_user(), $bacentaId);
+}
+
+function auth_is_responsible_for_cult(int $cultId): bool
+{
+    return authz_service()->isResponsibleForCult(current_user(), $cultId);
+}
+
+function auth_can_manage_center(int $centerId): bool
+{
+    return authz_service()->canManageCenter(current_user(), $centerId);
+}
+
+function auth_can_manage_bacenta(int $bacentaId): bool
+{
+    return authz_service()->canManageBacenta(current_user(), $bacentaId);
+}
+
+function auth_can_manage_culte(int $cultId): bool
+{
+    return authz_service()->canManageCulte(current_user(), $cultId);
+}
+
+function auth_can_manage_basonta(int $basontaId): bool
+{
+    return authz_service()->canManageBasonta(current_user(), $basontaId);
+}
+
+function auth_can_manage_member(int $memberId): bool
+{
+    return authz_service()->canManageMember(current_user(), $memberId);
+}
+
+function auth_can_manage_responsibilities(): bool
+{
+    return authz_service()->canManageResponsibilities(current_user());
 }
 
 function start_session(): void

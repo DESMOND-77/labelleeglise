@@ -4,22 +4,38 @@ namespace App\Auth;
 
 use App\Core\Query;
 use App\Repositories\BacentaRepository;
+use App\Services\ResponsibilityService;
 
 /**
  * RBAC — périmètre du compte courant, sections autorisées, accès porte d'entrée.
+ *
+ * Le "scope" retourné ici gouverne uniquement la NAVIGATION / le
+ * verrouillage historique (leader/pasteur/reverant/berger/ms limités à leur
+ * bacenta d'APPARTENANCE — users.bacenta_id, comportement préservé).
+ * Les décisions d'autorisation fines (CRUD sur une ressource précise)
+ * passent par AuthorizationService, qui consulte la table
+ * `responsibilities` — jamais un simple rôle. Voir docs/authorization.md.
  */
 class RbacService
 {
     private AuthenticationService $auth;
     private BacentaRepository $bacentas;
+    private ResponsibilityService $responsibilities;
+    private AuthorizationService $authz;
 
-    public function __construct(?AuthenticationService $auth = null, ?BacentaRepository $bacentas = null)
-    {
+    public function __construct(
+        ?AuthenticationService $auth = null,
+        ?BacentaRepository $bacentas = null,
+        ?ResponsibilityService $responsibilities = null,
+        ?AuthorizationService $authz = null
+    ) {
         $this->auth = $auth ?? new AuthenticationService();
         $this->bacentas = $bacentas ?? new BacentaRepository();
+        $this->responsibilities = $responsibilities ?? new ResponsibilityService();
+        $this->authz = $authz ?? new AuthorizationService($this->responsibilities);
     }
 
-    /** Bacentas dont l'utilisateur est responsable. */
+    /** Bacentas dont l'utilisateur est responsable (legacy : colonne responsable_id — conservé pour le kind 'responsable' historique). */
     public function myBacentaIds(int $userId): array
     {
         return $this->bacentas->forResponsible($userId);
@@ -37,6 +53,8 @@ class RbacService
         if ($u['role'] === 'admin') {
             return null;
         }
+        // Rôle hérité 'responsable' : ne devrait plus exister en base après
+        // migration (voir Database/Migrations…), conservé par sécurité/rollback.
         if ($u['role'] === 'responsable') {
             return [
                 'kind' => 'responsable',
@@ -44,10 +62,16 @@ class RbacService
             ];
         }
         if (in_array($u['role'], BERGER_ROLES, true)) {
+            $userId = (int) $u['id'];
             return [
                 'kind' => 'berger',
-                'user_id' => (int) $u['id'],
+                'user_id' => $userId,
                 'bacenta_id' => $u['bacenta_id'] ? (int) $u['bacenta_id'] : null,
+                // Responsabilités réelles (table `responsibilities`), en plus
+                // du verrouillage historique sur la bacenta d'appartenance.
+                'responsible_center_ids'  => $this->responsibilities->centerIdsFor($userId),
+                'responsible_bacenta_ids' => $this->responsibilities->allAccessibleBacentaIds($userId),
+                'responsible_cult_ids'    => $this->responsibilities->cultIdsFor($userId),
             ];
         }
         return null;
@@ -74,38 +98,46 @@ class RbacService
             return ['apropos', 'centresPresentation'];
         }
         if ($scope['kind'] === 'berger') {
+            // §22-23 : Informations Église/Centres toujours visibles ; §20 :
+            // fiche + suivi personnels toujours visibles pour ces rôles.
             $sections = ['apropos', 'centresPresentation', 'bergerFiche', 'suiviBergers'];
+            // Bacenta d'appartenance (comportement historique préservé).
             if ($scope['bacenta_id']) {
                 $sections[] = 'bacentas';
+            }
+            // §17/§23 : responsabilité réelle (table `responsibilities`) →
+            // accès aux sections de gestion correspondantes.
+            if (!empty($scope['responsible_bacenta_ids']) && !in_array('bacentas', $sections, true)) {
+                $sections[] = 'bacentas';
+            }
+            if (!empty($scope['responsible_center_ids'])) {
+                $sections[] = 'centres';
+            }
+            if (!empty($scope['responsible_cult_ids'])) {
+                $sections[] = 'cultes';
             }
             return $sections;
         }
         return ['apropos', 'centresPresentation', 'bacentas', 'centres', 'cultes', 'basontas'];
     }
 
-    /** true si l'utilisateur peut gérer l'entité demandée. */
+    /** true si l'utilisateur peut gérer l'entité demandée (délègue à AuthorizationService — voir docs/authorization.md). */
     public function canManageEntity(string $type, int $id): bool
     {
         $u = $this->auth->currentUser();
-        if (!$u || $u['role'] === 'admin') {
-            return $u !== null;
-        }
-        $scope = $this->scope();
-        if (!$scope) {
+        if (!$u) {
             return false;
         }
-        if ($scope['kind'] === 'berger') {
-            return $type === 'bacenta' && $scope['bacenta_id'] === $id;
+        if ($u['role'] === 'admin') {
+            return true;
         }
-        if ($scope['kind'] === 'responsable') {
-            if ($type === 'bacenta') {
-                return in_array($id, $scope['bacentas'], true);
-            }
-            $table = $type . 's';
-            $row = Query::one("SELECT id FROM $table WHERE id = ? AND responsable_id = ?", [$id, $u['id']]);
-            return (bool) $row;
-        }
-        return false;
+        return match ($type) {
+            'centre', 'center' => $this->authz->canManageCenter($u, $id),
+            'bacenta' => $this->authz->canManageBacenta($u, $id),
+            'culte', 'cult' => $this->authz->canManageCulte($u, $id),
+            'basonta' => $this->authz->canManageBasonta($u, $id),
+            default => false,
+        };
     }
 
     /** Navigation par défaut du compte lié. */
@@ -152,8 +184,15 @@ class RbacService
         if ($scope && $scope['kind'] === 'berger' && $section === 'bacentas' && $scope['bacenta_id'] === (int) $id) {
             return true;
         }
-        if ($scope && $scope['kind'] === 'responsable') {
-            if (in_array($section, ['bacentas', 'cultes', 'basontas'], true) && $this->canManageEntity(($section === 'bacentas') ? 'bacenta' : $section, (int) $id)) {
+        if ($scope && in_array($scope['kind'], ['responsable', 'berger'], true)) {
+            $entityType = match ($section) {
+                'bacentas' => 'bacenta',
+                'cultes'   => 'culte',
+                'basontas' => 'basonta',
+                'centres'  => 'centre',
+                default    => null,
+            };
+            if ($entityType && $this->canManageEntity($entityType, (int) $id)) {
                 return true;
             }
         }
