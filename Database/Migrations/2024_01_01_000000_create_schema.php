@@ -243,6 +243,27 @@ function up(): void
             KEY idx_notif_recipient (recipient_id, is_read),
             CONSTRAINT fk_notif_recipient FOREIGN KEY (recipient_id) REFERENCES users(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+        // ---- 6. RESPONSABILITÉS (ROLE ≠ RESPONSABILITÉ ≠ PÉRIMÈTRE) ----
+        // Table polymorphe unique : user × responsibility_type × target_type
+        // × target_id. `target_type` est un VARCHAR (pas un ENUM) pour que
+        // de futurs types de cibles (département, province, activité,
+        // événement, groupe — voir spec §49) n'exigent jamais de migration
+        // de schéma. Pas de FK sur target_id (polymorphe) : l'existence de
+        // la cible est validée au niveau service (ResponsibilityService).
+        "CREATE TABLE IF NOT EXISTS responsibilities (
+            id INT NOT NULL AUTO_INCREMENT,
+            user_id INT NOT NULL,
+            responsibility_type VARCHAR(30) NOT NULL DEFAULT 'manager',
+            target_type VARCHAR(30) NOT NULL,
+            target_id INT NOT NULL,
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY uniq_responsibility (user_id, responsibility_type, target_type, target_id),
+            KEY idx_resp_target (target_type, target_id),
+            CONSTRAINT fk_resp_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
     ];
 
     foreach ($schema as $sql) {
@@ -286,6 +307,68 @@ function up(): void
           WHERE compte_actif = 1
             AND account_status = 'pending'"
     );
+
+    /* ---- 7. Remaniement rôles / responsabilités ----
+     * ROLE ≠ RESPONSABILITÉ ≠ PÉRIMÈTRE (voir prompts/REMANIEMENT…md).
+     * 1) Étendre l'ENUM users.role avec 'berger' et 'ms' (idempotent :
+     *    on ne réémet le MODIFY que si 'berger' est absent du type actuel).
+     *    'responsable' est CONSERVÉ dans l'ENUM pour rollback/sécurité
+     *    (une suppression de valeur ENUM est destructrice si une ligne y
+     *    fait encore référence) mais n'est plus un rôle actif.
+     * 2) Migrer les données : role='responsable' → role='berger' (ancien
+     *    rôle = "éligible à être désigné responsable", ce que berger +
+     *    responsibilities représente désormais) ; responsable_id existants
+     *    (bacentas/basontas/cultes) → lignes `responsibilities`.
+     */
+    $roleColumnType = (string) $pdo->query(
+        "SELECT COLUMN_TYPE FROM information_schema.columns
+          WHERE table_schema = DATABASE() AND table_name = 'users' AND column_name = 'role'"
+    )->fetchColumn();
+    if (strpos($roleColumnType, "'berger'") === false) {
+        $pdo->exec(
+            "ALTER TABLE users MODIFY COLUMN role
+                ENUM('admin','leader','assistant','pasteur','reverant','membre','responsable','berger','ms')
+                DEFAULT 'membre'"
+        );
+    }
+
+    // Migration des comptes role='responsable' → role='berger'.
+    $migratedRoleCount = (int) $pdo->query("SELECT COUNT(*) FROM users WHERE role = 'responsable'")->fetchColumn();
+    if ($migratedRoleCount > 0) {
+        $pdo->exec("UPDATE users SET role = 'berger' WHERE role = 'responsable'");
+    }
+
+    // Migration des anciennes colonnes responsable_id → table `responsibilities`
+    // (une ligne par affectation non nulle existante, idempotente via la
+    // contrainte UNIQUE ci-dessus : INSERT IGNORE ne duplique jamais).
+    $legacyResponsibleTargets = [
+        'bacenta' => 'bacentas',
+        'basonta' => 'basontas',
+        'cult'    => 'cultes',
+    ];
+    $migratedResponsibilityCounts = [];
+    foreach ($legacyResponsibleTargets as $targetType => $table) {
+        $rows = $pdo->query("SELECT id, responsable_id FROM `$table` WHERE responsable_id IS NOT NULL")->fetchAll(\PDO::FETCH_ASSOC);
+        $count = 0;
+        $ins = $pdo->prepare(
+            "INSERT IGNORE INTO responsibilities (user_id, responsibility_type, target_type, target_id)
+             VALUES (?, 'manager', ?, ?)"
+        );
+        foreach ($rows as $row) {
+            // L'utilisateur référencé doit exister (FK) ; ON DELETE SET NULL
+            // sur responsable_id garantit qu'un id orphelin n'est jamais présent.
+            $ins->execute([(int) $row['responsable_id'], $targetType, (int) $row['id']]);
+            $count += $ins->rowCount();
+        }
+        $migratedResponsibilityCounts[$targetType] = $count;
+    }
+
+    if (class_exists('\\App\\Core\\Logger')) {
+        \App\Core\Logger::info('Migration rôles/responsabilités', [
+            'users_responsable_to_berger' => $migratedRoleCount,
+            'responsibilities_migrated'   => $migratedResponsibilityCounts,
+        ]);
+    }
 }
 
 /** Vérifie si une colonne existe déjà (idempotence des ALTER TABLE). */
@@ -316,7 +399,7 @@ function index_exists(\PDO $pdo, string $table, string $index): bool
 function down(): void
 {
     $pdo = Database::connection();
-    $tables = ['notifications', 'users_basontas', 'presences', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
+    $tables = ['responsibilities', 'notifications', 'users_basontas', 'presences', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
                'examens', 'veillees', 'cultes', 'basontas', 'bacentas', 'users',
                'centres_presentation', 'equipe', 'presentation', 'centres'];
     $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');

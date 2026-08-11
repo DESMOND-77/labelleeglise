@@ -7,19 +7,40 @@
 
 declare(strict_types=1);
 
-// Rôles (enum de la table users) — voir Config/auth.php pour les libellés.
+// Rôles (enum de la table users). ROLE ≠ RESPONSABILITÉ ≠ PÉRIMÈTRE — voir
+// docs/roles-and-permissions.md. `responsable` reste dans l'ENUM SQL pour
+// compatibilité/rollback (voir migration) mais n'est plus un rôle actif :
+// il a été remplacé par `berger` + le modèle de responsabilités.
 define('ROLE_LABELS', [
-    'admin'       => 'Administrateur',
-    'leader'      => 'Leader',
-    'assistant'   => 'Assistant',
-    'pasteur'     => 'Pasteur',
-    'reverant'    => 'Révérend',
-    'membre'      => 'Membre',
-    'responsable' => 'Responsable',
+    'admin'     => 'Administrateur',
+    'pasteur'   => 'Pasteur',
+    'reverant'  => 'Révérend',
+    'berger'    => 'Berger',
+    'ms'        => 'MS',
+    'leader'    => 'Leader',
+    'membre'    => 'Membre',
+    'assistant' => 'Assistant',
 ]);
 
-// Les "bergers" (fiche berger + suivi hebdomadaire) = ces rôles.
-define('BERGER_ROLES', ['leader', 'pasteur', 'reverant']);
+/*
+ * Trois regroupements de rôles, DISTINCTS et NE DEVANT JAMAIS être
+ * conflatés (voir prompts/REMANIEMENT…md §11) :
+ *
+ * - BERGER_ROLES : rôles ayant une fiche berger + un suivi hebdomadaire
+ *   PERSONNELS, et un périmètre "bacenta d'appartenance" verrouillé
+ *   (users.bacenta_id). Comportement historique préservé pour
+ *   leader/pasteur/reverant ; berger/ms nouvellement inclus.
+ * - CENTER_BACENTA_RESPONSIBILITY_ROLES : rôles pouvant RECEVOIR une
+ *   responsabilité de centre ou de bacenta (table `responsibilities`).
+ * - CULT_RESPONSIBILITY_ROLES : rôles pouvant RECEVOIR une responsabilité
+ *   de culte.
+ * - WEEKLY_FOLLOWUP_ROLES : rôles disposant de la permission
+ *   `weekly_followup.manage_own` (admin inclus : accès global en lecture).
+ */
+define('BERGER_ROLES', ['leader', 'pasteur', 'reverant', 'berger', 'ms']);
+define('CENTER_BACENTA_RESPONSIBILITY_ROLES', ['berger', 'ms', 'pasteur']);
+define('CULT_RESPONSIBILITY_ROLES', ['pasteur', 'reverant']);
+define('WEEKLY_FOLLOWUP_ROLES', ['admin', 'pasteur', 'reverant', 'berger', 'ms', 'leader']);
 
 /* ---------- Constantes métier ---------- */
 

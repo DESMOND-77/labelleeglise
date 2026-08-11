@@ -31,15 +31,15 @@ require_once BASE_PATH . '/Config/paths.php';
 // 3. Configuration.
 $appConfig = require APP_CONFIG_PATH . '/app.php';
 $dbConfig  = require APP_CONFIG_PATH . '/database.php';
-$authConfig = require APP_CONFIG_PATH . '/auth.php';
 
 // Fuseau horaire.
 if (!empty($appConfig['timezone'])) {
     date_default_timezone_set($appConfig['timezone']);
 }
 
-// 4. Constantes métier (rôles, sections, champs…).
+// 4. Constantes métier (rôles, sections, champs…) + matrice de permissions.
 require_once APP_CONFIG_PATH . '/constants.php';
+define('PERMISSIONS_MATRIX', require APP_CONFIG_PATH . '/permissions.php');
 
 // 5. Gestion d'erreurs + journalisation.
 require_once APP_PATH . '/app/Core/Logger.php';
