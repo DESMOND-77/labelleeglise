@@ -3,11 +3,12 @@
  * Configuration de l'envoi d'emails (SMTP via PHPMailer).
  * -------------------------------------------------------------
  * Les identifiants SMTP ne doivent JAMAIS être codés en dur ici en
- * production : ils sont lus depuis les variables d'environnement du
- * serveur (getenv), avec des valeurs par défaut neutres pour le
- * développement local. Adaptez ces variables d'environnement sur
- * l'hébergement (fichier .htaccess `SetEnv`, configuration Apache/PHP-FPM,
- * ou panneau d'hébergement mutualisé).
+ * production : ils sont lus depuis les variables d'environnement
+ * (`env_value()`, défini dans `Bootstrap/env.php` et chargé depuis le
+ * fichier `.env` en local — voir `.env.example`), avec des valeurs par
+ * défaut neutres pour le développement local. Sur l'hébergement, définissez
+ * ces variables via `.env` (non versionné) ou les vraies variables
+ * d'environnement du serveur (Apache/PHP-FPM, panneau d'hébergement).
  *
  * Variables reconnues :
  *   SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD, SMTP_ENCRYPTION
@@ -15,17 +16,6 @@
  */
 
 declare(strict_types=1);
-
-if (!function_exists('env_value')) {
-    function env_value(string $key, $default = null)
-    {
-        $value = getenv($key);
-        if ($value === false || $value === '') {
-            return $default;
-        }
-        return $value;
-    }
-}
 
 return [
     // Hôte SMTP (ex. smtp.gmail.com, mail.votre-domaine.com). Vide = envoi désactivé (journalisé).

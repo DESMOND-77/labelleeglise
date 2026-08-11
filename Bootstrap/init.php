@@ -11,6 +11,10 @@ declare(strict_types=1);
 // 1. Autoloader (légers, sans Composer).
 require_once __DIR__ . '/autoload.php';
 
+// 1b. Variables d'environnement (.env à la racine, si présent).
+require_once __DIR__ . '/env.php';
+load_env(BASE_PATH . '/.env');
+
 // 2. Chemins absolus.
 require_once BASE_PATH . '/Config/paths.php';
 

@@ -30,7 +30,12 @@ aucun CLI, aucune installation. Il suffit de copier les fichiers dans la racine 
    FLUSH PRIVILEGES;
    ```
 
-3. **Adapter les identifiants** dans `Config/database.php`.
+3. **Copier `.env.example` en `.env`** et adapter les identifiants (base de
+   données, SMTP, URL de l'application…) — voir §7.3. Ce fichier n'est jamais
+   versionné (`.gitignore`) ; `Config/database.php`, `Config/app.php` et
+   `Config/mail.php` lisent leurs valeurs depuis ces variables d'environnement
+   (via `Bootstrap/env.php`), avec des valeurs par défaut neutres si `.env`
+   est absent.
 4. **Installer le schéma + les données de démonstration** :
 
    ```bash
@@ -227,9 +232,15 @@ SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD, SMTP_ENCRYPTION,
 SMTP_AUTH, MAIL_FROM_ADDRESS, MAIL_FROM_NAME, APP_BASE_URL, SMTP_DEBUG
 ```
 
-À définir sur le serveur de production (configuration Apache/PHP-FPM,
-panneau d'hébergement, ou `putenv()` dans un fichier non versionné chargé
-avant `Bootstrap/init.php`). **Tant que `SMTP_HOST` n'est pas configuré, les
+En local, ces variables (ainsi que `DB_HOST`/`DB_PORT`/`DB_NAME`/`DB_USER`/
+`DB_PASS`/`DB_CHARSET` et `APP_NAME`/`APP_URL`/`APP_TIMEZONE`/`APP_DEBUG`/
+`APP_SESSION_NAME`/`APP_UPLOAD_DIR`/`APP_MAX_UPLOAD_BYTES`) se définissent
+dans un fichier `.env` à la racine (copié depuis `.env.example`, **jamais
+versionné** — voir `.gitignore`), chargé automatiquement par
+`Bootstrap/env.php` au tout début de `Bootstrap/init.php`. En production,
+définissez plutôt les **vraies variables d'environnement du serveur**
+(configuration Apache/PHP-FPM, panneau d'hébergement) : elles sont toujours
+prioritaires sur `.env` si les deux existent. **Tant que `SMTP_HOST` n'est pas configuré, les
 emails ne sont pas envoyés** : ils sont journalisés dans `Storage/logs/mail.log`
 (et `Storage/logs/app-*.log`) sans jamais faire échouer l'inscription, la
 vérification ou l'activation en cours — une erreur d'envoi est toujours
