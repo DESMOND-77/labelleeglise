@@ -1,4 +1,0 @@
-[2026-08-07 01:33:18] ERROR: Exception: Call to undefined function qall() {"file":"\/home\/foxtrot\/Téléchargements\/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6\/labelleeglise\/Views\/pages\/culte_detail.php","line":4}
-[2026-08-07 01:36:31] ERROR: Exception: Undefined variable $csrf {"file":"\/home\/foxtrot\/Téléchargements\/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6\/labelleeglise\/Views\/pages\/centre_offrandes.php","line":19}
-[2026-08-07 01:40:01] ERROR: Exception: Call to undefined method App\Core\Query::exec() {"file":"\/home\/foxtrot\/Téléchargements\/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6\/labelleeglise\/Storage\/restore.php","line":4}
-[2026-08-07 01:40:58] ERROR: Exception: Call to undefined method App\Core\Query::exec() {"file":"\/home\/foxtrot\/Téléchargements\/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6\/labelleeglise\/Storage\/restore.php","line":4}
