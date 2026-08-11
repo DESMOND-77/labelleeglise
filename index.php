@@ -20,15 +20,30 @@ if (isset($_GET['action']) && $_GET['action'] !== '') {
     (new ActionsController())->getAction();
 }
 
-/* ---------- Actions en POST (écritures, login, porte d'accès) ---------- */
+use App\Controllers\RegistrationController;
+
+/* ---------- Actions en POST (écritures, login, porte d'accès, inscription) ---------- */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $route = $_POST['action'] ?? '';
     if ($route === 'login' || $route === 'verify_access') {
         (new AuthController())->{$route}();
+    } elseif ($route === 'register') {
+        (new RegistrationController())->submit();
     } else {
         (new ActionsController())->postAction();
     }
     exit;
+}
+
+/* ---------- Pages publiques (accessibles sans connexion) ---------- */
+$page = $_GET['page'] ?? 'accueil';
+$publicPages = ['register', 'verify_email'];
+
+if (in_array($page, $publicPages, true)) {
+    require_once __DIR__ . '/Routes/web.php';
+    if (Router::dispatch('GET', $page)) {
+        exit;
+    }
 }
 
 /* ---------- Authentification ---------- */
@@ -39,8 +54,6 @@ if (!$user) {
 }
 
 /* ---------- Routage des pages ---------- */
-$page = $_GET['page'] ?? 'accueil';
-
 // Dépendances de routage : charger les routes déclarées puis dispatcher.
 require_once __DIR__ . '/Routes/web.php';
 

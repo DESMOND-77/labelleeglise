@@ -115,6 +115,43 @@ class ActionsController extends Controller
                 }
                 $this->redirect('index.php', ['page' => 'basontas', 'id' => $basonta]);
                 break;
+
+            case 'notification_mark_read':
+                $user = current_user();
+                $id = (int) ($_GET['id'] ?? 0);
+                if ($user && $id) {
+                    notification_service()->markRead($id, (int) $user['id']);
+                }
+                $this->redirect('index.php', ['page' => 'notifications']);
+                break;
+
+            case 'notification_mark_all_read':
+                $user = current_user();
+                if ($user) {
+                    notification_service()->markAllRead((int) $user['id']);
+                }
+                $this->redirect('index.php', ['page' => 'notifications']);
+                break;
+
+            case 'notification_open':
+                // Marque la notification comme lue puis redirige vers la
+                // ressource concernée (fiche d'inscription…). Le lien est
+                // toujours celui stocké en base côté serveur, jamais fourni
+                // librement par le client.
+                $user = current_user();
+                $id = (int) ($_GET['id'] ?? 0);
+                $link = 'index.php?page=notifications';
+                if ($user && $id) {
+                    $notif = notification_service()->find($id);
+                    if ($notif && (int) $notif['recipient_id'] === (int) $user['id']) {
+                        notification_service()->markRead($id, (int) $user['id']);
+                        if (!empty($notif['link'])) {
+                            $link = $notif['link'];
+                        }
+                    }
+                }
+                header('Location: ' . $link);
+                exit;
         }
     }
 
@@ -126,12 +163,15 @@ class ActionsController extends Controller
 
         switch ($action) {
             case 'login':
-                $ok = login((string) ($_POST['email'] ?? ''), (string) ($_POST['password'] ?? ''));
-                if ($ok) {
+                $email = (string) ($_POST['email'] ?? '');
+                $password = (string) ($_POST['password'] ?? '');
+                $result = attempt_login($email, $password);
+                if ($result['ok']) {
+                    login($email, $password);
                     $target = scope_target();
                     $this->redirect('index.php', $target ?: ['page' => 'accueil']);
                 }
-                $this->redirect('index.php', ['error' => 1]);
+                $this->redirect('index.php', ['error' => $result['reason']]);
                 break;
 
             case 'verify_access':
@@ -438,6 +478,53 @@ $first = Query::value('SELECT id FROM bacentas WHERE centre_id = ? ORDER BY id L
                 ];
                 save_article_record($id ?: null, $fields);
                 $this->redirect('index.php', ['page' => 'centresPresentation']);
+                break;
+
+            /* ---------- Administration des inscriptions ---------- */
+
+            case 'admin_activate_account':
+                // Contrôle d'autorisation strictement côté serveur : jamais
+                // seulement un bouton masqué côté vue.
+                if (!current_user() || current_user()['role'] !== 'admin') {
+                    $this->redirect('index.php', ['page' => 'apropos']);
+                }
+                $id = (int) ($_POST['id'] ?? 0);
+                if ($id) {
+                    registration_service()->activate($id);
+                }
+                $this->redirect('index.php', ['page' => 'admin_inscriptions']);
+                break;
+
+            case 'admin_reject_account':
+                if (!current_user() || current_user()['role'] !== 'admin') {
+                    $this->redirect('index.php', ['page' => 'apropos']);
+                }
+                $id = (int) ($_POST['id'] ?? 0);
+                if ($id) {
+                    registration_service()->reject($id);
+                }
+                $this->redirect('index.php', ['page' => 'admin_inscriptions']);
+                break;
+
+            /* ---------- Affectation de membres à un bacenta (responsable) ---------- */
+
+            case 'bacenta_assign_members':
+                $user = current_user();
+                $submittedBacentaId = (int) ($_POST['bacenta_id'] ?? 0);
+                $submittedIds = array_map('intval', (array) ($_POST['member_ids'] ?? []));
+
+                $service = bacenta_membership_service();
+                $authorizedBacentaId = $user ? $service->authorizedBacentaId($user, $submittedBacentaId) : null;
+
+                if ($authorizedBacentaId && $submittedIds) {
+                    $service->assignMembers($authorizedBacentaId, $submittedIds);
+                }
+
+                $this->redirect('index.php', [
+                    'page' => 'bacentas',
+                    'id'   => $authorizedBacentaId ?: $submittedBacentaId,
+                    'tab'  => 'membres',
+                ]);
                 break;
         }
     }

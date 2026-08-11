@@ -12,7 +12,7 @@ class AuthController extends Controller
 {
     public function loginForm(): void
     {
-        echo view('pages/login', ['error' => isset($_GET['error'])]);
+        echo view('pages/login', ['error' => $_GET['error'] ?? null]);
     }
 
     public function login(): void
@@ -20,12 +20,13 @@ class AuthController extends Controller
         $email = (string) (Request::post('email') ?? '');
         $password = (string) (Request::post('password') ?? '');
 
-        $ok = \login($email, $password);
-        if ($ok) {
+        $result = attempt_login($email, $password);
+        if ($result['ok']) {
+            \login($email, $password);
             $target = scope_target();
             $this->redirect('index.php', $target ?: ['page' => 'accueil']);
         }
-        $this->redirect('index.php', ['error' => 1]);
+        $this->redirect('index.php', ['error' => $result['reason']]);
     }
 
     public function verifyAccess(): void

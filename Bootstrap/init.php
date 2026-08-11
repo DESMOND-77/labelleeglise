@@ -46,6 +46,7 @@ require_once APP_PATH . '/app/Compat/bergers.php';
 require_once APP_PATH . '/app/Compat/finances.php';
 require_once APP_PATH . '/app/Compat/parametres.php';
 require_once APP_PATH . '/app/Compat/apropos.php';
+require_once APP_PATH . '/app/Compat/notifications.php';
 
 // 7. Session.
 \App\Core\Session::start($appConfig['session_name'] ?? null);

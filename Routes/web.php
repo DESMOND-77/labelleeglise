@@ -20,10 +20,14 @@ use App\Controllers\SettingsController;
 use App\Controllers\AboutController;
 use App\Controllers\ProfileController;
 use App\Controllers\ActionsController;
+use App\Controllers\RegistrationController;
+use App\Controllers\AdminRegistrationController;
+use App\Controllers\NotificationController;
 
 /* ---------- Authentification (POST) ---------- */
 Router::post('login', AuthController::class, 'login');
 Router::post('verify_access', AuthController::class, 'verifyAccess');
+Router::post('register', RegistrationController::class, 'submit');
 
 /* ---------- Actions d'écriture (POST) ---------- */
 Router::post('action', ActionsController::class, 'postAction');
@@ -52,3 +56,14 @@ Router::get('suiviBergers', BergerController::class, 'suivi');
 Router::get('finances', FinanceController::class, 'index');
 Router::get('parametres', SettingsController::class, 'index');
 Router::get('personProfile', ProfileController::class, 'index');
+
+/* ---------- Inscription publique / vérification email (accès public) ---------- */
+Router::get('register', RegistrationController::class, 'form');
+Router::get('verify_email', RegistrationController::class, 'verify');
+
+/* ---------- Administration des inscriptions (admin uniquement) ---------- */
+Router::get('admin_inscriptions', AdminRegistrationController::class, 'index');
+Router::get('admin_inscription', AdminRegistrationController::class, 'show');
+
+/* ---------- Centre de notifications ---------- */
+Router::get('notifications', NotificationController::class, 'index');
