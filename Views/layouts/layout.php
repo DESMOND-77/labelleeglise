@@ -35,6 +35,33 @@ if ($scope && $scope['kind'] === 'berger') {
     }
 }
 
+/* ---------- Inscriptions en attente (admin) ---------- */
+$pendingRegistrationsCount = 0;
+if ($isAdmin) {
+    $pendingRegistrationsCount = count(get_pending_registrations());
+    $badge = $pendingRegistrationsCount ? '<span class="nav-badge">' . $pendingRegistrationsCount . '</span>' : '';
+    $navLis[] = '<li><a class="nav-item' . ($page === 'admin_inscriptions' || $page === 'admin_inscription' ? ' active' : '')
+        . '" href="' . h(url('index.php', ['page' => 'admin_inscriptions'])) . '"><span class="ico">' . SECTION_ICONS['admin_inscriptions']
+        . '</span><span class="label">Inscriptions</span>' . $badge . '</a></li>';
+}
+
+/* ---------- Notifications (dropdown topbar) ---------- */
+$unreadNotifCount = $user ? unread_notifications_count((int) $user['id']) : 0;
+$recentNotifs = $user ? recent_notifications((int) $user['id'], 8) : [];
+$notifItemsHtml = '';
+foreach ($recentNotifs as $n) {
+    $isUnread = !(int) $n['is_read'];
+    $icon = NOTIFICATION_TYPE_ICONS[$n['type']] ?? '<i class="fa-solid fa-bell"></i>';
+    $when = !empty($n['created_at']) ? date('d/m/Y H:i', strtotime($n['created_at'])) : '';
+    $notifItemsHtml .= '<a class="notif-item' . ($isUnread ? ' unread' : '') . '" href="' . h(url('index.php', ['action' => 'notification_open', 'id' => $n['id']])) . '">'
+        . '<span class="notif-item-icon">' . $icon . '</span>'
+        . '<span class="notif-item-body"><strong>' . h($n['title']) . '</strong><span>' . h($n['message']) . '</span><time>' . h($when) . '</time></span>'
+        . '</a>';
+}
+if ($notifItemsHtml === '') {
+    $notifItemsHtml = '<div class="notif-empty">Aucune notification pour le moment.</div>';
+}
+
 /* ---------- Fil d'Ariane ---------- */
 $crumbs = [['label' => SECTION_LABELS[$page] ?? $title, 'url' => url('index.php', ['page' => $page])]];
 if (in_array($page, ['bacentas', 'cultes', 'basontas'], true) && nav('id')) {
@@ -131,10 +158,22 @@ if (in_array($page, ['bacentas', 'cultes', 'basontas'], true) && nav('id')) {
       </div>
       <?php endif; ?>
       <div class="topbar-actions">
-        <button class="topbar-icon-btn" title="Notifications" aria-label="Notifications">
-          <i class="fa-solid fa-bell"></i>
-          <span class="dot"></span>
-        </button>
+        <div class="notif-menu" id="notifMenu">
+          <button class="topbar-icon-btn" id="notifTrigger" title="Notifications" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+            <i class="fa-solid fa-bell"></i>
+            <?php if ($unreadNotifCount): ?><span class="dot"></span><?php endif; ?>
+          </button>
+          <div class="notif-menu-list">
+            <div class="notif-menu-head">
+              <strong>Notifications</strong>
+              <?php if ($unreadNotifCount): ?>
+                <a href="<?= h(url('index.php', ['action' => 'notification_mark_all_read'])) ?>">Tout marquer comme lu</a>
+              <?php endif; ?>
+            </div>
+            <div class="notif-menu-items"><?= $notifItemsHtml ?></div>
+            <a class="notif-menu-footer" href="<?= h(url('index.php', ['page' => 'notifications'])) ?>">Voir toutes les notifications</a>
+          </div>
+        </div>
         <div class="profile-menu" id="profileMenu">
           <button class="profile-trigger" id="profileTrigger" aria-haspopup="true" aria-expanded="false">
             <div class="user-avatar"><?= h(strtoupper(first_char(trim($user['prenom'] ?? '?')))) ?></div>

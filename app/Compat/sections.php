@@ -242,7 +242,62 @@ function render_bacenta_detail(int $bacentaId): void
     ];
     $content = tab_row($tabs, 'membres')
              . members_table('bacentas', $bacentaId, $b['nom'], count(get_members_of_bacenta($bacentaId)));
+
+    // Section "Ajouter des membres" (membres actifs/vérifiés non affectés) —
+    // affichée EN PLUS du formulaire d'ajout existant (members_table
+    // ci-dessus), sans le remplacer. Réservée à l'admin ou au responsable
+    // qui gère réellement ce bacenta (vérifié via RBAC, jamais un simple
+    // masquage côté vue).
+    if (can_manage_entity('bacenta', $bacentaId)) {
+        $content .= bacenta_available_members_section($bacentaId);
+    }
+
     render_page($b['nom'], $content);
+}
+
+/**
+ * Section "Membres disponibles" : recherche + sélection multiple de
+ * membres actifs, vérifiés, non affectés, pour affectation au bacenta
+ * courant. La recherche est un simple aller-retour serveur (paramètre GET
+ * "mq", isolé du reste de la navigation), l'affectation se fait par un
+ * formulaire POST sécurisé (CSRF + revalidation serveur de chaque membre).
+ */
+function bacenta_available_members_section(int $bacentaId): string
+{
+    $search = trim((string) ($_GET['mq'] ?? ''));
+    $members = bacenta_membership_service()->searchUnassigned($search);
+
+    $rows = '';
+    foreach ($members as $m) {
+        $initial = h(mb_strtoupper(first_char(trim($m['prenom'] ?? '?'))));
+        $rows .= '<label class="member-select-row">'
+            . '<input type="checkbox" name="member_ids[]" value="' . (int) $m['id'] . '">'
+            . '<span class="member-select-avatar">' . $initial . '</span>'
+            . '<span class="member-select-info"><strong>' . h(full_name($m)) . '</strong>'
+            . '<span>' . h($m['email'] ?? '') . ($m['telephone'] ? ' · ' . h($m['telephone']) : '') . '</span></span>'
+            . '</label>';
+    }
+    $rows = $rows ?: '<div class="member-select-empty">' . empty_state('fa-user-check', 'Aucun membre disponible pour le moment.') . '</div>';
+
+    $searchUrl = url('index.php', ['page' => 'bacentas', 'id' => $bacentaId, 'tab' => 'membres']);
+
+    return '<div class="member-select-section">'
+        . '<div class="section-toolbar"><div><h2>Ajouter des membres</h2>'
+        . '<div class="sub">Membres actifs, vérifiés et non affectés à un bacenta</div></div></div>'
+        . '<form method="get" action="index.php" class="member-select-search">'
+        . '<input type="hidden" name="page" value="bacentas"><input type="hidden" name="id" value="' . $bacentaId . '"><input type="hidden" name="tab" value="membres">'
+        . '<input type="search" name="mq" placeholder="Rechercher un membre (nom, prénom, email, téléphone)…" value="' . h($search) . '">'
+        . '<button type="submit" class="btn btn-outline">Rechercher</button>'
+        . ($search !== '' ? '<a class="btn btn-outline" href="' . h($searchUrl) . '">Effacer</a>' : '')
+        . '</form>'
+        . '<form method="post" action="index.php">'
+        . '<input type="hidden" name="action" value="bacenta_assign_members">' . csrf_field()
+        . '<input type="hidden" name="bacenta_id" value="' . $bacentaId . '">'
+        . '<div class="member-select-list">' . $rows . '</div>'
+        . '<div class="member-select-actions">'
+        . '<span class="member-select-count">' . count($members) . ' membre(s) disponible(s)</span>'
+        . '<button type="submit" class="btn btn-primary" ' . ($members ? '' : 'disabled') . '>Ajouter les membres sélectionnés</button>'
+        . '</div></form></div>';
 }
 
 function render_centre_detail(int $centreId): void

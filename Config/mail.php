@@ -16,13 +16,15 @@
 
 declare(strict_types=1);
 
-function env_value(string $key, $default = null)
-{
-    $value = getenv($key);
-    if ($value === false || $value === '') {
-        return $default;
+if (!function_exists('env_value')) {
+    function env_value(string $key, $default = null)
+    {
+        $value = getenv($key);
+        if ($value === false || $value === '') {
+            return $default;
+        }
+        return $value;
     }
-    return $value;
 }
 
 return [

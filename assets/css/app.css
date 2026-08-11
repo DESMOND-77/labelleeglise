@@ -26,6 +26,7 @@
 @import url('modal.css');
 @import url('alerts.css');
 @import url('components.css');
+@import url('notifications.css');
 
 /* ---- Utilitaires & animations ---- */
 @import url('utilities.css');

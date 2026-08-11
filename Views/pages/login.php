@@ -1,4 +1,14 @@
-<?php /* Écran de connexion (par email). Variable : $error (bool). */ ?>
+<?php
+/* Écran de connexion (par email). Variable : $error (string|null) — reason ∈ invalid|not_verified|pending|disabled. */
+$error = $error ?? null;
+$errorMessages = [
+    'invalid'      => 'Email ou mot de passe incorrect.',
+    'not_verified' => 'Veuillez vérifier votre adresse email avant de vous connecter. Consultez votre boîte de réception.',
+    'pending'      => 'Votre adresse email est vérifiée. Votre compte est actuellement en attente de validation par un administrateur.',
+    'disabled'     => 'Votre compte est actuellement désactivé. Contactez l\'administration pour plus d\'informations.',
+];
+$errorMessage = $error ? ($errorMessages[$error] ?? $errorMessages['invalid']) : null;
+?>
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -34,8 +44,8 @@
         </div>
       </div>
 
-      <div class="modal-error" id="loginError" style="<?= !empty($error) ? 'display:block;' : 'display:none;' ?>">
-        <i class="fa-solid fa-triangle-exclamation"></i> Email ou mot de passe incorrect (ou compte inactif).
+      <div class="modal-error<?= $errorMessage ? ' show' : '' ?>" id="loginError" style="<?= $errorMessage ? 'display:block;' : 'display:none;' ?>">
+        <i class="fa-solid fa-triangle-exclamation"></i> <?= h($errorMessage ?? '') ?>
       </div>
 
       <button type="submit" class="btn btn-primary btn-block btn-lg">Se connecter</button>
@@ -46,6 +56,10 @@
         <span><code>user@labelleeglise.ga</code> / <code>user1111</code> — accès limité</span>
         <span><code>resp.bacenta.sion@labelleeglise.ga</code> / <code>ESKLna</code></span>
         <span><code>berger.eric.bongo@labelleeglise.ga</code> / <code>BergerEB1</code></span>
+      </div>
+
+      <div class="login-hint register-back">
+        <span>Pas encore de compte ? <a href="<?= h(url('index.php', ['page' => 'register'])) ?>">Créer un compte</a></span>
       </div>
     </form>
   </div>

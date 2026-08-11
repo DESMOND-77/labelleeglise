@@ -255,6 +255,35 @@ data: [charts.doughnut.present, charts.doughnut.absent, charts.doughnut.none],
     });
   }
 
+  /* ---------------- Menu notifications ---------------- */
+
+  function initNotifMenu() {
+    var menu = document.getElementById("notifMenu");
+    var trigger = document.getElementById("notifTrigger");
+    if (!menu || !trigger) return;
+
+    trigger.addEventListener("click", function (e) {
+      e.stopPropagation();
+      var open = menu.classList.toggle("open");
+      trigger.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+
+    document.addEventListener("click", function (e) {
+      if (menu.classList.contains("open") && !menu.contains(e.target)) {
+        menu.classList.remove("open");
+        trigger.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && menu.classList.contains("open")) {
+        menu.classList.remove("open");
+        trigger.setAttribute("aria-expanded", "false");
+        trigger.focus();
+      }
+    });
+  }
+
   /* ---------------- Démarrage ---------------- */
 
   document.addEventListener("DOMContentLoaded", function () {
@@ -264,5 +293,6 @@ data: [charts.doughnut.present, charts.doughnut.absent, charts.doughnut.none],
     initMenuToggle();
     initSidebarCollapse();
     initProfileMenu();
+    initNotifMenu();
   });
 })();
