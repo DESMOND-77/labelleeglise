@@ -26,18 +26,20 @@ class BasontaRepository
         );
     }
 
-    public function create(string $nom, ?int $respId): int
+    /** $respId accepté pour compatibilité mais IGNORÉ — voir BacentaRepository::create(). */
+    public function create(string $nom, ?int $respId = null): int
     {
-        return Query::run('INSERT INTO basontas (nom, responsable_id) VALUES (?, ?)', [$nom, $respId]);
+        return Query::run('INSERT INTO basontas (nom) VALUES (?)', [$nom]);
     }
 
-    public function update(int $id, string $nom, ?int $respId): void
+    public function update(int $id, string $nom, ?int $respId = null): void
     {
-        Query::run('UPDATE basontas SET nom = ?, responsable_id = ? WHERE id = ?', [$nom, $respId, $id]);
+        Query::run('UPDATE basontas SET nom = ? WHERE id = ?', [$nom, $id]);
     }
 
     public function delete(int $id): void
     {
+        Query::run("DELETE FROM responsibilities WHERE target_type = 'basonta' AND target_id = ?", [$id]);
         Query::run('DELETE FROM users_basontas WHERE basonta_id = ?', [$id]);
         Query::run('DELETE FROM basontas WHERE id = ?', [$id]);
     }

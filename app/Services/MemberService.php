@@ -42,8 +42,9 @@ class MemberService
             $data[$f] = trim((string) ($_POST[$f] ?? ''));
         }
         $data['date_naissance'] = trim((string) ($_POST['date_naissance'] ?? '')) ?: null;
-        $data['role'] = in_array($_POST['role'] ?? '', ['admin', 'leader', 'assistant', 'pasteur', 'reverant', 'membre', 'responsable'], true)
-            ? $_POST['role'] : 'membre';
+        // Rôles actifs uniquement (ROLE_LABELS — Config/constants.php) :
+        // 'responsable' n'est plus une valeur soumettable (voir migration).
+        $data['role'] = array_key_exists($_POST['role'] ?? '', ROLE_LABELS) ? $_POST['role'] : 'membre';
         $data['bacenta_id'] = (int) ($_POST['bacenta_id'] ?? 0) ?: null;
         $data['compte_actif'] = isset($_POST['compte_actif']) ? 1 : 0;
         $data['invite_par'] = (int) ($_POST['invite_par'] ?? 0) ?: null;

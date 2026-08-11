@@ -35,6 +35,14 @@ class CentreRepository
 
     public function delete(int $id): void
     {
+        // Intégrité (spec §38) : nettoie les responsabilités de ce centre
+        // ET des bacentas qu'il contient (supprimées en cascade ci-dessous) —
+        // `responsibilities` n'a pas de FK sur target_id (polymorphe).
+        $bacentaIds = Query::all('SELECT id FROM bacentas WHERE centre_id = ?', [$id]);
+        foreach ($bacentaIds as $b) {
+            Query::run("DELETE FROM responsibilities WHERE target_type = 'bacenta' AND target_id = ?", [(int) $b['id']]);
+        }
+        Query::run("DELETE FROM responsibilities WHERE target_type = 'center' AND target_id = ?", [$id]);
         Query::run('DELETE FROM presences WHERE centre_id = ?', [$id]);
         Query::run('DELETE FROM offrandes WHERE centre_id = ?', [$id]);
         Query::run('DELETE FROM bacentas WHERE centre_id = ?', [$id]);

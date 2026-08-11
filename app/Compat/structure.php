@@ -71,10 +71,26 @@ function delete_equipe_record(int $id): ?array { return _repo(CMSRepository::cla
 function save_article_record(?int $id, array $fields): void { _repo(CMSRepository::class)->saveCentreArticle($id, $fields); }
 function delete_article_record(int $id): ?array { return _repo(CMSRepository::class)->deleteCentreArticle($id); }
 
-/* ---------- Responsables ---------- */
-
-function save_responsable(string $type, int $id, ?int $userId): void
+/* ---------- Responsables ----------
+ * Délègue à ResponsibilityService (table `responsibilities` — source de
+ * vérité) : la colonne responsable_id historique n'est plus qu'un reflet
+ * synchronisé automatiquement (spec §41), jamais écrite directement ici.
+ * Types acceptés : 'center' | 'bacenta' | 'cult' | 'basonta'
+ * (alias FR historiques 'centre'/'culte' tolérés pour compatibilité).
+ */
+function save_responsable(string $type, int $id, ?int $userId): array
 {
-    $table = in_array($type, ['bacenta', 'basonta', 'culte'], true) ? $type . 's' : 'bacentas';
-    Query::run("UPDATE $table SET responsable_id = ? WHERE id = ?", [$userId, $id]);
+    $type = match ($type) {
+        'centre' => 'center',
+        'culte'  => 'cult',
+        default  => $type,
+    };
+    if ($userId === null) {
+        // "Aucun" sélectionné : retire toutes les responsabilités actuelles de cette cible.
+        foreach (responsibility_service()->listForTarget($type, $id) as $row) {
+            responsibility_service()->revokeById((int) $row['id']);
+        }
+        return ['ok' => true, 'error' => null];
+    }
+    return responsibility_service()->assign($userId, $type, $id);
 }

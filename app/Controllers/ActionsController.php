@@ -10,9 +10,39 @@ use App\Repositories\CMSRepository;
  * Gestionnaire central des actions (POST et suppressions).
  * Chaque action se termine par une redirection (comportement identique à
  * l'ancien actions.php).
+ *
+ * IMPORTANT — contrôle serveur (spec §34, §40, §42) : `getAction()` est
+ * dispatché par index.php AVANT la vérification de session (voir front
+ * controller), donc CHAQUE case doit revérifier explicitement
+ * current_user() + l'autorisation réelle (rôle + permission + responsabilité
+ * + périmètre) — jamais seulement un bouton masqué côté vue.
  */
 class ActionsController extends Controller
 {
+    /** Redirige un accès refusé (même convention que AdminMiddleware). */
+    private function deny(): never
+    {
+        $this->redirect('index.php', ['page' => 'apropos']);
+    }
+
+    private function requireAdmin(): array
+    {
+        $user = current_user();
+        if (!$user || $user['role'] !== 'admin') {
+            $this->deny();
+        }
+        return $user;
+    }
+
+    private function requireUser(): array
+    {
+        $user = current_user();
+        if (!$user) {
+            $this->deny();
+        }
+        return $user;
+    }
+
     /** Suppressions / déconnexions passées en GET (?action=…). */
     public function getAction(): void
     {
@@ -25,6 +55,7 @@ class ActionsController extends Controller
                 break;
 
             case 'delete_centre':
+                $this->requireAdmin();
                 $id = (int) ($_GET['id'] ?? 0);
                 if ($id) {
                     delete_centre($id);
@@ -33,6 +64,7 @@ class ActionsController extends Controller
                 break;
 
             case 'delete_bacenta':
+                $this->requireAdmin();
                 $id = (int) ($_GET['id'] ?? 0);
                 if ($id) {
                     delete_bacenta($id);
@@ -41,6 +73,7 @@ class ActionsController extends Controller
                 break;
 
             case 'delete_culte':
+                $this->requireAdmin();
                 $id = (int) ($_GET['id'] ?? 0);
                 if ($id) {
                     delete_culte($id);
@@ -49,6 +82,7 @@ class ActionsController extends Controller
                 break;
 
             case 'delete_basonta':
+                $this->requireAdmin();
                 $id = (int) ($_GET['id'] ?? 0);
                 if ($id) {
                     delete_basonta($id);
@@ -57,33 +91,37 @@ class ActionsController extends Controller
                 break;
 
             case 'delete_membre':
+                $this->requireUser();
                 $id = (int) ($_GET['id'] ?? 0);
                 $section = (string) nav('page');
-                if ($id) {
+                // IDOR (spec §12/§40) : remonte la chaîne membre → bacenta →
+                // centre côté serveur ; jamais de confiance dans l'id seul.
+                if ($id && auth_can_manage_member($id)) {
                     delete_user($id);
                 }
                 redirect_members_context($section);
                 break;
 
             case 'delete_examen':
+            case 'delete_veillee': {
+                $user = $this->requireUser();
                 $membre = (int) ($_GET['membre'] ?? 0);
                 $id = (int) ($_GET['id'] ?? 0);
-                if ($membre && $id) {
-                    delete_examen($membre, $id);
+                // Fiche berger : uniquement SA propre fiche (spec §20), sauf admin.
+                $allowed = $membre && $id && ($user['role'] === 'admin' || $membre === (int) $user['id']);
+                if ($allowed) {
+                    if ($action === 'delete_examen') {
+                        delete_examen($membre, $id);
+                    } else {
+                        delete_veillee($membre, $id);
+                    }
                 }
-                $this->redirect('index.php', ['page' => 'bergerFiche', 'membre' => $membre, 'tab' => 'examens']);
+                $this->redirect('index.php', ['page' => 'bergerFiche', 'membre' => $membre, 'tab' => $action === 'delete_examen' ? 'examens' : 'veillees']);
                 break;
-
-            case 'delete_veillee':
-                $membre = (int) ($_GET['membre'] ?? 0);
-                $id = (int) ($_GET['id'] ?? 0);
-                if ($membre && $id) {
-                    delete_veillee($membre, $id);
-                }
-                $this->redirect('index.php', ['page' => 'bergerFiche', 'membre' => $membre, 'tab' => 'veillees']);
-                break;
+            }
 
             case 'delete_user':
+                $this->requireAdmin();
                 $id = (int) ($_GET['id'] ?? 0);
                 if ($id) {
                     delete_user($id);
@@ -92,6 +130,7 @@ class ActionsController extends Controller
                 break;
 
             case 'delete_equipe':
+                $this->requireAdmin();
                 $id = (int) ($_GET['id'] ?? 0);
                 if ($id) {
                     delete_equipe_record($id);
@@ -100,6 +139,7 @@ class ActionsController extends Controller
                 break;
 
             case 'delete_article':
+                $this->requireAdmin();
                 $id = (int) ($_GET['id'] ?? 0);
                 if ($id) {
                     delete_article_record($id);
@@ -108,12 +148,29 @@ class ActionsController extends Controller
                 break;
 
             case 'basonta_remove_member':
+                $this->requireUser();
                 $basonta = (int) ($_GET['basonta'] ?? 0);
                 $membre = (int) ($_GET['membre'] ?? 0);
-                if ($basonta && $membre) {
+                if ($basonta && $membre && (current_user()['role'] === 'admin' || auth_can_manage_basonta($basonta))) {
                     basonta_remove_member($basonta, $membre);
                 }
                 $this->redirect('index.php', ['page' => 'basontas', 'id' => $basonta]);
+                break;
+
+            case 'revoke_responsibility':
+                $this->requireAdmin();
+                if (!auth_can_manage_responsibilities()) {
+                    $this->deny();
+                }
+                $id = (int) ($_GET['rid'] ?? $_GET['id'] ?? 0);
+                if ($id) {
+                    responsibility_service()->revokeById($id);
+                }
+                $returnToUser = (int) ($_GET['return_to_user'] ?? 0);
+                if ($returnToUser) {
+                    $this->redirect('index.php', ['page' => 'parametres', 'form' => 'user', 'id' => $returnToUser]);
+                }
+                $this->redirect('index.php', ['page' => 'parametres', 'param_tab' => 'acces']);
                 break;
 
             case 'notification_mark_read':
@@ -191,6 +248,9 @@ class ActionsController extends Controller
             /* ---------- CRUD structure ---------- */
 
             case 'save_centre':
+                // Création/renommage de centre : réservé à l'admin (aucune
+                // notion de "propriétaire" pour une structure racine).
+                $this->requireAdmin();
                 $id = (int) ($_POST['id'] ?? 0);
                 $nom = trim((string) ($_POST['nom'] ?? ''));
                 if ($nom !== '') {
@@ -199,45 +259,82 @@ class ActionsController extends Controller
                 $this->redirect('index.php', ['page' => 'centres']);
                 break;
 
-            case 'save_bacenta':
+            case 'save_bacenta': {
+                $user = $this->requireUser();
                 $id = (int) ($_POST['id'] ?? 0);
                 $nom = trim((string) ($_POST['nom'] ?? ''));
                 $centreId = (int) ($_POST['centre_id'] ?? 0) ?: null;
-                $respId = (int) ($_POST['responsable_id'] ?? 0) ?: null;
+                // Création : admin uniquement. Modification : admin OU
+                // responsable (direct/hérité du centre) de cette bacenta.
+                $authorized = $id ? auth_can_manage_bacenta($id) : ($user['role'] === 'admin');
+                if (!$authorized) {
+                    $this->deny();
+                }
                 if ($nom !== '') {
-                    save_bacenta($id ?: null, $nom, $centreId, $respId);
+                    save_bacenta($id ?: null, $nom, $centreId, null);
                 }
                 $this->redirect('index.php', ['page' => 'bacentas']);
                 break;
+            }
 
-            case 'save_culte':
+            case 'save_culte': {
+                $user = $this->requireUser();
                 $id = (int) ($_POST['id'] ?? 0);
                 $nom = trim((string) ($_POST['nom'] ?? ''));
                 $date = trim((string) ($_POST['date_culte'] ?? '')) ?: null;
                 $debut = trim((string) ($_POST['heure_debut'] ?? '')) ?: null;
                 $fin = trim((string) ($_POST['heure_fin'] ?? '')) ?: null;
-                $resp = (int) ($_POST['responsable_id'] ?? 0) ?: null;
+                // Création : admin uniquement. Modification : admin OU
+                // pasteur/reverant responsable de CE culte précis (spec §26).
+                $authorized = $id ? auth_can_manage_culte($id) : ($user['role'] === 'admin');
+                if (!$authorized) {
+                    $this->deny();
+                }
                 if ($nom !== '') {
-                    save_culte($id ?: null, $nom, $date, $debut, $fin, $resp);
+                    save_culte($id ?: null, $nom, $date, $debut, $fin, null);
                 }
                 $this->redirect('index.php', ['page' => 'cultes']);
                 break;
+            }
 
-            case 'save_basonta':
+            case 'save_basonta': {
+                $user = $this->requireUser();
                 $id = (int) ($_POST['id'] ?? 0);
                 $nom = trim((string) ($_POST['nom'] ?? ''));
-                $resp = (int) ($_POST['responsable_id'] ?? 0) ?: null;
+                $authorized = $id ? auth_can_manage_basonta($id) : ($user['role'] === 'admin');
+                if (!$authorized) {
+                    $this->deny();
+                }
                 if ($nom !== '') {
-                    save_basonta($id ?: null, $nom, $resp);
+                    save_basonta($id ?: null, $nom, null);
                 }
                 $this->redirect('index.php', ['page' => 'basontas']);
                 break;
+            }
 
             /* ---------- CRUD membre (users) ---------- */
 
-            case 'save_membre':
+            case 'save_membre': {
+                $user = $this->requireUser();
                 $id = (int) ($_POST['id'] ?? 0);
                 $section = (string) ($_POST['section'] ?? 'generale');
+                $entityId = (int) ($_POST['id_ent'] ?? 0) ?: null;
+
+                // Contrôle serveur (spec §34/§40) : jamais confiance dans le
+                // fait que le lien "modifier"/"ajouter" n'était pas visible.
+                if ($id) {
+                    if ($user['role'] !== 'admin' && !auth_can_manage_member($id)) {
+                        $this->deny();
+                    }
+                } else {
+                    $createAuthorized = $user['role'] === 'admin'
+                        || ($section === 'bacentas' && $entityId && auth_can_manage_bacenta($entityId))
+                        || ($section === 'centres' && $entityId && auth_can_manage_center($entityId));
+                    if (!$createAuthorized) {
+                        $this->deny();
+                    }
+                }
+
                 $data = user_data_from_post($id ?: null);
                 $photo = handle_photo_upload('photo');
 
@@ -254,8 +351,6 @@ class ActionsController extends Controller
                     ]);
                 }
 
-                $entityId = (int) ($_POST['id_ent'] ?? 0) ?: null;
-
                 if ($id) {
                     $newPass = trim((string) ($_POST['password'] ?? ''));
                     update_user_from_post($id, $data, $photo, $newPass !== '' ? $newPass : null);
@@ -264,7 +359,7 @@ class ActionsController extends Controller
                     if ($section === 'bacentas' && $entityId) {
                         Query::run('UPDATE users SET bacenta_id = ? WHERE id = ?', [$entityId, $id]);
                     } elseif ($section === 'centres' && $entityId) {
-$first = Query::value('SELECT id FROM bacentas WHERE centre_id = ? ORDER BY id LIMIT 1', [$entityId]);
+                        $first = Query::value('SELECT id FROM bacentas WHERE centre_id = ? ORDER BY id LIMIT 1', [$entityId]);
                         if ($first) {
                             Query::run('UPDATE users SET bacenta_id = ? WHERE id = ?', [(int) $first, $id]);
                         }
@@ -286,11 +381,18 @@ $first = Query::value('SELECT id FROM bacentas WHERE centre_id = ? ORDER BY id L
                 }
                 redirect_members_context($section, $entityId);
                 break;
+            }
 
-            case 'save_user':
+            case 'save_user': {
+                $this->requireAdmin();
                 $id = (int) ($_POST['id'] ?? 0);
                 $data = user_data_from_post($id ?: null);
-                $data['role'] = (($_POST['role'] ?? 'user') === 'admin') ? 'admin' : ($_POST['role'] ?? 'membre');
+                // Le rôle soumis doit être un rôle actif réellement
+                // sélectionnable (jamais 'responsable', jamais une valeur
+                // arbitraire) — voir ROLE_LABELS (Config/constants.php).
+                $submittedRole = (string) ($_POST['role'] ?? 'membre');
+                $data['role'] = array_key_exists($submittedRole, ROLE_LABELS) ? $submittedRole : 'membre';
+
                 if ($data['email'] === '' || $data['nom'] === '' || (($_POST['password'] ?? '') === '' && !$id)) {
                     $this->redirect('index.php', ['page' => 'parametres', 'param_tab' => 'comptes']);
                 }
@@ -300,128 +402,200 @@ $first = Query::value('SELECT id FROM bacentas WHERE centre_id = ? ORDER BY id L
                 $newPass = trim((string) ($_POST['password'] ?? ''));
                 if ($id) {
                     update_user_from_post($id, $data, null, $newPass !== '' ? $newPass : null);
+                    // §31 — changement de rôle : révoque toute responsabilité
+                    // devenue incohérente avec le nouveau rôle (choix
+                    // documenté : auto-révocation + journalisation, voir
+                    // ResponsibilityService::reconcileForNewRole).
+                    $revoked = responsibility_service()->reconcileForNewRole($id, $data['role']);
+                    if ($revoked) {
+                        \App\Core\Logger::info('Rôle modifié : responsabilités révoquées (incohérentes)', [
+                            'user_id' => $id, 'new_role' => $data['role'], 'revoked' => $revoked,
+                        ]);
+                    }
                 } else {
                     insert_user_from_post($data, null);
                 }
                 $this->redirect('index.php', ['page' => 'parametres', 'param_tab' => 'comptes']);
                 break;
+            }
 
             /* ---------- Suivi & offrandes (bacenta) ---------- */
 
-            case 'save_visites_offrandes':
+            case 'save_visites_offrandes': {
+                $this->requireUser();
                 $bacenta = (int) ($_POST['bacenta'] ?? 0);
-                $mois = (string) ($_POST['mois'] ?? current_month_key());
-                if ($bacenta) {
-                    $visites = [];
-                    foreach (($_POST['visites'] ?? []) as $i => $v) {
-                        $visites[(int) $i] = $v;
-                    }
-                    $visiteurId = (int) (current_user()['id'] ?? 0);
-                    save_bacenta_visites($bacenta, $mois, $visites, $visiteurId);
-                    $offs = [];
-                    foreach (($_POST['offrandes'] ?? []) as $i => $v) {
-                        $offs[(int) $i] = (int) $v;
-                    }
-                    save_offrandes_month('bacenta', $bacenta, $mois, $offs);
+                if (!$bacenta || !auth_can_manage_bacenta($bacenta)) {
+                    $this->deny();
                 }
+                $mois = (string) ($_POST['mois'] ?? current_month_key());
+                $visites = [];
+                foreach (($_POST['visites'] ?? []) as $i => $v) {
+                    $visites[(int) $i] = $v;
+                }
+                $visiteurId = (int) (current_user()['id'] ?? 0);
+                save_bacenta_visites($bacenta, $mois, $visites, $visiteurId);
+                $offs = [];
+                foreach (($_POST['offrandes'] ?? []) as $i => $v) {
+                    $offs[(int) $i] = (int) $v;
+                }
+                save_offrandes_month('bacenta', $bacenta, $mois, $offs);
                 $this->redirect('index.php', ['page' => 'bacentas', 'id' => $bacenta, 'tab' => 'suivi', 'semaine' => $mois]);
                 break;
+            }
 
-            case 'save_offrandes_centre':
+            case 'save_offrandes_centre': {
+                $this->requireUser();
                 $centre = (int) ($_POST['centre'] ?? 0);
-                $mois = (string) ($_POST['mois'] ?? current_month_key());
-                if ($centre) {
-                    $offs = [];
-                    foreach (($_POST['offrandes'] ?? []) as $i => $v) {
-                        $offs[(int) $i] = (int) $v;
-                    }
-                    save_offrandes_month('centre', $centre, $mois, $offs);
+                if (!$centre || !auth_can_manage_center($centre)) {
+                    $this->deny();
                 }
+                $mois = (string) ($_POST['mois'] ?? current_month_key());
+                $offs = [];
+                foreach (($_POST['offrandes'] ?? []) as $i => $v) {
+                    $offs[(int) $i] = (int) $v;
+                }
+                save_offrandes_month('centre', $centre, $mois, $offs);
                 $this->redirect('index.php', ['page' => 'centres', 'id' => $centre, 'tab' => 'suivi', 'semaine' => $mois]);
                 break;
+            }
 
             /* ---------- Présence par événement (culte) ---------- */
 
-            case 'point_culte':
+            case 'point_culte': {
+                $this->requireUser();
                 $culte = (int) ($_POST['culte'] ?? 0);
+                // spec §26 : un pasteur/reverant responsable du Culte A ne
+                // doit jamais pouvoir pointer les présences du Culte B.
+                if (!$culte || !auth_can_manage_culte($culte)) {
+                    $this->deny();
+                }
                 $date = (string) ($_POST['date_presence'] ?? date('Y-m-d'));
-                if ($culte && $date !== '') {
+                if ($date !== '') {
                     $userIds = array_map('intval', array_keys($_POST['present'] ?? []));
                     point_culte_presence($culte, $date, $userIds);
                 }
                 $this->redirect('index.php', ['page' => 'cultes', 'id' => $culte]);
                 break;
+            }
 
             /* ---------- Basonta : ajout de membre ---------- */
 
-            case 'basonta_add_member':
+            case 'basonta_add_member': {
+                $this->requireUser();
                 $basonta = (int) ($_POST['basonta'] ?? 0);
+                if (!$basonta || (current_user()['role'] !== 'admin' && !auth_can_manage_basonta($basonta))) {
+                    $this->deny();
+                }
                 $membre = (int) ($_POST['membre'] ?? 0);
-                if ($basonta && $membre) {
+                if ($membre) {
                     basonta_add_member($basonta, $membre);
                 }
                 $this->redirect('index.php', ['page' => 'basontas', 'id' => $basonta]);
                 break;
+            }
 
             /* ---------- Fiche berger ---------- */
 
             case 'save_dimes':
+            case 'add_examen':
+            case 'add_veillee': {
+                $user = $this->requireUser();
                 $membre = (int) ($_POST['membre'] ?? 0);
-                $annee = (int) ($_POST['annee'] ?? current_year());
-                if ($membre) {
+                // spec §20 : "SA PROPRE fiche" — jamais celle d'un autre,
+                // sauf admin. C'est ici, côté serveur, que la règle est
+                // réellement appliquée (le verrouillage de vue n'est qu'un
+                // confort UI, jamais une sécurité).
+                if (!$membre || ($user['role'] !== 'admin' && $membre !== (int) $user['id'])) {
+                    $this->deny();
+                }
+                if ($action === 'save_dimes') {
+                    $annee = (int) ($_POST['annee'] ?? current_year());
                     $vals = [];
                     foreach (($_POST['dimes'] ?? []) as $i => $v) {
                         $vals[(int) $i] = (int) $v;
                     }
                     save_dimes($membre, $annee, $vals);
-                }
-                $this->redirect('index.php', ['page' => 'bergerFiche', 'membre' => $membre, 'tab' => 'dimes', 'annee' => $annee]);
-                break;
-
-            case 'add_examen':
-                $membre = (int) ($_POST['membre'] ?? 0);
-                $nom = trim((string) ($_POST['nom'] ?? ''));
-                $date = trim((string) ($_POST['date'] ?? '')) ?: null;
-                if ($membre && $nom !== '') {
-                    add_examen($membre, $nom, $date);
-                }
-                $this->redirect('index.php', ['page' => 'bergerFiche', 'membre' => $membre, 'tab' => 'examens']);
-                break;
-
-            case 'add_veillee':
-                $membre = (int) ($_POST['membre'] ?? 0);
-                $date = trim((string) ($_POST['date'] ?? ''));
-                $present = (($_POST['present'] ?? '1') === '1');
-                if ($membre && $date !== '') {
-                    add_veillee($membre, $date, $present);
-                }
-                $this->redirect('index.php', ['page' => 'bergerFiche', 'membre' => $membre, 'tab' => 'veillees']);
-                break;
-
-            case 'save_suivi':
-                $membre = (int) ($_POST['membre'] ?? 0);
-                $semaine = (string) ($_POST['semaine'] ?? current_week_key());
-                if ($membre) {
-                    $data = [];
-                    foreach (($_POST['suivi'] ?? []) as $day => $fields) {
-                        $data[$day] = $fields;
+                    $this->redirect('index.php', ['page' => 'bergerFiche', 'membre' => $membre, 'tab' => 'dimes', 'annee' => $annee]);
+                } elseif ($action === 'add_examen') {
+                    $nom = trim((string) ($_POST['nom'] ?? ''));
+                    $date = trim((string) ($_POST['date'] ?? '')) ?: null;
+                    if ($nom !== '') {
+                        add_examen($membre, $nom, $date);
                     }
-                    save_suivi_week($membre, $semaine, $data);
+                    $this->redirect('index.php', ['page' => 'bergerFiche', 'membre' => $membre, 'tab' => 'examens']);
+                } else {
+                    $date = trim((string) ($_POST['date'] ?? ''));
+                    $present = (($_POST['present'] ?? '1') === '1');
+                    if ($date !== '') {
+                        add_veillee($membre, $date, $present);
+                    }
+                    $this->redirect('index.php', ['page' => 'bergerFiche', 'membre' => $membre, 'tab' => 'veillees']);
                 }
+                break;
+            }
+
+            case 'save_suivi': {
+                $user = $this->requireUser();
+                $membre = (int) ($_POST['membre'] ?? 0);
+                // BUG CRITIQUE corrigé (spec §20) : auparavant $membre était
+                // pris tel quel depuis $_POST, sans aucune vérification —
+                // n'importe quel utilisateur authentifié pouvait écraser le
+                // suivi_hebdo d'un autre. Seul le propriétaire (ou l'admin)
+                // peut désormais écrire sa fiche.
+                if (!$membre || ($user['role'] !== 'admin' && $membre !== (int) $user['id'])) {
+                    $this->deny();
+                }
+                $semaine = (string) ($_POST['semaine'] ?? current_week_key());
+                $data = [];
+                foreach (($_POST['suivi'] ?? []) as $day => $fields) {
+                    $data[$day] = $fields;
+                }
+                save_suivi_week($membre, $semaine, $data);
                 $this->redirect('index.php', ['page' => 'suiviBergers', 'membre' => $membre, 'semaine' => $semaine]);
                 break;
+            }
 
-            /* ---------- Présentation ---------- */
+            /* ---------- Responsabilités (nouveau modèle — remplace l'ancien save_responsable ad hoc) ---------- */
 
-            case 'save_responsable':
+            case 'assign_responsibility': {
+                // BUG CRITIQUE corrigé (spec §29/§34/§40) : auparavant
+                // n'importe quel utilisateur authentifié pouvait réaffecter
+                // le responsable d'un bacenta/basonta/culte (aucun contrôle
+                // au-delà du CSRF global). Réservé à l'admin désormais.
+                $this->requireAdmin();
+                if (!auth_can_manage_responsibilities()) {
+                    $this->deny();
+                }
+                $targetType = (string) ($_POST['target_type'] ?? '');
+                $targetId = (int) ($_POST['target_id'] ?? 0);
+                $userId = (int) ($_POST['user_id'] ?? 0);
+                if ($targetType && $targetId && $userId) {
+                    responsibility_service()->assign($userId, $targetType, $targetId);
+                }
+                $this->redirect('index.php', ['page' => 'parametres', 'param_tab' => 'acces']);
+                break;
+            }
+
+            // Conservée pour compatibilité de forme avec l'ancien formulaire
+            // "Accès & Responsables" (un seul <select> par ligne) : même
+            // contrôle d'autorisation strict, délègue à ResponsibilityService.
+            case 'save_responsable': {
+                $this->requireAdmin();
+                if (!auth_can_manage_responsibilities()) {
+                    $this->deny();
+                }
                 $type = (string) ($_POST['type'] ?? 'bacenta');
                 $id = (int) ($_POST['id'] ?? 0);
                 $userId = (int) ($_POST['user_id'] ?? 0) ?: null;
-                save_responsable($type, $id, $userId);
+                if ($id) {
+                    save_responsable($type, $id, $userId);
+                }
                 $this->redirect('index.php', ['page' => 'parametres', 'param_tab' => 'acces']);
                 break;
+            }
 
             case 'save_histoire':
+                $this->requireAdmin();
                 save_presentation(
                     trim((string) ($_POST['accroche'] ?? '')),
                     trim((string) ($_POST['histoire'] ?? ''))
@@ -430,6 +604,7 @@ $first = Query::value('SELECT id FROM bacentas WHERE centre_id = ? ORDER BY id L
                 break;
 
             case 'save_equipe':
+                $this->requireAdmin();
                 $id = (int) ($_POST['id'] ?? 0);
                 $nom = trim((string) ($_POST['nom'] ?? ''));
                 $role = trim((string) ($_POST['role'] ?? ''));
@@ -452,6 +627,7 @@ $first = Query::value('SELECT id FROM bacentas WHERE centre_id = ? ORDER BY id L
                 break;
 
             case 'save_article':
+                $this->requireAdmin();
                 $id = (int) ($_POST['id'] ?? 0);
                 $centreId = (int) ($_POST['centre_id'] ?? 0);
                 if (!$centreId) {
@@ -529,4 +705,3 @@ $first = Query::value('SELECT id FROM bacentas WHERE centre_id = ? ORDER BY id L
         }
     }
 }
-

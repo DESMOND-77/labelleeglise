@@ -30,20 +30,22 @@ class CulteRepository
         );
     }
 
-    public function create(string $nom, ?string $date, ?string $debut, ?string $fin, ?int $resp): int
+    /** $resp accepté pour compatibilité mais IGNORÉ — voir BacentaRepository::create(). */
+    public function create(string $nom, ?string $date, ?string $debut, ?string $fin, ?int $resp = null): int
     {
-        return Query::run('INSERT INTO cultes (nom, date_culte, heure_debut, heure_fin, responsable_id) VALUES (?, ?, ?, ?, ?)',
-            [$nom, $date, $debut, $fin, $resp]);
+        return Query::run('INSERT INTO cultes (nom, date_culte, heure_debut, heure_fin) VALUES (?, ?, ?, ?)',
+            [$nom, $date, $debut, $fin]);
     }
 
-    public function update(int $id, string $nom, ?string $date, ?string $debut, ?string $fin, ?int $resp): void
+    public function update(int $id, string $nom, ?string $date, ?string $debut, ?string $fin, ?int $resp = null): void
     {
-        Query::run('UPDATE cultes SET nom = ?, date_culte = ?, heure_debut = ?, heure_fin = ?, responsable_id = ? WHERE id = ?',
-            [$nom, $date, $debut, $fin, $resp, $id]);
+        Query::run('UPDATE cultes SET nom = ?, date_culte = ?, heure_debut = ?, heure_fin = ? WHERE id = ?',
+            [$nom, $date, $debut, $fin, $id]);
     }
 
     public function delete(int $id): void
     {
+        Query::run("DELETE FROM responsibilities WHERE target_type = 'cult' AND target_id = ?", [$id]);
         Query::run('DELETE FROM presences WHERE culte_id = ?', [$id]);
         Query::run('DELETE FROM cultes WHERE id = ?', [$id]);
     }

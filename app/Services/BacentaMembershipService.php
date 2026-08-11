@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Auth\RbacService;
+use App\Auth\AuthorizationService;
 use App\Core\Query;
 use App\Repositories\BacentaRepository;
 use App\Repositories\UserRepository;
@@ -10,7 +10,7 @@ use App\Repositories\UserRepository;
 /**
  * Affectation de membres actifs/vérifiés à un bacenta, par son responsable
  * (ou un administrateur). Le bacenta cible est toujours re-dérivé/vérifié
- * côté serveur via le RBAC existant — jamais accepté tel quel depuis le
+ * côté serveur via AuthorizationService — jamais accepté tel quel depuis le
  * formulaire — et chaque identifiant de membre soumis est revalidé
  * individuellement avant affectation, dans une transaction SQL unique.
  */
@@ -18,16 +18,16 @@ class BacentaMembershipService
 {
     private UserRepository $users;
     private BacentaRepository $bacentas;
-    private RbacService $rbac;
+    private AuthorizationService $authz;
 
     public function __construct(
         ?UserRepository $users = null,
         ?BacentaRepository $bacentas = null,
-        ?RbacService $rbac = null
+        ?AuthorizationService $authz = null
     ) {
         $this->users = $users ?? new UserRepository();
         $this->bacentas = $bacentas ?? new BacentaRepository();
-        $this->rbac = $rbac ?? new RbacService();
+        $this->authz = $authz ?? new AuthorizationService();
     }
 
     /** Membres actifs/vérifiés/rôle "membre" et sans bacenta, avec recherche optionnelle. */
@@ -37,21 +37,21 @@ class BacentaMembershipService
     }
 
     /**
-     * Vérifie que l'utilisateur courant (admin ou responsable) est bien
-     * autorisé à gérer le bacenta demandé. Retourne l'id de bacenta
-     * effectivement autorisé, ou null si l'accès est refusé.
+     * Vérifie que l'utilisateur courant (admin, responsable direct/hérité du
+     * centre, ou leader de sa propre bacenta) est bien autorisé à gérer le
+     * bacenta demandé. Retourne l'id de bacenta effectivement autorisé, ou
+     * null si l'accès est refusé.
      */
     public function authorizedBacentaId(array $currentUser, int $submittedBacentaId): ?int
     {
         if ($submittedBacentaId <= 0) {
             return null;
         }
-        if (($currentUser['role'] ?? null) === 'admin') {
-            $bacenta = $this->bacentas->find($submittedBacentaId);
-            return $bacenta ? $submittedBacentaId : null;
+        if (!$this->authz->canManageBacenta($currentUser, $submittedBacentaId)) {
+            return null;
         }
-        $myBacentas = $this->rbac->myBacentaIds((int) $currentUser['id']);
-        return in_array($submittedBacentaId, $myBacentas, true) ? $submittedBacentaId : null;
+        $bacenta = $this->bacentas->find($submittedBacentaId);
+        return $bacenta ? $submittedBacentaId : null;
     }
 
     /**
