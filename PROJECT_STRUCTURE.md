@@ -46,7 +46,10 @@ labelleeglise/
 │   │   ├── SettingsController.php   # Paramètres (comptes, responsables)
 │   │   ├── AboutController.php      # Présentation (à propos, équipe, centres)
 │   │   ├── ProfileController.php    # Profil membre + recherche
-│   │   └── ActionsController.php    # Actions POST / suppressions
+│   │   ├── ActionsController.php    # Actions POST / suppressions
+│   │   ├── RegistrationController.php      # Inscription publique + vérification email
+│   │   ├── AdminRegistrationController.php # Administration des inscriptions (admin)
+│   │   └── NotificationController.php      # Centre de notifications (page complète)
 │   │
 │   ├── Services/              # Logique métier
 │   │   ├── AuthenticationService.php # Authentification
@@ -54,7 +57,11 @@ labelleeglise/
 │   │   ├── AttendanceService.php    # Présences
 │   │   ├── ContributionService.php  # Offrandes & dîmes
 │   │   ├── StatisticsService.php    # Statistiques & synthèse
-│   │   └── ReportService.php        # Rapports
+│   │   ├── ReportService.php        # Rapports
+│   │   ├── MailService.php          # Envoi d'emails (PHPMailer vendorisé)
+│   │   ├── NotificationService.php  # Centre de notifications in-app
+│   │   ├── RegistrationService.php  # Inscription/vérification/activation
+│   │   └── BacentaMembershipService.php # Affectation de membres à un bacenta
 │   │
 │   ├── Repositories/          # Accès aux données (tout le SQL)
 │   │   ├── CentreRepository.php
@@ -66,7 +73,8 @@ labelleeglise/
 │   │   ├── AttendanceRepository.php
 │   │   ├── ContributionRepository.php
 │   │   ├── BergerRepository.php
-│   │   └── CMSRepository.php
+│   │   ├── CMSRepository.php
+│   │   └── NotificationRepository.php
 │   │
 │   ├── Middleware/            # Couches transverses
 │   │   ├── AuthMiddleware.php
@@ -91,7 +99,8 @@ labelleeglise/
 │   │   ├── bergers.php         # Fiche berger + suivi hebdo
 │   │   ├── finances.php        # Finances
 │   │   ├── parametres.php      # Paramètres
-│   │   └── apropos.php         # À propos + équipe + centres
+│   │   ├── apropos.php         # À propos + équipe + centres
+│   │   └── notifications.php   # Notifications + administration des inscriptions
 │   │
 │   └── (Traits/ facultatif)    # Traits réutilisables
 │
@@ -99,9 +108,16 @@ labelleeglise/
 │   ├── layouts/
 │   │   └── layout.php         # Coquille applicative (sidebar + topbar + contenu)
 │   ├── components/            # Composants réutilisables
+│   ├── emails/                # Templates HTML des emails (rendus par MailService)
+│   │   ├── verify-email.php
+│   │   ├── registration-admin.php
+│   │   └── account-activated.php
 │   └── pages/                 # Templates par page
 │       ├── forms/             #   Formulaires (member, user, culte, article…)
 │       ├── partials/          #   Fragments (unit_card, unit_card_add)
+│       ├── register.php, verify_email.php  # Inscription publique (pages autonomes)
+│       ├── admin_inscriptions.php, admin_inscription_detail.php  # Administration
+│       ├── notifications.php  #   Centre de notifications (page complète)
 │       └── *.php              #   Templates principaux
 │
 ├── Database/                  # Base de données
