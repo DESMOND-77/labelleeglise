@@ -50,8 +50,11 @@ if ($cli) {
     echo "  Comptes :\n";
     echo "    admin@labelleeglise.ga / LBEGF\n";
     echo "    user@labelleeglise.ga / user1111\n";
-    echo "    resp.bacenta.sion@labelleeglise.ga / ESKLna\n";
-    echo "    berger.eric.bongo@labelleeglise.ga / BergerEB1\n";
+    echo "    resp.bacenta.sion@labelleeglise.ga / ESKLna (rôle berger, responsable bacenta Sion)\n";
+    echo "    berger.eric.bongo@labelleeglise.ga / BergerEB1 (rôle leader)\n";
+    echo "    ms.centre.mbaya@labelleeglise.ga / MsMbaya123 (rôle ms, responsable centre Mbaya)\n";
+    echo "    pasteur.joas@labelleeglise.ga / PasteurJ123 (rôle pasteur, responsable culte)\n";
+    echo "    reverend.crowl@labelleeglise.ga / RevCrowl123 (rôle reverant, responsable culte)\n";
     exit(0);
 }
 

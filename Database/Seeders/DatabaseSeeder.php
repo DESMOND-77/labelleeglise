@@ -102,10 +102,15 @@ function seed(): void
         'compte_actif' => 1,
         'created_at' => $monthsAgo(0),
     ]);
+    // Rôle actif 'berger' (remplace l'ancien rôle 'responsable', qui n'est
+    // plus qu'une valeur d'ENUM conservée pour rollback — voir migration
+    // Database/Migrations/2024_01_01_000000_create_schema.php). La
+    // responsabilité réelle sur le bacenta Sion est créée plus bas via la
+    // table `responsibilities` (ROLE ≠ RESPONSABILITÉ).
     $respSionId = $insertUser([
         'email' => 'resp.bacenta.sion@labelleeglise.ga',
         'password' => password_hash('ESKLna', PASSWORD_DEFAULT),
-        'role' => 'responsable',
+        'role' => 'berger',
         'nom' => 'Sion', 'prenom' => 'Responsable Bacenta',
         'telephone' => '060 00 00 01',
         'quartier' => 'Mingara',
@@ -157,6 +162,10 @@ function seed(): void
     $pdo->prepare('INSERT INTO bacentas (nom, responsable_id, centre_id) VALUES (?, ?, ?)')
         ->execute(['Sion', $respSionId, $centreIds['Mingara']]);
     $sionBacentaId = (int) $pdo->lastInsertId();
+    // Source de vérité (table `responsibilities`) — responsable_id ci-dessus
+    // n'est qu'un reflet dénormalisé pour les lectures existantes.
+    $pdo->prepare("INSERT INTO responsibilities (user_id, responsibility_type, target_type, target_id) VALUES (?, 'manager', 'bacenta', ?)")
+        ->execute([$respSionId, $sionBacentaId]);
     $pdo->prepare('INSERT INTO bacentas (nom, responsable_id, centre_id) VALUES (?, NULL, ?)')
         ->execute(['Bethel', $centreIds['Mbaya']]);
 
@@ -339,6 +348,57 @@ function seed(): void
                      'Implanter 10 bacentas sur le campus et 10 en extérieur', 'Développer de méga basontas'], JSON_UNESCAPED_UNICODE),
         4, 1, 3, 7, 10,
     ]);
+
+    /* ---------- 10. Comptes de démonstration — nouveaux rôles (berger/ms/pasteur/reverant)
+     * Voir prompts/REMANIEMENT…md. Chaque compte illustre le modèle
+     * ROLE ≠ RESPONSABILITÉ ≠ PÉRIMÈTRE : le rôle détermine les capacités
+     * générales, la ligne `responsibilities` détermine la structure gérée.
+     */
+    $msId = $insertUser([
+        'email' => 'ms.centre.mbaya@labelleeglise.ga',
+        'password' => password_hash('MsMbaya123', PASSWORD_DEFAULT),
+        'role' => 'ms',
+        'nom' => 'Ndong', 'prenom' => 'Patrick',
+        'telephone' => '074 10 20 30',
+        'quartier' => 'Mbaya',
+        'compte_actif' => 1,
+        'created_at' => $monthsAgo(2),
+    ]);
+    $pdo->prepare("INSERT INTO responsibilities (user_id, responsibility_type, target_type, target_id) VALUES (?, 'manager', 'center', ?)")
+        ->execute([$msId, $centreIds['Mbaya']]);
+
+    $pasteurId = $insertUser([
+        'email' => 'pasteur.joas@labelleeglise.ga',
+        'password' => password_hash('PasteurJ123', PASSWORD_DEFAULT),
+        'role' => 'pasteur',
+        'nom' => 'Nziengui', 'prenom' => 'Joas',
+        'telephone' => '074 40 50 60',
+        'quartier' => 'Mbaya',
+        'compte_actif' => 1,
+        'created_at' => $monthsAgo(5),
+    ]);
+    $firstCulteId = $culteIds[CULTES_DEFAULT[0]] ?? null;
+    if ($firstCulteId) {
+        $pdo->prepare("INSERT INTO responsibilities (user_id, responsibility_type, target_type, target_id) VALUES (?, 'manager', 'cult', ?)")
+            ->execute([$pasteurId, $firstCulteId]);
+    }
+
+    $reverantId = $insertUser([
+        'email' => 'reverend.crowl@labelleeglise.ga',
+        'password' => password_hash('RevCrowl123', PASSWORD_DEFAULT),
+        'role' => 'reverant',
+        'nom' => 'Milague', 'prenom' => 'Crowl',
+        'telephone' => '074 70 80 90',
+        'quartier' => 'Mingara',
+        'compte_actif' => 1,
+        'created_at' => $monthsAgo(8),
+    ]);
+    $secondCulteId = $culteIds[CULTES_DEFAULT[1]] ?? null;
+    if ($secondCulteId) {
+        $pdo->prepare("INSERT INTO responsibilities (user_id, responsibility_type, target_type, target_id) VALUES (?, 'manager', 'cult', ?)")
+            ->execute([$reverantId, $secondCulteId]);
+    }
+    unset($msId, $pasteurId, $reverantId);
 
     // Les comptes de démonstration sont déjà "actifs" (compte_actif = 1) :
     // on les considère comme vérifiés + validés pour que les identifiants
