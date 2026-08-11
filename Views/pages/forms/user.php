@@ -1,5 +1,6 @@
-<?php /* Formulaire utilisateur applicatif. Variables : $title, $user, $bacentaOptions, $roles, $cancelUrl, $csrf. */
+<?php /* Formulaire utilisateur applicatif. Variables : $title, $user, $bacentaOptions, $roles, $cancelUrl, $csrf, $responsibilitiesPanel. */
 $user = $user ?? null;
+$responsibilitiesPanel = $responsibilitiesPanel ?? '';
 ?>
 <?= section_toolbar(h($title)) ?>
 <div class="form-page">
@@ -15,6 +16,7 @@ $user = $user ?? null;
         <input type="text" name="password" value="" placeholder="<?= $user ? 'Laisser vide pour conserver l\'actuel' : 'Mot de passe' ?>" <?= $user ? '' : 'required' ?>>
       </div>
       <div class="form-group">
+        <!-- Rôle ≠ Responsabilité (voir panneau "Responsabilités" ci-dessous) : ce champ ne détermine QUE les capacités générales. -->
         <label>Rôle</label>
         <select name="role">
           <?php foreach ($roles as $key => $label): ?>
@@ -39,4 +41,5 @@ $user = $user ?? null;
       <button type="submit" class="btn btn-primary">Enregistrer</button>
     </div>
   </form>
+  <?= $responsibilitiesPanel ?>
 </div>

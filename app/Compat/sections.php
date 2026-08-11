@@ -105,15 +105,19 @@ function render_bacentas_grid(): void
 {
     $user = current_user();
     $isAdmin = $user['role'] === 'admin';
-    $scope = get_user_scope();
 
     $bacentas = get_bacentas();
-    if ($scope && $scope['kind'] === 'responsable') {
-        $bacentas = array_values(array_filter($bacentas, fn($b) => in_array((int) $b['id'], $scope['bacentas'], true)));
+    // Périmètre réel (spec §12/§17/§39) : la liste elle-même est filtrée au
+    // périmètre autorisé, jamais seulement les boutons d'action.
+    // auth_can_manage_bacenta() couvre à la fois la bacenta d'appartenance
+    // historique (leader/pasteur/reverant/berger/ms) et la responsabilité
+    // réelle (table `responsibilities`, avec héritage centre → bacenta).
+    if (!$isAdmin) {
+        $bacentas = array_values(array_filter($bacentas, fn($b) => auth_can_manage_bacenta((int) $b['id'])));
     }
     $cards = '';
     foreach ($bacentas as $b) {
-        $canEdit = $isAdmin || ($scope && $scope['kind'] === 'responsable' && in_array((int) $b['id'], $scope['bacentas'], true));
+        $canEdit = $isAdmin || auth_can_manage_bacenta((int) $b['id']);
         $cards .= bacenta_card_html($b, $canEdit);
     }
     $addCard = $isAdmin
@@ -130,12 +134,17 @@ function render_centres_grid(): void
 {
     $user = current_user();
     $isAdmin = $user['role'] === 'admin';
+    $centres = get_centres();
+    if (!$isAdmin) {
+        $centres = array_values(array_filter($centres, fn($c) => auth_can_manage_center((int) $c['id'])));
+    }
     $cards = '';
-    foreach (get_centres() as $c) {
-        $actions = $isAdmin
+    foreach ($centres as $c) {
+        $canEdit = $isAdmin || auth_can_manage_center((int) $c['id']);
+        $actions = $canEdit
             ? '<div class="card-actions">'
             . '<a class="icon-btn" title="Modifier" href="' . h(url('index.php', ['page' => 'centres', 'form' => 'centre', 'id' => $c['id']])) . '"><i class="fa-solid fa-pen"></i></a>'
-            . '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer ce centre et toutes ses données ?" href="' . h(url('index.php', ['page' => 'centres', 'action' => 'delete_centre', 'id' => $c['id']])) . '"><i class="fa-solid fa-trash"></i></a>'
+            . ($isAdmin ? '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer ce centre et toutes ses données ?" href="' . h(url('index.php', ['page' => 'centres', 'action' => 'delete_centre', 'id' => $c['id']])) . '"><i class="fa-solid fa-trash"></i></a>' : '')
             . '</div>'
             : '';
         $sub = (int) $c['nb_bacentas'] . ' bacenta(s)';
@@ -154,18 +163,19 @@ function render_centres_grid(): void
 function render_cultes_grid(): void
 {
     $isAdmin = current_user()['role'] === 'admin';
-    $scope = get_user_scope();
     $cultes = get_cultes();
-    if ($scope && $scope['kind'] === 'responsable') {
-        $uid = (int) current_user()['id'];
-        $cultes = array_values(array_filter($cultes, fn($c) => (int) $c['responsable_id'] === $uid));
+    if (!$isAdmin) {
+        // spec §26 : seul un pasteur/reverant responsable DE CE CULTE le voit
+        // dans sa liste de gestion (jamais par simple rôle).
+        $cultes = array_values(array_filter($cultes, fn($c) => auth_can_manage_culte((int) $c['id'])));
     }
     $cards = '';
     foreach ($cultes as $c) {
-        $actions = $isAdmin
+        $canEdit = $isAdmin || auth_can_manage_culte((int) $c['id']);
+        $actions = $canEdit
             ? '<div class="card-actions">'
             . '<a class="icon-btn" title="Modifier" href="' . h(url('index.php', ['page' => 'cultes', 'form' => 'culte', 'id' => $c['id']])) . '"><i class="fa-solid fa-pen"></i></a>'
-            . '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer ce culte ?" href="' . h(url('index.php', ['page' => 'cultes', 'action' => 'delete_culte', 'id' => $c['id']])) . '"><i class="fa-solid fa-trash"></i></a>'
+            . ($isAdmin ? '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer ce culte ?" href="' . h(url('index.php', ['page' => 'cultes', 'action' => 'delete_culte', 'id' => $c['id']])) . '"><i class="fa-solid fa-trash"></i></a>' : '')
             . '</div>'
             : '';
         $date = $c['date_culte'] ? date('d/m/Y', strtotime($c['date_culte'])) : 'Date à définir';
@@ -185,18 +195,17 @@ function render_cultes_grid(): void
 function render_basontas_grid(): void
 {
     $isAdmin = current_user()['role'] === 'admin';
-    $scope = get_user_scope();
     $basontas = get_basontas();
-    if ($scope && $scope['kind'] === 'responsable') {
-        $uid = (int) current_user()['id'];
-        $basontas = array_values(array_filter($basontas, fn($b) => (int) $b['responsable_id'] === $uid));
+    if (!$isAdmin) {
+        $basontas = array_values(array_filter($basontas, fn($b) => auth_can_manage_basonta((int) $b['id'])));
     }
     $cards = '';
     foreach ($basontas as $b) {
-        $actions = $isAdmin
+        $canEdit = $isAdmin || auth_can_manage_basonta((int) $b['id']);
+        $actions = $canEdit
             ? '<div class="card-actions">'
             . '<a class="icon-btn" title="Modifier" href="' . h(url('index.php', ['page' => 'basontas', 'form' => 'basonta', 'id' => $b['id']])) . '"><i class="fa-solid fa-pen"></i></a>'
-            . '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer ce basonta ?" href="' . h(url('index.php', ['page' => 'basontas', 'action' => 'delete_basonta', 'id' => $b['id']])) . '"><i class="fa-solid fa-trash"></i></a>'
+            . ($isAdmin ? '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer ce basonta ?" href="' . h(url('index.php', ['page' => 'basontas', 'action' => 'delete_basonta', 'id' => $b['id']])) . '"><i class="fa-solid fa-trash"></i></a>' : '')
             . '</div>'
             : '';
         $cards .= '<div class="unit-card" onclick="location.href=\'' . h(url('index.php', ['page' => 'basontas', 'id' => $b['id']])) . '\'">'
@@ -306,6 +315,13 @@ function render_centre_detail(int $centreId): void
     if (!$c) {
         redirect('index.php', ['page' => 'centres']);
     }
+    // IDOR (spec §12/§40) : la section 'centres' peut être autorisée dans la
+    // navigation sans que CE centre précis le soit — vérification par id
+    // obligatoire, jamais seulement "la section est visible".
+    if (!has_verified_access('centres', $centreId)) {
+        render_gate('centres', $centreId, $c['nom']);
+        return;
+    }
     $tab = nav('tab');
     $tabs = [
         'bacentas' => ['label' => '<i class="fa-solid fa-church"></i> Bacentas', 'url' => url('index.php', ['page' => 'centres', 'id' => $centreId, 'tab' => 'bacentas'])],
@@ -333,7 +349,7 @@ $content = $tabRow . view('pages/centre_offrandes', [
 
     $cards = '';
     foreach (get_bacentas($centreId) as $b) {
-        $cards .= bacenta_card_html($b, current_user()['role'] === 'admin');
+        $cards .= bacenta_card_html($b, current_user()['role'] === 'admin' || auth_can_manage_bacenta((int) $b['id']));
     }
     $content = $tabRow . '<div class="card-grid">' . $cards . '</div>'
              . ($cards === '' ? empty_state('fa-church', 'Aucun bacenta dans ce centre pour le moment.') : '');
@@ -645,23 +661,21 @@ function render_bacenta_form(): void
     $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
     $b = $id ? get_bacenta($id) : null;
     $centres = get_centres();
-    $responsables = Query::all("SELECT id, prenom, nom FROM users WHERE role = 'responsable' ORDER BY prenom, nom");
 
     $centreOpts = '';
     foreach ($centres as $c) {
         $centreOpts .= '<option value="' . $c['id'] . '"' . ($b && (int) $b['centre_id'] === (int) $c['id'] ? ' selected' : '') . '>' . h($c['nom']) . '</option>';
     }
-    $respOpts = '<option value="">— Aucun —</option>';
-    foreach ($responsables as $u) {
-        $respOpts .= '<option value="' . $u['id'] . '"' . ($b && (int) $b['responsable_id'] === (int) $u['id'] ? ' selected' : '') . '>' . h(full_name($u)) . '</option>';
-    }
 
+    // Le responsable n'est plus assignable depuis ce formulaire : c'est une
+    // RESPONSABILITÉ (table `responsibilities`), gérée exclusivement depuis
+    // Paramètres → Accès & Responsables (ROLE ≠ RESPONSABILITÉ, spec §29).
     $content = view('pages/forms/bacenta', [
         'bacenta'   => $b,
         'centreOpts'=> $centreOpts,
-        'respOpts'  => $respOpts,
         'cancelUrl' => url('index.php', ['page' => 'bacentas']),
         'csrf'      => csrf_field(),
+        'respUrl'   => url('index.php', ['page' => 'parametres', 'param_tab' => 'acces']),
     ]);
     render_page($b ? 'Modifier le bacenta' : 'Ajouter un bacenta', $content);
 }
@@ -684,16 +698,13 @@ function render_culte_form(): void
 {
     $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
     $c = $id ? get_culte($id) : null;
-    $responsables = Query::all("SELECT id, prenom, nom FROM users WHERE role IN ('leader','pasteur','reverant','responsable') ORDER BY prenom, nom");
-    $respOpts = '<option value="">— Aucun —</option>';
-    foreach ($responsables as $u) {
-        $respOpts .= '<option value="' . $u['id'] . '"' . ($c && (int) $c['responsable_id'] === (int) $u['id'] ? ' selected' : '') . '>' . h(full_name($u)) . '</option>';
-    }
+    // Le responsable de culte (pasteur/reverant uniquement — spec §24-25)
+    // n'est plus assignable ici : voir Paramètres → Accès & Responsables.
     $content = view('pages/forms/culte', [
         'culte'     => $c,
-        'respOpts'  => $respOpts,
         'cancelUrl' => url('index.php', ['page' => 'cultes']),
         'csrf'      => csrf_field(),
+        'respUrl'   => url('index.php', ['page' => 'parametres', 'param_tab' => 'acces']),
     ]);
     render_page($c ? 'Modifier le culte' : 'Ajouter un culte', $content);
 }
@@ -702,17 +713,11 @@ function render_basonta_form(): void
 {
     $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
     $b = $id ? get_basonta($id) : null;
-    $responsables = Query::all("SELECT id, prenom, nom FROM users WHERE role IN ('leader','pasteur','reverant','responsable') ORDER BY prenom, nom");
-    $respOpts = '<option value="">— Aucun —</option>';
-    foreach ($responsables as $u) {
-        $respOpts .= '<option value="' . $u['id'] . '"' . ($b && (int) $b['responsable_id'] === (int) $u['id'] ? ' selected' : '') . '>' . h(full_name($u)) . '</option>';
-    }
     $content = view('pages/forms/name', [
         'title'     => $b ? 'Modifier le basonta' : 'Ajouter un basonta',
         'action'    => 'save_basonta',
         'name'      => $b['nom'] ?? '',
-        'extra'     => csrf_field() . ($id ? '<input type="hidden" name="id" value="' . $id . '">' : '')
-                        . '<input type="hidden" name="responsable_id" value="0">',
+        'extra'     => csrf_field() . ($id ? '<input type="hidden" name="id" value="' . $id . '">' : ''),
         'cancelUrl' => url('index.php', ['page' => 'basontas']),
     ]);
     render_page($b ? 'Modifier le basonta' : 'Ajouter un basonta', $content);

@@ -23,6 +23,18 @@ if ($scope && $scope['kind'] === 'berger') {
         $grp = get_bacenta($scope['bacenta_id']);
         $navLis[] = '<li><a class="nav-item' . ($page === 'bacentas' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'bacentas', 'id' => $scope['bacenta_id']])) . '"><span class="ico"><i class="fa-solid fa-church"></i></span><span class="label">Mon Bacenta — ' . h($grp['nom'] ?? '') . '</span></a></li>';
     }
+    // Responsabilités réelles (table `responsibilities`, spec §17) : liens
+    // additifs vers les sections de gestion correspondantes, indépendants
+    // du rôle lui-même (ROLE ≠ RESPONSABILITÉ).
+    if (!empty($scope['responsible_center_ids'])) {
+        $navLis[] = '<li><a class="nav-item' . ($page === 'centres' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'centres'])) . '"><span class="ico"><i class="fa-solid fa-landmark"></i></span><span class="label">Mes centres</span></a></li>';
+    }
+    if (!empty($scope['responsible_bacenta_ids']) && !$scope['bacenta_id']) {
+        $navLis[] = '<li><a class="nav-item' . ($page === 'bacentas' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'bacentas'])) . '"><span class="ico"><i class="fa-solid fa-church"></i></span><span class="label">Mes bacentas</span></a></li>';
+    }
+    if (!empty($scope['responsible_cult_ids'])) {
+        $navLis[] = '<li><a class="nav-item' . ($page === 'cultes' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'cultes'])) . '"><span class="ico"><i class="fa-solid fa-hands-praying"></i></span><span class="label">Mes cultes</span></a></li>';
+    }
 } elseif ($scope && $scope['kind'] === 'responsable') {
     $target = scope_target();
     $navLis[] = '<li><a class="nav-item' . ($page === 'bacentas' ? ' active' : '') . '" href="' . h(url('index.php', $target)) . '"><span class="ico"><i class="fa-solid fa-lock"></i></span><span class="label">Mon Bacenta</span></a></li>';
