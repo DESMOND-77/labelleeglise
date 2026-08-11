@@ -104,6 +104,7 @@ class AuthenticationService
         }
         Session::regenerate();
         Session::set('user', ['id' => (int) $result['account']['id']]);
+        $this->users->setLastLogin((int) $result['account']['id']);
         return true;
     }
 

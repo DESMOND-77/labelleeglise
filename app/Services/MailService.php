@@ -180,4 +180,38 @@ class MailService
             $html
         );
     }
+
+    /** Envoyé à la NOUVELLE adresse lors d'une demande de changement d'email (spec §12-13). */
+    public function sendEmailChangeVerification(array $user, string $newEmail, string $verifyUrl, int $expiresHours = 24): bool
+    {
+        $html = View::render('emails/email-change-verification', [
+            'user'         => $user,
+            'newEmail'     => $newEmail,
+            'verifyUrl'    => $verifyUrl,
+            'expiresHours' => $expiresHours,
+            'appName'      => defined('APP_NAME') ? APP_NAME : 'La Belle Église',
+        ]);
+        return $this->send(
+            $newEmail,
+            trim(($user['prenom'] ?? '') . ' ' . ($user['nom'] ?? '')),
+            'Confirmez votre nouvelle adresse email — La Belle Église',
+            $html
+        );
+    }
+
+    /** Avis de sécurité envoyé à l'ANCIENNE adresse après un changement d'email confirmé (spec §43). */
+    public function sendEmailChangedSecurityNotice(array $user, string $oldEmail): bool
+    {
+        $html = View::render('emails/email-changed-notice', [
+            'user'     => $user,
+            'oldEmail' => $oldEmail,
+            'appName'  => defined('APP_NAME') ? APP_NAME : 'La Belle Église',
+        ]);
+        return $this->send(
+            $oldEmail,
+            trim(($user['prenom'] ?? '') . ' ' . ($user['nom'] ?? '')),
+            'Votre adresse email a été modifiée — La Belle Église',
+            $html
+        );
+    }
 }

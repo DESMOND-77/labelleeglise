@@ -203,4 +203,66 @@ class UserRepository
             [$id]
         );
     }
+
+    /* ================= Profil libre-service / dernière connexion ================= */
+
+    /** Champs personnels modifiables depuis "Mon profil" (jamais email/role/password ici). */
+    public function updateProfileFields(int $id, array $fields): void
+    {
+        Query::run(
+            'UPDATE users SET nom = ?, prenom = ?, date_naissance = ?, quartier = ?, telephone = ? WHERE id = ?',
+            [$fields['nom'], $fields['prenom'], $fields['date_naissance'] ?: null, $fields['quartier'], $fields['telephone'], $id]
+        );
+    }
+
+    public function updatePhoto(int $id, string $photoPath): void
+    {
+        Query::run('UPDATE users SET photo_de_profil = ? WHERE id = ?', [$photoPath, $id]);
+    }
+
+    public function updatePassword(int $id, string $hashedPassword): void
+    {
+        Query::run('UPDATE users SET password = ? WHERE id = ?', [$hashedPassword, $id]);
+    }
+
+    public function setLastLogin(int $id): void
+    {
+        Query::run('UPDATE users SET last_login_at = NOW() WHERE id = ?', [$id]);
+    }
+
+    /* ================= Changement d'email sécurisé ================= */
+
+    /** Enregistre une demande de changement d'email (jeton haché, expiration). */
+    public function setPendingEmailChange(int $id, string $pendingEmail, string $hashedToken, string $expiresAt): void
+    {
+        Query::run(
+            'UPDATE users SET pending_email = ?, email_change_token = ?, email_change_expires_at = ? WHERE id = ?',
+            [$pendingEmail, $hashedToken, $expiresAt, $id]
+        );
+    }
+
+    public function findByEmailChangeTokenHash(string $hashedToken): ?array
+    {
+        return Query::one('SELECT * FROM users WHERE email_change_token = ?', [$hashedToken]);
+    }
+
+    /** Confirme le changement : remplace l'email, marque vérifié, purge les champs pending (usage unique). */
+    public function confirmEmailChange(int $id, string $newEmail): void
+    {
+        Query::run(
+            "UPDATE users SET email = ?, email_verified = 1, email_verified_at = NOW(),
+                pending_email = NULL, email_change_token = NULL, email_change_expires_at = NULL
+              WHERE id = ?",
+            [$newEmail, $id]
+        );
+    }
+
+    /** Annule une demande en cours (sans toucher à l'email actuel). */
+    public function cancelPendingEmailChange(int $id): void
+    {
+        Query::run(
+            'UPDATE users SET pending_email = NULL, email_change_token = NULL, email_change_expires_at = NULL WHERE id = ?',
+            [$id]
+        );
+    }
 }

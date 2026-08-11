@@ -27,4 +27,46 @@ class AttendanceService
         }
         $this->attendance->pointCulte($culteId, $date, $userIds);
     }
+
+    /* ================= Historique / consultation (fiche membre) ================= */
+
+    public function historyForUser(int $userId, ?string $fromDate = null, ?string $toDate = null): array
+    {
+        return $this->attendance->historyForUser($userId, $fromDate, $toDate);
+    }
+
+    /** Présences d'un utilisateur restreintes à une semaine ISO (mêmes clés que suivi hebdo). */
+    public function weekForUser(int $userId, string $weekKey): array
+    {
+        $monday = monday_of_week_key($weekKey);
+        $sunday = $monday->modify('+6 days');
+        return $this->attendance->historyForUser($userId, iso_date_of($monday), iso_date_of($sunday));
+    }
+
+    /**
+     * Statistiques honnêtes uniquement (spec §23) : total de présences
+     * réellement enregistrées + date de la dernière présence. Un "taux" de
+     * présence n'est calculé que si un dénominateur réel existe (nombre de
+     * dates de culte distinctes enregistrées sur la même période) ; sinon
+     * il est omis plutôt que fabriqué.
+     */
+    public function statsForUser(int $userId, ?string $fromDate = null, ?string $toDate = null): array
+    {
+        $total = $this->attendance->countForUser($userId);
+        $lastDate = $this->attendance->mostRecentDateForUser($userId);
+        // Dénominateur : nombre de dates de culte distinctes enregistrées
+        // (toutes présences confondues) sur la période demandée — c'est la
+        // seule donnée réellement disponible pour approx. un "taux".
+        $denominator = $this->attendance->distinctCulteDatesInRange($fromDate, $toDate);
+        $rate = null;
+        if ($denominator > 0) {
+            $rate = round(min(100, ($total / $denominator) * 100));
+        }
+        return [
+            'total' => $total,
+            'last_date' => $lastDate,
+            'rate' => $rate, // null si aucun dénominateur honnête n'est disponible
+            'rate_denominator_note' => 'présences ÷ dates de culte distinctes enregistrées sur la période',
+        ];
+    }
 }
