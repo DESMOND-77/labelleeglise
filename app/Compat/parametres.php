@@ -64,6 +64,7 @@ function parametres_comptes(): string
             . '<td><span class="badge ' . $badge . '">' . h($role) . '</span></td>'
             . '<td>' . $actif . '</td>'
             . '<td class="row-actions">'
+            . '<a class="icon-btn" title="Voir la fiche" href="' . h(url('index.php', ['page' => 'personProfile', 'membre' => $u['id']])) . '"><i class="fa-solid fa-address-card"></i></a>'
             . '<a class="icon-btn" title="Modifier" href="' . h(url('index.php', ['page' => 'parametres', 'form' => 'user', 'id' => $u['id']])) . '"><i class="fa-solid fa-pen"></i></a>'
             . '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer cet utilisateur ?" href="' . h(url('index.php', ['page' => 'parametres', 'action' => 'delete_user', 'id' => $u['id']])) . '"><i class="fa-solid fa-trash"></i></a>'
             . '</td></tr>';
@@ -135,7 +136,7 @@ function parametres_acces(): string
         return empty_state('fa-ban', 'Accès réservé à l\'administrateur.');
     }
 
-    $html = '<p class="sub" style="margin-bottom:16px;">Une <strong>responsabilité</strong> est indépendante du <strong>rôle</strong> : un même rôle (berger, ms, pasteur…) peut être responsable de plusieurs structures, et une structure peut avoir plusieurs responsables. Voir <code>docs/responsibilities.md</code>.</p>';
+    $html = '<p class="sub" style="margin-bottom:16px;">Une <strong>responsabilité</strong> est indépendante du <strong>rôle</strong> : un même rôle (berger, ms, pasteur…) peut être responsable de plusieurs structures, et une structure peut avoir plusieurs responsables.</p>';
 
     // Centres — NOUVEAU (n'existait pas avant ce remaniement).
     $centerRows = '';
@@ -219,7 +220,7 @@ function user_responsibilities_panel(array $user): string
     }
 
     return '<div class="form-card" style="margin-top:24px;">'
-        . '<h3 style="margin-top:0;">Responsabilités <span class="sub">(distinctes du rôle — voir docs/responsibilities.md)</span></h3>'
+        . '<h3 style="margin-top:0;">Responsabilités <span class="sub">(distinctes du rôle)</span></h3>'
         . '<div class="table-wrap"><table class="data-table"><thead><tr><th>Type</th><th>Structure</th><th>Actions</th></tr></thead><tbody>' . $rows . '</tbody></table></div>'
         . '<div style="margin-top:12px;display:flex;flex-direction:column;gap:8px;">' . $addForms . '</div>'
         . '</div>';

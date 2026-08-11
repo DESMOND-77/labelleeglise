@@ -122,19 +122,9 @@ function render_recherche_page(): void
     render_page('Recherche', $content);
 }
 
-/* ================= FICHE PROFIL ================= */
-
-function render_profile_page(): void
-{
-    $user = nav('membre') ? get_user(nav('membre')) : null;
-    if (!$user) {
-        render_page(SECTION_LABELS['personProfile'], empty_state('fa-ban', 'Membre introuvable.'));
-        return;
-    }
-    $charts = ['doughnut' => member_presence_counts($user)];
-    $content = view('pages/profile', ['member' => $user]);
-    render_page(SECTION_LABELS['personProfile'], $content, $charts);
-}
+/* ================= FICHE PROFIL / MON PROFIL ================= */
+// Voir app/Compat/profile.php : render_profile_page(), render_my_profile_page(),
+// render_attendance_print_page(), render_suivi_print_page().
 
 /* ================= LOGIN ================= */
 

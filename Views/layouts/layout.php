@@ -213,6 +213,7 @@ if (in_array($page, ['bacentas', 'cultes', 'basontas'], true) && nav('id')) {
               <strong><?= h(full_name($user)) ?></strong>
               <span><?= h(ROLE_LABELS[$user['role']] ?? $user['role']) ?></span>
             </div>
+            <a class="profile-menu-item" href="<?= h(url('index.php', ['page' => 'profile'])) ?>"><i class="fa-solid fa-user-pen"></i> Mon profil</a>
             <a class="profile-menu-item" href="<?= h(url('index.php', ['page' => 'apropos'])) ?>"><i class="fa-solid fa-circle-info"></i> À propos</a>
             <a class="profile-menu-item danger" href="<?= h(url('index.php', ['action' => 'logout'])) ?>"><i class="fa-solid fa-arrow-right-from-bracket"></i> Déconnexion</a>
           </div>
