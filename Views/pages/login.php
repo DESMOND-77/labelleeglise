@@ -2,10 +2,10 @@
 /* Écran de connexion (par email). Variable : $error (string|null) — reason ∈ invalid|not_verified|pending|disabled. */
 $error = $error ?? null;
 $errorMessages = [
-    'invalid'      => 'Email ou mot de passe incorrect.',
-    'not_verified' => 'Veuillez vérifier votre adresse email avant de vous connecter. Consultez votre boîte de réception.',
-    'pending'      => 'Votre adresse email est vérifiée. Votre compte est actuellement en attente de validation par un administrateur.',
-    'disabled'     => 'Votre compte est actuellement désactivé. Contactez l\'administration pour plus d\'informations.',
+  'invalid'      => 'Email ou mot de passe incorrect.',
+  'not_verified' => 'Veuillez vérifier votre adresse email avant de vous connecter. Consultez votre boîte de réception.',
+  'pending'      => 'Votre adresse email est vérifiée. Votre compte est actuellement en attente de validation par un administrateur.',
+  'disabled'     => 'Votre compte est actuellement désactivé. Contactez l\'administration pour plus d\'informations.',
 ];
 $errorMessage = $error ? ($errorMessages[$error] ?? $errorMessages['invalid']) : null;
 ?>
@@ -18,7 +18,13 @@ $errorMessage = $error ? ($errorMessages[$error] ?? $errorMessages['invalid']) :
   <title>Connexion — <?= h(APP_NAME) ?></title>
   <!-- Écran de connexion : utilitaire, jamais indexé. -->
   <meta name="robots" content="noindex, nofollow">
-  <link rel="icon" type="image/png" href="assets/images/logo.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96x96.png">
+  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml" sizes="any">
+  <link rel="icon" href="assets/images/favicon.ico">
+  <link rel="apple-touch-icon" href="assets/images/apple-touch-icon.png">
+  <link rel="manifest" href="assets/images/site.webmanifest">
+  <meta name="theme-color" content="#4F46E5" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
   <link rel="stylesheet" href="assets/css/app.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
@@ -68,16 +74,16 @@ $errorMessage = $error ? ($errorMessages[$error] ?? $errorMessages['invalid']) :
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
       var toggle = document.getElementById("passwordToggle");
       var input = document.getElementById("loginPassword");
       if (toggle && input) {
-        toggle.addEventListener("click", function () {
+        toggle.addEventListener("click", function() {
           var show = input.type === "password";
           input.type = show ? "text" : "password";
-          toggle.innerHTML = show
-            ? '<i class="fa-regular fa-eye-slash"></i>'
-            : '<i class="fa-regular fa-eye"></i>';
+          toggle.innerHTML = show ?
+            '<i class="fa-regular fa-eye-slash"></i>' :
+            '<i class="fa-regular fa-eye"></i>';
           toggle.setAttribute("aria-label", show ? "Masquer le mot de passe" : "Afficher le mot de passe");
         });
       }

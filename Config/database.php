@@ -11,10 +11,10 @@
 declare(strict_types=1);
 
 return [
-    'host'    => env_value('DB_HOST', '127.0.0.1'),
+    'host'    => env_value('DB_HOST', 'sql303.infinityfree.com'),
     'port'    => (int) env_value('DB_PORT', 3306),
-    'name'    => env_value('DB_NAME', 'la_belle_eglise_db'),
-    'user'    => env_value('DB_USER', 'root'),
-    'pass'    => env_value('DB_PASS', ''),
+    'name'    => env_value('DB_NAME', 'if0_40779107_la_belle_eglise_db'),
+    'user'    => env_value('DB_USER', 'if0_40779107'),
+    'pass'    => env_value('DB_PASS', 'sgrh7IU3io'),
     'charset' => env_value('DB_CHARSET', 'utf8mb4'),
 ];

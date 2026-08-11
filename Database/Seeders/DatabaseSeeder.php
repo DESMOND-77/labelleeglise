@@ -53,17 +53,10 @@ function seed(): void
 
     /* ---------- 2. Comptes + membres ---------- */
     $adminId = $insertUser([
-        'email' => 'admin@labelleeglise.ga',
+        'email' => 'nob692888@gmail.com',
         'password' => password_hash('LBEGF', PASSWORD_DEFAULT),
         'role' => 'admin',
         'nom' => 'Administrateur', 'prenom' => 'Général',
-        'compte_actif' => 1,
-    ]);
-    $insertUser([
-        'email' => 'user@labelleeglise.ga',
-        'password' => password_hash('user1111', PASSWORD_DEFAULT),
-        'role' => 'membre',
-        'nom' => 'Utilisateur', 'prenom' => 'Standard',
         'compte_actif' => 1,
     ]);
 

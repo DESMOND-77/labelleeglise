@@ -46,7 +46,13 @@ if ($copy === null) {
   <title>Vérification email — <?= h(APP_NAME) ?></title>
   <!-- Page fonctionnelle (consomme un jeton à usage unique) : jamais indexée. -->
   <meta name="robots" content="noindex, nofollow">
-  <link rel="icon" type="image/png" href="assets/images/logo.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96x96.png">
+  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml" sizes="any">
+  <link rel="icon" href="assets/images/favicon.ico">
+  <link rel="apple-touch-icon" href="assets/images/apple-touch-icon.png">
+  <link rel="manifest" href="assets/images/site.webmanifest">
+  <meta name="theme-color" content="#4F46E5" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
   <link rel="stylesheet" href="assets/css/app.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
