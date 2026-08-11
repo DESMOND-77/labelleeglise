@@ -42,6 +42,9 @@ define('SECTION_LABELS', [
     'parametres'         => 'Paramètres',
     'bergerFiche'        => 'Fiche Berger',
     'personProfile'      => 'Fiche membre',
+    'admin_inscriptions' => 'Inscriptions en attente',
+    'admin_inscription'  => 'Demande d\'inscription',
+    'notifications'      => 'Notifications',
 ]);
 
 define('SECTION_ICONS', [
@@ -58,6 +61,20 @@ define('SECTION_ICONS', [
     'suiviBergers'       => '<i class="fa-solid fa-calendar-days"></i>',
     'finances'           => '<i class="fa-solid fa-sack-dollar"></i>',
     'parametres'         => '<i class="fa-solid fa-gear"></i>',
+    'admin_inscriptions' => '<i class="fa-solid fa-user-plus"></i>',
+]);
+
+/* ---------- Inscription publique / statut de compte ---------- */
+
+define('ACCOUNT_STATUS_LABELS', [
+    'pending'  => 'En attente de validation',
+    'active'   => 'Actif',
+    'disabled' => 'Désactivé',
+]);
+
+define('NOTIFICATION_TYPE_ICONS', [
+    'new_registration' => '<i class="fa-solid fa-user-plus"></i>',
+    'account_activated' => '<i class="fa-solid fa-circle-check"></i>',
 ]);
 
 // "apropos" doit rester en toute première position du menu (exigence produit).

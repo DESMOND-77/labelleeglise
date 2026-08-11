@@ -47,3 +47,7 @@ register_prefix('App\\', BASE_PATH . DIRECTORY_SEPARATOR . 'app');
 register_prefix('Config\\', BASE_PATH . DIRECTORY_SEPARATOR . 'Config');
 register_prefix('Routes\\', BASE_PATH . DIRECTORY_SEPARATOR . 'Routes');
 register_prefix('Database\\', BASE_PATH . DIRECTORY_SEPARATOR . 'Database');
+
+// PHPMailer est vendorisé directement dans app/Core/PHPMailer (pas de Composer).
+// On mappe son namespace PSR-4 vers ce dossier pour pouvoir l'instancier normalement.
+register_prefix('PHPMailer\\PHPMailer\\', BASE_PATH . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'Core' . DIRECTORY_SEPARATOR . 'PHPMailer');

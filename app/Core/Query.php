@@ -49,4 +49,31 @@ class Query
     {
         Database::connection()->exec($sql);
     }
+
+    /**
+     * Exécute $callback dans une transaction SQL (BEGIN/COMMIT/ROLLBACK).
+     * Toute exception levée dans $callback annule la transaction et se
+     * propage à l'appelant. Retourne la valeur renvoyée par $callback.
+     * Supporte les appels imbriqués (une seule transaction réelle est ouverte).
+     */
+    public static function transaction(callable $callback)
+    {
+        $pdo = Database::connection();
+        $alreadyInTransaction = $pdo->inTransaction();
+        if (!$alreadyInTransaction) {
+            $pdo->beginTransaction();
+        }
+        try {
+            $result = $callback($pdo);
+            if (!$alreadyInTransaction) {
+                $pdo->commit();
+            }
+            return $result;
+        } catch (\Throwable $e) {
+            if (!$alreadyInTransaction && $pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $e;
+        }
+    }
 }

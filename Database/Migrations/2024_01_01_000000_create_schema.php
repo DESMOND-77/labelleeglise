@@ -228,11 +228,86 @@ function up(): void
             PRIMARY KEY (id),
             CONSTRAINT fk_cp_centre FOREIGN KEY (centre_id) REFERENCES centres(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+        // ---- 5. NOTIFICATIONS (centre de notifications plateforme) ----
+        "CREATE TABLE IF NOT EXISTS notifications (
+            id INT NOT NULL AUTO_INCREMENT,
+            recipient_id INT NOT NULL,
+            type VARCHAR(60) NOT NULL,
+            title VARCHAR(150) NOT NULL,
+            message TEXT NULL,
+            link VARCHAR(255) NULL,
+            is_read TINYINT(1) NOT NULL DEFAULT 0,
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY idx_notif_recipient (recipient_id, is_read),
+            CONSTRAINT fk_notif_recipient FOREIGN KEY (recipient_id) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
     ];
 
     foreach ($schema as $sql) {
         $pdo->exec($sql);
     }
+
+    /* ---- 6. Inscription publique / vérification email / statut de compte ----
+     * Colonnes ajoutées à `users` de façon idempotente (ALTER TABLE ne supporte
+     * pas IF NOT EXISTS de façon fiable en MySQL/MariaDB < 8/10.x) : on vérifie
+     * leur existence via information_schema avant chaque ALTER.
+     */
+    $userColumns = [
+        'email_verified'          => "ALTER TABLE users ADD COLUMN email_verified TINYINT(1) NOT NULL DEFAULT 0 AFTER role",
+        'email_verified_at'       => "ALTER TABLE users ADD COLUMN email_verified_at DATETIME NULL AFTER email_verified",
+        'verification_token'      => "ALTER TABLE users ADD COLUMN verification_token VARCHAR(255) NULL AFTER email_verified_at",
+        'verification_expires_at' => "ALTER TABLE users ADD COLUMN verification_expires_at DATETIME NULL AFTER verification_token",
+        'account_status'          => "ALTER TABLE users ADD COLUMN account_status ENUM('pending','active','disabled') NOT NULL DEFAULT 'pending' AFTER verification_expires_at",
+    ];
+    foreach ($userColumns as $column => $alterSql) {
+        if (!column_exists($pdo, 'users', $column)) {
+            $pdo->exec($alterSql);
+        }
+    }
+    // Index utile pour retrouver un token de vérification rapidement.
+    if (!index_exists($pdo, 'users', 'idx_verification_token')) {
+        $pdo->exec('CREATE INDEX idx_verification_token ON users (verification_token)');
+    }
+
+    /*
+     * Compatibilité ascendante : les comptes déjà actifs avant l'introduction
+     * de `account_status` / `email_verified` (compte_actif = 1) sont
+     * automatiquement considérés comme vérifiés + actifs, pour ne jamais
+     * bloquer les connexions existantes (comptes de démonstration compris).
+     * Requête idempotente : ne touche que les lignes encore à 'pending'.
+     */
+    $pdo->exec(
+        "UPDATE users
+            SET account_status = 'active',
+                email_verified = 1,
+                email_verified_at = COALESCE(email_verified_at, created_at, NOW())
+          WHERE compte_actif = 1
+            AND account_status = 'pending'"
+    );
+}
+
+/** Vérifie si une colonne existe déjà (idempotence des ALTER TABLE). */
+function column_exists(\PDO $pdo, string $table, string $column): bool
+{
+    $stmt = $pdo->prepare(
+        'SELECT COUNT(*) FROM information_schema.columns
+          WHERE table_schema = DATABASE() AND table_name = ? AND column_name = ?'
+    );
+    $stmt->execute([$table, $column]);
+    return (int) $stmt->fetchColumn() > 0;
+}
+
+/** Vérifie si un index existe déjà (idempotence des CREATE INDEX). */
+function index_exists(\PDO $pdo, string $table, string $index): bool
+{
+    $stmt = $pdo->prepare(
+        'SELECT COUNT(*) FROM information_schema.statistics
+          WHERE table_schema = DATABASE() AND table_name = ? AND index_name = ?'
+    );
+    $stmt->execute([$table, $index]);
+    return (int) $stmt->fetchColumn() > 0;
 }
 
 /**
@@ -241,7 +316,7 @@ function up(): void
 function down(): void
 {
     $pdo = Database::connection();
-    $tables = ['users_basontas', 'presences', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
+    $tables = ['notifications', 'users_basontas', 'presences', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
                'examens', 'veillees', 'cultes', 'basontas', 'bacentas', 'users',
                'centres_presentation', 'equipe', 'presentation', 'centres'];
     $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');

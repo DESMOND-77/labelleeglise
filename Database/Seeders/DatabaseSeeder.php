@@ -347,6 +347,15 @@ function seed(): void
         4, 1, 3, 7, 10,
     ]);
 
+    // Les comptes de démonstration sont déjà "actifs" (compte_actif = 1) :
+    // on les considère comme vérifiés + validés pour que les identifiants
+    // documentés (README) continuent de fonctionner immédiatement après
+    // une (ré)installation, sans passer par le workflow d'inscription publique.
+    $pdo->exec(
+        "UPDATE users SET account_status = 'active', email_verified = 1, email_verified_at = NOW()
+          WHERE compte_actif = 1"
+    );
+
     // Référence l'admin pour ne pas l'oublier (déjà inséré).
     unset($adminId);
 }
