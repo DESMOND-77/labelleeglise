@@ -369,6 +369,30 @@ function up(): void
             'responsibilities_migrated'   => $migratedResponsibilityCounts,
         ]);
     }
+
+    /* ---- 8. Profil utilisateur / changement d'email sécurisé / dernière connexion ----
+     * Colonnes ajoutées de façon idempotente (voir bloc 6 ci-dessus pour la
+     * même convention). `pending_email`/`email_change_token`/
+     * `email_change_expires_at` sont DÉDIÉES au flux de changement d'email
+     * (jamais partagées avec verification_token/verification_expires_at,
+     * réservées à l'inscription publique). `email_change_token` stocke un
+     * hash sha256 (jamais le jeton en clair), même principe que
+     * verification_token.
+     */
+    $profileColumns = [
+        'pending_email'           => "ALTER TABLE users ADD COLUMN pending_email VARCHAR(100) NULL AFTER email",
+        'email_change_token'      => "ALTER TABLE users ADD COLUMN email_change_token VARCHAR(255) NULL AFTER pending_email",
+        'email_change_expires_at' => "ALTER TABLE users ADD COLUMN email_change_expires_at DATETIME NULL AFTER email_change_token",
+        'last_login_at'           => "ALTER TABLE users ADD COLUMN last_login_at DATETIME NULL AFTER account_status",
+    ];
+    foreach ($profileColumns as $column => $alterSql) {
+        if (!column_exists($pdo, 'users', $column)) {
+            $pdo->exec($alterSql);
+        }
+    }
+    if (!index_exists($pdo, 'users', 'idx_email_change_token')) {
+        $pdo->exec('CREATE INDEX idx_email_change_token ON users (email_change_token)');
+    }
 }
 
 /** Vérifie si une colonne existe déjà (idempotence des ALTER TABLE). */
