@@ -94,4 +94,113 @@ class UserRepository
     {
         return (int) Query::value('SELECT COUNT(*) FROM users u JOIN bacentas b ON b.id = u.bacenta_id');
     }
+
+    /* ================= Inscription publique / vérification / activation ================= */
+
+    /**
+     * Crée un compte issu de l'inscription publique.
+     * Le rôle, le statut de vérification et le statut de compte sont
+     * TOUJOURS imposés ici (jamais lus depuis la requête HTTP).
+     */
+    public function createRegistration(array $fields, string $hashedPassword, string $hashedToken, string $expiresAt): int
+    {
+        return $this->insert([
+            'nom'                      => $fields['nom'],
+            'prenom'                   => $fields['prenom'],
+            'email'                    => $fields['email'],
+            'telephone'                => $fields['telephone'],
+            'password'                 => $hashedPassword,
+            'role'                     => 'membre',
+            'email_verified'           => 0,
+            'account_status'           => 'pending',
+            'compte_actif'             => 0,
+            'verification_token'       => $hashedToken,
+            'verification_expires_at'  => $expiresAt,
+        ]);
+    }
+
+    /** Retrouve un compte par le hash du jeton de vérification (jeton non expiré ou non). */
+    public function findByVerificationTokenHash(string $hashedToken): ?array
+    {
+        return Query::one('SELECT * FROM users WHERE verification_token = ?', [$hashedToken]);
+    }
+
+    /** Régénère un nouveau jeton de vérification (renvoi d'email). */
+    public function setVerificationToken(int $id, string $hashedToken, string $expiresAt): void
+    {
+        Query::run('UPDATE users SET verification_token = ?, verification_expires_at = ? WHERE id = ?', [$hashedToken, $expiresAt, $id]);
+    }
+
+    /** Marque l'email comme vérifié et invalide le jeton (usage unique). */
+    public function markEmailVerified(int $id): void
+    {
+        Query::run(
+            "UPDATE users SET email_verified = 1, email_verified_at = NOW(), verification_token = NULL, verification_expires_at = NULL WHERE id = ?",
+            [$id]
+        );
+    }
+
+    /** Active le compte (validation administrative) — synchronise compte_actif. */
+    public function activateAccount(int $id): void
+    {
+        Query::run("UPDATE users SET account_status = 'active', compte_actif = 1 WHERE id = ?", [$id]);
+    }
+
+    /** Désactive un compte — synchronise compte_actif. */
+    public function disableAccount(int $id): void
+    {
+        Query::run("UPDATE users SET account_status = 'disabled', compte_actif = 0 WHERE id = ?", [$id]);
+    }
+
+    /** Tous les comptes disposant du rôle administrateur. */
+    public function findAdmins(): array
+    {
+        return Query::all("SELECT * FROM users WHERE role = 'admin'");
+    }
+
+    /** Inscriptions en attente de validation administrative (tableau de bord admin). */
+    public function findPendingRegistrations(): array
+    {
+        return Query::all(
+            "SELECT * FROM users WHERE account_status = 'pending' AND role = 'membre' ORDER BY created_at DESC, id DESC"
+        );
+    }
+
+    /**
+     * Membres actifs, vérifiés, de rôle "membre" et non affectés à un bacenta.
+     * Utilisé par l'écran d'affectation des responsables de bacenta.
+     */
+    public function findUnassignedActiveMembers(string $search = ''): array
+    {
+        $sql = "SELECT * FROM users
+                 WHERE role = 'membre' AND account_status = 'active' AND email_verified = 1
+                   AND bacenta_id IS NULL";
+        $params = [];
+        $search = trim($search);
+        if ($search !== '') {
+            $sql .= " AND (LOWER(CONCAT(prenom, ' ', nom)) LIKE ?
+                        OR LOWER(CONCAT(nom, ' ', prenom)) LIKE ?
+                        OR LOWER(email) LIKE ?
+                        OR telephone LIKE ?)";
+            $like = '%' . mb_strtolower($search) . '%';
+            $params = [$like, $like, $like, '%' . $search . '%'];
+        }
+        $sql .= ' ORDER BY prenom, nom';
+        return Query::all($sql, $params);
+    }
+
+    /**
+     * Revalide un candidat unique côté serveur, juste avant affectation à un
+     * bacenta (jamais de confiance dans les IDs envoyés par le client).
+     * Retourne le user si toutes les conditions sont réunies, sinon null.
+     */
+    public function findEligibleUnassignedMember(int $id): ?array
+    {
+        return Query::one(
+            "SELECT * FROM users
+              WHERE id = ? AND role = 'membre' AND account_status = 'active'
+                AND email_verified = 1 AND bacenta_id IS NULL",
+            [$id]
+        );
+    }
 }

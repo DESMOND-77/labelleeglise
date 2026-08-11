@@ -85,6 +85,12 @@ function login(string $email, string $password): bool
     return auth_service()->login($email, $password);
 }
 
+/** @return array{ok:bool, reason:string, account:?array} */
+function attempt_login(string $email, string $password): array
+{
+    return auth_service()->authenticate($email, $password);
+}
+
 function logout(): void
 {
     auth_service()->logout();

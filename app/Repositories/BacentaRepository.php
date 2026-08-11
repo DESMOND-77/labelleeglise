@@ -75,6 +75,12 @@ class BacentaRepository
         return $id ? (int) $id : null;
     }
 
+    /** Affecte un membre (déjà revalidé) à un bacenta. */
+    public function assignMember(int $userId, int $bacentaId): void
+    {
+        Query::run('UPDATE users SET bacenta_id = ? WHERE id = ?', [$bacentaId, $userId]);
+    }
+
     /** Table basontas/cultes par type (responsable). */
     public function entityForResponsible(string $type, array $scope): array
     {

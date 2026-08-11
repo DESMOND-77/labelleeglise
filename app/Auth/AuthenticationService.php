@@ -50,15 +50,60 @@ class AuthenticationService
         return \password_verify($password, $u['password']);
     }
 
-    /** Connecte l'utilisateur (crée la session). */
+    /**
+     * Authentifie un compte et distingue précisément la raison d'un refus
+     * (email/mot de passe invalide, email non vérifié, compte en attente
+     * de validation admin, compte désactivé) — sans créer de session.
+     *
+     * @return array{ok:bool, reason:string, account:?array}
+     *   reason ∈ invalid | not_verified | pending | disabled | ok
+     */
+    public function authenticate(string $email, string $password): array
+    {
+        $email = trim($email);
+        if ($email === '' || $password === '') {
+            return ['ok' => false, 'reason' => 'invalid', 'account' => null];
+        }
+
+        $u = $this->users->findByEmail($email);
+        if (!$u || !\password_verify($password, $u['password'])) {
+            return ['ok' => false, 'reason' => 'invalid', 'account' => null];
+        }
+
+        // Compatibilité ascendante : les comptes créés avant l'introduction
+        // du workflow d'inscription publique n'ont pas de valeur explicite
+        // pour ces colonnes ; on se rabat alors sur compte_actif seul.
+        $hasVerificationColumns = array_key_exists('email_verified', $u) && array_key_exists('account_status', $u);
+
+        if ($hasVerificationColumns) {
+            if ((int) $u['email_verified'] !== 1) {
+                return ['ok' => false, 'reason' => 'not_verified', 'account' => $u];
+            }
+            $status = (string) ($u['account_status'] ?? 'pending');
+            if ($status === 'pending') {
+                return ['ok' => false, 'reason' => 'pending', 'account' => $u];
+            }
+            if ($status === 'disabled') {
+                return ['ok' => false, 'reason' => 'disabled', 'account' => $u];
+            }
+        }
+
+        if ((int) $u['compte_actif'] !== 1) {
+            return ['ok' => false, 'reason' => 'disabled', 'account' => $u];
+        }
+
+        return ['ok' => true, 'reason' => 'ok', 'account' => $u];
+    }
+
+    /** Connecte l'utilisateur (crée la session) si les identifiants et le statut du compte sont valides. */
     public function login(string $email, string $password): bool
     {
-        $account = $this->findAccount($email, $password);
-        if (!$account) {
+        $result = $this->authenticate($email, $password);
+        if (!$result['ok']) {
             return false;
         }
         Session::regenerate();
-        Session::set('user', ['id' => $account['id']]);
+        Session::set('user', ['id' => (int) $result['account']['id']]);
         return true;
     }
 
