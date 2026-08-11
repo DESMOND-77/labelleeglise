@@ -57,9 +57,18 @@ Router::get('finances', FinanceController::class, 'index');
 Router::get('parametres', SettingsController::class, 'index');
 Router::get('personProfile', ProfileController::class, 'index');
 
+/* ---------- Profil libre-service + fiches imprimables (auth requise) ---------- */
+Router::get('profile', ProfileController::class, 'me');
+Router::get('attendancePrint', ProfileController::class, 'attendancePrint');
+Router::get('suiviPrint', ProfileController::class, 'suiviPrint');
+
 /* ---------- Inscription publique / vérification email (accès public) ---------- */
 Router::get('register', RegistrationController::class, 'form');
 Router::get('verify_email', RegistrationController::class, 'verify');
+
+/* ---------- Changement d'email sécurisé (spec §12-13) ---------- */
+Router::get('verify_email_change', ProfileController::class, 'verifyEmailChange');
+Router::get('email_change_pending', ProfileController::class, 'emailChangePending');
 
 /* ---------- Administration des inscriptions (admin uniquement) ---------- */
 Router::get('admin_inscriptions', AdminRegistrationController::class, 'index');

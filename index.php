@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 /* ---------- Pages publiques (accessibles sans connexion) ---------- */
 $page = $_GET['page'] ?? 'accueil';
-$publicPages = ['register', 'verify_email'];
+$publicPages = ['register', 'verify_email', 'verify_email_change', 'email_change_pending'];
 
 if (in_array($page, $publicPages, true)) {
     require_once __DIR__ . '/Routes/web.php';

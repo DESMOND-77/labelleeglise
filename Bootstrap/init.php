@@ -55,6 +55,7 @@ require_once APP_PATH . '/app/Auth/compat.php';
 require_once APP_PATH . '/app/Compat/data.php';
 require_once APP_PATH . '/app/Compat/structure.php';
 require_once APP_PATH . '/app/Compat/pages.php';
+require_once APP_PATH . '/app/Compat/profile.php';
 require_once APP_PATH . '/app/Compat/sections.php';
 require_once APP_PATH . '/app/Compat/bergers.php';
 require_once APP_PATH . '/app/Compat/finances.php';

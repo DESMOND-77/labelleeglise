@@ -190,6 +190,28 @@ class ActionsController extends Controller
                 $this->redirect('index.php', ['page' => 'notifications']);
                 break;
 
+            case 'export_attendance': {
+                // Export CSV réel (spec §27) : gate identique à la fiche/aux
+                // impressions — soi-même toujours autorisé, sinon
+                // canManageMember() (admin bypass inclus). GET volontairement
+                // non protégé CSRF, comme le reste des cases getAction()
+                // existantes (convention préexistante de l'app, hors périmètre).
+                $user = $this->requireUser();
+                $membre = (int) ($_GET['membre'] ?? $user['id']);
+                if ($membre !== (int) $user['id'] && !auth_can_manage_member($membre)) {
+                    $this->deny();
+                }
+                $member = get_user($membre);
+                if (!$member) {
+                    $this->deny();
+                }
+                $from = trim((string) ($_GET['from'] ?? '')) ?: null;
+                $to = trim((string) ($_GET['to'] ?? '')) ?: null;
+                $rows = attendance_service()->historyForUser($membre, $from, $to);
+                export_service()->attendanceCsv($member, $rows);
+                break;
+            }
+
             case 'notification_open':
                 // Marque la notification comme lue puis redirige vers la
                 // ressource concernée (fiche d'inscription…). Le lien est
@@ -309,6 +331,60 @@ class ActionsController extends Controller
                     save_basonta($id ?: null, $nom, null);
                 }
                 $this->redirect('index.php', ['page' => 'basontas']);
+                break;
+            }
+
+            /* ---------- Mon profil (libre-service — spec §1-13) ---------- */
+
+            case 'save_profile': {
+                // Auto-ciblage exclusif sur l'utilisateur connecté : jamais
+                // d'id "membre" lu depuis la requête pour cette action (spec
+                // §1(a)) — un membre ne peut modifier QUE son propre profil.
+                $user = $this->requireUser();
+                $svc = profile_service();
+                $errors = $svc->validatePersonalInfo($_POST);
+                if ($errors) {
+                    $this->redirect('index.php', ['page' => 'profile', 'psection' => 'info', 'perror' => 'validation']);
+                }
+                $svc->updatePersonalInfo((int) $user['id'], $_POST);
+                $photoResult = $svc->updatePhoto($user, 'photo');
+                if (!$photoResult['ok']) {
+                    $this->redirect('index.php', ['page' => 'profile', 'psection' => 'info', 'perror' => $photoResult['error']]);
+                }
+                $this->redirect('index.php', ['page' => 'profile', 'psection' => 'info', 'psaved' => 1]);
+                break;
+            }
+
+            case 'change_password': {
+                $user = $this->requireUser();
+                $result = profile_service()->changePassword(
+                    $user,
+                    (string) ($_POST['current_password'] ?? ''),
+                    (string) ($_POST['new_password'] ?? ''),
+                    (string) ($_POST['new_password_confirm'] ?? '')
+                );
+                if (!$result['ok']) {
+                    $this->redirect('index.php', ['page' => 'profile', 'psection' => 'security', 'perror' => $result['error']]);
+                }
+                // Défense en profondeur (spec §16) : régénère l'identifiant de
+                // session courante après un changement de mot de passe.
+                \App\Core\Session::regenerate();
+                $this->redirect('index.php', ['page' => 'profile', 'psection' => 'security', 'psaved' => 1]);
+                break;
+            }
+
+            case 'request_email_change': {
+                // Spec §12 : la déconnexion a lieu ICI, à la DEMANDE, avant
+                // même que le lien de vérification soit cliqué — jamais au
+                // moment de la vérification.
+                $user = $this->requireUser();
+                $newEmail = trim((string) ($_POST['new_email'] ?? ''));
+                $result = email_change_service()->requestChange($user, $newEmail);
+                if (!$result['ok']) {
+                    $this->redirect('index.php', ['page' => 'profile', 'psection' => 'email', 'perror' => $result['error']]);
+                }
+                logout();
+                $this->redirect('index.php', ['page' => 'email_change_pending']);
                 break;
             }
 
