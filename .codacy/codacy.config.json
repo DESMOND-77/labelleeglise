@@ -6,17 +6,29 @@
     "organization": null,
     "repositoryId": null,
     "repositoryName": null,
-    "createdAt": "2026-08-05T22:54:48.115Z",
-    "updatedAt": "2026-08-05T23:23:19.525Z",
+    "createdAt": "2026-08-12T11:36:56.403Z",
+    "updatedAt": "2026-08-12T11:36:56.403Z",
     "languages": [
       "CSS",
       "JSON",
       "Javascript",
       "Markdown",
-      "PHP"
+      "PHP",
+      "XML"
     ]
   },
   "tools": [
+    {
+      "toolId": "jackson",
+      "patterns": [
+        {
+          "patternId": "jackson_duplicate-keys"
+        },
+        {
+          "patternId": "jackson_parse-error"
+        }
+      ]
+    },
     {
       "toolId": "markdownlint",
       "patterns": [
@@ -178,6 +190,9 @@
       "toolId": "Semgrep",
       "patterns": [
         {
+          "patternId": "Semgrep_codacy.generic.security.detect-invisible-unicode"
+        },
+        {
           "patternId": "Semgrep_codacy.javascript.security.hard-coded-password"
         },
         {
@@ -280,6 +295,15 @@
           "patternId": "Semgrep_javascript.sequelize.security.audit.sequelize-injection-express.express-sequelize-injection"
         },
         {
+          "patternId": "Semgrep_json.aws.security.public-s3-bucket.public-s3-bucket"
+        },
+        {
+          "patternId": "Semgrep_json.aws.security.public-s3-policy-statement.public-s3-policy-statement"
+        },
+        {
+          "patternId": "Semgrep_json.aws.security.wildcard-assume-role.wildcard-assume-role"
+        },
+        {
           "patternId": "Semgrep_php.doctrine.security.audit.doctrine-orm-dangerous-query.doctrine-orm-dangerous-query"
         },
         {
@@ -356,18 +380,6 @@
         },
         {
           "patternId": "Semgrep_problem-based-packs.insecure-transport.js-node.telnet-request.telnet-request"
-        },
-        {
-          "patternId": "Semgrep_codacy.generic.security.detect-invisible-unicode"
-        },
-        {
-          "patternId": "Semgrep_json.aws.security.public-s3-bucket.public-s3-bucket"
-        },
-        {
-          "patternId": "Semgrep_json.aws.security.public-s3-policy-statement.public-s3-policy-statement"
-        },
-        {
-          "patternId": "Semgrep_json.aws.security.wildcard-assume-role.wildcard-assume-role"
         }
       ]
     },
@@ -637,6 +649,188 @@
         },
         {
           "patternId": "Stylelint_value-no-vendor-prefix"
+        }
+      ]
+    },
+    {
+      "toolId": "spectral",
+      "patterns": [
+        {
+          "patternId": "spectral_asyncapi-3-channel-no-empty-parameter"
+        },
+        {
+          "patternId": "spectral_asyncapi-3-channel-no-query-nor-fragment"
+        },
+        {
+          "patternId": "spectral_asyncapi-3-channel-no-trailing-slash"
+        },
+        {
+          "patternId": "spectral_asyncapi-3-document-resolved"
+        },
+        {
+          "patternId": "spectral_asyncapi-3-document-unresolved"
+        },
+        {
+          "patternId": "spectral_asyncapi-3-headers-schema-type-object"
+        },
+        {
+          "patternId": "spectral_asyncapi-3-operation-description"
+        },
+        {
+          "patternId": "spectral_asyncapi-3-operation-security"
+        },
+        {
+          "patternId": "spectral_asyncapi-3-payload-unsupported-schemaFormat"
+        },
+        {
+          "patternId": "spectral_asyncapi-3-server-no-empty-variable"
+        },
+        {
+          "patternId": "spectral_asyncapi-channel-no-empty-parameter"
+        },
+        {
+          "patternId": "spectral_asyncapi-channel-no-query-nor-fragment"
+        },
+        {
+          "patternId": "spectral_asyncapi-channel-no-trailing-slash"
+        },
+        {
+          "patternId": "spectral_asyncapi-channel-parameters"
+        },
+        {
+          "patternId": "spectral_asyncapi-headers-schema-type-object"
+        },
+        {
+          "patternId": "spectral_asyncapi-latest-version"
+        },
+        {
+          "patternId": "spectral_asyncapi-operation-description"
+        },
+        {
+          "patternId": "spectral_asyncapi-operation-operationId"
+        },
+        {
+          "patternId": "spectral_asyncapi-operation-security"
+        },
+        {
+          "patternId": "spectral_asyncapi-payload"
+        },
+        {
+          "patternId": "spectral_asyncapi-payload-unsupported-schemaFormat"
+        },
+        {
+          "patternId": "spectral_asyncapi-schema"
+        },
+        {
+          "patternId": "spectral_asyncapi-schema-default"
+        },
+        {
+          "patternId": "spectral_asyncapi-schema-examples"
+        },
+        {
+          "patternId": "spectral_asyncapi-server-no-empty-variable"
+        },
+        {
+          "patternId": "spectral_asyncapi-servers"
+        },
+        {
+          "patternId": "spectral_asyncapi-server-security"
+        },
+        {
+          "patternId": "spectral_asyncapi-server-variables"
+        },
+        {
+          "patternId": "spectral_asyncapi-unused-components-schema"
+        },
+        {
+          "patternId": "spectral_asyncapi-unused-components-server"
+        },
+        {
+          "patternId": "spectral_no-eval-in-markdown"
+        },
+        {
+          "patternId": "spectral_no-script-tags-in-markdown"
+        },
+        {
+          "patternId": "spectral_oas2-anyOf"
+        },
+        {
+          "patternId": "spectral_oas2-api-host"
+        },
+        {
+          "patternId": "spectral_oas2-api-schemes"
+        },
+        {
+          "patternId": "spectral_oas2-discriminator"
+        },
+        {
+          "patternId": "spectral_oas2-host-trailing-slash"
+        },
+        {
+          "patternId": "spectral_oas2-oneOf"
+        },
+        {
+          "patternId": "spectral_oas2-operation-formData-consume-check"
+        },
+        {
+          "patternId": "spectral_oas2-operation-security-defined"
+        },
+        {
+          "patternId": "spectral_oas2-schema"
+        },
+        {
+          "patternId": "spectral_oas2-unused-definition"
+        },
+        {
+          "patternId": "spectral_oas2-valid-media-example"
+        },
+        {
+          "patternId": "spectral_oas2-valid-schema-example"
+        },
+        {
+          "patternId": "spectral_oas3-api-servers"
+        },
+        {
+          "patternId": "spectral_oas3-callbacks-in-callbacks"
+        },
+        {
+          "patternId": "spectral_oas3-operation-security-defined"
+        },
+        {
+          "patternId": "spectral_oas3-schema"
+        },
+        {
+          "patternId": "spectral_oas3-unused-component"
+        },
+        {
+          "patternId": "spectral_operation-description"
+        },
+        {
+          "patternId": "spectral_operation-operationId"
+        },
+        {
+          "patternId": "spectral_operation-parameters"
+        },
+        {
+          "patternId": "spectral_operation-success-response"
+        },
+        {
+          "patternId": "spectral_operation-tag-defined"
+        },
+        {
+          "patternId": "spectral_operation-tags"
+        },
+        {
+          "patternId": "spectral_path-declarations-must-exist"
+        },
+        {
+          "patternId": "spectral_path-keys-no-trailing-slash"
+        },
+        {
+          "patternId": "spectral_path-not-include-query"
+        },
+        {
+          "patternId": "spectral_path-params"
         }
       ]
     },
@@ -921,1127 +1115,6 @@
         },
         {
           "patternId": "ESLint9_xss_no-location-href-assign"
-        }
-      ]
-    },
-    {
-      "toolId": "Lizard",
-      "patterns": [
-        {
-          "patternId": "Lizard_ccn-minor"
-        },
-        {
-          "patternId": "Lizard_file-nloc-medium"
-        },
-        {
-          "patternId": "Lizard_nloc-medium"
-        },
-        {
-          "patternId": "Lizard_parameter-count-medium"
-        }
-      ]
-    },
-    {
-      "toolId": "PMD7",
-      "patterns": [
-        {
-          "patternId": "PMD7_category_ecmascript_bestpractices_AvoidWithStatement"
-        },
-        {
-          "patternId": "PMD7_category_ecmascript_bestpractices_ConsistentReturn"
-        },
-        {
-          "patternId": "PMD7_category_ecmascript_bestpractices_UseBaseWithParseInt"
-        },
-        {
-          "patternId": "PMD7_category_ecmascript_codestyle_AssignmentInOperand"
-        },
-        {
-          "patternId": "PMD7_category_ecmascript_codestyle_UnnecessaryBlock"
-        },
-        {
-          "patternId": "PMD7_category_ecmascript_errorprone_EqualComparison"
-        }
-      ]
-    },
-    {
-      "toolId": "Biome",
-      "patterns": [
-        {
-          "patternId": "Biome_lint_a11y_noAccessKey"
-        },
-        {
-          "patternId": "Biome_lint_a11y_noAriaHiddenOnFocusable"
-        },
-        {
-          "patternId": "Biome_lint_a11y_noAriaUnsupportedElements"
-        },
-        {
-          "patternId": "Biome_lint_a11y_noAutofocus"
-        },
-        {
-          "patternId": "Biome_lint_a11y_noDistractingElements"
-        },
-        {
-          "patternId": "Biome_lint_a11y_noHeaderScope"
-        },
-        {
-          "patternId": "Biome_lint_a11y_noInteractiveElementToNoninteractiveRole"
-        },
-        {
-          "patternId": "Biome_lint_a11y_noLabelWithoutControl"
-        },
-        {
-          "patternId": "Biome_lint_a11y_noNoninteractiveElementToInteractiveRole"
-        },
-        {
-          "patternId": "Biome_lint_a11y_noNoninteractiveTabindex"
-        },
-        {
-          "patternId": "Biome_lint_a11y_noPositiveTabindex"
-        },
-        {
-          "patternId": "Biome_lint_a11y_noRedundantAlt"
-        },
-        {
-          "patternId": "Biome_lint_a11y_noRedundantRoles"
-        },
-        {
-          "patternId": "Biome_lint_a11y_noStaticElementInteractions"
-        },
-        {
-          "patternId": "Biome_lint_a11y_noSvgWithoutTitle"
-        },
-        {
-          "patternId": "Biome_lint_a11y_useAltText"
-        },
-        {
-          "patternId": "Biome_lint_a11y_useAnchorContent"
-        },
-        {
-          "patternId": "Biome_lint_a11y_useAriaActivedescendantWithTabindex"
-        },
-        {
-          "patternId": "Biome_lint_a11y_useAriaPropsForRole"
-        },
-        {
-          "patternId": "Biome_lint_a11y_useAriaPropsSupportedByRole"
-        },
-        {
-          "patternId": "Biome_lint_a11y_useButtonType"
-        },
-        {
-          "patternId": "Biome_lint_a11y_useFocusableInteractive"
-        },
-        {
-          "patternId": "Biome_lint_a11y_useGenericFontNames"
-        },
-        {
-          "patternId": "Biome_lint_a11y_useHeadingContent"
-        },
-        {
-          "patternId": "Biome_lint_a11y_useHtmlLang"
-        },
-        {
-          "patternId": "Biome_lint_a11y_useIframeTitle"
-        },
-        {
-          "patternId": "Biome_lint_a11y_useKeyWithClickEvents"
-        },
-        {
-          "patternId": "Biome_lint_a11y_useKeyWithMouseEvents"
-        },
-        {
-          "patternId": "Biome_lint_a11y_useMediaCaption"
-        },
-        {
-          "patternId": "Biome_lint_a11y_useSemanticElements"
-        },
-        {
-          "patternId": "Biome_lint_a11y_useValidAnchor"
-        },
-        {
-          "patternId": "Biome_lint_a11y_useValidAriaProps"
-        },
-        {
-          "patternId": "Biome_lint_a11y_useValidAriaRole"
-        },
-        {
-          "patternId": "Biome_lint_a11y_useValidAriaValues"
-        },
-        {
-          "patternId": "Biome_lint_a11y_useValidAutocomplete"
-        },
-        {
-          "patternId": "Biome_lint_a11y_useValidLang"
-        },
-        {
-          "patternId": "Biome_lint_complexity_noAdjacentSpacesInRegex"
-        },
-        {
-          "patternId": "Biome_lint_complexity_noArguments"
-        },
-        {
-          "patternId": "Biome_lint_complexity_noBannedTypes"
-        },
-        {
-          "patternId": "Biome_lint_complexity_noCommaOperator"
-        },
-        {
-          "patternId": "Biome_lint_complexity_noEmptyTypeParameters"
-        },
-        {
-          "patternId": "Biome_lint_complexity_noExtraBooleanCast"
-        },
-        {
-          "patternId": "Biome_lint_complexity_noFlatMapIdentity"
-        },
-        {
-          "patternId": "Biome_lint_complexity_noImportantStyles"
-        },
-        {
-          "patternId": "Biome_lint_complexity_noStaticOnlyClass"
-        },
-        {
-          "patternId": "Biome_lint_complexity_noThisInStatic"
-        },
-        {
-          "patternId": "Biome_lint_complexity_noUselessCatch"
-        },
-        {
-          "patternId": "Biome_lint_complexity_noUselessConstructor"
-        },
-        {
-          "patternId": "Biome_lint_complexity_noUselessContinue"
-        },
-        {
-          "patternId": "Biome_lint_complexity_noUselessEmptyExport"
-        },
-        {
-          "patternId": "Biome_lint_complexity_noUselessEscapeInRegex"
-        },
-        {
-          "patternId": "Biome_lint_complexity_noUselessFragments"
-        },
-        {
-          "patternId": "Biome_lint_complexity_noUselessLabel"
-        },
-        {
-          "patternId": "Biome_lint_complexity_noUselessLoneBlockStatements"
-        },
-        {
-          "patternId": "Biome_lint_complexity_noUselessRename"
-        },
-        {
-          "patternId": "Biome_lint_complexity_noUselessStringRaw"
-        },
-        {
-          "patternId": "Biome_lint_complexity_noUselessSwitchCase"
-        },
-        {
-          "patternId": "Biome_lint_complexity_noUselessTernary"
-        },
-        {
-          "patternId": "Biome_lint_complexity_noUselessThisAlias"
-        },
-        {
-          "patternId": "Biome_lint_complexity_noUselessTypeConstraint"
-        },
-        {
-          "patternId": "Biome_lint_complexity_noUselessUndefinedInitialization"
-        },
-        {
-          "patternId": "Biome_lint_complexity_useArrowFunction"
-        },
-        {
-          "patternId": "Biome_lint_complexity_useDateNow"
-        },
-        {
-          "patternId": "Biome_lint_complexity_useFlatMap"
-        },
-        {
-          "patternId": "Biome_lint_complexity_useIndexOf"
-        },
-        {
-          "patternId": "Biome_lint_complexity_useLiteralKeys"
-        },
-        {
-          "patternId": "Biome_lint_complexity_useNumericLiterals"
-        },
-        {
-          "patternId": "Biome_lint_complexity_useOptionalChain"
-        },
-        {
-          "patternId": "Biome_lint_complexity_useRegexLiterals"
-        },
-        {
-          "patternId": "Biome_lint_complexity_useSimpleNumberKeys"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noConstantCondition"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noConstantMathMinMaxClamp"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noConstAssign"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noConstructorReturn"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noEmptyCharacterClassInRegex"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noEmptyPattern"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noGlobalObjectCalls"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noInnerDeclarations"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noInvalidBuiltinInstantiation"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noInvalidConstructorSuper"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noInvalidDirectionInLinearGradient"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noInvalidGridAreas"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noInvalidPositionAtImportRule"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noInvalidUseBeforeDeclaration"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noMissingVarFunction"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noNonoctalDecimalEscape"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noPrecisionLoss"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noPrivateImports"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noSelfAssign"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noSetterReturn"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noStringCaseMismatch"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noSwitchDeclarations"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noUnknownFunction"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noUnknownMediaFeatureName"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noUnknownProperty"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noUnknownPseudoClass"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noUnknownPseudoElement"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noUnknownTypeSelector"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noUnknownUnit"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noUnmatchableAnbSelector"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noUnreachable"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noUnreachableSuper"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noUnsafeFinally"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noUnsafeOptionalChaining"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noUnusedFunctionParameters"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noUnusedImports"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noUnusedLabels"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noUnusedPrivateClassMembers"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noUnusedVariables"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noVoidElementsWithChildren"
-        },
-        {
-          "patternId": "Biome_lint_correctness_noVoidTypeReturn"
-        },
-        {
-          "patternId": "Biome_lint_correctness_useGraphqlNamedOperations"
-        },
-        {
-          "patternId": "Biome_lint_correctness_useIsNan"
-        },
-        {
-          "patternId": "Biome_lint_correctness_useParseIntRadix"
-        },
-        {
-          "patternId": "Biome_lint_correctness_useValidForDirection"
-        },
-        {
-          "patternId": "Biome_lint_correctness_useValidTypeof"
-        },
-        {
-          "patternId": "Biome_lint_correctness_useYield"
-        },
-        {
-          "patternId": "Biome_lint_performance_noAccumulatingSpread"
-        },
-        {
-          "patternId": "Biome_lint_performance_noDynamicNamespaceImportAccess"
-        },
-        {
-          "patternId": "Biome_lint_security_noBlankTarget"
-        },
-        {
-          "patternId": "Biome_lint_security_noGlobalEval"
-        },
-        {
-          "patternId": "Biome_lint_style_noDescendingSpecificity"
-        },
-        {
-          "patternId": "Biome_lint_style_noNonNullAssertion"
-        },
-        {
-          "patternId": "Biome_lint_style_useArrayLiterals"
-        },
-        {
-          "patternId": "Biome_lint_style_useConst"
-        },
-        {
-          "patternId": "Biome_lint_style_useExponentiationOperator"
-        },
-        {
-          "patternId": "Biome_lint_style_useExportType"
-        },
-        {
-          "patternId": "Biome_lint_style_useImportType"
-        },
-        {
-          "patternId": "Biome_lint_style_useLiteralEnumMembers"
-        },
-        {
-          "patternId": "Biome_lint_style_useNodejsImportProtocol"
-        },
-        {
-          "patternId": "Biome_lint_style_useShorthandFunctionType"
-        },
-        {
-          "patternId": "Biome_lint_style_useTemplate"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noApproximativeNumericConstant"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noAssignInExpressions"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noAsyncPromiseExecutor"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noBiomeFirstException"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noCatchAssign"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noClassAssign"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noCommentText"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noCompareNegZero"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noConfusingLabels"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noConfusingVoidType"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noConstEnum"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noControlCharactersInRegex"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noDebugger"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noDocumentCookie"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noDoubleEquals"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noDuplicateAtImportRules"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noDuplicateCase"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noDuplicateClassMembers"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noDuplicateCustomProperties"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noDuplicateElseIf"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noDuplicateFontNames"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noDuplicateJsxProps"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noDuplicateObjectKeys"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noDuplicateParameters"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noDuplicateProperties"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noDuplicateSelectorsKeyframeBlock"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noDuplicateTestHooks"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noEmptyBlock"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noEmptyInterface"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noExplicitAny"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noExportsInTest"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noExtraNonNullAssertion"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noFallthroughSwitchClause"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noFocusedTests"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noFunctionAssign"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noGlobalAssign"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noGlobalIsFinite"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noGlobalIsNan"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noImplicitAnyLet"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noImportantInKeyframe"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noImportAssign"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noIrregularWhitespace"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noLabelVar"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noMisleadingCharacterClass"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noMisleadingInstantiator"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noMisrefactoredShorthandAssign"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noNonNullAssertedOptionalChain"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noOctalEscape"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noPrototypeBuiltins"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noQuickfixBiome"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noRedeclare"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noRedundantUseStrict"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noSelfCompare"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noShadowRestrictedNames"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noShorthandPropertyOverrides"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noSparseArray"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noSuspiciousSemicolonInJsx"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noTemplateCurlyInString"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noThenProperty"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noTsIgnore"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noUnknownAtRules"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noUnsafeDeclarationMerging"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noUnsafeNegation"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noUselessEscapeInString"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noUselessRegexBackrefs"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_noWith"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_useAdjacentOverloadSignatures"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_useBiomeIgnoreFolder"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_useDefaultSwitchClauseLast"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_useGetterReturn"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_useGoogleFontDisplay"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_useIsArray"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_useIterableCallbackReturn"
-        },
-        {
-          "patternId": "Biome_lint_suspicious_useNamespaceKeyword"
-        }
-      ]
-    },
-    {
-      "toolId": "PHPCS",
-      "patterns": [
-        {
-          "patternId": "PHPCS_Generic_Arrays_DisallowLongArraySyntax"
-        },
-        {
-          "patternId": "PHPCS_Generic_Commenting_Todo"
-        },
-        {
-          "patternId": "PHPCS_Generic_ControlStructures_DisallowYodaConditions"
-        },
-        {
-          "patternId": "PHPCS_Generic_ControlStructures_InlineControlStructure"
-        },
-        {
-          "patternId": "PHPCS_Generic_Formatting_DisallowMultipleStatements"
-        },
-        {
-          "patternId": "PHPCS_Generic_Formatting_SpaceAfterCast"
-        },
-        {
-          "patternId": "PHPCS_Generic_NamingConventions_ConstructorName"
-        },
-        {
-          "patternId": "PHPCS_Generic_PHP_DeprecatedFunctions"
-        },
-        {
-          "patternId": "PHPCS_Generic_PHP_LowerCaseKeyword"
-        },
-        {
-          "patternId": "PHPCS_Generic_Strings_UnnecessaryStringConcat"
-        },
-        {
-          "patternId": "PHPCS_Generic_WhiteSpace_IncrementDecrementSpacing"
-        },
-        {
-          "patternId": "PHPCS_PEAR_Classes_ClassDeclaration"
-        },
-        {
-          "patternId": "PHPCS_PEAR_Commenting_FunctionComment"
-        },
-        {
-          "patternId": "PHPCS_PEAR_ControlStructures_ControlSignature"
-        },
-        {
-          "patternId": "PHPCS_PEAR_ControlStructures_MultiLineCondition"
-        },
-        {
-          "patternId": "PHPCS_PEAR_Files_IncludingFile"
-        },
-        {
-          "patternId": "PHPCS_PEAR_Formatting_MultiLineAssignment"
-        },
-        {
-          "patternId": "PHPCS_PEAR_Functions_FunctionCallSignature"
-        },
-        {
-          "patternId": "PHPCS_PEAR_Functions_FunctionDeclaration"
-        },
-        {
-          "patternId": "PHPCS_PEAR_Functions_ValidDefaultValue"
-        },
-        {
-          "patternId": "PHPCS_PEAR_NamingConventions_ValidClassName"
-        },
-        {
-          "patternId": "PHPCS_PEAR_WhiteSpace_ObjectOperatorIndent"
-        },
-        {
-          "patternId": "PHPCS_PEAR_WhiteSpace_ScopeClosingBrace"
-        },
-        {
-          "patternId": "PHPCS_PEAR_WhiteSpace_ScopeIndent"
-        },
-        {
-          "patternId": "PHPCS_PSR12_Files_OpenTag"
-        },
-        {
-          "patternId": "PHPCS_PSR2_Classes_PropertyDeclaration"
-        },
-        {
-          "patternId": "PHPCS_PSR2_Files_EndFileNewline"
-        },
-        {
-          "patternId": "PHPCS_PSR2_Methods_MethodDeclaration"
-        },
-        {
-          "patternId": "PHPCS_Squiz_Arrays_ArrayBracketSpacing"
-        },
-        {
-          "patternId": "PHPCS_Squiz_Arrays_ArrayDeclaration"
-        },
-        {
-          "patternId": "PHPCS_Squiz_Commenting_BlockComment"
-        },
-        {
-          "patternId": "PHPCS_Squiz_Commenting_ClosingDeclarationComment"
-        },
-        {
-          "patternId": "PHPCS_Squiz_Commenting_DocCommentAlignment"
-        },
-        {
-          "patternId": "PHPCS_Squiz_Commenting_EmptyCatchComment"
-        },
-        {
-          "patternId": "PHPCS_Squiz_Commenting_InlineComment"
-        },
-        {
-          "patternId": "PHPCS_Squiz_Commenting_LongConditionClosingComment"
-        },
-        {
-          "patternId": "PHPCS_Squiz_Commenting_PostStatementComment"
-        },
-        {
-          "patternId": "PHPCS_Squiz_Commenting_VariableComment"
-        },
-        {
-          "patternId": "PHPCS_Squiz_ControlStructures_ControlSignature"
-        },
-        {
-          "patternId": "PHPCS_Squiz_ControlStructures_ElseIfDeclaration"
-        },
-        {
-          "patternId": "PHPCS_Squiz_Formatting_OperatorBracket"
-        },
-        {
-          "patternId": "PHPCS_Squiz_Functions_FunctionDeclarationArgumentSpacing"
-        },
-        {
-          "patternId": "PHPCS_Squiz_Operators_ComparisonOperatorUsage"
-        },
-        {
-          "patternId": "PHPCS_Squiz_PHP_DisallowInlineIf"
-        },
-        {
-          "patternId": "PHPCS_Squiz_Scope_MethodScope"
-        },
-        {
-          "patternId": "PHPCS_Squiz_Strings_ConcatenationSpacing"
-        },
-        {
-          "patternId": "PHPCS_Squiz_WhiteSpace_ControlStructureSpacing"
-        },
-        {
-          "patternId": "PHPCS_Squiz_WhiteSpace_FunctionClosingBraceSpace"
-        },
-        {
-          "patternId": "PHPCS_Squiz_WhiteSpace_FunctionSpacing"
-        },
-        {
-          "patternId": "PHPCS_Squiz_WhiteSpace_MemberVarSpacing"
-        },
-        {
-          "patternId": "PHPCS_Squiz_WhiteSpace_OperatorSpacing"
-        },
-        {
-          "patternId": "PHPCS_Squiz_WhiteSpace_SuperfluousWhitespace"
-        },
-        {
-          "patternId": "PHPCS_Zend_Files_ClosingTag"
-        }
-      ]
-    },
-    {
-      "toolId": "phpmd",
-      "patterns": [
-        {
-          "patternId": "rulesets-cleancode.xml-ElseExpression"
-        },
-        {
-          "patternId": "rulesets-cleancode.xml-StaticAccess"
-        },
-        {
-          "patternId": "rulesets-cleancode.xml-UndefinedVariable"
-        },
-        {
-          "patternId": "rulesets-codesize.xml-CyclomaticComplexity"
-        },
-        {
-          "patternId": "rulesets-codesize.xml-ExcessiveClassComplexity"
-        },
-        {
-          "patternId": "rulesets-codesize.xml-ExcessiveClassLength"
-        },
-        {
-          "patternId": "rulesets-codesize.xml-ExcessiveMethodLength"
-        },
-        {
-          "patternId": "rulesets-codesize.xml-ExcessiveParameterList"
-        },
-        {
-          "patternId": "rulesets-codesize.xml-ExcessivePublicCount"
-        },
-        {
-          "patternId": "rulesets-codesize.xml-NPathComplexity"
-        },
-        {
-          "patternId": "rulesets-codesize.xml-TooManyFields"
-        },
-        {
-          "patternId": "rulesets-codesize.xml-TooManyMethods"
-        },
-        {
-          "patternId": "rulesets-controversial.xml-Superglobals"
-        },
-        {
-          "patternId": "rulesets-design.xml-CountInLoopExpression"
-        },
-        {
-          "patternId": "rulesets-design.xml-CouplingBetweenObjects"
-        },
-        {
-          "patternId": "rulesets-design.xml-DepthOfInheritance"
-        },
-        {
-          "patternId": "rulesets-design.xml-EmptyCatchBlock"
-        },
-        {
-          "patternId": "rulesets-design.xml-EvalExpression"
-        },
-        {
-          "patternId": "rulesets-design.xml-ExitExpression"
-        },
-        {
-          "patternId": "rulesets-design.xml-GotoStatement"
-        },
-        {
-          "patternId": "rulesets-design.xml-NumberOfChildren"
-        },
-        {
-          "patternId": "rulesets-naming.xml-BooleanGetMethodName"
-        },
-        {
-          "patternId": "rulesets-naming.xml-ConstantNamingConventions"
-        },
-        {
-          "patternId": "rulesets-naming.xml-LongClassName"
-        },
-        {
-          "patternId": "rulesets-naming.xml-LongVariable"
-        },
-        {
-          "patternId": "rulesets-naming.xml-ShortClassName"
-        },
-        {
-          "patternId": "rulesets-naming.xml-ShortMethodName"
-        },
-        {
-          "patternId": "rulesets-naming.xml-ShortVariable"
-        },
-        {
-          "patternId": "rulesets-unusedcode.xml-UnusedFormalParameter"
-        },
-        {
-          "patternId": "rulesets-unusedcode.xml-UnusedLocalVariable"
-        },
-        {
-          "patternId": "rulesets-unusedcode.xml-UnusedPrivateField"
-        },
-        {
-          "patternId": "rulesets-unusedcode.xml-UnusedPrivateMethod"
-        }
-      ]
-    },
-    {
-      "toolId": "jackson",
-      "patterns": [
-        {
-          "patternId": "jackson_duplicate-keys"
-        },
-        {
-          "patternId": "jackson_parse-error"
-        }
-      ]
-    },
-    {
-      "toolId": "spectral",
-      "patterns": [
-        {
-          "patternId": "spectral_asyncapi-3-channel-no-empty-parameter"
-        },
-        {
-          "patternId": "spectral_asyncapi-3-channel-no-query-nor-fragment"
-        },
-        {
-          "patternId": "spectral_asyncapi-3-channel-no-trailing-slash"
-        },
-        {
-          "patternId": "spectral_asyncapi-3-document-resolved"
-        },
-        {
-          "patternId": "spectral_asyncapi-3-document-unresolved"
-        },
-        {
-          "patternId": "spectral_asyncapi-3-headers-schema-type-object"
-        },
-        {
-          "patternId": "spectral_asyncapi-3-operation-description"
-        },
-        {
-          "patternId": "spectral_asyncapi-3-operation-security"
-        },
-        {
-          "patternId": "spectral_asyncapi-3-payload-unsupported-schemaFormat"
-        },
-        {
-          "patternId": "spectral_asyncapi-3-server-no-empty-variable"
-        },
-        {
-          "patternId": "spectral_asyncapi-channel-no-empty-parameter"
-        },
-        {
-          "patternId": "spectral_asyncapi-channel-no-query-nor-fragment"
-        },
-        {
-          "patternId": "spectral_asyncapi-channel-no-trailing-slash"
-        },
-        {
-          "patternId": "spectral_asyncapi-channel-parameters"
-        },
-        {
-          "patternId": "spectral_asyncapi-headers-schema-type-object"
-        },
-        {
-          "patternId": "spectral_asyncapi-latest-version"
-        },
-        {
-          "patternId": "spectral_asyncapi-operation-description"
-        },
-        {
-          "patternId": "spectral_asyncapi-operation-operationId"
-        },
-        {
-          "patternId": "spectral_asyncapi-operation-security"
-        },
-        {
-          "patternId": "spectral_asyncapi-payload"
-        },
-        {
-          "patternId": "spectral_asyncapi-payload-unsupported-schemaFormat"
-        },
-        {
-          "patternId": "spectral_asyncapi-schema"
-        },
-        {
-          "patternId": "spectral_asyncapi-schema-default"
-        },
-        {
-          "patternId": "spectral_asyncapi-schema-examples"
-        },
-        {
-          "patternId": "spectral_asyncapi-server-no-empty-variable"
-        },
-        {
-          "patternId": "spectral_asyncapi-servers"
-        },
-        {
-          "patternId": "spectral_asyncapi-server-security"
-        },
-        {
-          "patternId": "spectral_asyncapi-server-variables"
-        },
-        {
-          "patternId": "spectral_asyncapi-unused-components-schema"
-        },
-        {
-          "patternId": "spectral_asyncapi-unused-components-server"
-        },
-        {
-          "patternId": "spectral_no-eval-in-markdown"
-        },
-        {
-          "patternId": "spectral_no-script-tags-in-markdown"
-        },
-        {
-          "patternId": "spectral_oas2-anyOf"
-        },
-        {
-          "patternId": "spectral_oas2-api-host"
-        },
-        {
-          "patternId": "spectral_oas2-api-schemes"
-        },
-        {
-          "patternId": "spectral_oas2-discriminator"
-        },
-        {
-          "patternId": "spectral_oas2-host-trailing-slash"
-        },
-        {
-          "patternId": "spectral_oas2-oneOf"
-        },
-        {
-          "patternId": "spectral_oas2-operation-formData-consume-check"
-        },
-        {
-          "patternId": "spectral_oas2-operation-security-defined"
-        },
-        {
-          "patternId": "spectral_oas2-schema"
-        },
-        {
-          "patternId": "spectral_oas2-unused-definition"
-        },
-        {
-          "patternId": "spectral_oas2-valid-media-example"
-        },
-        {
-          "patternId": "spectral_oas2-valid-schema-example"
-        },
-        {
-          "patternId": "spectral_oas3-api-servers"
-        },
-        {
-          "patternId": "spectral_oas3-callbacks-in-callbacks"
-        },
-        {
-          "patternId": "spectral_oas3-operation-security-defined"
-        },
-        {
-          "patternId": "spectral_oas3-schema"
-        },
-        {
-          "patternId": "spectral_oas3-unused-component"
-        },
-        {
-          "patternId": "spectral_operation-description"
-        },
-        {
-          "patternId": "spectral_operation-operationId"
-        },
-        {
-          "patternId": "spectral_operation-parameters"
-        },
-        {
-          "patternId": "spectral_operation-success-response"
-        },
-        {
-          "patternId": "spectral_operation-tag-defined"
-        },
-        {
-          "patternId": "spectral_operation-tags"
-        },
-        {
-          "patternId": "spectral_path-declarations-must-exist"
-        },
-        {
-          "patternId": "spectral_path-keys-no-trailing-slash"
-        },
-        {
-          "patternId": "spectral_path-not-include-query"
-        },
-        {
-          "patternId": "spectral_path-params"
         }
       ]
     },
@@ -5724,6 +4797,1261 @@
           "patternId": "Checkov_CKV_YC_9"
         }
       ]
+    },
+    {
+      "toolId": "Lizard",
+      "patterns": [
+        {
+          "patternId": "Lizard_ccn-minor"
+        },
+        {
+          "patternId": "Lizard_file-nloc-medium"
+        },
+        {
+          "patternId": "Lizard_nloc-medium"
+        },
+        {
+          "patternId": "Lizard_parameter-count-medium"
+        }
+      ]
+    },
+    {
+      "toolId": "PMD7",
+      "patterns": [
+        {
+          "patternId": "PMD7_category_ecmascript_bestpractices_AvoidWithStatement"
+        },
+        {
+          "patternId": "PMD7_category_ecmascript_bestpractices_ConsistentReturn"
+        },
+        {
+          "patternId": "PMD7_category_ecmascript_bestpractices_UseBaseWithParseInt"
+        },
+        {
+          "patternId": "PMD7_category_ecmascript_codestyle_AssignmentInOperand"
+        },
+        {
+          "patternId": "PMD7_category_ecmascript_codestyle_UnnecessaryBlock"
+        },
+        {
+          "patternId": "PMD7_category_ecmascript_errorprone_EqualComparison"
+        },
+        {
+          "patternId": "PMD7_category_pom_errorprone_InvalidDependencyTypes"
+        },
+        {
+          "patternId": "PMD7_category_pom_errorprone_ProjectVersionAsDependencyVersion"
+        },
+        {
+          "patternId": "PMD7_category_xml_errorprone_MistypedCDATASection"
+        },
+        {
+          "patternId": "PMD7_category_xsl_codestyle_UseConcatOnce"
+        },
+        {
+          "patternId": "PMD7_category_xsl_performance_AvoidAxisNavigation"
+        }
+      ]
+    },
+    {
+      "toolId": "Biome",
+      "patterns": [
+        {
+          "patternId": "Biome_lint_a11y_noAccessKey"
+        },
+        {
+          "patternId": "Biome_lint_a11y_noAriaHiddenOnFocusable"
+        },
+        {
+          "patternId": "Biome_lint_a11y_noAriaUnsupportedElements"
+        },
+        {
+          "patternId": "Biome_lint_a11y_noAutofocus"
+        },
+        {
+          "patternId": "Biome_lint_a11y_noDistractingElements"
+        },
+        {
+          "patternId": "Biome_lint_a11y_noHeaderScope"
+        },
+        {
+          "patternId": "Biome_lint_a11y_noInteractiveElementToNoninteractiveRole"
+        },
+        {
+          "patternId": "Biome_lint_a11y_noLabelWithoutControl"
+        },
+        {
+          "patternId": "Biome_lint_a11y_noNoninteractiveElementToInteractiveRole"
+        },
+        {
+          "patternId": "Biome_lint_a11y_noNoninteractiveTabindex"
+        },
+        {
+          "patternId": "Biome_lint_a11y_noPositiveTabindex"
+        },
+        {
+          "patternId": "Biome_lint_a11y_noRedundantAlt"
+        },
+        {
+          "patternId": "Biome_lint_a11y_noRedundantRoles"
+        },
+        {
+          "patternId": "Biome_lint_a11y_noStaticElementInteractions"
+        },
+        {
+          "patternId": "Biome_lint_a11y_noSvgWithoutTitle"
+        },
+        {
+          "patternId": "Biome_lint_a11y_useAltText"
+        },
+        {
+          "patternId": "Biome_lint_a11y_useAnchorContent"
+        },
+        {
+          "patternId": "Biome_lint_a11y_useAriaActivedescendantWithTabindex"
+        },
+        {
+          "patternId": "Biome_lint_a11y_useAriaPropsForRole"
+        },
+        {
+          "patternId": "Biome_lint_a11y_useAriaPropsSupportedByRole"
+        },
+        {
+          "patternId": "Biome_lint_a11y_useButtonType"
+        },
+        {
+          "patternId": "Biome_lint_a11y_useFocusableInteractive"
+        },
+        {
+          "patternId": "Biome_lint_a11y_useGenericFontNames"
+        },
+        {
+          "patternId": "Biome_lint_a11y_useHeadingContent"
+        },
+        {
+          "patternId": "Biome_lint_a11y_useHtmlLang"
+        },
+        {
+          "patternId": "Biome_lint_a11y_useIframeTitle"
+        },
+        {
+          "patternId": "Biome_lint_a11y_useKeyWithClickEvents"
+        },
+        {
+          "patternId": "Biome_lint_a11y_useKeyWithMouseEvents"
+        },
+        {
+          "patternId": "Biome_lint_a11y_useMediaCaption"
+        },
+        {
+          "patternId": "Biome_lint_a11y_useSemanticElements"
+        },
+        {
+          "patternId": "Biome_lint_a11y_useValidAnchor"
+        },
+        {
+          "patternId": "Biome_lint_a11y_useValidAriaProps"
+        },
+        {
+          "patternId": "Biome_lint_a11y_useValidAriaRole"
+        },
+        {
+          "patternId": "Biome_lint_a11y_useValidAriaValues"
+        },
+        {
+          "patternId": "Biome_lint_a11y_useValidAutocomplete"
+        },
+        {
+          "patternId": "Biome_lint_a11y_useValidLang"
+        },
+        {
+          "patternId": "Biome_lint_complexity_noAdjacentSpacesInRegex"
+        },
+        {
+          "patternId": "Biome_lint_complexity_noArguments"
+        },
+        {
+          "patternId": "Biome_lint_complexity_noBannedTypes"
+        },
+        {
+          "patternId": "Biome_lint_complexity_noCommaOperator"
+        },
+        {
+          "patternId": "Biome_lint_complexity_noEmptyTypeParameters"
+        },
+        {
+          "patternId": "Biome_lint_complexity_noExtraBooleanCast"
+        },
+        {
+          "patternId": "Biome_lint_complexity_noFlatMapIdentity"
+        },
+        {
+          "patternId": "Biome_lint_complexity_noImportantStyles"
+        },
+        {
+          "patternId": "Biome_lint_complexity_noStaticOnlyClass"
+        },
+        {
+          "patternId": "Biome_lint_complexity_noThisInStatic"
+        },
+        {
+          "patternId": "Biome_lint_complexity_noUselessCatch"
+        },
+        {
+          "patternId": "Biome_lint_complexity_noUselessConstructor"
+        },
+        {
+          "patternId": "Biome_lint_complexity_noUselessContinue"
+        },
+        {
+          "patternId": "Biome_lint_complexity_noUselessEmptyExport"
+        },
+        {
+          "patternId": "Biome_lint_complexity_noUselessEscapeInRegex"
+        },
+        {
+          "patternId": "Biome_lint_complexity_noUselessFragments"
+        },
+        {
+          "patternId": "Biome_lint_complexity_noUselessLabel"
+        },
+        {
+          "patternId": "Biome_lint_complexity_noUselessLoneBlockStatements"
+        },
+        {
+          "patternId": "Biome_lint_complexity_noUselessRename"
+        },
+        {
+          "patternId": "Biome_lint_complexity_noUselessStringRaw"
+        },
+        {
+          "patternId": "Biome_lint_complexity_noUselessSwitchCase"
+        },
+        {
+          "patternId": "Biome_lint_complexity_noUselessTernary"
+        },
+        {
+          "patternId": "Biome_lint_complexity_noUselessThisAlias"
+        },
+        {
+          "patternId": "Biome_lint_complexity_noUselessTypeConstraint"
+        },
+        {
+          "patternId": "Biome_lint_complexity_noUselessUndefinedInitialization"
+        },
+        {
+          "patternId": "Biome_lint_complexity_useArrowFunction"
+        },
+        {
+          "patternId": "Biome_lint_complexity_useDateNow"
+        },
+        {
+          "patternId": "Biome_lint_complexity_useFlatMap"
+        },
+        {
+          "patternId": "Biome_lint_complexity_useIndexOf"
+        },
+        {
+          "patternId": "Biome_lint_complexity_useLiteralKeys"
+        },
+        {
+          "patternId": "Biome_lint_complexity_useNumericLiterals"
+        },
+        {
+          "patternId": "Biome_lint_complexity_useOptionalChain"
+        },
+        {
+          "patternId": "Biome_lint_complexity_useRegexLiterals"
+        },
+        {
+          "patternId": "Biome_lint_complexity_useSimpleNumberKeys"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noConstantCondition"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noConstantMathMinMaxClamp"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noConstAssign"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noConstructorReturn"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noEmptyCharacterClassInRegex"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noEmptyPattern"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noGlobalObjectCalls"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noInnerDeclarations"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noInvalidBuiltinInstantiation"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noInvalidConstructorSuper"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noInvalidDirectionInLinearGradient"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noInvalidGridAreas"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noInvalidPositionAtImportRule"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noInvalidUseBeforeDeclaration"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noMissingVarFunction"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noNonoctalDecimalEscape"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noPrecisionLoss"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noPrivateImports"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noSelfAssign"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noSetterReturn"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noStringCaseMismatch"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noSwitchDeclarations"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noUnknownFunction"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noUnknownMediaFeatureName"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noUnknownProperty"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noUnknownPseudoClass"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noUnknownPseudoElement"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noUnknownTypeSelector"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noUnknownUnit"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noUnmatchableAnbSelector"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noUnreachable"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noUnreachableSuper"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noUnsafeFinally"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noUnsafeOptionalChaining"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noUnusedFunctionParameters"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noUnusedImports"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noUnusedLabels"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noUnusedPrivateClassMembers"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noUnusedVariables"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noVoidElementsWithChildren"
+        },
+        {
+          "patternId": "Biome_lint_correctness_noVoidTypeReturn"
+        },
+        {
+          "patternId": "Biome_lint_correctness_useGraphqlNamedOperations"
+        },
+        {
+          "patternId": "Biome_lint_correctness_useIsNan"
+        },
+        {
+          "patternId": "Biome_lint_correctness_useParseIntRadix"
+        },
+        {
+          "patternId": "Biome_lint_correctness_useValidForDirection"
+        },
+        {
+          "patternId": "Biome_lint_correctness_useValidTypeof"
+        },
+        {
+          "patternId": "Biome_lint_correctness_useYield"
+        },
+        {
+          "patternId": "Biome_lint_performance_noAccumulatingSpread"
+        },
+        {
+          "patternId": "Biome_lint_performance_noDynamicNamespaceImportAccess"
+        },
+        {
+          "patternId": "Biome_lint_security_noBlankTarget"
+        },
+        {
+          "patternId": "Biome_lint_security_noGlobalEval"
+        },
+        {
+          "patternId": "Biome_lint_style_noDescendingSpecificity"
+        },
+        {
+          "patternId": "Biome_lint_style_noNonNullAssertion"
+        },
+        {
+          "patternId": "Biome_lint_style_useArrayLiterals"
+        },
+        {
+          "patternId": "Biome_lint_style_useConst"
+        },
+        {
+          "patternId": "Biome_lint_style_useExponentiationOperator"
+        },
+        {
+          "patternId": "Biome_lint_style_useExportType"
+        },
+        {
+          "patternId": "Biome_lint_style_useImportType"
+        },
+        {
+          "patternId": "Biome_lint_style_useLiteralEnumMembers"
+        },
+        {
+          "patternId": "Biome_lint_style_useNodejsImportProtocol"
+        },
+        {
+          "patternId": "Biome_lint_style_useShorthandFunctionType"
+        },
+        {
+          "patternId": "Biome_lint_style_useTemplate"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noApproximativeNumericConstant"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noAssignInExpressions"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noAsyncPromiseExecutor"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noBiomeFirstException"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noCatchAssign"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noClassAssign"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noCommentText"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noCompareNegZero"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noConfusingLabels"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noConfusingVoidType"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noConstEnum"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noControlCharactersInRegex"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noDebugger"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noDocumentCookie"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noDoubleEquals"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noDuplicateAtImportRules"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noDuplicateCase"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noDuplicateClassMembers"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noDuplicateCustomProperties"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noDuplicateElseIf"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noDuplicateFontNames"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noDuplicateJsxProps"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noDuplicateObjectKeys"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noDuplicateParameters"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noDuplicateProperties"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noDuplicateSelectorsKeyframeBlock"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noDuplicateTestHooks"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noEmptyBlock"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noEmptyInterface"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noExplicitAny"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noExportsInTest"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noExtraNonNullAssertion"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noFallthroughSwitchClause"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noFocusedTests"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noFunctionAssign"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noGlobalAssign"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noGlobalIsFinite"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noGlobalIsNan"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noImplicitAnyLet"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noImportantInKeyframe"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noImportAssign"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noIrregularWhitespace"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noLabelVar"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noMisleadingCharacterClass"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noMisleadingInstantiator"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noMisrefactoredShorthandAssign"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noNonNullAssertedOptionalChain"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noOctalEscape"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noPrototypeBuiltins"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noQuickfixBiome"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noRedeclare"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noRedundantUseStrict"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noSelfCompare"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noShadowRestrictedNames"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noShorthandPropertyOverrides"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noSparseArray"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noSuspiciousSemicolonInJsx"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noTemplateCurlyInString"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noThenProperty"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noTsIgnore"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noUnknownAtRules"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noUnsafeDeclarationMerging"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noUnsafeNegation"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noUselessEscapeInString"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noUselessRegexBackrefs"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_noWith"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_useAdjacentOverloadSignatures"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_useBiomeIgnoreFolder"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_useDefaultSwitchClauseLast"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_useGetterReturn"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_useGoogleFontDisplay"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_useIsArray"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_useIterableCallbackReturn"
+        },
+        {
+          "patternId": "Biome_lint_suspicious_useNamespaceKeyword"
+        }
+      ]
+    },
+    {
+      "toolId": "Agentlinter",
+      "patterns": [
+        {
+          "patternId": "Agentlinter_blueprint_constraints-defined"
+        },
+        {
+          "patternId": "Agentlinter_blueprint_coverage"
+        },
+        {
+          "patternId": "Agentlinter_blueprint_identity-defined"
+        },
+        {
+          "patternId": "Agentlinter_clarity_actionable-instructions"
+        },
+        {
+          "patternId": "Agentlinter_clarity_action-without-context"
+        },
+        {
+          "patternId": "Agentlinter_clarity_ambiguous-pronoun"
+        },
+        {
+          "patternId": "Agentlinter_clarity_compound-instruction"
+        },
+        {
+          "patternId": "Agentlinter_clarity_duplicate-content"
+        },
+        {
+          "patternId": "Agentlinter_clarity_english-config-files"
+        },
+        {
+          "patternId": "Agentlinter_clarity_escape-hatch-missing"
+        },
+        {
+          "patternId": "Agentlinter_clarity_has-examples"
+        },
+        {
+          "patternId": "Agentlinter_clarity_instruction-density"
+        },
+        {
+          "patternId": "Agentlinter_clarity_naked-conditional"
+        },
+        {
+          "patternId": "Agentlinter_clarity_no-contradictions"
+        },
+        {
+          "patternId": "Agentlinter_clarity_no-vague-instructions"
+        },
+        {
+          "patternId": "Agentlinter_clarity_obvious-statements"
+        },
+        {
+          "patternId": "Agentlinter_clarity_priority-signal-missing"
+        },
+        {
+          "patternId": "Agentlinter_clarity_sentence-complexity"
+        },
+        {
+          "patternId": "Agentlinter_clarity_token-budget-range"
+        },
+        {
+          "patternId": "Agentlinter_clarity_token-efficiency-score"
+        },
+        {
+          "patternId": "Agentlinter_clarity_undefined-term"
+        },
+        {
+          "patternId": "Agentlinter_claude-code_agent-focus"
+        },
+        {
+          "patternId": "Agentlinter_claude-code_descriptive-ratio"
+        },
+        {
+          "patternId": "Agentlinter_claude-code_hooks-structure"
+        },
+        {
+          "patternId": "Agentlinter_claude-code_instruction-count"
+        },
+        {
+          "patternId": "Agentlinter_claude-code_progressive-disclosure"
+        },
+        {
+          "patternId": "Agentlinter_claude-code_relevance-trap"
+        },
+        {
+          "patternId": "Agentlinter_claude-code_skills-vs-commands"
+        },
+        {
+          "patternId": "Agentlinter_completeness_command-coverage"
+        },
+        {
+          "patternId": "Agentlinter_completeness_freshness-file-paths"
+        },
+        {
+          "patternId": "Agentlinter_completeness_has-boundaries"
+        },
+        {
+          "patternId": "Agentlinter_completeness_has-error-handling"
+        },
+        {
+          "patternId": "Agentlinter_completeness_has-identity"
+        },
+        {
+          "patternId": "Agentlinter_completeness_has-output-format"
+        },
+        {
+          "patternId": "Agentlinter_completeness_has-priorities"
+        },
+        {
+          "patternId": "Agentlinter_completeness_has-tools"
+        },
+        {
+          "patternId": "Agentlinter_completeness_has-user-context"
+        },
+        {
+          "patternId": "Agentlinter_completeness_has-workflow"
+        },
+        {
+          "patternId": "Agentlinter_completeness_session-learning-hooks"
+        },
+        {
+          "patternId": "Agentlinter_completeness_verification-criteria-required"
+        },
+        {
+          "patternId": "Agentlinter_consistency_circular-dependency"
+        },
+        {
+          "patternId": "Agentlinter_consistency_identity-alignment"
+        },
+        {
+          "patternId": "Agentlinter_consistency_language-mixing"
+        },
+        {
+          "patternId": "Agentlinter_consistency_naming-convention"
+        },
+        {
+          "patternId": "Agentlinter_consistency_no-duplicate-instructions"
+        },
+        {
+          "patternId": "Agentlinter_consistency_outdated-cross-references"
+        },
+        {
+          "patternId": "Agentlinter_consistency_permission-conflict"
+        },
+        {
+          "patternId": "Agentlinter_consistency_priority-conflict"
+        },
+        {
+          "patternId": "Agentlinter_consistency_referenced-files-exist"
+        },
+        {
+          "patternId": "Agentlinter_consistency_stale-date"
+        },
+        {
+          "patternId": "Agentlinter_consistency_stale-file-reference"
+        },
+        {
+          "patternId": "Agentlinter_consistency_stale-package-reference"
+        },
+        {
+          "patternId": "Agentlinter_consistency_timezone-locale-drift"
+        },
+        {
+          "patternId": "Agentlinter_consistency_tone-voice-alignment"
+        },
+        {
+          "patternId": "Agentlinter_memory_has-context-window-awareness"
+        },
+        {
+          "patternId": "Agentlinter_memory_has-file-based-notes"
+        },
+        {
+          "patternId": "Agentlinter_memory_has-handoff-protocol"
+        },
+        {
+          "patternId": "Agentlinter_memory_has-learning-loop"
+        },
+        {
+          "patternId": "Agentlinter_memory_has-memory-strategy"
+        },
+        {
+          "patternId": "Agentlinter_memory_has-state-tracking"
+        },
+        {
+          "patternId": "Agentlinter_memory_no-mental-notes"
+        },
+        {
+          "patternId": "Agentlinter_remote-ready_env-vars-documented"
+        },
+        {
+          "patternId": "Agentlinter_remote-ready_model-settings-specified"
+        },
+        {
+          "patternId": "Agentlinter_remote-ready_workspace-path-specified"
+        },
+        {
+          "patternId": "Agentlinter_runtime_auth-mode"
+        },
+        {
+          "patternId": "Agentlinter_runtime_config-exists"
+        },
+        {
+          "patternId": "Agentlinter_runtime_config-secrets"
+        },
+        {
+          "patternId": "Agentlinter_runtime_dm-policy"
+        },
+        {
+          "patternId": "Agentlinter_runtime_gateway-bind"
+        },
+        {
+          "patternId": "Agentlinter_runtime_group-policy"
+        },
+        {
+          "patternId": "Agentlinter_runtime_token-strength"
+        },
+        {
+          "patternId": "Agentlinter_security_api-key-exposure"
+        },
+        {
+          "patternId": "Agentlinter_security_env-var-references"
+        },
+        {
+          "patternId": "Agentlinter_security_has-injection-defense"
+        },
+        {
+          "patternId": "Agentlinter_security_has-permission-boundaries"
+        },
+        {
+          "patternId": "Agentlinter_security_no-injection-defense"
+        },
+        {
+          "patternId": "Agentlinter_security_no-pii-exposure"
+        },
+        {
+          "patternId": "Agentlinter_security_no-secrets"
+        },
+        {
+          "patternId": "Agentlinter_security_prompt-injection-vulnerability"
+        },
+        {
+          "patternId": "Agentlinter_skill-safety_dangerous-commands"
+        },
+        {
+          "patternId": "Agentlinter_skill-safety_data-exfiltration"
+        },
+        {
+          "patternId": "Agentlinter_skill-safety_excessive-permissions"
+        },
+        {
+          "patternId": "Agentlinter_skill-safety_has-metadata"
+        },
+        {
+          "patternId": "Agentlinter_skill-safety_injection-vectors"
+        },
+        {
+          "patternId": "Agentlinter_skill-safety_sensitive-paths"
+        },
+        {
+          "patternId": "Agentlinter_skill-safety_skill-description-when-to-use"
+        },
+        {
+          "patternId": "Agentlinter_skill-safety_skill-name-match-dir"
+        },
+        {
+          "patternId": "Agentlinter_structure_circular-import"
+        },
+        {
+          "patternId": "Agentlinter_structure_dead-import"
+        },
+        {
+          "patternId": "Agentlinter_structure_file-size"
+        },
+        {
+          "patternId": "Agentlinter_structure_has-file-map"
+        },
+        {
+          "patternId": "Agentlinter_structure_has-main-file"
+        },
+        {
+          "patternId": "Agentlinter_structure_has-sections"
+        },
+        {
+          "patternId": "Agentlinter_structure_has-version-or-update-date"
+        },
+        {
+          "patternId": "Agentlinter_structure_heading-hierarchy"
+        },
+        {
+          "patternId": "Agentlinter_structure_modular-files"
+        },
+        {
+          "patternId": "Agentlinter_structure_no-empty-sections"
+        },
+        {
+          "patternId": "Agentlinter_structure_position-risk-warning"
+        },
+        {
+          "patternId": "Agentlinter_token-budget_compressible-padding"
+        },
+        {
+          "patternId": "Agentlinter_token-budget_section-weight"
+        },
+        {
+          "patternId": "Agentlinter_token-budget_total-tokens"
+        },
+        {
+          "patternId": "Agentlinter_token-budget_under-150-tokens"
+        }
+      ]
+    },
+    {
+      "toolId": "PHPCS",
+      "patterns": [
+        {
+          "patternId": "PHPCS_Generic_Arrays_DisallowLongArraySyntax"
+        },
+        {
+          "patternId": "PHPCS_Generic_Commenting_Todo"
+        },
+        {
+          "patternId": "PHPCS_Generic_ControlStructures_DisallowYodaConditions"
+        },
+        {
+          "patternId": "PHPCS_Generic_ControlStructures_InlineControlStructure"
+        },
+        {
+          "patternId": "PHPCS_Generic_Formatting_DisallowMultipleStatements"
+        },
+        {
+          "patternId": "PHPCS_Generic_Formatting_SpaceAfterCast"
+        },
+        {
+          "patternId": "PHPCS_Generic_NamingConventions_ConstructorName"
+        },
+        {
+          "patternId": "PHPCS_Generic_PHP_DeprecatedFunctions"
+        },
+        {
+          "patternId": "PHPCS_Generic_PHP_LowerCaseKeyword"
+        },
+        {
+          "patternId": "PHPCS_Generic_Strings_UnnecessaryStringConcat"
+        },
+        {
+          "patternId": "PHPCS_Generic_WhiteSpace_IncrementDecrementSpacing"
+        },
+        {
+          "patternId": "PHPCS_PEAR_Classes_ClassDeclaration"
+        },
+        {
+          "patternId": "PHPCS_PEAR_Commenting_FunctionComment"
+        },
+        {
+          "patternId": "PHPCS_PEAR_ControlStructures_ControlSignature"
+        },
+        {
+          "patternId": "PHPCS_PEAR_ControlStructures_MultiLineCondition"
+        },
+        {
+          "patternId": "PHPCS_PEAR_Files_IncludingFile"
+        },
+        {
+          "patternId": "PHPCS_PEAR_Formatting_MultiLineAssignment"
+        },
+        {
+          "patternId": "PHPCS_PEAR_Functions_FunctionCallSignature"
+        },
+        {
+          "patternId": "PHPCS_PEAR_Functions_FunctionDeclaration"
+        },
+        {
+          "patternId": "PHPCS_PEAR_Functions_ValidDefaultValue"
+        },
+        {
+          "patternId": "PHPCS_PEAR_NamingConventions_ValidClassName"
+        },
+        {
+          "patternId": "PHPCS_PEAR_WhiteSpace_ObjectOperatorIndent"
+        },
+        {
+          "patternId": "PHPCS_PEAR_WhiteSpace_ScopeClosingBrace"
+        },
+        {
+          "patternId": "PHPCS_PEAR_WhiteSpace_ScopeIndent"
+        },
+        {
+          "patternId": "PHPCS_PSR12_Files_OpenTag"
+        },
+        {
+          "patternId": "PHPCS_PSR2_Classes_PropertyDeclaration"
+        },
+        {
+          "patternId": "PHPCS_PSR2_Files_EndFileNewline"
+        },
+        {
+          "patternId": "PHPCS_PSR2_Methods_MethodDeclaration"
+        },
+        {
+          "patternId": "PHPCS_Squiz_Arrays_ArrayBracketSpacing"
+        },
+        {
+          "patternId": "PHPCS_Squiz_Arrays_ArrayDeclaration"
+        },
+        {
+          "patternId": "PHPCS_Squiz_Commenting_BlockComment"
+        },
+        {
+          "patternId": "PHPCS_Squiz_Commenting_ClosingDeclarationComment"
+        },
+        {
+          "patternId": "PHPCS_Squiz_Commenting_DocCommentAlignment"
+        },
+        {
+          "patternId": "PHPCS_Squiz_Commenting_EmptyCatchComment"
+        },
+        {
+          "patternId": "PHPCS_Squiz_Commenting_InlineComment"
+        },
+        {
+          "patternId": "PHPCS_Squiz_Commenting_LongConditionClosingComment"
+        },
+        {
+          "patternId": "PHPCS_Squiz_Commenting_PostStatementComment"
+        },
+        {
+          "patternId": "PHPCS_Squiz_Commenting_VariableComment"
+        },
+        {
+          "patternId": "PHPCS_Squiz_ControlStructures_ControlSignature"
+        },
+        {
+          "patternId": "PHPCS_Squiz_ControlStructures_ElseIfDeclaration"
+        },
+        {
+          "patternId": "PHPCS_Squiz_Formatting_OperatorBracket"
+        },
+        {
+          "patternId": "PHPCS_Squiz_Functions_FunctionDeclarationArgumentSpacing"
+        },
+        {
+          "patternId": "PHPCS_Squiz_Operators_ComparisonOperatorUsage"
+        },
+        {
+          "patternId": "PHPCS_Squiz_PHP_DisallowInlineIf"
+        },
+        {
+          "patternId": "PHPCS_Squiz_Scope_MethodScope"
+        },
+        {
+          "patternId": "PHPCS_Squiz_Strings_ConcatenationSpacing"
+        },
+        {
+          "patternId": "PHPCS_Squiz_WhiteSpace_ControlStructureSpacing"
+        },
+        {
+          "patternId": "PHPCS_Squiz_WhiteSpace_FunctionClosingBraceSpace"
+        },
+        {
+          "patternId": "PHPCS_Squiz_WhiteSpace_FunctionSpacing"
+        },
+        {
+          "patternId": "PHPCS_Squiz_WhiteSpace_MemberVarSpacing"
+        },
+        {
+          "patternId": "PHPCS_Squiz_WhiteSpace_OperatorSpacing"
+        },
+        {
+          "patternId": "PHPCS_Squiz_WhiteSpace_SuperfluousWhitespace"
+        },
+        {
+          "patternId": "PHPCS_Zend_Files_ClosingTag"
+        }
+      ]
+    },
+    {
+      "toolId": "phpmd",
+      "patterns": [
+        {
+          "patternId": "rulesets-cleancode.xml-ElseExpression"
+        },
+        {
+          "patternId": "rulesets-cleancode.xml-StaticAccess"
+        },
+        {
+          "patternId": "rulesets-cleancode.xml-UndefinedVariable"
+        },
+        {
+          "patternId": "rulesets-codesize.xml-CyclomaticComplexity"
+        },
+        {
+          "patternId": "rulesets-codesize.xml-ExcessiveClassComplexity"
+        },
+        {
+          "patternId": "rulesets-codesize.xml-ExcessiveClassLength"
+        },
+        {
+          "patternId": "rulesets-codesize.xml-ExcessiveMethodLength"
+        },
+        {
+          "patternId": "rulesets-codesize.xml-ExcessiveParameterList"
+        },
+        {
+          "patternId": "rulesets-codesize.xml-ExcessivePublicCount"
+        },
+        {
+          "patternId": "rulesets-codesize.xml-NPathComplexity"
+        },
+        {
+          "patternId": "rulesets-codesize.xml-TooManyFields"
+        },
+        {
+          "patternId": "rulesets-codesize.xml-TooManyMethods"
+        },
+        {
+          "patternId": "rulesets-controversial.xml-Superglobals"
+        },
+        {
+          "patternId": "rulesets-design.xml-CountInLoopExpression"
+        },
+        {
+          "patternId": "rulesets-design.xml-CouplingBetweenObjects"
+        },
+        {
+          "patternId": "rulesets-design.xml-DepthOfInheritance"
+        },
+        {
+          "patternId": "rulesets-design.xml-EmptyCatchBlock"
+        },
+        {
+          "patternId": "rulesets-design.xml-EvalExpression"
+        },
+        {
+          "patternId": "rulesets-design.xml-ExitExpression"
+        },
+        {
+          "patternId": "rulesets-design.xml-GotoStatement"
+        },
+        {
+          "patternId": "rulesets-design.xml-NumberOfChildren"
+        },
+        {
+          "patternId": "rulesets-naming.xml-BooleanGetMethodName"
+        },
+        {
+          "patternId": "rulesets-naming.xml-ConstantNamingConventions"
+        },
+        {
+          "patternId": "rulesets-naming.xml-LongClassName"
+        },
+        {
+          "patternId": "rulesets-naming.xml-LongVariable"
+        },
+        {
+          "patternId": "rulesets-naming.xml-ShortClassName"
+        },
+        {
+          "patternId": "rulesets-naming.xml-ShortMethodName"
+        },
+        {
+          "patternId": "rulesets-naming.xml-ShortVariable"
+        },
+        {
+          "patternId": "rulesets-unusedcode.xml-UnusedFormalParameter"
+        },
+        {
+          "patternId": "rulesets-unusedcode.xml-UnusedLocalVariable"
+        },
+        {
+          "patternId": "rulesets-unusedcode.xml-UnusedPrivateField"
+        },
+        {
+          "patternId": "rulesets-unusedcode.xml-UnusedPrivateMethod"
+        }
+      ]
     }
-  ]
+  ],
+  "exclude": []
 }
