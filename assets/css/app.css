@@ -28,6 +28,7 @@
 @import url('components.css');
 @import url('notifications.css');
 @import url('presences.css');
+@import url('calendrier.css');
 
 /* ---- Utilitaires & animations ---- */
 @import url('utilities.css');
