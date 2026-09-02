@@ -31,16 +31,16 @@ class CulteRepository
     }
 
     /** $resp accepté pour compatibilité mais IGNORÉ — voir BacentaRepository::create(). */
-    public function create(string $nom, ?string $date, ?string $debut, ?string $fin, ?int $resp = null): int
+    public function create(string $nom, ?string $date, ?string $debut, ?string $fin, ?int $resp = null, ?string $jours = null): int
     {
-        return Query::run('INSERT INTO cultes (nom, date_culte, heure_debut, heure_fin) VALUES (?, ?, ?, ?)',
-            [$nom, $date, $debut, $fin]);
+        return Query::run('INSERT INTO cultes (nom, date_culte, jours_semaine, heure_debut, heure_fin) VALUES (?, ?, ?, ?, ?)',
+            [$nom, $date, $jours, $debut, $fin]);
     }
 
-    public function update(int $id, string $nom, ?string $date, ?string $debut, ?string $fin, ?int $resp = null): void
+    public function update(int $id, string $nom, ?string $date, ?string $debut, ?string $fin, ?int $resp = null, ?string $jours = null): void
     {
-        Query::run('UPDATE cultes SET nom = ?, date_culte = ?, heure_debut = ?, heure_fin = ? WHERE id = ?',
-            [$nom, $date, $debut, $fin, $id]);
+        Query::run('UPDATE cultes SET nom = ?, date_culte = ?, jours_semaine = ?, heure_debut = ?, heure_fin = ? WHERE id = ?',
+            [$nom, $date, $jours, $debut, $fin, $id]);
     }
 
     public function delete(int $id): void

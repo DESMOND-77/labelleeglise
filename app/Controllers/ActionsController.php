@@ -43,6 +43,13 @@ class ActionsController extends Controller
         return $user;
     }
 
+    /** Jours de récurrence soumis (cases) → CSV filtré sur WEEK_DAYS, ou null. */
+    private function scheduleDaysFromPost(): ?string
+    {
+        $days = array_values(array_intersect(WEEK_DAYS, (array) ($_POST['jours_semaine'] ?? [])));
+        return $days ? implode(',', $days) : null;
+    }
+
     /** Suppressions / déconnexions passées en GET (?action=…). */
     public function getAction(): void
     {
@@ -293,7 +300,10 @@ class ActionsController extends Controller
                     $this->deny();
                 }
                 if ($nom !== '') {
-                    save_bacenta($id ?: null, $nom, $centreId, null);
+                    $jours = $this->scheduleDaysFromPost();
+                    $debut = trim((string) ($_POST['heure_debut'] ?? '')) ?: null;
+                    $fin   = trim((string) ($_POST['heure_fin'] ?? '')) ?: null;
+                    save_bacenta($id ?: null, $nom, $centreId, null, $jours, $debut, $fin);
                 }
                 $this->redirect('index.php', ['page' => 'bacentas']);
                 break;
@@ -313,7 +323,7 @@ class ActionsController extends Controller
                     $this->deny();
                 }
                 if ($nom !== '') {
-                    save_culte($id ?: null, $nom, $date, $debut, $fin, null);
+                    save_culte($id ?: null, $nom, $date, $debut, $fin, null, $this->scheduleDaysFromPost());
                 }
                 $this->redirect('index.php', ['page' => 'cultes']);
                 break;
@@ -328,7 +338,10 @@ class ActionsController extends Controller
                     $this->deny();
                 }
                 if ($nom !== '') {
-                    save_basonta($id ?: null, $nom, null);
+                    $jours = $this->scheduleDaysFromPost();
+                    $debut = trim((string) ($_POST['heure_debut'] ?? '')) ?: null;
+                    $fin   = trim((string) ($_POST['heure_fin'] ?? '')) ?: null;
+                    save_basonta($id ?: null, $nom, null, $jours, $debut, $fin);
                 }
                 $this->redirect('index.php', ['page' => 'basontas']);
                 break;

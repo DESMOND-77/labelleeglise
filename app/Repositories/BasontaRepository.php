@@ -27,14 +27,20 @@ class BasontaRepository
     }
 
     /** $respId accepté pour compatibilité mais IGNORÉ — voir BacentaRepository::create(). */
-    public function create(string $nom, ?int $respId = null): int
+    public function create(string $nom, ?int $respId = null, ?string $jours = null, ?string $debut = null, ?string $fin = null): int
     {
-        return Query::run('INSERT INTO basontas (nom) VALUES (?)', [$nom]);
+        return Query::run(
+            'INSERT INTO basontas (nom, jours_semaine, heure_debut, heure_fin) VALUES (?, ?, ?, ?)',
+            [$nom, $jours, $debut, $fin]
+        );
     }
 
-    public function update(int $id, string $nom, ?int $respId = null): void
+    public function update(int $id, string $nom, ?int $respId = null, ?string $jours = null, ?string $debut = null, ?string $fin = null): void
     {
-        Query::run('UPDATE basontas SET nom = ? WHERE id = ?', [$nom, $id]);
+        Query::run(
+            'UPDATE basontas SET nom = ?, jours_semaine = ?, heure_debut = ?, heure_fin = ? WHERE id = ?',
+            [$nom, $jours, $debut, $fin, $id]
+        );
     }
 
     public function delete(int $id): void

@@ -713,12 +713,10 @@ function render_basonta_form(): void
 {
     $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
     $b = $id ? get_basonta($id) : null;
-    $content = view('pages/forms/name', [
-        'title'     => $b ? 'Modifier le basonta' : 'Ajouter un basonta',
-        'action'    => 'save_basonta',
-        'name'      => $b['nom'] ?? '',
-        'extra'     => csrf_field() . ($id ? '<input type="hidden" name="id" value="' . $id . '">' : ''),
+    $content = view('pages/forms/basonta', [
+        'basonta'   => $b,
         'cancelUrl' => url('index.php', ['page' => 'basontas']),
+        'csrf'      => csrf_field(),
     ]);
     render_page($b ? 'Modifier le basonta' : 'Ajouter un basonta', $content);
 }
