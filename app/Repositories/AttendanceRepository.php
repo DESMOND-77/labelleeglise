@@ -101,4 +101,69 @@ class AttendanceRepository
         }
         return (int) Query::value($sql, $params);
     }
+
+    /* ================= M1 — Présences par occurrence (unité, date, statut) ================= */
+
+    private const UNIT_COLUMNS = ['bacenta' => 'bacenta_id', 'cult' => 'culte_id', 'basonta' => 'basonta_id'];
+
+    private function unitColumn(string $unitType): string
+    {
+        if (!isset(self::UNIT_COLUMNS[$unitType])) {
+            throw new \InvalidArgumentException("Type d'unité inconnu: {$unitType}");
+        }
+        return self::UNIT_COLUMNS[$unitType];
+    }
+
+    /** Upsert des statuts d'une occurrence (unité, date). Appelé sous transaction. */
+    public function pointOccurrence(string $unitType, int $unitId, string $date, array $statutByUserId): void
+    {
+        $col = $this->unitColumn($unitType);
+        Query::run("DELETE FROM presences WHERE $col = ? AND date_presence = ?", [$unitId, $date]);
+        foreach ($statutByUserId as $userId => $statut) {
+            Query::run(
+                "INSERT INTO presences (user_id, date_presence, statut, $col) VALUES (?, ?, ?, ?)",
+                [(int) $userId, $date, $statut, $unitId]
+            );
+        }
+    }
+
+    /** @return array<int,string> [userId => statut] */
+    public function occurrenceStatuts(string $unitType, int $unitId, string $date): array
+    {
+        $col = $this->unitColumn($unitType);
+        $out = [];
+        foreach (Query::all("SELECT user_id, statut FROM presences WHERE $col = ? AND date_presence = ?", [$unitId, $date]) as $r) {
+            $out[(int) $r['user_id']] = (string) $r['statut'];
+        }
+        return $out;
+    }
+
+    /** @return list<string> dates Y-m-d triées */
+    public function distinctDatesForUnit(string $unitType, int $unitId, string $from, string $to): array
+    {
+        $col = $this->unitColumn($unitType);
+        return array_map(
+            static fn($r) => (string) $r['date_presence'],
+            Query::all(
+                "SELECT DISTINCT date_presence FROM presences
+                  WHERE $col = ? AND date_presence BETWEEN ? AND ? ORDER BY date_presence",
+                [$unitId, $from, $to]
+            )
+        );
+    }
+
+    /** @return array<int,array<string,string>> [userId => [date => statut]] */
+    public function matrixForUnit(string $unitType, int $unitId, string $from, string $to): array
+    {
+        $col = $this->unitColumn($unitType);
+        $out = [];
+        foreach (Query::all(
+            "SELECT user_id, date_presence, statut FROM presences
+              WHERE $col = ? AND date_presence BETWEEN ? AND ?",
+            [$unitId, $from, $to]
+        ) as $r) {
+            $out[(int) $r['user_id']][(string) $r['date_presence']] = (string) $r['statut'];
+        }
+        return $out;
+    }
 }

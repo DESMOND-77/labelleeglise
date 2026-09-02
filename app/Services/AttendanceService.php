@@ -69,4 +69,58 @@ class AttendanceService
             'rate_denominator_note' => 'présences ÷ dates de culte distinctes enregistrées sur la période',
         ];
     }
+
+    /* ================= M1 — Présences par occurrence ================= */
+
+    /**
+     * Enregistre les statuts d'une occurrence (unité, date). Filtre : ne garde
+     * que les user_id ∈ $allowedUserIds et les statuts ∈ PRESENCE_STATUTS.
+     * Upsert transactionnel (delete de l'(unité, date) puis insert).
+     */
+    public function pointOccurrence(string $unitType, int $unitId, string $date, array $rawStatutByUserId, array $allowedUserIds): void
+    {
+        $allowed = array_flip(array_map('intval', $allowedUserIds));
+        $valid = array_keys(PRESENCE_STATUTS);
+        $clean = [];
+        foreach ($rawStatutByUserId as $userId => $statut) {
+            $userId = (int) $userId;
+            if (isset($allowed[$userId]) && in_array($statut, $valid, true)) {
+                $clean[$userId] = $statut;
+            }
+        }
+        \App\Core\Query::transaction(function () use ($unitType, $unitId, $date, $clean) {
+            $this->attendance->pointOccurrence($unitType, $unitId, $date, $clean);
+        });
+    }
+
+    /**
+     * @param array<int,array> $members lignes users (au moins la clé 'id')
+     * @return list<array{user:array,statut:string}>
+     */
+    public function occurrenceGrid(string $unitType, int $unitId, string $date, array $members): array
+    {
+        $statuts = $this->attendance->occurrenceStatuts($unitType, $unitId, $date);
+        $out = [];
+        foreach ($members as $m) {
+            $out[] = ['user' => $m, 'statut' => $statuts[(int) $m['id']] ?? ''];
+        }
+        return $out;
+    }
+
+    /**
+     * @param array<int,array> $members
+     * @return array{dates:list<string>,rows:list<array{user:array,cells:array<string,string>}>}
+     */
+    public function annualMatrix(string $unitType, int $unitId, int $year, array $members): array
+    {
+        $from = sprintf('%04d-01-01', $year);
+        $to = sprintf('%04d-12-31', $year);
+        $dates = $this->attendance->distinctDatesForUnit($unitType, $unitId, $from, $to);
+        $matrix = $this->attendance->matrixForUnit($unitType, $unitId, $from, $to);
+        $rows = [];
+        foreach ($members as $m) {
+            $rows[] = ['user' => $m, 'cells' => $matrix[(int) $m['id']] ?? []];
+        }
+        return ['dates' => $dates, 'rows' => $rows];
+    }
 }

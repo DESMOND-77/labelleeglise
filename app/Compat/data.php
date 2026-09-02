@@ -104,6 +104,19 @@ function latest_basonta_of_user(int $userId): ?int { return _repo(BasontaReposit
 function presence_status(array $user, string $type): string { return _repo(MemberService::class)->presenceStatus($user, $type); }
 function save_quick_presence(int $userId, string $type, string $value): void { _repo(MemberService::class)->saveQuickPresence($userId, $type, $value); }
 function point_culte_presence(int $culteId, string $date, array $userIds): void { _repo(\App\Services\AttendanceService::class)->pointCulte($culteId, $date, $userIds); }
+
+function save_unit_presence(string $unitType, int $unitId, string $date, array $rawStatuts, array $allowedUserIds): void
+{
+    _repo(\App\Services\AttendanceService::class)->pointOccurrence($unitType, $unitId, $date, $rawStatuts, $allowedUserIds);
+}
+function unit_presence_grid(string $unitType, int $unitId, string $date, array $members): array
+{
+    return _repo(\App\Services\AttendanceService::class)->occurrenceGrid($unitType, $unitId, $date, $members);
+}
+function unit_annual_matrix(string $unitType, int $unitId, int $year, array $members): array
+{
+    return _repo(\App\Services\AttendanceService::class)->annualMatrix($unitType, $unitId, $year, $members);
+}
 function member_presence_counts(array $user): array { return _repo(MemberService::class)->presenceCounts($user); }
 
 /* ---------- Visites & offrandes ---------- */
