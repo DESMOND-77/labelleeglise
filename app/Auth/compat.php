@@ -99,6 +99,36 @@ function auth_can_manage_responsibilities(): bool
     return authz_service()->canManageResponsibilities(current_user());
 }
 
+/** Gestionnaire de calendrier : admin OU détenteur d'≥1 responsabilité `manager`. */
+function auth_can_manage_calendar(): bool
+{
+    $u = current_user();
+    if (!$u) {
+        return false;
+    }
+    if (($u['role'] ?? '') === 'admin') {
+        return true;
+    }
+    return (int) \App\Core\Query::value(
+        "SELECT COUNT(*) FROM responsibilities WHERE user_id = ? AND responsibility_type = 'manager'",
+        [(int) $u['id']]
+    ) > 0;
+}
+
+/** Édition/suppression d'UN événement : admin, son créateur, ou son responsable. */
+function auth_can_edit_evenement(array $evt): bool
+{
+    $u = current_user();
+    if (!$u) {
+        return false;
+    }
+    if (($u['role'] ?? '') === 'admin') {
+        return true;
+    }
+    $uid = (int) $u['id'];
+    return $uid === (int) ($evt['created_by'] ?? 0) || $uid === (int) ($evt['responsable_id'] ?? 0);
+}
+
 function start_session(): void
 {
     \App\Core\Session::start(APP_NAME ? 'LBEGF_SESSID' : 'LBEGF_SESSID');

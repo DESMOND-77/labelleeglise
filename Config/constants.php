@@ -60,6 +60,8 @@ define('SECTION_LABELS', [
     'generale'           => 'Liste générale des membres',
     'bergers'            => 'Liste des bergers',
     'suiviBergers'       => 'Suivi Hebdo. des Bergers',
+    'calendrier'         => 'Calendrier',
+    'anniversaires'      => 'Anniversaires',
     'finances'           => 'Finances & Offrandes',
     'parametres'         => 'Paramètres',
     'bergerFiche'        => 'Fiche Berger',
@@ -81,6 +83,8 @@ define('SECTION_ICONS', [
     'generale'           => '<i class="fa-solid fa-clipboard-list"></i>',
     'bergers'            => '<i class="fa-solid fa-people-roof"></i>',
     'suiviBergers'       => '<i class="fa-solid fa-calendar-days"></i>',
+    'calendrier'         => '<i class="fa-solid fa-calendar-day"></i>',
+    'anniversaires'      => '<i class="fa-solid fa-cake-candles"></i>',
     'finances'           => '<i class="fa-solid fa-sack-dollar"></i>',
     'parametres'         => '<i class="fa-solid fa-gear"></i>',
     'admin_inscriptions' => '<i class="fa-solid fa-user-plus"></i>',
@@ -113,6 +117,8 @@ define('NAV_ORDER', [
     'bergers',
     'suiviBergers',
     'finances',
+    'calendrier',
+    'anniversaires',
     'parametres'
 ]);
 

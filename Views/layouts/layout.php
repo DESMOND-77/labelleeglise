@@ -35,6 +35,11 @@ if ($scope && $scope['kind'] === 'berger') {
     if (!empty($scope['responsible_cult_ids'])) {
         $navLis[] = '<li><a class="nav-item' . ($page === 'cultes' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'cultes'])) . '"><span class="ico"><i class="fa-solid fa-hands-praying"></i></span><span class="label">Mes cultes</span></a></li>';
     }
+    if (auth_can_manage_calendar()) {
+        foreach (['calendrier', 'anniversaires'] as $ck) {
+            $navLis[] = '<li><a class="nav-item' . ($page === $ck ? ' active' : '') . '" href="' . h(url('index.php', ['page' => $ck])) . '"><span class="ico">' . SECTION_ICONS[$ck] . '</span><span class="label">' . h(SECTION_LABELS[$ck]) . '</span></a></li>';
+        }
+    }
 } elseif ($scope && $scope['kind'] === 'responsable') {
     $target = scope_target();
     $navLis[] = '<li><a class="nav-item' . ($page === 'bacentas' ? ' active' : '') . '" href="' . h(url('index.php', $target)) . '"><span class="ico"><i class="fa-solid fa-lock"></i></span><span class="label">Mon Bacenta</span></a></li>';
