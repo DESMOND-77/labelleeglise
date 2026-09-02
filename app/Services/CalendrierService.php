@@ -93,6 +93,7 @@ class CalendrierService
         $out = [];
         $currentMonth = (int) date('n');
         $currentYear = (int) date('Y');
+        $currentDay = (int) date('j');
 
         foreach (Query::all("SELECT id, prenom, nom, date_naissance FROM users WHERE date_naissance IS NOT NULL") as $u) {
             $ts = strtotime((string) $u['date_naissance']);
@@ -123,7 +124,15 @@ class CalendrierService
         usort($out, static fn($x, $y) => ($x['mois'] <=> $y['mois']) ?: ($x['jour'] <=> $y['jour']) ?: strcmp($x['nom'], $y['nom']));
 
         foreach ($out as &$b) {
-            $b['age'] = $b['annee'] !== null ? max(0, $currentYear - $b['annee']) : null;
+            if ($b['annee'] === null) {
+                $b['age'] = null;
+            } else {
+                $age = $currentYear - $b['annee'];
+                if ($b['mois'] > $currentMonth || ($b['mois'] === $currentMonth && $b['jour'] > $currentDay)) {
+                    $age--;
+                }
+                $b['age'] = max(0, $age);
+            }
             $b['is_current_month'] = $b['mois'] === $currentMonth;
         }
         unset($b);

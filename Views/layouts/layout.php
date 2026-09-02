@@ -35,11 +35,6 @@ if ($scope && $scope['kind'] === 'berger') {
     if (!empty($scope['responsible_cult_ids'])) {
         $navLis[] = '<li><a class="nav-item' . ($page === 'cultes' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'cultes'])) . '"><span class="ico"><i class="fa-solid fa-hands-praying"></i></span><span class="label">Mes cultes</span></a></li>';
     }
-    if (auth_can_manage_calendar()) {
-        foreach (['calendrier', 'anniversaires'] as $ck) {
-            $navLis[] = '<li><a class="nav-item' . ($page === $ck ? ' active' : '') . '" href="' . h(url('index.php', ['page' => $ck])) . '"><span class="ico">' . SECTION_ICONS[$ck] . '</span><span class="label">' . h(SECTION_LABELS[$ck]) . '</span></a></li>';
-        }
-    }
 } elseif ($scope && $scope['kind'] === 'responsable') {
     $target = scope_target();
     $navLis[] = '<li><a class="nav-item' . ($page === 'bacentas' ? ' active' : '') . '" href="' . h(url('index.php', $target)) . '"><span class="ico"><i class="fa-solid fa-lock"></i></span><span class="label">Mon Bacenta</span></a></li>';
@@ -55,6 +50,14 @@ if ($scope && $scope['kind'] === 'berger') {
         }
         $active = $page === $key ? ' active' : '';
         $navLis[] = '<li><a class="nav-item' . $active . '" href="' . h(url('index.php', ['page' => $key])) . '"><span class="ico">' . SECTION_ICONS[$key] . '</span><span class="label">' . h(SECTION_LABELS[$key]) . '</span></a></li>';
+    }
+}
+
+// Calendriers : lien pour tout gestionnaire de calendrier non-admin
+// (l'admin les a déjà via la boucle NAV_ORDER ci-dessus).
+if ($user && !$isAdmin && auth_can_manage_calendar()) {
+    foreach (['calendrier', 'anniversaires'] as $ck) {
+        $navLis[] = '<li><a class="nav-item' . ($page === $ck ? ' active' : '') . '" href="' . h(url('index.php', ['page' => $ck])) . '"><span class="ico">' . SECTION_ICONS[$ck] . '</span><span class="label">' . h(SECTION_LABELS[$ck]) . '</span></a></li>';
     }
 }
 
