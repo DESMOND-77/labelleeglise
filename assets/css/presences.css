@@ -1,0 +1,54 @@
+/* M1 — Présences par occurrence & matrice annuelle */
+
+.presence-datebar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.presence-hint {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.presence-table td:last-child {
+  width: 12rem;
+}
+
+.presence-matrix {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.presence-matrix th,
+.presence-matrix td {
+  border: 1px solid var(--border);
+  padding: var(--space-2);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.presence-matrix th:first-child,
+.presence-matrix td:first-child {
+  text-align: left;
+  position: sticky;
+  left: 0;
+  background: var(--card);
+}
+
+.presence-cell-present {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.presence-cell-absent {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.presence-cell-excuse {
+  color: var(--warning);
+  font-weight: 600;
+}

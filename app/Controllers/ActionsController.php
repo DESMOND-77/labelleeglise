@@ -567,6 +567,32 @@ class ActionsController extends Controller
                 break;
             }
 
+            /* ---------- Présence par occurrence (bacenta / culte / basonta, statut) ---------- */
+
+            case 'save_presence_occurrence': {
+                $this->requireUser();
+                $unitType = (string) ($_POST['unit_type'] ?? '');
+                $unitId = (int) ($_POST['unit_id'] ?? 0);
+                if (!in_array($unitType, ['bacenta', 'cult', 'basonta'], true) || !$unitId || !can_manage_entity($unitType, $unitId)) {
+                    $this->deny();
+                }
+                $date = (string) ($_POST['date'] ?? date('Y-m-d'));
+                // Population autorisée revalidée serveur selon le type d'unité.
+                $allowed = match ($unitType) {
+                    'bacenta' => array_map(static fn($m) => (int) $m['id'], get_members_of_bacenta($unitId)),
+                    'basonta' => array_map(static fn($m) => (int) $m['id'], get_members_of_basonta($unitId)),
+                    'cult'    => array_map(static fn($m) => (int) $m['id'], Query::all("SELECT id FROM users WHERE role IN ('membre','leader','assistant','pasteur','reverant')")),
+                };
+                $raw = [];
+                foreach ((array) ($_POST['statut'] ?? []) as $uid => $st) {
+                    $raw[(int) $uid] = (string) $st;
+                }
+                save_unit_presence($unitType, $unitId, $date, $raw, $allowed);
+                $pageKey = ['bacenta' => 'bacentas', 'cult' => 'cultes', 'basonta' => 'basontas'][$unitType];
+                $this->redirect('index.php', ['page' => $pageKey, 'id' => $unitId, 'tab' => 'presences', 'date' => $date]);
+                break;
+            }
+
             /* ---------- Basonta : ajout de membre ---------- */
 
             case 'basonta_add_member': {
