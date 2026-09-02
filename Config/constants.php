@@ -45,7 +45,7 @@ define('WEEKLY_FOLLOWUP_ROLES', ['admin', 'pasteur', 'reverant', 'berger', 'ms',
 /* ---------- Constantes métier ---------- */
 
 define('BACENTAS_DEFAULT', ['Sion', 'Bethel']);
-define('BASONTAS_DEFAULT', ['Chorale', 'Ashers', 'Film Start', 'Perfect Sound', 'Akwaba', 'Singing Start']);
+define('BASONTAS_DEFAULT', ['Chorale', 'Ushers', 'Film Start', 'Perfect Sound', 'Akwaba', 'Singing Start']);
 define('CULTES_DEFAULT', ["Culte d'Impact", 'Culte Aman', 'Cultes Tschalac', 'Culte des Leaders']);
 
 define('SECTION_LABELS', [
