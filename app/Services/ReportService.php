@@ -35,6 +35,9 @@ class ReportService
         foreach (WEEK_DAYS as $day) {
             $data = $week[$day] ?? [];
             foreach (SUIVI_FIELDS as $f) {
+                if (!empty($f['optional'])) {
+                    continue;
+                }
                 if (!empty($f['sundayOnly']) && $day !== 'Dimanche') {
                     continue;
                 }
