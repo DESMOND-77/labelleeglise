@@ -142,6 +142,8 @@ define('FIELD_LABELS', [
 
 define('PRESENCE_FIELDS', ['presenceCulte', 'presenceBasonta', 'presenceCentre', 'presenceBacenta']);
 
+define('PRESENCE_STATUTS', ['present' => 'Présent', 'absent' => 'Absent', 'excuse' => 'Excusé']);
+
 define('SECTION_EXTRA_FIELDS', [
     'nouveaux' => ['invite_par', 'recu_par', 'date_recu'],
     'generale' => ['invite_par', 'recu_par', 'date_recu'],

@@ -402,6 +402,68 @@ function up(): void
      * collision de clé possible.
      */
     $pdo->exec("UPDATE basontas SET nom = 'Ushers' WHERE nom = 'Ashers'");
+
+    /* ---- 10. M1 — Présences par occurrence -------------------------------
+     * a) Récurrence hebdomadaire des unités : jour(s) de la semaine (CSV de
+     *    libellés WEEK_DAYS, ex. "Vendredi" ou "Lundi,Mercredi") + plage
+     *    horaire facultative. `cultes` a déjà heure_debut/heure_fin.
+     * b) `presences.statut` : Présent / Absent / Excusé. Défaut 'present' —
+     *    une ligne de présence existante signifiait déjà "présent".
+     * c) Index d'unicité : une ligne de présence par (personne, date, unité).
+     *    centre_id est inclus (des lignes "centre" existent dans la table).
+     *    Déduplication préalable (idempotente) pour que la création de
+     *    l'index unique ne bute pas sur d'anciens doublons.
+     */
+    $m1Columns = [
+        ['cultes',   'jours_semaine', "ALTER TABLE cultes ADD COLUMN jours_semaine VARCHAR(60) NULL AFTER date_culte"],
+        ['bacentas', 'jours_semaine', "ALTER TABLE bacentas ADD COLUMN jours_semaine VARCHAR(60) NULL"],
+        ['bacentas', 'heure_debut',   "ALTER TABLE bacentas ADD COLUMN heure_debut TIME NULL"],
+        ['bacentas', 'heure_fin',     "ALTER TABLE bacentas ADD COLUMN heure_fin TIME NULL"],
+        ['basontas', 'jours_semaine', "ALTER TABLE basontas ADD COLUMN jours_semaine VARCHAR(60) NULL"],
+        ['basontas', 'heure_debut',   "ALTER TABLE basontas ADD COLUMN heure_debut TIME NULL"],
+        ['basontas', 'heure_fin',     "ALTER TABLE basontas ADD COLUMN heure_fin TIME NULL"],
+    ];
+    foreach ($m1Columns as [$table, $column, $alterSql]) {
+        if (!column_exists($pdo, $table, $column)) {
+            $pdo->exec($alterSql);
+        }
+    }
+
+    if (!column_exists($pdo, 'presences', 'statut')) {
+        $pdo->exec(
+            "ALTER TABLE presences
+                ADD COLUMN statut ENUM('present','absent','excuse') NOT NULL DEFAULT 'present' AFTER date_presence"
+        );
+    }
+
+    if (!index_exists($pdo, 'presences', 'uniq_presence')) {
+        // Déduplication : garder la ligne d'id minimal par clé logique.
+        $pdo->exec(
+            "DELETE p FROM presences p
+               JOIN (
+                    SELECT MIN(id) AS keep_id,
+                           user_id, date_presence,
+                           COALESCE(culte_id,0)   AS c,
+                           COALESCE(bacenta_id,0) AS b,
+                           COALESCE(basonta_id,0) AS s,
+                           COALESCE(centre_id,0)  AS ce
+                      FROM presences
+                     GROUP BY user_id, date_presence, c, b, s, ce
+                    HAVING COUNT(*) > 1
+               ) d
+                 ON p.user_id = d.user_id
+                AND p.date_presence = d.date_presence
+                AND COALESCE(p.culte_id,0)   = d.c
+                AND COALESCE(p.bacenta_id,0) = d.b
+                AND COALESCE(p.basonta_id,0) = d.s
+                AND COALESCE(p.centre_id,0)  = d.ce
+                AND p.id <> d.keep_id"
+        );
+        $pdo->exec(
+            "CREATE UNIQUE INDEX uniq_presence
+                ON presences (user_id, date_presence, culte_id, bacenta_id, basonta_id, centre_id)"
+        );
+    }
 }
 
 /** Vérifie si une colonne existe déjà (idempotence des ALTER TABLE). */
