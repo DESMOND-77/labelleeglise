@@ -154,6 +154,10 @@ function get_equipe(): array { return _repo(CMSRepository::class)->equipe(); }
 function get_centres_articles(): array { return _repo(CMSRepository::class)->centresArticles(); }
 function get_centre_article(int $id): ?array { return _repo(CMSRepository::class)->centreArticle($id); }
 
+/* ---------- Calendriers ---------- */
+
+function calendrier_service(): \App\Services\CalendrierService { return _repo(\App\Services\CalendrierService::class); }
+
 /* ---------- CRUD users ---------- */
 
 function insert_user(array $data): int { return _repo(UserRepository::class)->insert($data); }
