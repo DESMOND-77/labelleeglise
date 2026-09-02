@@ -23,6 +23,7 @@ use App\Controllers\ActionsController;
 use App\Controllers\RegistrationController;
 use App\Controllers\AdminRegistrationController;
 use App\Controllers\NotificationController;
+use App\Controllers\PresenceController;
 
 /* ---------- Authentification (POST) ---------- */
 Router::post('login', AuthController::class, 'login');
@@ -61,6 +62,7 @@ Router::get('personProfile', ProfileController::class, 'index');
 Router::get('profile', ProfileController::class, 'me');
 Router::get('attendancePrint', ProfileController::class, 'attendancePrint');
 Router::get('suiviPrint', ProfileController::class, 'suiviPrint');
+Router::get('presencePrint', PresenceController::class, 'matrixPrint');
 
 /* ---------- Inscription publique / vérification email (accès public) ---------- */
 Router::get('register', RegistrationController::class, 'form');

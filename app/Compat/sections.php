@@ -264,6 +264,40 @@ function render_unit_presence_tab(string $unitType, string $pageKey, array $unit
     ]));
 }
 
+/**
+ * Page autonome imprimable : matrice annuelle des présences d'une unité.
+ * ?page=presencePrint&unit_type=<bacenta|cult|basonta>&unit_id=<id>&year=<yyyy>
+ */
+function render_presence_matrix_print_page(): void
+{
+    if (!current_user()) {
+        redirect('index.php', ['page' => 'apropos']);
+    }
+    $unitType = (string) (nav('unit_type') ?? '');
+    $unitId = (int) (nav('unit_id') ?? 0);
+    if (!in_array($unitType, ['bacenta', 'cult', 'basonta'], true) || !$unitId || !can_manage_entity($unitType, $unitId)) {
+        redirect('index.php', ['page' => 'accueil']);
+    }
+    $year = (int) (nav('year') ?: date('Y'));
+
+    [$unit, $members] = match ($unitType) {
+        'bacenta' => [get_bacenta($unitId), get_members_of_bacenta($unitId)],
+        'basonta' => [get_basonta($unitId), get_members_of_basonta($unitId)],
+        'cult'    => [get_culte($unitId), Query::all("SELECT * FROM users WHERE role IN ('membre','leader','assistant','pasteur','reverant') ORDER BY prenom, nom")],
+    };
+    if (!$unit) {
+        redirect('index.php', ['page' => 'accueil']);
+    }
+
+    echo view('pages/presence_matrix_print', [
+        'unit'      => $unit,
+        'year'      => $year,
+        'matrix'    => unit_annual_matrix($unitType, $unitId, $year, $members),
+        'statuts'   => PRESENCE_STATUTS,
+        'printedAt' => date('d/m/Y à H:i'),
+    ]);
+}
+
 function render_bacenta_detail(int $bacentaId): void
 {
     $b = get_bacenta($bacentaId);
