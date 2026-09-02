@@ -393,6 +393,15 @@ function up(): void
     if (!index_exists($pdo, 'users', 'idx_email_change_token')) {
         $pdo->exec('CREATE INDEX idx_email_change_token ON users (email_change_token)');
     }
+
+    /* ---- 9. Correction orthographe basonta « Ashers » → « Ushers » ----
+     * Le ministère des placiers s'écrit « ushers ». BASONTAS_DEFAULT corrige
+     * les nouvelles installations (via le seeder) ; cette requête répare les
+     * bases déjà en place. Idempotente : aucun effet si la ligne n'existe
+     * pas ou a déjà été renommée. `basontas.nom` n'est pas UNIQUE — aucune
+     * collision de clé possible.
+     */
+    $pdo->exec("UPDATE basontas SET nom = 'Ushers' WHERE nom = 'Ashers'");
 }
 
 /** Vérifie si une colonne existe déjà (idempotence des ALTER TABLE). */

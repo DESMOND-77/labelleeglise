@@ -45,7 +45,7 @@ define('WEEKLY_FOLLOWUP_ROLES', ['admin', 'pasteur', 'reverant', 'berger', 'ms',
 /* ---------- Constantes métier ---------- */
 
 define('BACENTAS_DEFAULT', ['Sion', 'Bethel']);
-define('BASONTAS_DEFAULT', ['Chorale', 'Ashers', 'Film Start', 'Perfect Sound', 'Akwaba', 'Singing Start']);
+define('BASONTAS_DEFAULT', ['Chorale', 'Ushers', 'Film Start', 'Perfect Sound', 'Akwaba', 'Singing Start']);
 define('CULTES_DEFAULT', ["Culte d'Impact", 'Culte Aman', 'Cultes Tschalac', 'Culte des Leaders']);
 
 define('SECTION_LABELS', [
@@ -184,4 +184,7 @@ define('SUIVI_FIELDS', [
     ['key' => 'visites',        'label' => 'Personne(s) visitée(s) en semaine', 'type' => 'text'],
     ['key' => 'invitesDimanche', 'label' => 'Personne(s) invitée(s) pour dimanche', 'type' => 'text'],
     ['key' => 'invitesApres',   'label' => 'Invité(s) après le culte / deep sea fishing', 'type' => 'text', 'sundayOnly' => true],
+    ['key' => 'mixlr',        'label' => 'Diffusion Mixlr (lien ou statut)', 'type' => 'text', 'sundayOnly' => true],
+    ['key' => 'ushers',       'label' => "Nombre d'ushers", 'type' => 'number', 'sundayOnly' => true],
+    ['key' => 'themeSemaine', 'label' => 'Thème de la semaine', 'type' => 'text', 'optional' => true],
 ]);
