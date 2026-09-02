@@ -464,6 +464,63 @@ function up(): void
                 ON presences (user_id, date_presence, culte_id, bacenta_id, basonta_id, centre_id)"
         );
     }
+
+    /* ---- 11. M4 — Calendriers (événements + anniversaires) --------------
+     * a) evenements : nom, plage date/heure, lieu, responsable, créateur.
+     * b) anniversaires : saisies manuelles (personnes sans compte). Les
+     *    anniversaires des membres sont dérivés de users.date_naissance.
+     * c) Addendum M1 : une occurrence d'événement devient pointable —
+     *    presences.evenement_id + reconstruction de l'index uniq_presence.
+     */
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS evenements (
+            id INT NOT NULL AUTO_INCREMENT,
+            nom VARCHAR(150) NOT NULL,
+            date_debut DATETIME NOT NULL,
+            date_fin DATETIME NULL,
+            lieu VARCHAR(150) NULL,
+            responsable_id INT NULL,
+            created_by INT NULL,
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY idx_evt_debut (date_debut),
+            CONSTRAINT fk_evt_resp    FOREIGN KEY (responsable_id) REFERENCES users(id) ON DELETE SET NULL,
+            CONSTRAINT fk_evt_creator FOREIGN KEY (created_by)     REFERENCES users(id) ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
+
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS anniversaires (
+            id INT NOT NULL AUTO_INCREMENT,
+            nom VARCHAR(150) NOT NULL,
+            jour TINYINT NOT NULL,
+            mois TINYINT NOT NULL,
+            annee SMALLINT NULL,
+            created_by INT NULL,
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY idx_anniv_mois (mois, jour),
+            CONSTRAINT fk_anniv_creator FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
+
+    if (!column_exists($pdo, 'presences', 'evenement_id')) {
+        $pdo->exec("ALTER TABLE presences ADD COLUMN evenement_id INT NULL AFTER basonta_id");
+        $pdo->exec("ALTER TABLE presences ADD CONSTRAINT fk_pres_evt FOREIGN KEY (evenement_id) REFERENCES evenements(id) ON DELETE CASCADE");
+    }
+    // Reconstruire l'index d'unicité pour inclure evenement_id (idempotent :
+    // on ne le refait que si la définition actuelle ne contient pas déjà
+    // 7 colonnes).
+    $uniqCount = (int) $pdo->query(
+        "SELECT COUNT(*) FROM information_schema.statistics
+          WHERE table_schema = DATABASE() AND table_name = 'presences' AND index_name = 'uniq_presence'"
+    )->fetchColumn();
+    if ($uniqCount === 6) {
+        $pdo->exec(
+            "ALTER TABLE presences DROP INDEX uniq_presence,
+             ADD UNIQUE INDEX uniq_presence (user_id, date_presence, culte_id, bacenta_id, basonta_id, centre_id, evenement_id)"
+        );
+    }
 }
 
 /** Vérifie si une colonne existe déjà (idempotence des ALTER TABLE). */
@@ -494,7 +551,7 @@ function index_exists(\PDO $pdo, string $table, string $index): bool
 function down(): void
 {
     $pdo = Database::connection();
-    $tables = ['responsibilities', 'notifications', 'users_basontas', 'presences', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
+    $tables = ['responsibilities', 'notifications', 'users_basontas', 'presences', 'evenements', 'anniversaires', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
                'examens', 'veillees', 'cultes', 'basontas', 'bacentas', 'users',
                'centres_presentation', 'equipe', 'presentation', 'centres'];
     $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
