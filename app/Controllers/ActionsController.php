@@ -79,6 +79,33 @@ class ActionsController extends Controller
                 $this->redirect('index.php', ['page' => 'bacentas']);
                 break;
 
+            /* ---------- Calendriers (M4) ---------- */
+
+            case 'delete_evenement': {
+                $this->requireUser();
+                $id = (int) ($_GET['id'] ?? 0);
+                $evt = $id ? calendrier_service()->event($id) : null;
+                if (!$evt || !auth_can_edit_evenement($evt)) {
+                    $this->deny();
+                }
+                calendrier_service()->deleteEvent($id);
+                $this->redirect('index.php', ['page' => 'calendrier']);
+                break;
+            }
+
+            case 'delete_anniversaire': {
+                $this->requireUser();
+                if (!auth_can_manage_calendar()) {
+                    $this->deny();
+                }
+                $id = (int) ($_GET['id'] ?? 0);
+                if ($id) {
+                    calendrier_service()->deleteBirthday($id);
+                }
+                $this->redirect('index.php', ['page' => 'anniversaires']);
+                break;
+            }
+
             case 'delete_culte':
                 $this->requireAdmin();
                 $id = (int) ($_GET['id'] ?? 0);
@@ -590,6 +617,61 @@ class ActionsController extends Controller
                 save_unit_presence($unitType, $unitId, $date, $raw, $allowed);
                 $pageKey = ['bacenta' => 'bacentas', 'cult' => 'cultes', 'basonta' => 'basontas'][$unitType];
                 $this->redirect('index.php', ['page' => $pageKey, 'id' => $unitId, 'tab' => 'presences', 'date' => $date]);
+                break;
+            }
+
+            /* ---------- Calendriers (M4) ---------- */
+
+            case 'save_evenement': {
+                $user = $this->requireUser();
+                if (!auth_can_manage_calendar()) {
+                    $this->deny();
+                }
+                $id = (int) ($_POST['id'] ?? 0);
+                if ($id) {
+                    $existing = calendrier_service()->event($id);
+                    if (!$existing || !auth_can_edit_evenement($existing)) {
+                        $this->deny();
+                    }
+                }
+                $res = calendrier_service()->saveEvent($_POST, (int) $user['id']);
+                if (!$res['ok']) {
+                    $editForForm = $id ? calendrier_service()->event($id) : null;
+                    render_page(SECTION_LABELS['calendrier'], view('pages/calendrier', [
+                        'events'       => calendrier_service()->allEvents(),
+                        'canManage'    => true,
+                        'edit'         => $editForForm,
+                        'responsables' => Query::all("SELECT id, prenom, nom FROM users WHERE role IN ('berger','ms','pasteur','reverant','admin') ORDER BY prenom, nom"),
+                        'errors'       => $res['errors'],
+                        'old'          => $_POST,
+                        'csrf'         => csrf_field(),
+                        'mode'         => 'list',
+                    ]));
+                    return;
+                }
+                $this->redirect('index.php', ['page' => 'calendrier']);
+                break;
+            }
+
+            case 'save_anniversaire': {
+                $user = $this->requireUser();
+                if (!auth_can_manage_calendar()) {
+                    $this->deny();
+                }
+                $res = calendrier_service()->saveBirthday($_POST, (int) $user['id']);
+                if (!$res['ok']) {
+                    render_page(SECTION_LABELS['anniversaires'], view('pages/anniversaires', [
+                        'birthdays'    => calendrier_service()->birthdays(),
+                        'canManage'    => true,
+                        'monthsFr'     => MONTHS_FR,
+                        'currentMonth' => (int) date('n'),
+                        'errors'       => $res['errors'],
+                        'old'          => $_POST,
+                        'csrf'         => csrf_field(),
+                    ]));
+                    return;
+                }
+                $this->redirect('index.php', ['page' => 'anniversaires']);
                 break;
             }
 
