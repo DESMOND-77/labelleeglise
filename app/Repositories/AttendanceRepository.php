@@ -104,7 +104,7 @@ class AttendanceRepository
 
     /* ================= M1 — Présences par occurrence (unité, date, statut) ================= */
 
-    private const UNIT_COLUMNS = ['bacenta' => 'bacenta_id', 'cult' => 'culte_id', 'basonta' => 'basonta_id'];
+    private const UNIT_COLUMNS = ['bacenta' => 'bacenta_id', 'cult' => 'culte_id', 'basonta' => 'basonta_id', 'evenement' => 'evenement_id'];
 
     private function unitColumn(string $unitType): string
     {

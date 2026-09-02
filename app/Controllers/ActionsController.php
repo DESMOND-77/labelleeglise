@@ -600,7 +600,15 @@ class ActionsController extends Controller
                 $this->requireUser();
                 $unitType = (string) ($_POST['unit_type'] ?? '');
                 $unitId = (int) ($_POST['unit_id'] ?? 0);
-                if (!in_array($unitType, ['bacenta', 'cult', 'basonta'], true) || !$unitId || !can_manage_entity($unitType, $unitId)) {
+                if (!in_array($unitType, ['bacenta', 'cult', 'basonta', 'evenement'], true) || !$unitId) {
+                    $this->deny();
+                }
+                if ($unitType === 'evenement') {
+                    $evt = calendrier_service()->event($unitId);
+                    if (!$evt || !(auth_can_manage_calendar() || auth_can_edit_evenement($evt))) {
+                        $this->deny();
+                    }
+                } elseif (!can_manage_entity($unitType, $unitId)) {
                     $this->deny();
                 }
                 $date = (string) ($_POST['date'] ?? date('Y-m-d'));
@@ -609,12 +617,16 @@ class ActionsController extends Controller
                     'bacenta' => array_map(static fn($m) => (int) $m['id'], get_members_of_bacenta($unitId)),
                     'basonta' => array_map(static fn($m) => (int) $m['id'], get_members_of_basonta($unitId)),
                     'cult'    => array_map(static fn($m) => (int) $m['id'], Query::all("SELECT id FROM users WHERE role IN ('membre','leader','assistant','pasteur','reverant')")),
+                    'evenement' => array_map(static fn($m) => (int) $m['id'], Query::all("SELECT id FROM users WHERE role IN ('membre','leader','assistant','pasteur','reverant')")),
                 };
                 $raw = [];
                 foreach ((array) ($_POST['statut'] ?? []) as $uid => $st) {
                     $raw[(int) $uid] = (string) $st;
                 }
                 save_unit_presence($unitType, $unitId, $date, $raw, $allowed);
+                if ($unitType === 'evenement') {
+                    $this->redirect('index.php', ['page' => 'calendrier', 'evt' => $unitId, 'date' => $date]);
+                }
                 $pageKey = ['bacenta' => 'bacentas', 'cult' => 'cultes', 'basonta' => 'basontas'][$unitType];
                 $this->redirect('index.php', ['page' => $pageKey, 'id' => $unitId, 'tab' => 'presences', 'date' => $date]);
                 break;

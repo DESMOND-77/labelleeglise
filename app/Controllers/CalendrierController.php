@@ -68,17 +68,26 @@ class CalendrierController extends Controller
         if (!$evt) {
             $this->redirect('index.php', ['page' => 'calendrier']);
         }
+        $canPointe = auth_can_manage_calendar() || auth_can_edit_evenement($evt);
+        $date = (string) (Request::get('date') ?: date('Y-m-d'));
+        $members = $canPointe
+            ? Query::all("SELECT * FROM users WHERE role IN ('membre','leader','assistant','pasteur','reverant') ORDER BY prenom, nom")
+            : [];
         render_page($evt['nom'], view('pages/calendrier', [
-            'events'       => [],
-            'canManage'    => auth_can_manage_calendar(),
-            'edit'         => null,
-            'responsables' => [],
-            'errors'       => [],
-            'old'          => [],
-            'csrf'         => csrf_field(),
-            'mode'         => 'fiche',
-            'fiche'        => $evt,
-            'canEditFiche' => auth_can_edit_evenement($evt),
+            'events'          => [],
+            'canManage'       => auth_can_manage_calendar(),
+            'edit'            => null,
+            'responsables'    => [],
+            'errors'          => [],
+            'old'             => [],
+            'csrf'            => csrf_field(),
+            'mode'            => 'fiche',
+            'fiche'           => $evt,
+            'canEditFiche'    => auth_can_edit_evenement($evt),
+            'canPointe'       => $canPointe,
+            'presenceDate'    => $date,
+            'presenceGrid'    => $canPointe ? unit_presence_grid('evenement', (int) $evt['id'], $date, $members) : [],
+            'presenceStatuts' => PRESENCE_STATUTS,
         ]));
     }
 }
