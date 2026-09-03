@@ -106,6 +106,34 @@ class ActionsController extends Controller
                 break;
             }
 
+            case 'delete_classe': {
+                $this->requireUser();
+                if (!auth_can_manage_classes()) {
+                    $this->deny();
+                }
+                $id = (int) ($_GET['id'] ?? 0);
+                if ($id) {
+                    classe_service()->deleteClasse($id);
+                }
+                $this->redirect('index.php', ['page' => 'classes']);
+                break;
+            }
+
+            case 'remove_classe_inscrit': {
+                $this->requireUser();
+                if (!auth_can_manage_classes()) {
+                    $this->deny();
+                }
+                $id = (int) ($_GET['id'] ?? 0);
+                $ins = $id ? classe_service()->findInscrit($id) : null;
+                $classeId = $ins ? (int) $ins['classe_id'] : 0;
+                if ($id) {
+                    classe_service()->deleteInscrit($id);
+                }
+                $this->redirect('index.php', $classeId ? ['page' => 'classe', 'id' => $classeId] : ['page' => 'classes']);
+                break;
+            }
+
             case 'delete_culte':
                 $this->requireAdmin();
                 $id = (int) ($_GET['id'] ?? 0);
@@ -722,6 +750,61 @@ class ActionsController extends Controller
                     return;
                 }
                 $this->redirect('index.php', ['page' => 'rapport', 'id' => $res['id']]);
+                break;
+            }
+
+            /* ---------- Classes / Écoles (M6) ---------- */
+
+            case 'save_classe': {
+                $this->requireUser();
+                if (!auth_can_manage_classes()) {
+                    $this->deny();
+                }
+                $res = classe_service()->saveClasse($_POST);
+                if (!$res['ok']) {
+                    $editId = (int) ($_POST['id'] ?? 0);
+                    render_page(SECTION_LABELS['classes'], view('pages/classes', [
+                        'classes'    => classe_service()->all(),
+                        'edit'       => $editId ? classe_service()->find($editId) : null,
+                        'formateurs' => classe_service()->formateurCandidates(),
+                        'errors'     => $res['errors'],
+                        'old'        => $_POST,
+                        'csrf'       => csrf_field(),
+                    ]));
+                    return;
+                }
+                $this->redirect('index.php', ['page' => 'classes']);
+                break;
+            }
+
+            case 'save_classe_inscrit': {
+                $this->requireUser();
+                if (!auth_can_manage_classes()) {
+                    $this->deny();
+                }
+                $classeId = (int) ($_POST['classe_id'] ?? 0);
+                classe_service()->saveInscrit($_POST);
+                $this->redirect('index.php', $classeId ? ['page' => 'classe', 'id' => $classeId] : ['page' => 'classes']);
+                break;
+            }
+
+            case 'save_classe_inscrits': {
+                $this->requireUser();
+                if (!auth_can_manage_classes()) {
+                    $this->deny();
+                }
+                $classeId = (int) ($_POST['classe_id'] ?? 0);
+                foreach ((array) ($_POST['inscrit'] ?? []) as $inscritId => $fields) {
+                    $ins = classe_service()->findInscrit((int) $inscritId);
+                    if (!$ins || (int) $ins['classe_id'] !== $classeId) {
+                        continue;
+                    }
+                    classe_service()->saveInscrit(array_merge((array) $fields, [
+                        'classe_id' => $classeId,
+                        'user_id'   => (int) $ins['user_id'],
+                    ]));
+                }
+                $this->redirect('index.php', $classeId ? ['page' => 'classe', 'id' => $classeId] : ['page' => 'classes']);
                 break;
             }
 
