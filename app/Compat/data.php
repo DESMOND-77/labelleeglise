@@ -158,6 +158,10 @@ function get_centre_article(int $id): ?array { return _repo(CMSRepository::class
 
 function calendrier_service(): \App\Services\CalendrierService { return _repo(\App\Services\CalendrierService::class); }
 
+/* ---------- Rapports du jour ---------- */
+
+function rapport_jour_service(): \App\Services\RapportJourService { return _repo(\App\Services\RapportJourService::class); }
+
 /* ---------- CRUD users ---------- */
 
 function insert_user(array $data): int { return _repo(UserRepository::class)->insert($data); }
