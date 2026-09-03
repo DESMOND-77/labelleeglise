@@ -162,6 +162,10 @@ function calendrier_service(): \App\Services\CalendrierService { return _repo(\A
 
 function rapport_jour_service(): \App\Services\RapportJourService { return _repo(\App\Services\RapportJourService::class); }
 
+/* ---------- Classes / écoles ---------- */
+
+function classe_service(): \App\Services\ClasseService { return _repo(\App\Services\ClasseService::class); }
+
 /* ---------- CRUD users ---------- */
 
 function insert_user(array $data): int { return _repo(UserRepository::class)->insert($data); }
