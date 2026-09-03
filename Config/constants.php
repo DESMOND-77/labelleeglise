@@ -63,6 +63,7 @@ define('SECTION_LABELS', [
     'calendrier'         => 'Calendrier',
     'anniversaires'      => 'Anniversaires',
     'rapports'           => 'Rapports du Jour',
+    'classes'            => 'Classes & Écoles',
     'finances'           => 'Finances & Offrandes',
     'parametres'         => 'Paramètres',
     'bergerFiche'        => 'Fiche Berger',
@@ -87,6 +88,7 @@ define('SECTION_ICONS', [
     'calendrier'         => '<i class="fa-solid fa-calendar-day"></i>',
     'anniversaires'      => '<i class="fa-solid fa-cake-candles"></i>',
     'rapports'           => '<i class="fa-solid fa-file-lines"></i>',
+    'classes'            => '<i class="fa-solid fa-graduation-cap"></i>',
     'finances'           => '<i class="fa-solid fa-sack-dollar"></i>',
     'parametres'         => '<i class="fa-solid fa-gear"></i>',
     'admin_inscriptions' => '<i class="fa-solid fa-user-plus"></i>',
@@ -122,6 +124,7 @@ define('NAV_ORDER', [
     'calendrier',
     'anniversaires',
     'rapports',
+    'classes',
     'parametres'
 ]);
 

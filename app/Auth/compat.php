@@ -171,6 +171,25 @@ function auth_can_report_for_centre(int $centreId): bool
     ) === 1;
 }
 
+/** Gestion des classes/écoles post-culte : admin OU rôle pastoral désigné (manager). */
+function auth_can_manage_classes(): bool
+{
+    $u = current_user();
+    if (!$u) {
+        return false;
+    }
+    if (($u['role'] ?? '') === 'admin') {
+        return true;
+    }
+    if (!in_array($u['role'] ?? '', ['berger', 'ms', 'pasteur', 'reverant'], true)) {
+        return false;
+    }
+    return (int) \App\Core\Query::value(
+        "SELECT COUNT(*) FROM responsibilities WHERE user_id = ? AND responsibility_type = 'manager'",
+        [(int) $u['id']]
+    ) > 0;
+}
+
 function start_session(): void
 {
     \App\Core\Session::start(APP_NAME ? 'LBEGF_SESSID' : 'LBEGF_SESSID');

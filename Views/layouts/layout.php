@@ -67,6 +67,12 @@ if ($user && !$isAdmin && auth_can_report_any()) {
     $navLis[] = '<li><a class="nav-item' . ($page === 'rapports' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'rapports'])) . '"><span class="ico">' . SECTION_ICONS['rapports'] . '</span><span class="label">' . h(SECTION_LABELS['rapports']) . '</span></a></li>';
 }
 
+// Classes / Écoles : lien pour tout gestionnaire de classes non-admin
+// (l'admin l'a déjà via la boucle NAV_ORDER).
+if ($user && !$isAdmin && auth_can_manage_classes()) {
+    $navLis[] = '<li><a class="nav-item' . ($page === 'classes' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'classes'])) . '"><span class="ico">' . SECTION_ICONS['classes'] . '</span><span class="label">' . h(SECTION_LABELS['classes']) . '</span></a></li>';
+}
+
 /* ---------- Inscriptions en attente (admin) ---------- */
 $pendingRegistrationsCount = 0;
 if ($isAdmin) {
