@@ -25,6 +25,7 @@ use App\Controllers\AdminRegistrationController;
 use App\Controllers\NotificationController;
 use App\Controllers\PresenceController;
 use App\Controllers\CalendrierController;
+use App\Controllers\RapportController;
 
 /* ---------- Authentification (POST) ---------- */
 Router::post('login', AuthController::class, 'login');
@@ -57,6 +58,9 @@ Router::get('suiviBergers', BergerController::class, 'suivi');
 
 Router::get('calendrier', CalendrierController::class, 'evenements');
 Router::get('anniversaires', CalendrierController::class, 'anniversaires');
+
+Router::get('rapports', RapportController::class, 'index');
+Router::get('rapport', RapportController::class, 'form');
 
 Router::get('finances', FinanceController::class, 'index');
 Router::get('parametres', SettingsController::class, 'index');

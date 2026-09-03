@@ -1,0 +1,28 @@
+/* M5 — Rapport du Jour */
+
+.rapport-filters,
+.rapport-picker {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  align-items: flex-end;
+  margin-bottom: var(--space-5);
+}
+
+.rapport-filters label,
+.rapport-picker label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-soft);
+}
+
+.rapport-form input:disabled,
+.rapport-form select:disabled,
+.rapport-form textarea:disabled {
+  background: var(--primary-soft);
+  color: var(--text);
+  opacity: 1;
+}
