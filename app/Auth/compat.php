@@ -142,11 +142,10 @@ function auth_can_report_any(): bool
     $uid = (int) $u['id'];
     return (int) \App\Core\Query::value(
         "SELECT EXISTS(
-            SELECT 1 FROM bacentas b
-             WHERE b.id IN (SELECT target_id FROM responsibilities WHERE user_id = ? AND target_type = 'bacenta')
-                OR b.id = (SELECT bacenta_id FROM users WHERE id = ?)
+            SELECT 1 FROM responsibilities
+             WHERE user_id = ? AND target_type = 'bacenta' AND responsibility_type = 'manager'
         )",
-        [$uid, $uid]
+        [$uid]
     ) === 1;
 }
 
@@ -164,13 +163,11 @@ function auth_can_report_for_centre(int $centreId): bool
     return (int) \App\Core\Query::value(
         "SELECT EXISTS(
             SELECT 1 FROM bacentas b
-             WHERE b.centre_id = ?
-               AND (
-                 b.id IN (SELECT target_id FROM responsibilities WHERE user_id = ? AND target_type = 'bacenta')
-                 OR b.id = (SELECT bacenta_id FROM users WHERE id = ?)
-               )
+              JOIN responsibilities r
+                ON r.target_id = b.id AND r.target_type = 'bacenta' AND r.responsibility_type = 'manager'
+             WHERE b.centre_id = ? AND r.user_id = ?
         )",
-        [$centreId, $uid, $uid]
+        [$centreId, $uid]
     ) === 1;
 }
 

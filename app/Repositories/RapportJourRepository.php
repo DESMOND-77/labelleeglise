@@ -49,8 +49,12 @@ class RapportJourRepository
         return Query::run('INSERT INTO rapports_jour (' . implode(', ', $cols) . ") VALUES ($placeholders)", $params);
     }
 
-    /** @return array<int,array<string,mixed>> */
-    public function list(?int $centreId, ?string $monthKey): array
+    /**
+     * @param ?array<int> $centreIds Restreint la liste à ces centres (périmètre autorisé).
+     *                               `null` = pas de restriction ; `[]` = aucun résultat.
+     * @return array<int,array<string,mixed>>
+     */
+    public function list(?int $centreId, ?string $monthKey, ?array $centreIds = null): array
     {
         $sql = "SELECT r.*, c.nom AS centre_nom, ba.nom AS bacenta_nom,
                        au.prenom AS auteur_prenom, au.nom AS auteur_nom
@@ -67,6 +71,16 @@ class RapportJourRepository
         if ($monthKey !== null && $monthKey !== '') {
             $sql .= " AND DATE_FORMAT(r.date_rapport, '%Y-%m') = ?";
             $params[] = $monthKey;
+        }
+        if ($centreIds !== null) {
+            if ($centreIds === []) {
+                $sql .= ' AND 1 = 0';
+            } else {
+                $sql .= ' AND r.centre_id IN (' . implode(', ', array_fill(0, count($centreIds), '?')) . ')';
+                foreach ($centreIds as $cid) {
+                    $params[] = (int) $cid;
+                }
+            }
         }
         $sql .= ' ORDER BY r.date_rapport DESC, r.id DESC';
         return Query::all($sql, $params);

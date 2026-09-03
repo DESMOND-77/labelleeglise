@@ -27,11 +27,18 @@ class RapportController extends Controller
             static fn($c) => $isAdmin || auth_can_report_for_centre((int) $c['id'])
         ));
 
+        $permittedIds = $isAdmin ? null : array_map(static fn($c) => (int) $c['id'], $centres);
+
         $filterCentre = (int) (Request::get('centre') ?? 0) ?: null;
         $filterMois = trim((string) (Request::get('mois') ?? '')) ?: null;
 
+        // Le filtre d'affichage ne peut jamais élargir le périmètre autorisé.
+        if ($filterCentre !== null && $permittedIds !== null && !in_array($filterCentre, $permittedIds, true)) {
+            $filterCentre = null;
+        }
+
         render_page(SECTION_LABELS['rapports'], view('pages/rapports', [
-            'rows'          => rapport_jour_service()->list($filterCentre, $filterMois),
+            'rows'          => rapport_jour_service()->list($filterCentre, $filterMois, $permittedIds),
             'centres'       => $centres,
             'filterCentre'  => $filterCentre,
             'filterMois'    => $filterMois,
@@ -80,9 +87,9 @@ class RapportController extends Controller
             'report'    => $report,
             'bacentas'  => $centreId !== null ? $svc->reportableBacentas($uid, $centreId, $isAdmin) : [],
             'fields'    => RAPPORT_JOUR_FIELDS,
-            'derived'   => $centreId !== null
-                ? $svc->derivedNames($centreId, $report['bacenta_id'] ?? null, $uid)
-                : null,
+            'derived'   => $report
+                ? ['resp_centre_nom' => (string) ($report['resp_centre_nom'] ?? ''), 'resp_bacenta_nom' => (string) ($report['resp_bacenta_nom'] ?? '')]
+                : ($centreId !== null ? $svc->derivedNames($centreId, null, $uid) : null),
             'canEdit'   => $canEdit,
             'errors'    => [],
             'old'       => [],

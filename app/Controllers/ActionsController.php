@@ -714,7 +714,7 @@ class ActionsController extends Controller
                         'bacentas' => $svc->reportableBacentas($uid, $centreId, $isAdmin),
                         'fields'   => RAPPORT_JOUR_FIELDS,
                         'derived'  => $svc->derivedNames($centreId, (int) ($_POST['bacenta_id'] ?? 0) ?: null, $uid),
-                        'canEdit'  => true,
+                        'canEdit'  => $existing === null || $isAdmin || (int) $existing['auteur_id'] === $uid,
                         'errors'   => $res['errors'],
                         'old'      => $_POST,
                         'csrf'     => csrf_field(),

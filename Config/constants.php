@@ -162,8 +162,8 @@ define('RAPPORT_JOUR_FIELDS', [
     ['key' => 'nb_nes_de_nouveau', 'label' => 'Nombre de nés de nouveau',         'type' => 'int',      'group' => 'Assistance'],
     ['key' => 'offrande',          'label' => 'Montant de l\'offrande',           'type' => 'decimal',  'group' => 'Finances'],
     ['key' => 'assistants',        'label' => 'Noms des assistants',               'type' => 'textarea', 'group' => 'Équipe'],
-    ['key' => 'livre_enseigne',    'label' => 'Livre enseigné',                  'type' => 'text',     'group' => 'Enseignement'],
-    ['key' => 'chapitre_enseigne', 'label' => 'Chapitre enseigné',               'type' => 'text',     'group' => 'Enseignement'],
+    ['key' => 'livre_enseigne',    'label' => 'Livre enseigné',                  'type' => 'text',     'group' => 'Enseignement', 'max' => 150],
+    ['key' => 'chapitre_enseigne', 'label' => 'Chapitre enseigné',               'type' => 'text',     'group' => 'Enseignement', 'max' => 80],
 ]);
 
 define('SECTION_EXTRA_FIELDS', [

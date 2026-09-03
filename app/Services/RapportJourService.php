@@ -32,9 +32,10 @@ class RapportJourService
         return $this->repo->findByCentreDate($centreId, $date);
     }
 
-    public function list(?int $centreId, ?string $monthKey): array
+    /** @param ?array<int> $centreIds Périmètre autorisé (null = pas de restriction ; [] = rien). */
+    public function list(?int $centreId, ?string $monthKey, ?array $centreIds = null): array
     {
-        return $this->repo->list($centreId, $monthKey);
+        return $this->repo->list($centreId, $monthKey, $centreIds);
     }
 
     /** @return list<array{id:int,nom:string}> */
@@ -49,14 +50,12 @@ class RapportJourService
         return array_map(
             static fn($r) => ['id' => (int) $r['id'], 'nom' => (string) $r['nom']],
             Query::all(
-                "SELECT id, nom FROM bacentas
-                  WHERE centre_id = ?
-                    AND (
-                      id IN (SELECT target_id FROM responsibilities WHERE user_id = ? AND target_type = 'bacenta')
-                      OR id = (SELECT bacenta_id FROM users WHERE id = ?)
-                    )
-                  ORDER BY nom",
-                [$centreId, $userId, $userId]
+                "SELECT b.id, b.nom FROM bacentas b
+                  JOIN responsibilities r
+                    ON r.target_id = b.id AND r.target_type = 'bacenta' AND r.responsibility_type = 'manager'
+                 WHERE b.centre_id = ? AND r.user_id = ?
+                 ORDER BY b.nom",
+                [$centreId, $userId]
             )
         );
     }
@@ -129,7 +128,7 @@ class RapportJourService
                     break;
                 case 'text':
                     $s = trim((string) $raw);
-                    $clean[$f['key']] = $s === '' ? null : mb_substr($s, 0, 150);
+                    $clean[$f['key']] = $s === '' ? null : mb_substr($s, 0, (int) ($f['max'] ?? 150));
                     break;
                 case 'textarea':
                 default:
