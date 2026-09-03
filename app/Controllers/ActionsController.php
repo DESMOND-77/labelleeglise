@@ -687,6 +687,44 @@ class ActionsController extends Controller
                 break;
             }
 
+            /* ---------- Rapport du Jour (M5) ---------- */
+
+            case 'save_rapport_jour': {
+                $user = $this->requireUser();
+                $centreId = (int) ($_POST['centre_id'] ?? 0);
+                if (!$centreId || !auth_can_report_for_centre($centreId)) {
+                    $this->deny();
+                }
+                $isAdmin = ($user['role'] ?? '') === 'admin';
+                $uid = (int) $user['id'];
+                $res = rapport_jour_service()->save($_POST, $uid, $isAdmin);
+                if (!$res['ok']) {
+                    $date = trim((string) ($_POST['date_rapport'] ?? '')) ?: date('Y-m-d');
+                    $svc = rapport_jour_service();
+                    $centres = array_values(array_filter(
+                        get_centres(),
+                        static fn($c) => $isAdmin || auth_can_report_for_centre((int) $c['id'])
+                    ));
+                    $existing = $svc->reportForCentreDate($centreId, $date);
+                    render_page(SECTION_LABELS['rapports'], view('pages/rapport_form', [
+                        'centres'  => $centres,
+                        'centreId' => $centreId,
+                        'date'     => $date,
+                        'report'   => $existing,
+                        'bacentas' => $svc->reportableBacentas($uid, $centreId, $isAdmin),
+                        'fields'   => RAPPORT_JOUR_FIELDS,
+                        'derived'  => $svc->derivedNames($centreId, (int) ($_POST['bacenta_id'] ?? 0) ?: null, $uid),
+                        'canEdit'  => true,
+                        'errors'   => $res['errors'],
+                        'old'      => $_POST,
+                        'csrf'     => csrf_field(),
+                    ]));
+                    return;
+                }
+                $this->redirect('index.php', ['page' => 'rapport', 'id' => $res['id']]);
+                break;
+            }
+
             /* ---------- Basonta : ajout de membre ---------- */
 
             case 'basonta_add_member': {
