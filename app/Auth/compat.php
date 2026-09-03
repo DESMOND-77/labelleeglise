@@ -129,6 +129,51 @@ function auth_can_edit_evenement(array $evt): bool
     return $uid === (int) ($evt['created_by'] ?? 0) || $uid === (int) ($evt['responsable_id'] ?? 0);
 }
 
+/** L'utilisateur peut-il produire au moins un Rapport du Jour ? (admin ou gère un bacenta) */
+function auth_can_report_any(): bool
+{
+    $u = current_user();
+    if (!$u) {
+        return false;
+    }
+    if (($u['role'] ?? '') === 'admin') {
+        return true;
+    }
+    $uid = (int) $u['id'];
+    return (int) \App\Core\Query::value(
+        "SELECT EXISTS(
+            SELECT 1 FROM bacentas b
+             WHERE b.id IN (SELECT target_id FROM responsibilities WHERE user_id = ? AND target_type = 'bacenta')
+                OR b.id = (SELECT bacenta_id FROM users WHERE id = ?)
+        )",
+        [$uid, $uid]
+    ) === 1;
+}
+
+/** Rapport du Jour pour CE centre : admin ou gère un bacenta rattaché à ce centre. */
+function auth_can_report_for_centre(int $centreId): bool
+{
+    $u = current_user();
+    if (!$u) {
+        return false;
+    }
+    if (($u['role'] ?? '') === 'admin') {
+        return true;
+    }
+    $uid = (int) $u['id'];
+    return (int) \App\Core\Query::value(
+        "SELECT EXISTS(
+            SELECT 1 FROM bacentas b
+             WHERE b.centre_id = ?
+               AND (
+                 b.id IN (SELECT target_id FROM responsibilities WHERE user_id = ? AND target_type = 'bacenta')
+                 OR b.id = (SELECT bacenta_id FROM users WHERE id = ?)
+               )
+        )",
+        [$centreId, $uid, $uid]
+    ) === 1;
+}
+
 function start_session(): void
 {
     \App\Core\Session::start(APP_NAME ? 'LBEGF_SESSID' : 'LBEGF_SESSID');
