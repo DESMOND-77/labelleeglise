@@ -166,6 +166,18 @@ define('RAPPORT_JOUR_FIELDS', [
     ['key' => 'chapitre_enseigne', 'label' => 'Chapitre enseigné',               'type' => 'text',     'group' => 'Enseignement', 'max' => 80],
 ]);
 
+define('CLASSES_CURSUS', [
+    'Manuel du nouveau croyant',
+    'Sept grands principes',
+    'Ce que signifie être un chrétien fort',
+    'École de la fondation solide',
+    'École de la vie victorieuse',
+    'École de la parole',
+    "École de l'apologétique",
+]);
+
+define('EXAM_STATUTS', ['non_passe' => 'Non passé', 'reussi' => 'Réussi', 'echoue' => 'Échoué']);
+
 define('SECTION_EXTRA_FIELDS', [
     'nouveaux' => ['invite_par', 'recu_par', 'date_recu'],
     'generale' => ['invite_par', 'recu_par', 'date_recu'],

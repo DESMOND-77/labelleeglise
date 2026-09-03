@@ -556,6 +556,66 @@ function up(): void
             CONSTRAINT fk_rap_bacenta FOREIGN KEY (bacenta_id) REFERENCES bacentas(id) ON DELETE SET NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
     );
+
+    /* ---- 13. M6 — Classes / Écoles post-culte (discipleship) -----------
+     * classes : cursus (nom, formateur, ordre de progression, nb de modules,
+     * prochaine session, actif). classe_inscrits : un inscrit par (classe,
+     * user) — modules validés + statut des examens oral/écrit. Progression
+     * automatique gérée côté service (ClasseService). Les 7 cursus par
+     * défaut sont semés ici si la table est vide (le DatabaseSeeder fait un
+     * TRUNCATE d'une liste figée et ne rejoue pas — inadapté).
+     */
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS classes (
+            id INT NOT NULL AUTO_INCREMENT,
+            nom VARCHAR(150) NOT NULL,
+            formateur_id INT NULL,
+            ordre INT NOT NULL DEFAULT 0,
+            nb_modules INT NOT NULL DEFAULT 1,
+            prochaine_session DATE NULL,
+            actif TINYINT(1) NOT NULL DEFAULT 1,
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY idx_classe_ordre (ordre),
+            CONSTRAINT fk_classe_formateur FOREIGN KEY (formateur_id) REFERENCES users(id) ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
+
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS classe_inscrits (
+            id INT NOT NULL AUTO_INCREMENT,
+            classe_id INT NOT NULL,
+            user_id INT NOT NULL,
+            modules_valides INT NOT NULL DEFAULT 0,
+            exam_oral  ENUM('non_passe','reussi','echoue') NOT NULL DEFAULT 'non_passe',
+            exam_ecrit ENUM('non_passe','reussi','echoue') NOT NULL DEFAULT 'non_passe',
+            exam_note DECIMAL(5,2) NULL,
+            exam_date DATE NULL,
+            statut ENUM('inscrit','termine') NOT NULL DEFAULT 'inscrit',
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY uniq_inscrit (classe_id, user_id),
+            CONSTRAINT fk_ci_classe FOREIGN KEY (classe_id) REFERENCES classes(id) ON DELETE CASCADE,
+            CONSTRAINT fk_ci_user   FOREIGN KEY (user_id)   REFERENCES users(id)   ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
+
+    // Seed idempotent des 7 cursus : uniquement si aucune classe n'existe.
+    if ((int) $pdo->query('SELECT COUNT(*) FROM classes')->fetchColumn() === 0) {
+        $cursus = [
+            'Manuel du nouveau croyant',
+            'Sept grands principes',
+            'Ce que signifie être un chrétien fort',
+            'École de la fondation solide',
+            'École de la vie victorieuse',
+            'École de la parole',
+            "École de l'apologétique",
+        ];
+        $ins = $pdo->prepare('INSERT INTO classes (nom, ordre, nb_modules, actif) VALUES (?, ?, 1, 1)');
+        foreach ($cursus as $i => $nom) {
+            $ins->execute([$nom, $i + 1]);
+        }
+    }
 }
 
 /** Vérifie si une colonne existe déjà (idempotence des ALTER TABLE). */
@@ -586,7 +646,7 @@ function index_exists(\PDO $pdo, string $table, string $index): bool
 function down(): void
 {
     $pdo = Database::connection();
-    $tables = ['responsibilities', 'notifications', 'users_basontas', 'presences', 'evenements', 'anniversaires', 'rapports_jour', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
+    $tables = ['responsibilities', 'notifications', 'users_basontas', 'presences', 'evenements', 'anniversaires', 'rapports_jour', 'classe_inscrits', 'classes', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
                'examens', 'veillees', 'cultes', 'basontas', 'bacentas', 'users',
                'centres_presentation', 'equipe', 'presentation', 'centres'];
     $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
