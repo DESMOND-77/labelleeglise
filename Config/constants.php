@@ -150,6 +150,19 @@ define('PRESENCE_FIELDS', ['presenceCulte', 'presenceBasonta', 'presenceCentre',
 
 define('PRESENCE_STATUTS', ['present' => 'Présent', 'absent' => 'Absent', 'excuse' => 'Excusé']);
 
+define('RAPPORT_JOUR_FIELDS', [
+    ['key' => 'nb_presents',       'label' => 'Nombre de présents',               'type' => 'int',      'group' => 'Assistance'],
+    ['key' => 'nb_adultes',        'label' => 'Nombre d\'adultes',                'type' => 'int',      'group' => 'Assistance'],
+    ['key' => 'nb_enfants',        'label' => 'Nombre d\'enfants',                'type' => 'int',      'group' => 'Assistance'],
+    ['key' => 'nb_anciens',        'label' => 'Nombre d\'anciens',                'type' => 'int',      'group' => 'Assistance'],
+    ['key' => 'nb_nouveaux',       'label' => 'Nombre de nouveaux',               'type' => 'int',      'group' => 'Assistance'],
+    ['key' => 'nb_nes_de_nouveau', 'label' => 'Nombre de nés de nouveau',         'type' => 'int',      'group' => 'Assistance'],
+    ['key' => 'offrande',          'label' => 'Montant de l\'offrande',           'type' => 'decimal',  'group' => 'Finances'],
+    ['key' => 'assistants',        'label' => 'Noms des assistants',               'type' => 'textarea', 'group' => 'Équipe'],
+    ['key' => 'livre_enseigne',    'label' => 'Livre enseigné',                  'type' => 'text',     'group' => 'Enseignement'],
+    ['key' => 'chapitre_enseigne', 'label' => 'Chapitre enseigné',               'type' => 'text',     'group' => 'Enseignement'],
+]);
+
 define('SECTION_EXTRA_FIELDS', [
     'nouveaux' => ['invite_par', 'recu_par', 'date_recu'],
     'generale' => ['invite_par', 'recu_par', 'date_recu'],

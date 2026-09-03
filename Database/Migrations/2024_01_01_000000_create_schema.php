@@ -521,6 +521,41 @@ function up(): void
              ADD UNIQUE INDEX uniq_presence (user_id, date_presence, culte_id, bacenta_id, basonta_id, centre_id, evenement_id)"
         );
     }
+
+    /* ---- 12. M5 — Rapport du Jour des responsables de bacenta -----------
+     * Un rapport par (centre, date). resp_centre_nom / resp_bacenta_nom sont
+     * un INSTANTANÉ rempli côté service depuis `responsibilities` — jamais
+     * saisis par le client. bacenta_id facultatif (rapport au niveau centre).
+     */
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS rapports_jour (
+            id INT NOT NULL AUTO_INCREMENT,
+            centre_id INT NOT NULL,
+            date_rapport DATE NOT NULL,
+            auteur_id INT NOT NULL,
+            bacenta_id INT NULL,
+            resp_centre_nom  VARCHAR(150) NULL,
+            resp_bacenta_nom VARCHAR(150) NULL,
+            assistants TEXT NULL,
+            nb_presents       INT NOT NULL DEFAULT 0,
+            nb_adultes        INT NOT NULL DEFAULT 0,
+            nb_enfants        INT NOT NULL DEFAULT 0,
+            nb_anciens        INT NOT NULL DEFAULT 0,
+            nb_nouveaux       INT NOT NULL DEFAULT 0,
+            nb_nes_de_nouveau INT NOT NULL DEFAULT 0,
+            offrande DECIMAL(12,2) NOT NULL DEFAULT 0,
+            livre_enseigne VARCHAR(150) NULL,
+            chapitre_enseigne VARCHAR(80) NULL,
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY uniq_rapport (centre_id, date_rapport),
+            KEY idx_rapport_centre_date (centre_id, date_rapport),
+            CONSTRAINT fk_rap_centre  FOREIGN KEY (centre_id)  REFERENCES centres(id)  ON DELETE CASCADE,
+            CONSTRAINT fk_rap_auteur  FOREIGN KEY (auteur_id)  REFERENCES users(id)    ON DELETE CASCADE,
+            CONSTRAINT fk_rap_bacenta FOREIGN KEY (bacenta_id) REFERENCES bacentas(id) ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
 }
 
 /** Vérifie si une colonne existe déjà (idempotence des ALTER TABLE). */
@@ -551,7 +586,7 @@ function index_exists(\PDO $pdo, string $table, string $index): bool
 function down(): void
 {
     $pdo = Database::connection();
-    $tables = ['responsibilities', 'notifications', 'users_basontas', 'presences', 'evenements', 'anniversaires', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
+    $tables = ['responsibilities', 'notifications', 'users_basontas', 'presences', 'evenements', 'anniversaires', 'rapports_jour', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
                'examens', 'veillees', 'cultes', 'basontas', 'bacentas', 'users',
                'centres_presentation', 'equipe', 'presentation', 'centres'];
     $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
