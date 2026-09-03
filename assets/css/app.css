@@ -30,6 +30,7 @@
 @import url('presences.css');
 @import url('calendrier.css');
 @import url('rapports.css');
+@import url('classes.css');
 
 /* ---- Utilitaires & animations ---- */
 @import url('utilities.css');

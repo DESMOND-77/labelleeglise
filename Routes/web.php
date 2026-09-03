@@ -26,6 +26,7 @@ use App\Controllers\NotificationController;
 use App\Controllers\PresenceController;
 use App\Controllers\CalendrierController;
 use App\Controllers\RapportController;
+use App\Controllers\ClasseController;
 
 /* ---------- Authentification (POST) ---------- */
 Router::post('login', AuthController::class, 'login');
@@ -61,6 +62,8 @@ Router::get('anniversaires', CalendrierController::class, 'anniversaires');
 
 Router::get('rapports', RapportController::class, 'index');
 Router::get('rapport', RapportController::class, 'form');
+Router::get('classes', ClasseController::class, 'index');
+Router::get('classe', ClasseController::class, 'detail');
 
 Router::get('finances', FinanceController::class, 'index');
 Router::get('parametres', SettingsController::class, 'index');

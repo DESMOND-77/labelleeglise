@@ -1,0 +1,18 @@
+/* M6 — Classes / Écoles post-culte */
+
+.classe-form {
+  margin-bottom: var(--space-6);
+}
+
+.classe-inscrits td input[type="text"],
+.classe-inscrits td input[type="date"],
+.classe-inscrits td input[type="number"],
+.classe-inscrits td select {
+  width: 100%;
+  min-width: 5rem;
+}
+
+.classe-inscrits .badge.present {
+  background: var(--success-soft);
+  color: var(--success);
+}
