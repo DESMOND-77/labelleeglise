@@ -22,17 +22,33 @@ class CalendrierController extends Controller
         if (!current_user()) {
             $this->redirect('index.php', ['page' => 'apropos']);
         }
+        render_page(
+            SECTION_LABELS['agenda'],
+            view('pages/agenda', self::agendaViewData((string) (Request::get('ym') ?? ''), (string) (Request::get('date') ?? '')))
+        );
+    }
 
+    /**
+     * Assemble toutes les variables de la vue `pages/agenda` pour un mois/jour donnés.
+     * Réutilisé par `agenda()` et par le re-rendu d'erreur des actions
+     * `save_evenement` / `save_anniversaire` (ActionsController).
+     *
+     * @param array<string,string> $errors
+     * @param array<string,mixed>  $old
+     * @return array<string,mixed>
+     */
+    public static function agendaViewData(string $ymRaw, string $dateRaw, array $errors = [], array $old = []): array
+    {
         $today = date('Y-m-d');
 
-        $ym = (string) (Request::get('ym') ?? '');
+        $ym = $ymRaw;
         if (!preg_match('/^\d{4}-\d{2}$/', $ym) || (int) substr($ym, 5, 2) < 1 || (int) substr($ym, 5, 2) > 12) {
             $ym = substr($today, 0, 7);
         }
         $year = (int) substr($ym, 0, 4);
         $monthNo = (int) substr($ym, 5, 2);
 
-        $date = (string) (Request::get('date') ?? '');
+        $date = $dateRaw;
         $validDate = preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)
             && date('Y-m-d', strtotime($date)) === $date
             && substr($date, 0, 7) === $ym;
@@ -41,8 +57,6 @@ class CalendrierController extends Controller
         }
 
         $svc = calendrier_service();
-        $month = $svc->agendaForMonth($year, $monthNo);
-        $dayDetail = $svc->agendaForDate($date);
 
         // Grille 6×7, semaine commençant lundi.
         $firstOfMonth = $ym . '-01';
@@ -62,7 +76,7 @@ class CalendrierController extends Controller
             $weeks[] = $row;
         }
 
-        render_page(SECTION_LABELS['agenda'], view('pages/agenda', [
+        return [
             'canManage'    => auth_can_manage_calendar(),
             'ym'           => $ym,
             'year'         => $year,
@@ -71,15 +85,15 @@ class CalendrierController extends Controller
             'nextYm'       => date('Y-m', strtotime($firstOfMonth . ' +1 month')),
             'date'         => $date,
             'today'        => $today,
-            'month'        => $month,
-            'dayDetail'    => $dayDetail,
+            'month'        => $svc->agendaForMonth($year, $monthNo),
+            'dayDetail'    => $svc->agendaForDate($date),
             'weeks'        => $weeks,
             'responsables' => Query::all("SELECT id, prenom, nom FROM users WHERE role IN ('berger','ms','pasteur','reverant','admin') ORDER BY prenom, nom"),
             'monthsFr'     => MONTHS_FR,
-            'errors'       => [],
-            'old'          => [],
+            'errors'       => $errors,
+            'old'          => $old,
             'csrf'         => csrf_field(),
-        ]));
+        ];
     }
 
     public function evenements(): void

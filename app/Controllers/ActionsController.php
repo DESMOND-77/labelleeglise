@@ -89,7 +89,7 @@ class ActionsController extends Controller
                     $this->deny();
                 }
                 calendrier_service()->deleteEvent($id);
-                $this->redirect('index.php', ['page' => 'calendrier']);
+                $this->redirect('index.php', ['page' => 'agenda']);
                 break;
             }
 
@@ -102,7 +102,7 @@ class ActionsController extends Controller
                 if ($id) {
                     calendrier_service()->deleteBirthday($id);
                 }
-                $this->redirect('index.php', ['page' => 'anniversaires']);
+                $this->redirect('index.php', ['page' => 'agenda']);
                 break;
             }
 
@@ -676,20 +676,15 @@ class ActionsController extends Controller
                 }
                 $res = calendrier_service()->saveEvent($_POST, (int) $user['id']);
                 if (!$res['ok']) {
-                    $editForForm = $id ? calendrier_service()->event($id) : null;
-                    render_page(SECTION_LABELS['calendrier'], view('pages/calendrier', [
-                        'events'       => calendrier_service()->allEvents(),
-                        'canManage'    => true,
-                        'edit'         => $editForForm,
-                        'responsables' => Query::all("SELECT id, prenom, nom FROM users WHERE role IN ('berger','ms','pasteur','reverant','admin') ORDER BY prenom, nom"),
-                        'errors'       => $res['errors'],
-                        'old'          => $_POST,
-                        'csrf'         => csrf_field(),
-                        'mode'         => 'list',
-                    ]));
+                    render_page(SECTION_LABELS['agenda'], view('pages/agenda', CalendrierController::agendaViewData(
+                        '',
+                        '',
+                        $res['errors'],
+                        $_POST
+                    )));
                     return;
                 }
-                $this->redirect('index.php', ['page' => 'calendrier']);
+                $this->redirect('index.php', ['page' => 'agenda']);
                 break;
             }
 
@@ -700,18 +695,15 @@ class ActionsController extends Controller
                 }
                 $res = calendrier_service()->saveBirthday($_POST, (int) $user['id']);
                 if (!$res['ok']) {
-                    render_page(SECTION_LABELS['anniversaires'], view('pages/anniversaires', [
-                        'birthdays'    => calendrier_service()->birthdays(),
-                        'canManage'    => true,
-                        'monthsFr'     => MONTHS_FR,
-                        'currentMonth' => (int) date('n'),
-                        'errors'       => $res['errors'],
-                        'old'          => $_POST,
-                        'csrf'         => csrf_field(),
-                    ]));
+                    render_page(SECTION_LABELS['agenda'], view('pages/agenda', CalendrierController::agendaViewData(
+                        '',
+                        '',
+                        $res['errors'],
+                        $_POST
+                    )));
                     return;
                 }
-                $this->redirect('index.php', ['page' => 'anniversaires']);
+                $this->redirect('index.php', ['page' => 'agenda']);
                 break;
             }
 

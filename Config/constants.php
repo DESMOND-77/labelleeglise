@@ -123,8 +123,7 @@ define('NAV_ORDER', [
     'bergers',
     'suiviBergers',
     'finances',
-    'calendrier',
-    'anniversaires',
+    'agenda',
     'rapports',
     'classes',
     'parametres'

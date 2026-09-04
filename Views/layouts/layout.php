@@ -56,7 +56,7 @@ if ($scope && $scope['kind'] === 'berger') {
 // Calendriers : lien pour tout gestionnaire de calendrier non-admin
 // (l'admin les a déjà via la boucle NAV_ORDER ci-dessus).
 if ($user && !$isAdmin && auth_can_manage_calendar()) {
-    foreach (['calendrier', 'anniversaires'] as $ck) {
+    foreach (['agenda'] as $ck) {
         $navLis[] = '<li><a class="nav-item' . ($page === $ck ? ' active' : '') . '" href="' . h(url('index.php', ['page' => $ck])) . '"><span class="ico">' . SECTION_ICONS[$ck] . '</span><span class="label">' . h(SECTION_LABELS[$ck]) . '</span></a></li>';
     }
 }
