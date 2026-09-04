@@ -42,6 +42,79 @@ class CalendrierService
     }
 
     /**
+     * Agenda d'un mois : 2 requêtes (événements chevauchant le mois + anniversaires),
+     * indexation en PHP. Les événements multi-jours sont répétés sur chaque date du mois
+     * qu'ils couvrent.
+     *
+     * @return array{
+     *   ym:string,
+     *   byDate:array<string,array{events:list<array<string,mixed>>,birthdays:list<array<string,mixed>>}>,
+     *   counts:array<string,array{events:int,birthdays:int}>
+     * }
+     */
+    public function agendaForMonth(int $year, int $month): array
+    {
+        $first = sprintf('%04d-%02d-01', $year, $month);
+        $last = date('Y-m-t', strtotime($first));
+        $ym = sprintf('%04d-%02d', $year, $month);
+
+        $byDate = [];
+
+        foreach ($this->evt->overlapping($last . ' 23:59:59', $first . ' 00:00:00') as $row) {
+            $ev = $this->normalizeEvent($row);
+            $spanStart = max(substr((string) $ev['date_debut'], 0, 10), $first);
+            $spanEnd = min(substr((string) ($ev['date_fin'] ?? $ev['date_debut']), 0, 10), $last);
+            for ($d = $spanStart; $d <= $spanEnd; $d = date('Y-m-d', strtotime($d . ' +1 day'))) {
+                $byDate[$d]['events'][] = $ev;
+                $byDate[$d]['birthdays'] ??= [];
+            }
+        }
+
+        foreach ($this->birthdays() as $b) {
+            if ($b['mois'] !== $month) {
+                continue;
+            }
+            $d = sprintf('%04d-%02d-%02d', $year, $month, $b['jour']);
+            $byDate[$d]['birthdays'][] = $b;
+            $byDate[$d]['events'] ??= [];
+        }
+
+        ksort($byDate);
+
+        $counts = [];
+        foreach ($byDate as $d => $slot) {
+            $counts[$d] = [
+                'events'    => count($slot['events']),
+                'birthdays' => count($slot['birthdays']),
+            ];
+        }
+
+        return ['ym' => $ym, 'byDate' => $byDate, 'counts' => $counts];
+    }
+
+    /**
+     * Détail d'une journée (Y-m-d) : événements chevauchant la date + anniversaires du jour.
+     *
+     * @return array{events:list<array<string,mixed>>,birthdays:list<array<string,mixed>>}
+     */
+    public function agendaForDate(string $date): array
+    {
+        $events = [];
+        foreach ($this->evt->overlapping($date . ' 23:59:59', $date . ' 00:00:00') as $row) {
+            $events[] = $this->normalizeEvent($row);
+        }
+
+        $mois = (int) substr($date, 5, 2);
+        $jour = (int) substr($date, 8, 2);
+        $birthdays = array_values(array_filter(
+            $this->birthdays(),
+            static fn($b) => $b['mois'] === $mois && $b['jour'] === $jour
+        ));
+
+        return ['events' => $events, 'birthdays' => $birthdays];
+    }
+
+    /**
      * @param array<string,mixed> $in champs bruts (nom, date_debut, date_fin, lieu, responsable_id, id?)
      * @return array{ok:bool,errors:array<string,string>,id:?int}
      */
@@ -178,6 +251,42 @@ class CalendrierService
     }
 
     /* ---------------- Helpers ---------------- */
+
+    /**
+     * Normalise une ligne `evenements` (jointe à `users`) pour l'agenda.
+     *
+     * @param array<string,mixed> $row
+     * @return array{id:int,nom:string,lieu:?string,resp:?string,heure_debut:?string,heure_fin:?string,date_debut:string,date_fin:?string,is_multi_day:bool}
+     */
+    private function normalizeEvent(array $row): array
+    {
+        $debut = (string) $row['date_debut'];
+        $fin = $row['date_fin'] !== null ? (string) $row['date_fin'] : null;
+        $resp = trim(((string) ($row['resp_prenom'] ?? '')) . ' ' . ((string) ($row['resp_nom'] ?? '')));
+
+        return [
+            'id'           => (int) $row['id'],
+            'nom'          => (string) $row['nom'],
+            'lieu'         => ($row['lieu'] ?? null) !== null && trim((string) $row['lieu']) !== '' ? (string) $row['lieu'] : null,
+            'resp'         => $resp !== '' ? $resp : null,
+            'heure_debut'  => $this->clockOrNull($debut),
+            'heure_fin'    => $fin !== null ? $this->clockOrNull($fin) : null,
+            'date_debut'   => $debut,
+            'date_fin'     => $fin,
+            'is_multi_day' => $fin !== null && substr($fin, 0, 10) > substr($debut, 0, 10),
+        ];
+    }
+
+    /** Renvoie "HH:MM" si la partie horaire n'est pas 00:00, sinon null. */
+    private function clockOrNull(string $datetime): ?string
+    {
+        $ts = strtotime($datetime);
+        if ($ts === false) {
+            return null;
+        }
+        $hm = date('H:i', $ts);
+        return $hm === '00:00' ? null : $hm;
+    }
 
     /** Accepte "Y-m-d\TH:i" (input datetime-local) ou "Y-m-d H:i(:s)". Renvoie "Y-m-d H:i:s" ou null. */
     private function normalizeDateTime(string $raw): ?string

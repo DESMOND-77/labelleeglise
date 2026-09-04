@@ -29,6 +29,22 @@ class EvenementRepository
         return Query::one(self::SELECT . ' WHERE e.id = ?', [$id]);
     }
 
+    /**
+     * Événements chevauchant la fenêtre bornée par $rangeEnd (borne haute) et $rangeStart
+     * (borne basse) : commencent au plus tard à $rangeEnd et finissent au plus tôt à
+     * $rangeStart (ou n'ont pas de date de fin). Couvre les événements commençant avant
+     * la fenêtre et finissant pendant/après.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function overlapping(string $rangeEnd, string $rangeStart): array
+    {
+        return Query::all(
+            self::SELECT . ' WHERE e.date_debut <= ? AND (e.date_fin >= ? OR e.date_fin IS NULL) ORDER BY e.date_debut ASC',
+            [$rangeEnd, $rangeStart]
+        );
+    }
+
     public function create(string $nom, string $dateDebut, ?string $dateFin, ?string $lieu, ?int $responsableId, ?int $createdBy): int
     {
         return Query::run(
