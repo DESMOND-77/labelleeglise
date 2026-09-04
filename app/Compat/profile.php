@@ -89,6 +89,9 @@ function member_recent_presence_html(array $stats, int $memberId): string
         . stat_card('Total de présences', (string) (int) $stats['total'], '#4CAF8E')
         . stat_card('Taux', h($rate), '#F59E0B', (string) ($stats['rate_denominator_note'] ?? ''))
         . '</div>'
+        . '<div class="stat-label">' . (int) ($stats['present'] ?? 0) . ' présents · '
+        . (int) ($stats['absent'] ?? 0) . ' absents · ' . (int) ($stats['excuse'] ?? 0) . ' excusés</div>'
+        . '<p class="form-hint">' . h((string) ($stats['formula'] ?? $stats['rate_denominator_note'] ?? '')) . '</p>'
         . '<a class="btn btn-outline btn-sm" href="' . h(url('index.php', ['page' => 'attendancePrint', 'membre' => $memberId]))
         . '"><i class="fa-solid fa-list"></i> Voir l\'historique</a>';
 }
