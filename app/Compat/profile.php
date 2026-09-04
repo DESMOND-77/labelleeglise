@@ -208,19 +208,40 @@ function render_attendance_print_page(): void
     $to = trim((string) ($_GET['to'] ?? ''));
     $semaine = (string) (nav('semaine') ?: '');
 
-    if ($from !== '' || $to !== '') {
-        $rows = attendance_service()->historyForUser((int) $membreId, $from ?: null, $to ?: null);
+    // Une semaine explicite (lien « Imprimer » de la fiche) borne la période
+    // si from/to ne sont pas fournis — sinon historique complet.
+    if ($from === '' && $to === '' && $semaine !== '') {
+        $monday = monday_of_week_key($semaine);
+        $from = iso_date_of($monday);
+        $to = iso_date_of($monday->modify('+6 days'));
+        $periodLabel = format_week_range_label($semaine);
+    } elseif ($from !== '' || $to !== '') {
         $periodLabel = 'Du ' . ($from ?: '…') . ' au ' . ($to ?: '…');
     } else {
-        $weekKey = $semaine !== '' ? $semaine : current_week_key();
-        $rows = attendance_service()->weekForUser((int) $membreId, $weekKey);
-        $periodLabel = format_week_range_label($weekKey);
+        $periodLabel = 'Historique complet';
     }
+
+    // Filtres whitelistés avant le SQL.
+    $type = in_array($_GET['type'] ?? '', ['culte', 'evenement', 'bacenta', 'basonta', 'centre'], true)
+        ? (string) $_GET['type'] : null;
+    $statut = in_array($_GET['statut'] ?? '', ['present', 'absent', 'excuse'], true)
+        ? (string) $_GET['statut'] : null;
+
+    $rows = attendance_service()->memberActivityHistory((int) $membreId, [
+        'from'   => $from ?: null,
+        'to'     => $to ?: null,
+        'statut' => $statut,
+        'type'   => $type,
+    ]);
 
     echo view('pages/attendance_print', [
         'member'      => $member,
         'rows'        => $rows,
         'periodLabel' => $periodLabel,
+        'from'        => $from,
+        'to'          => $to,
+        'type'        => $type ?? '',
+        'statut'      => $statut ?? '',
         'printedAt'   => date('d/m/Y à H:i'),
     ]);
 }
