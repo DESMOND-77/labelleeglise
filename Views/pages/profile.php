@@ -107,7 +107,7 @@ $rows = [
     <a class="btn btn-outline btn-sm" target="_blank" href="<?= h(url('index.php', ['page' => 'suiviPrint', 'membre' => $member['id'], 'semaine' => $weekKey])) ?>"><i class="fa-solid fa-print"></i> Imprimer</a>
   </div>
 </div>
-<div class="table-wrap"><table class="data-table"><thead><tr><th>Champ</th><?php foreach ($weekDays as $d): ?><th><?= h($d) ?></th><?php endforeach; ?></tr></thead><tbody>
+<div class="table-wrap"><table class="data-table" data-no-paginate><thead><tr><th>Champ</th><?php foreach ($weekDays as $d): ?><th><?= h($d) ?></th><?php endforeach; ?></tr></thead><tbody>
   <?php foreach ($suiviFields as $f): ?>
     <tr>
       <td><?= h($f['label']) ?></td>

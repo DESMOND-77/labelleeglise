@@ -253,6 +253,7 @@ if (in_array($page, ['bacentas', 'cultes', 'basontas'], true) && nav('id')) {
 <?php endif; ?>
 <script src="assets/js/app.js"></script>
 <script src="assets/js/attendance.js" defer></script>
+<script src="assets/js/table-paginate.js" defer></script>
 <?php if (($page ?? '') === 'agenda'): ?><script src="assets/js/agenda.js" defer></script><?php endif; ?>
 </body>
 </html>
