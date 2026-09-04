@@ -605,6 +605,10 @@ class ActionsController extends Controller
 
             /* ---------- Présence par événement (culte) ---------- */
 
+            // @deprecated SP-3 — conservé pour compat (liens/bookmarks/POST externes).
+            // Le pointage culte passe désormais par save_presence_occurrence
+            // (unit_type=cult) ; ce wrapper route vers pointOccurrence via
+            // save_unit_presence('cult', …). Effet net identique à l'ancien pointCulte.
             case 'point_culte': {
                 $this->requireUser();
                 $culte = (int) ($_POST['culte'] ?? 0);
@@ -615,10 +619,14 @@ class ActionsController extends Controller
                 }
                 $date = (string) ($_POST['date_presence'] ?? date('Y-m-d'));
                 if ($date !== '') {
-                    $userIds = array_map('intval', array_keys($_POST['present'] ?? []));
-                    point_culte_presence($culte, $date, $userIds);
+                    $present = array_map('intval', array_keys($_POST['present'] ?? []));
+                    $population = array_map(
+                        static fn($m) => (int) $m['id'],
+                        \App\Core\Query::all("SELECT id FROM users WHERE role IN ('membre','leader','assistant','pasteur','reverant')")
+                    );
+                    save_unit_presence('cult', $culte, $date, array_fill_keys($present, 'present'), $population);
                 }
-                $this->redirect('index.php', ['page' => 'cultes', 'id' => $culte]);
+                $this->redirect('index.php', ['page' => 'cultes', 'id' => $culte, 'tab' => 'presences', 'date' => $date]);
                 break;
             }
 

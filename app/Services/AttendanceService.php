@@ -19,13 +19,15 @@ class AttendanceService
         $this->cultes = $cultes ?? new CulteRepository();
     }
 
+    /**
+     * @deprecated SP-3 — le pointage culte passe par pointOccurrence('cult', …).
+     * Conservé pour compat (signature inchangée) ; délègue désormais à l'occurrence :
+     * tous les user_id fournis sont marqués « present », les autres membres n'ont pas de ligne.
+     */
     public function pointCulte(int $culteId, string $date, array $userIds): void
     {
-        $culte = $this->cultes->find($culteId);
-        if (!$culte) {
-            return;
-        }
-        $this->attendance->pointCulte($culteId, $date, $userIds);
+        $ids = array_map('intval', $userIds);
+        $this->pointOccurrence('cult', $culteId, $date, array_fill_keys($ids, 'present'), $ids);
     }
 
     /* ================= Historique / consultation (fiche membre) ================= */

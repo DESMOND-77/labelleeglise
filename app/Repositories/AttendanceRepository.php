@@ -27,7 +27,10 @@ class AttendanceRepository
         Query::run("DELETE FROM presences WHERE user_id = ? AND $column = ?", [$userId, $entityId]);
     }
 
-    /** Pointage de présence à un culte (recenser les présents pour date). */
+    /**
+     * @deprecated SP-3 — plus appelé (AttendanceService::pointCulte délègue à
+     * pointOccurrence). Conservé pour compat, sans statut ni transaction.
+     */
     public function pointCulte(int $culteId, string $date, array $userIds): void
     {
         Query::run('DELETE FROM presences WHERE culte_id = ? AND date_presence = ?', [$culteId, $date]);
