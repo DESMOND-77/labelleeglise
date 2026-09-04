@@ -32,9 +32,53 @@ class AttendanceService
 
     /* ================= Historique / consultation (fiche membre) ================= */
 
-    public function historyForUser(int $userId, ?string $fromDate = null, ?string $toDate = null): array
+    public function historyForUser(
+        int $userId,
+        ?string $fromDate = null,
+        ?string $toDate = null,
+        ?string $statut = null,
+        ?string $type = null
+    ): array {
+        return $this->attendance->historyForUser($userId, $fromDate, $toDate, $statut, $type);
+    }
+
+    /**
+     * Historique d'activité mis en forme pour la fiche membre / l'impression.
+     * $filters : clés optionnelles from, to, statut, type.
+     *
+     * @return list<array{date_presence:string,statut:string,activity_type:string,activity_nom:string}>
+     */
+    public function memberActivityHistory(int $userId, array $filters): array
     {
-        return $this->attendance->historyForUser($userId, $fromDate, $toDate);
+        $rows = $this->attendance->historyForUser(
+            $userId,
+            $filters['from'] ?? null,
+            $filters['to'] ?? null,
+            $filters['statut'] ?? null,
+            $filters['type'] ?? null
+        );
+
+        // Priorité : culte > evenement > bacenta > basonta > centre (première FK non nulle).
+        $order = ['culte', 'evenement', 'bacenta', 'basonta', 'centre'];
+        $out = [];
+        foreach ($rows as $r) {
+            $type = '';
+            $nom = '';
+            foreach ($order as $t) {
+                if (($r[$t . '_id'] ?? null) !== null) {
+                    $type = $t;
+                    $nom = (string) ($r[$t . '_nom'] ?? '');
+                    break;
+                }
+            }
+            $out[] = [
+                'date_presence' => (string) $r['date_presence'],
+                'statut'        => (string) ($r['statut'] ?? ''),
+                'activity_type' => $type,
+                'activity_nom'  => $nom,
+            ];
+        }
+        return $out;
     }
 
     /** Présences d'un utilisateur restreintes à une semaine ISO (mêmes clés que suivi hebdo). */

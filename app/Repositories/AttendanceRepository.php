@@ -53,17 +53,27 @@ class AttendanceRepository
 
     /**
      * Historique réel des présences d'un utilisateur, jointes aux noms
-     * réels (culte/centre/bacenta), triées par date décroissante.
+     * réels (culte/événement/centre/bacenta/basonta), triées par date décroissante.
      * $fromDate/$toDate au format Y-m-d, optionnels.
+     * $statut ∈ present|absent|excuse (sinon ignoré).
+     * $type ∈ culte|evenement|bacenta|basonta|centre → restreint aux lignes dont
+     * la FK correspondante est renseignée (sinon ignoré).
      */
-    public function historyForUser(int $userId, ?string $fromDate = null, ?string $toDate = null): array
-    {
-        $sql = "SELECT p.id, p.date_presence, p.culte_id, p.centre_id, p.bacenta_id, p.basonta_id,
-                       cu.nom AS culte_nom, ce.nom AS centre_nom, ba.nom AS bacenta_nom
+    public function historyForUser(
+        int $userId,
+        ?string $fromDate = null,
+        ?string $toDate = null,
+        ?string $statut = null,
+        ?string $type = null
+    ): array {
+        $sql = "SELECT p.id, p.date_presence, p.statut, p.culte_id, p.evenement_id, p.centre_id, p.bacenta_id, p.basonta_id,
+                       cu.nom AS culte_nom, ev.nom AS evenement_nom, ce.nom AS centre_nom, ba.nom AS bacenta_nom, bo.nom AS basonta_nom
                   FROM presences p
-                  LEFT JOIN cultes cu ON cu.id = p.culte_id
-                  LEFT JOIN centres ce ON ce.id = p.centre_id
-                  LEFT JOIN bacentas ba ON ba.id = p.bacenta_id
+                  LEFT JOIN cultes cu     ON cu.id = p.culte_id
+                  LEFT JOIN evenements ev ON ev.id = p.evenement_id
+                  LEFT JOIN centres ce    ON ce.id = p.centre_id
+                  LEFT JOIN bacentas ba   ON ba.id = p.bacenta_id
+                  LEFT JOIN basontas bo   ON bo.id = p.basonta_id
                  WHERE p.user_id = ?";
         $params = [$userId];
         if ($fromDate) {
@@ -73,6 +83,20 @@ class AttendanceRepository
         if ($toDate) {
             $sql .= ' AND p.date_presence <= ?';
             $params[] = $toDate;
+        }
+        if (in_array($statut, ['present', 'absent', 'excuse'], true)) {
+            $sql .= ' AND p.statut = ?';
+            $params[] = $statut;
+        }
+        $typeCol = [
+            'culte'     => 'culte_id',
+            'evenement' => 'evenement_id',
+            'bacenta'   => 'bacenta_id',
+            'basonta'   => 'basonta_id',
+            'centre'    => 'centre_id',
+        ][$type] ?? null;
+        if ($typeCol !== null) {
+            $sql .= " AND p.$typeCol IS NOT NULL";
         }
         $sql .= ' ORDER BY p.date_presence DESC, p.id DESC';
         return Query::all($sql, $params);
