@@ -514,11 +514,8 @@ class ActionsController extends Controller
                     }
                 }
 
-                foreach (PRESENCE_FIELDS as $f) {
-                    if (isset($_POST[$f])) {
-                        save_quick_presence($id, $f, (string) $_POST[$f]);
-                    }
-                }
+                // SP-4 : plus de pointage depuis le formulaire membre — le pointage
+                // se fait exclusivement depuis l'occurrence (save_presence_occurrence).
 
                 if (($_POST['retour'] ?? '') === 'fiche') {
                     $this->redirect('index.php', ['page' => 'bergerFiche', 'membre' => $id]);

@@ -89,7 +89,10 @@ class MemberService
         return '';
     }
 
-    /** Enregistre (upsert) une présence rapide : 'Présent' → ligne, sinon suppression. */
+    /**
+     * Enregistre (upsert) une présence rapide : 'Présent' → ligne, sinon suppression.
+     * @deprecated SP-4 — plus aucun appelant (le pointage passe par pointOccurrence). Conservé pour compat.
+     */
     public function saveQuickPresence(int $userId, string $type, string $value): void
     {
         $user = $this->users->find($userId);

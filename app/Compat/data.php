@@ -102,6 +102,7 @@ function build_narrative(array $stats): array { return _repo(StatisticsService::
 function latest_culte(): ?array { return _repo(CulteRepository::class)->latest(); }
 function latest_basonta_of_user(int $userId): ?int { return _repo(BasontaRepository::class)->latestOfUser($userId); }
 function presence_status(array $user, string $type): string { return _repo(MemberService::class)->presenceStatus($user, $type); }
+/** @deprecated SP-4 — plus aucun appelant (le pointage passe par l'occurrence). Conservé pour compat. */
 function save_quick_presence(int $userId, string $type, string $value): void { _repo(MemberService::class)->saveQuickPresence($userId, $type, $value); }
 function point_culte_presence(int $culteId, string $date, array $userIds): void { _repo(\App\Services\AttendanceService::class)->pointCulte($culteId, $date, $userIds); }
 

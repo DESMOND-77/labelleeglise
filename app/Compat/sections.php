@@ -714,13 +714,6 @@ function render_member_form(string $section): void
         $akwabaOptions .= '<option value="' . $u['id'] . '"' . ($member && (int) $member['recu_par'] === (int) $u['id'] ? ' selected' : '') . '>' . h(full_name($u)) . '</option>';
     }
 
-    $presenceValues = [];
-    if ($member) {
-        foreach (PRESENCE_FIELDS as $f) {
-            $presenceValues[$f] = presence_status($member, $f);
-        }
-    }
-
     $content = view('pages/forms/member', [
         'title'      => $member ? 'Modifier le membre' : 'Ajouter un membre',
         'member'     => $member,
@@ -729,7 +722,6 @@ function render_member_form(string $section): void
         'bacentaOptions' => $bacentaOptions,
         'userOptions'=> $userOptions,
         'akwabaOptions' => $akwabaOptions,
-        'presenceValues' => $presenceValues,
         'extraFields'=> SECTION_EXTRA_FIELDS[$section] ?? [],
         'roles'      => ROLE_LABELS,
         'cancelUrl'  => url('index.php', ['page' => $section] + ($entityId ? ['id' => $entityId] : [])),
