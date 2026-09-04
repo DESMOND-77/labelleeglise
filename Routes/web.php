@@ -57,6 +57,7 @@ Router::get('bergers', SectionController::class, 'index');
 Router::get('bergerFiche', BergerController::class, 'fiche');
 Router::get('suiviBergers', BergerController::class, 'suivi');
 
+Router::get('agenda', CalendrierController::class, 'agenda');
 Router::get('calendrier', CalendrierController::class, 'evenements');
 Router::get('anniversaires', CalendrierController::class, 'anniversaires');
 
