@@ -102,9 +102,39 @@ class AttendanceRepository
         return Query::all($sql, $params);
     }
 
+    /** @deprecated SP-5 — plus utilisé par statsForUser (compte toutes les lignes, pas seulement les présences). */
     public function countForUser(int $userId): int
     {
         return (int) Query::value('SELECT COUNT(*) FROM presences WHERE user_id = ?', [$userId]);
+    }
+
+    /**
+     * Ventilation des statuts pointés d'un membre (1 requête groupée).
+     * Clés absentes = 0.
+     *
+     * @return array{present:int,absent:int,excuse:int}
+     */
+    public function statusCountsForUser(int $userId, ?string $from = null, ?string $to = null): array
+    {
+        $sql = 'SELECT statut, COUNT(*) c FROM presences WHERE user_id = ?';
+        $params = [$userId];
+        if ($from) {
+            $sql .= ' AND date_presence >= ?';
+            $params[] = $from;
+        }
+        if ($to) {
+            $sql .= ' AND date_presence <= ?';
+            $params[] = $to;
+        }
+        $sql .= ' GROUP BY statut';
+
+        $out = ['present' => 0, 'absent' => 0, 'excuse' => 0];
+        foreach (Query::all($sql, $params) as $r) {
+            if (isset($out[$r['statut']])) {
+                $out[$r['statut']] = (int) $r['c'];
+            }
+        }
+        return $out;
     }
 
     public function mostRecentDateForUser(int $userId): ?string
@@ -113,7 +143,11 @@ class AttendanceRepository
         return $d ?: null;
     }
 
-    /** Nombre de dates de culte distinctes enregistrées sur la période (dénominateur honnête d'un "taux"). */
+    /**
+     * Nombre de dates de culte distinctes enregistrées sur la période.
+     * @deprecated SP-5 — plus utilisé par statsForUser (dénominateur biaisé : cultes seuls,
+     * ignore absent/excuse). Le taux passe par statusCountsForUser.
+     */
     public function distinctCulteDatesInRange(?string $fromDate, ?string $toDate): int
     {
         $sql = "SELECT COUNT(DISTINCT date_presence) FROM presences WHERE culte_id IS NOT NULL";

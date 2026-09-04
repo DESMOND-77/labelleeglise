@@ -90,29 +90,38 @@ class AttendanceService
     }
 
     /**
-     * Statistiques honnêtes uniquement (spec §23) : total de présences
-     * réellement enregistrées + date de la dernière présence. Un "taux" de
-     * présence n'est calculé que si un dénominateur réel existe (nombre de
-     * dates de culte distinctes enregistrées sur la même période) ; sinon
-     * il est omis plutôt que fabriqué.
+     * Statistiques de présence d'un membre (spec SP-5).
+     *
+     * Taux = présences ÷ (présents + absents + excusés). Les occurrences non
+     * renseignées (aucune ligne) sont exclues du dénominateur : un oubli de
+     * pointage du responsable ne pénalise pas le membre. `total` = nombre de
+     * lignes `statut = 'present'` (présences réelles), pas le total de lignes.
+     *
+     * Limite connue : ne mesure pas l'assiduité sur les occurrences auxquelles
+     * le membre était éligible mais non pointé (pas de date d'appartenance
+     * fiable). Voir spec SP-5 §3.4 / §6.
+     *
+     * @return array{total:int,present:int,absent:int,excuse:int,pointed:int,last_date:?string,rate:?int,formula:string,rate_denominator_note:string}
      */
     public function statsForUser(int $userId, ?string $fromDate = null, ?string $toDate = null): array
     {
-        $total = $this->attendance->countForUser($userId);
-        $lastDate = $this->attendance->mostRecentDateForUser($userId);
-        // Dénominateur : nombre de dates de culte distinctes enregistrées
-        // (toutes présences confondues) sur la période demandée — c'est la
-        // seule donnée réellement disponible pour approx. un "taux".
-        $denominator = $this->attendance->distinctCulteDatesInRange($fromDate, $toDate);
-        $rate = null;
-        if ($denominator > 0) {
-            $rate = round(min(100, ($total / $denominator) * 100));
-        }
+        $c = $this->attendance->statusCountsForUser($userId, $fromDate, $toDate);
+        $present = (int) ($c['present'] ?? 0);
+        $absent = (int) ($c['absent'] ?? 0);
+        $excuse = (int) ($c['excuse'] ?? 0);
+        $pointed = $present + $absent + $excuse;
+        $rate = $pointed > 0 ? (int) round($present / $pointed * 100) : null;
+
         return [
-            'total' => $total,
-            'last_date' => $lastDate,
-            'rate' => $rate, // null si aucun dénominateur honnête n'est disponible
-            'rate_denominator_note' => 'présences ÷ dates de culte distinctes enregistrées sur la période',
+            'total'     => $present, // présences réelles (clé conservée, sens corrigé)
+            'present'   => $present,
+            'absent'    => $absent,
+            'excuse'    => $excuse,
+            'pointed'   => $pointed,
+            'last_date' => $this->attendance->mostRecentDateForUser($userId),
+            'rate'      => $rate, // null si aucune occurrence pointée (pas de /0)
+            'formula'   => 'Taux = présences ÷ (présents + absents + excusés). Occurrences non renseignées exclues du dénominateur.',
+            'rate_denominator_note' => 'présents ÷ (présents + absents + excusés)',
         ];
     }
 
