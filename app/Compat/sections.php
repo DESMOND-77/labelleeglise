@@ -450,34 +450,13 @@ function render_culte_detail(int $culteId): void
         return;
     }
 
+    // SP-3 : plus d'onglet « Pointage rapide ». Le culte est un simple type
+    // d'occurrence : sa fiche = pointage par occurrence (composant SP-2) +
+    // matrice annuelle (bouton du composant).
     $culteMembers = Query::all("SELECT * FROM users WHERE role IN ('membre','leader','assistant','pasteur','reverant') ORDER BY prenom, nom");
     $tab = nav('tab');
-    if ($tab === 'presences' || $tab === 'presences_annuel') {
-        render_unit_presence_tab('cult', 'cultes', $c, $tab, $culteMembers);
-        return;
-    }
-    $culteTabs = [
-        'pointage'  => ['label' => '<i class="fa-solid fa-hands"></i> Pointage rapide', 'url' => url('index.php', ['page' => 'cultes', 'id' => $culteId])],
-        'presences' => ['label' => '<i class="fa-solid fa-clipboard-check"></i> Présences', 'url' => url('index.php', ['page' => 'cultes', 'id' => $culteId, 'tab' => 'presences'])],
-    ];
-
-    $presents = get_members_of_culte($culteId);
-    $isAdmin = current_user()['role'] === 'admin';
-    // Tous les membres candidats au pointage (chevauchement de la liste).
-    $candidates = Query::all("SELECT id, prenom, nom FROM users WHERE role IN ('membre','leader','assistant','pasteur','reverant') ORDER BY prenom, nom");
-
-    $date = $c['date_culte'] ? date('d/m/Y', strtotime($c['date_culte'])) : 'Date à définir';
-    $content = tab_row($culteTabs, 'pointage')
-        . section_toolbar(h($c['nom']), 'Culte · ' . $date . ($c['resp_prenom'] ? ' · ' . h(trim($c['resp_prenom'] . ' ' . $c['resp_nom'])) : ''))
-        . view('pages/culte_detail', [
-            'culte'     => $c,
-            'presents'  => $presents,
-            'candidates'=> $candidates,
-            'isAdmin'   => $isAdmin,
-            'csrf'      => csrf_field(),
-            'defaultDate' => date('Y-m-d'),
-        ]);
-    render_page($c['nom'], $content);
+    $tab = in_array($tab, ['presences', 'presences_annuel'], true) ? $tab : 'presences';
+    render_unit_presence_tab('cult', 'cultes', $c, $tab, $culteMembers);
 }
 
 function render_basonta_detail(int $basontaId): void
