@@ -8,7 +8,7 @@ if (($mode ?? 'list') === 'fiche'):
 ?>
 <div class="section-toolbar">
   <div><h2><?= h($e['nom']) ?></h2><div class="sub">Fiche événement</div></div>
-  <a class="btn btn-outline" href="<?= h(url('index.php', ['page' => 'calendrier'])) ?>"><i class="fa-solid fa-arrow-left"></i> Retour au calendrier</a>
+  <a class="btn btn-outline" href="<?= h(url('index.php', ['page' => 'agenda'])) ?>"><i class="fa-solid fa-arrow-left"></i> Retour à l'agenda</a>
 </div>
 <div class="cal-fiche">
   <p><strong>Début :</strong> <?= h(date('d/m/Y H:i', $deb)) ?></p>
@@ -95,7 +95,7 @@ if (($mode ?? 'list') === 'fiche'):
       </div>
     </div>
     <div class="modal-actions">
-      <?php if (!empty($e['id'])): ?><a class="btn btn-outline" href="<?= h(url('index.php', ['page' => 'calendrier'])) ?>">Annuler</a><?php endif; ?>
+      <?php if (!empty($e['id'])): ?><a class="btn btn-outline" href="<?= h(url('index.php', ['page' => 'agenda'])) ?>">Annuler</a><?php endif; ?>
       <button type="submit" class="btn btn-primary"><?= !empty($e['id']) ? 'Enregistrer' : 'Ajouter l\'événement' ?></button>
     </div>
   </form>

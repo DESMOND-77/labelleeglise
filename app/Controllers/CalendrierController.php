@@ -121,7 +121,7 @@ class CalendrierController extends Controller
     {
         $evt = calendrier_service()->event($id);
         if (!$evt) {
-            $this->redirect('index.php', ['page' => 'calendrier']);
+            $this->redirect('index.php', ['page' => 'agenda']);
         }
         $canPointe = auth_can_manage_calendar() || auth_can_edit_evenement($evt);
         $date = (string) (Request::get('date') ?: date('Y-m-d'));
