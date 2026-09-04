@@ -142,6 +142,7 @@ class CalendrierController extends Controller
             'canPointe'       => $canPointe,
             'presenceDate'    => $date,
             'presenceGrid'    => $canPointe ? unit_presence_grid('evenement', (int) $evt['id'], $date, $members) : [],
+            'presenceSummary' => attendance_service()->occurrenceSummary('evenement', (int) $evt['id'], $date, count($members)),
             'presenceStatuts' => PRESENCE_STATUTS,
         ]));
     }

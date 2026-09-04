@@ -257,6 +257,7 @@ function render_unit_presence_tab(string $unitType, string $pageKey, array $unit
         'pageKey'   => $pageKey,
         'date'      => $date,
         'grid'      => unit_presence_grid($unitType, $unitId, $date, $members),
+        'summary'   => attendance_service()->occurrenceSummary($unitType, $unitId, $date, count($members)),
         'statuts'   => PRESENCE_STATUTS,
         'joursHint' => $joursHint,
         'csrf'      => csrf_field(),

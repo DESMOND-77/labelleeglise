@@ -18,40 +18,19 @@ if (($mode ?? 'list') === 'fiche'):
 </div>
 <?php if (!empty($canPointe)): ?>
 <div class="section-toolbar"><div><h3>Pointage des présences</h3></div></div>
-<form method="get" action="index.php" class="presence-datebar">
-  <input type="hidden" name="page" value="calendrier">
-  <input type="hidden" name="evt" value="<?= (int) $e['id'] ?>">
-  <label>Date</label>
-  <input type="date" name="date" value="<?= h($presenceDate) ?>" onchange="this.form.submit()">
-</form>
-<form method="post" action="index.php">
-  <input type="hidden" name="action" value="save_presence_occurrence">
-  <?= $csrf ?>
-  <input type="hidden" name="unit_type" value="evenement">
-  <input type="hidden" name="unit_id" value="<?= (int) $e['id'] ?>">
-  <input type="hidden" name="date" value="<?= h($presenceDate) ?>">
-  <div class="table-wrap">
-    <table class="data-table presence-table">
-      <thead><tr><th>Membre</th><th>Statut</th></tr></thead>
-      <tbody>
-        <?php foreach ($presenceGrid as $line): $u = $line['user']; ?>
-          <tr>
-            <td><?= h(full_name($u)) ?></td>
-            <td>
-              <select name="statut[<?= (int) $u['id'] ?>]">
-                <option value="">—</option>
-                <?php foreach ($presenceStatuts as $k => $lbl): ?>
-                  <option value="<?= h($k) ?>" <?= $line['statut'] === $k ? 'selected' : '' ?>><?= h($lbl) ?></option>
-                <?php endforeach; ?>
-              </select>
-            </td>
-          </tr>
-        <?php endforeach; ?>
-      </tbody>
-    </table>
-  </div>
-  <div class="modal-actions"><button type="submit" class="btn btn-primary" <?= $presenceGrid ? '' : 'disabled' ?>>Enregistrer les présences</button></div>
-</form>
+<?= view('pages/partials/attendance_pointage', [
+    'unitType'   => 'evenement',
+    'unitId'     => (int) $e['id'],
+    'unitLabel'  => $e['nom'],
+    'date'       => $presenceDate,
+    'dateBarUrl' => ['page' => 'calendrier', 'evt' => (int) $e['id']],
+    'grid'       => $presenceGrid,
+    'summary'    => $presenceSummary,
+    'statuts'    => $presenceStatuts,
+    'joursHint'  => '',
+    'csrf'       => $csrf,
+    'canPointe'  => true,
+]) ?>
 <?php endif; ?>
 <?php return; endif; ?>
 
