@@ -7,3 +7,8 @@
 .github/instructions/codacy.instructions.md
 prompts/
 logs/
+graphify-out
+
+# Scripts d'assertion jetables (vérification manuelle — jamais versionnés)
+tmp/
+.claude/
