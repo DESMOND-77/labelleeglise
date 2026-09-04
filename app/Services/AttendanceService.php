@@ -94,6 +94,28 @@ class AttendanceService
     }
 
     /**
+     * Synthèse d'une occurrence pour les compteurs du composant de pointage.
+     * « non_renseigne » = membres sans ligne de présence (borné à ≥ 0).
+     * Aucune requête au-delà de occurrenceStatuts (SELECT léger, index uniq_presence).
+     *
+     * @return array{present:int,absent:int,excuse:int,non_renseigne:int,total:int}
+     */
+    public function occurrenceSummary(string $unitType, int $unitId, string $date, int $totalMembers): array
+    {
+        $statuts = $this->attendance->occurrenceStatuts($unitType, $unitId, $date);
+        $present = count(array_filter($statuts, static fn($v) => $v === 'present'));
+        $absent = count(array_filter($statuts, static fn($v) => $v === 'absent'));
+        $excuse = count(array_filter($statuts, static fn($v) => $v === 'excuse'));
+        return [
+            'present'       => $present,
+            'absent'        => $absent,
+            'excuse'        => $excuse,
+            'non_renseigne' => max(0, $totalMembers - count($statuts)),
+            'total'         => $totalMembers,
+        ];
+    }
+
+    /**
      * @param array<int,array> $members lignes users (au moins la clé 'id')
      * @return list<array{user:array,statut:string}>
      */
