@@ -52,3 +52,168 @@
   color: var(--warning);
   font-weight: 600;
 }
+
+/* ============================================================
+   Composant de pointage unifié (SP-2)
+   ============================================================ */
+
+.attendance-pointage .is-hidden {
+  display: none;
+}
+
+.attendance-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+}
+
+.attendance-search {
+  flex: 1 1 220px;
+  min-width: 180px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  font: inherit;
+}
+
+.attendance-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.attendance-filter {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--card);
+  color: var(--text-soft);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.attendance-filter.is-active {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.attendance-bulk {
+  display: flex;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+.attendance-counts {
+  margin: var(--space-3) 0;
+  color: var(--text-soft);
+  font-size: 13px;
+}
+
+.attendance-counts b {
+  color: var(--text);
+}
+
+.attendance-list {
+  margin-top: var(--space-2);
+}
+
+.attendance-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.attendance-name {
+  font-weight: 500;
+}
+
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.segmented label {
+  position: relative;
+}
+
+.segmented input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.segmented span {
+  display: block;
+  padding: var(--space-2) var(--space-3);
+  font-size: 13px;
+  line-height: 24px;
+  min-height: 40px;
+  cursor: pointer;
+  color: var(--text-soft);
+  border-left: 1px solid var(--border);
+}
+
+.segmented label:first-child span {
+  border-left: 0;
+}
+
+.segmented .seg-present input:checked + span {
+  background: var(--success-soft);
+  color: var(--success);
+  font-weight: 600;
+}
+
+.segmented .seg-absent input:checked + span {
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.segmented .seg-excuse input:checked + span {
+  background: var(--warning-soft);
+  color: var(--warning);
+  font-weight: 600;
+}
+
+.segmented .seg-none input:checked + span {
+  background: var(--bg);
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.segmented input:focus-visible + span {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+
+@media (max-width: 640px) {
+  .attendance-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .segmented {
+    width: 100%;
+  }
+
+  .segmented label {
+    flex: 1;
+  }
+
+  .segmented span {
+    text-align: center;
+  }
+
+  .attendance-bulk {
+    margin-left: 0;
+  }
+}
