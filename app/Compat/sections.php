@@ -486,10 +486,9 @@ function render_basonta_detail(int $basontaId): void
     $rows = '';
     foreach ($members as $m) {
         $rows .= '<tr><td>' . h($m['nom'] ?? '') . '</td><td>' . h($m['prenom'] ?? '') . '</td><td>' . h($m['telephone'] ?? '') . '</td>'
-            . '<td>' . presence_badge(presence_status($m, 'presenceBasonta')) . '</td>'
             . '<td class="row-actions"><a class="icon-btn danger" title="Retirer" data-confirm="Retirer ce membre du basonta ?" href="' . h(url('index.php', ['page' => 'basontas', 'action' => 'basonta_remove_member', 'basonta' => $basontaId, 'membre' => $m['id']])) . '"><i class="fa-solid fa-trash"></i></a></td></tr>';
     }
-    $rows = $rows ?: '<tr><td colspan="5">' . empty_state('fa-inbox', 'Aucun membre dans ce basonta.') . '</td></tr>';
+    $rows = $rows ?: '<tr><td colspan="4">' . empty_state('fa-inbox', 'Aucun membre dans ce basonta.') . '</td></tr>';
 
     $content = tab_row($basontaTabs, 'membres')
         . section_toolbar(h($b['nom']), count($members) . ' membre(s)')
@@ -499,7 +498,7 @@ function render_basonta_detail(int $basontaId): void
         . '<select name="membre" required><option value="">— Choisir un membre —</option>'
         . implode('', array_map(fn($u) => '<option value="' . $u['id'] . '">' . h(full_name($u)) . '</option>', $candidates))
         . '</select><button type="submit" class="btn btn-primary btn-sm">+ Ajouter au basonta</button></form>'
-        . '<div class="table-wrap"><table class="data-table"><thead><tr><th>Nom</th><th>Prénom</th><th>Téléphone</th><th>Présence Basonta</th><th>Actions</th></tr></thead><tbody>' . $rows . '</tbody></table></div>';
+        . '<div class="table-wrap"><table class="data-table"><thead><tr><th>Nom</th><th>Prénom</th><th>Téléphone</th><th>Actions</th></tr></thead><tbody>' . $rows . '</tbody></table></div>';
     render_page($b['nom'], $content);
 }
 
@@ -538,9 +537,7 @@ function display_columns(string $section): array
         $cols[] = 'recu_par';
         $cols[] = 'date_recu';
     }
-    foreach (PRESENCE_FIELDS as $p) {
-        $cols[] = $p;
-    }
+    // SP-4 : plus de colonnes présence dans les listes (trompeuses + N+1).
     return $cols;
 }
 
@@ -579,10 +576,6 @@ function members_table(string $section, ?int $entityId, string $label, int $coun
     foreach ($members as $m) {
         $cells = '';
         foreach ($cols as $f) {
-            if (in_array($f, PRESENCE_FIELDS, true)) {
-                $cells .= '<td>' . presence_badge(presence_status($m, $f)) . '</td>';
-                continue;
-            }
             switch ($f) {
                 case 'nom':
                 case 'prenom':
