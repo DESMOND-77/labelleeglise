@@ -158,8 +158,8 @@ if (in_array($page, ['bacentas', 'cultes', 'basontas'], true) && nav('id')) {
 <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
 
 <link rel="stylesheet" href="assets/css/app.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
+<script src="assets/vendor/chartjs/chart.umd.min.js"></script>
 </head>
 <body>
 <div class="app-shell" id="appShell">
