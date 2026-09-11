@@ -616,6 +616,29 @@ function up(): void
             $ins->execute([$nom, $i + 1]);
         }
     }
+
+    /* ---- 14. M2 — Budget Bus du dimanche par centre -------------------
+     * Sommes retirées / collectées par centre pour le bus du dimanche.
+     * Une ligne = un mouvement (centre, date, montant, observations).
+     * Les sous-totaux (par centre, par mois) et le total année sont
+     * calculés à la volée côté service — aucune donnée dérivée stockée.
+     */
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS bus_budget (
+            id INT NOT NULL AUTO_INCREMENT,
+            centre_id INT NOT NULL,
+            date_retrait DATE NOT NULL,
+            montant DECIMAL(12,2) NOT NULL DEFAULT 0,
+            observations TEXT NULL,
+            created_by INT NULL,
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY idx_bus_centre_date (centre_id, date_retrait),
+            CONSTRAINT fk_bus_centre  FOREIGN KEY (centre_id)  REFERENCES centres(id) ON DELETE CASCADE,
+            CONSTRAINT fk_bus_creator FOREIGN KEY (created_by) REFERENCES users(id)   ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
 }
 
 /** Vérifie si une colonne existe déjà (idempotence des ALTER TABLE). */
@@ -646,7 +669,7 @@ function index_exists(\PDO $pdo, string $table, string $index): bool
 function down(): void
 {
     $pdo = Database::connection();
-    $tables = ['responsibilities', 'notifications', 'users_basontas', 'presences', 'evenements', 'anniversaires', 'rapports_jour', 'classe_inscrits', 'classes', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
+    $tables = ['responsibilities', 'notifications', 'users_basontas', 'presences', 'evenements', 'anniversaires', 'rapports_jour', 'bus_budget', 'classe_inscrits', 'classes', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
                'examens', 'veillees', 'cultes', 'basontas', 'bacentas', 'users',
                'centres_presentation', 'equipe', 'presentation', 'centres'];
     $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');

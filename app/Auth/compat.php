@@ -190,6 +190,24 @@ function auth_can_manage_classes(): bool
     ) > 0;
 }
 
+/** Budget Bus (M2) : peut gérer le budget bus d'au moins un centre (admin OU responsable réel d'un centre). */
+function auth_can_manage_any_centre(): bool
+{
+    $u = current_user();
+    if (!$u) {
+        return false;
+    }
+    if (($u['role'] ?? '') === 'admin') {
+        return true;
+    }
+    foreach (get_centres() as $c) {
+        if (auth_can_manage_center((int) $c['id'])) {
+            return true;
+        }
+    }
+    return false;
+}
+
 function start_session(): void
 {
     \App\Core\Session::start(APP_NAME ? 'LBEGF_SESSID' : 'LBEGF_SESSID');

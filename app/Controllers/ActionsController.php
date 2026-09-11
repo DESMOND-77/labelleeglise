@@ -119,6 +119,20 @@ class ActionsController extends Controller
                 break;
             }
 
+            case 'delete_bus_budget': {
+                $this->requireUser();
+                $id = (int) ($_GET['id'] ?? 0);
+                $entry = $id ? bus_budget_service()->entry($id) : null;
+                $user = current_user();
+                $isAdmin = ($user['role'] ?? '') === 'admin';
+                if (!$entry || (!$isAdmin && !auth_can_manage_center((int) $entry['centre_id']))) {
+                    $this->deny();
+                }
+                bus_budget_service()->deleteEntry($id);
+                $this->redirect('index.php', ['page' => 'budgetBus']);
+                break;
+            }
+
             case 'remove_classe_inscrit': {
                 $this->requireUser();
                 if (!auth_can_manage_classes()) {
@@ -802,6 +816,46 @@ class ActionsController extends Controller
                     ]));
                 }
                 $this->redirect('index.php', $classeId ? ['page' => 'classe', 'id' => $classeId] : ['page' => 'classes']);
+                break;
+            }
+
+            /* ---------- Budget Bus du dimanche (M2) ---------- */
+
+            case 'save_bus_budget': {
+                $user = $this->requireUser();
+                $isAdmin = ($user['role'] ?? '') === 'admin';
+                $centreId = (int) ($_POST['centre_id'] ?? 0);
+                if (!$centreId || (!$isAdmin && !auth_can_manage_center($centreId))) {
+                    $this->deny();
+                }
+                $editId = (int) ($_POST['id'] ?? 0);
+                if ($editId) {
+                    $existing = bus_budget_service()->entry($editId);
+                    if (!$existing || (!$isAdmin && !auth_can_manage_center((int) $existing['centre_id']))) {
+                        $this->deny();
+                    }
+                }
+                $year = (int) ($_POST['annee'] ?? 0) ?: (int) date('Y');
+                $res = bus_budget_service()->save($_POST, (int) $user['id']);
+                if (!$res['ok']) {
+                    $centres = array_values(array_filter(
+                        get_centres(),
+                        static fn($c) => $isAdmin || auth_can_manage_center((int) $c['id'])
+                    ));
+                    $permittedIds = $isAdmin ? null : array_map(static fn($c) => (int) $c['id'], $centres);
+                    render_page(SECTION_LABELS['budgetBus'], view('pages/budget_bus', [
+                        'table'        => bus_budget_service()->annualTable(null, $year, $permittedIds),
+                        'centres'      => $centres,
+                        'year'         => $year,
+                        'filterCentre' => null,
+                        'edit'         => $editId ? bus_budget_service()->entry($editId) : null,
+                        'errors'       => $res['errors'],
+                        'old'          => $_POST,
+                        'csrf'         => csrf_field(),
+                    ]));
+                    return;
+                }
+                $this->redirect('index.php', ['page' => 'budgetBus', 'annee' => $year]);
                 break;
             }
 

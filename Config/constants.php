@@ -65,6 +65,7 @@ define('SECTION_LABELS', [
     'anniversaires'      => 'Anniversaires',
     'rapports'           => 'Rapports du Jour',
     'classes'            => 'Classes & Écoles',
+    'budgetBus'          => 'Budget Bus',
     'finances'           => 'Finances & Offrandes',
     'parametres'         => 'Paramètres',
     'bergerFiche'        => 'Fiche Berger',
@@ -91,6 +92,7 @@ define('SECTION_ICONS', [
     'anniversaires'      => '<i class="fa-solid fa-cake-candles"></i>',
     'rapports'           => '<i class="fa-solid fa-file-lines"></i>',
     'classes'            => '<i class="fa-solid fa-graduation-cap"></i>',
+    'budgetBus'          => '<i class="fa-solid fa-bus"></i>',
     'finances'           => '<i class="fa-solid fa-sack-dollar"></i>',
     'parametres'         => '<i class="fa-solid fa-gear"></i>',
     'admin_inscriptions' => '<i class="fa-solid fa-user-plus"></i>',
@@ -126,6 +128,7 @@ define('NAV_ORDER', [
     'agenda',
     'rapports',
     'classes',
+    'budgetBus',
     'parametres'
 ]);
 

@@ -167,6 +167,10 @@ function rapport_jour_service(): \App\Services\RapportJourService { return _repo
 
 function classe_service(): \App\Services\ClasseService { return _repo(\App\Services\ClasseService::class); }
 
+/* ---------- Budget Bus du dimanche ---------- */
+
+function bus_budget_service(): \App\Services\BusBudgetService { return _repo(\App\Services\BusBudgetService::class); }
+
 /* ---------- CRUD users ---------- */
 
 function insert_user(array $data): int { return _repo(UserRepository::class)->insert($data); }

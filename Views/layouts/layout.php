@@ -73,6 +73,12 @@ if ($user && !$isAdmin && auth_can_manage_classes()) {
     $navLis[] = '<li><a class="nav-item' . ($page === 'classes' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'classes'])) . '"><span class="ico">' . SECTION_ICONS['classes'] . '</span><span class="label">' . h(SECTION_LABELS['classes']) . '</span></a></li>';
 }
 
+// Budget Bus : lien pour tout responsable réel de centre non-admin
+// (l'admin l'a déjà via la boucle NAV_ORDER).
+if ($user && !$isAdmin && auth_can_manage_any_centre()) {
+    $navLis[] = '<li><a class="nav-item' . ($page === 'budgetBus' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'budgetBus'])) . '"><span class="ico">' . SECTION_ICONS['budgetBus'] . '</span><span class="label">' . h(SECTION_LABELS['budgetBus']) . '</span></a></li>';
+}
+
 /* ---------- Inscriptions en attente (admin) ---------- */
 $pendingRegistrationsCount = 0;
 if ($isAdmin) {

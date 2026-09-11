@@ -1,0 +1,57 @@
+/* M2 — Budget Bus du dimanche */
+
+.bus-filters {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  align-items: flex-end;
+  margin-bottom: var(--space-5);
+}
+
+.bus-filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-soft);
+}
+
+.bus-form {
+  margin-bottom: var(--space-6);
+}
+
+.bus-form .form-group-wide {
+  grid-column: 1 / -1;
+}
+
+.bus-centre {
+  margin-bottom: var(--space-6);
+}
+
+.bus-centre-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+}
+
+.bus-centre-head h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.data-table tr.bus-subtotal td {
+  background: var(--primary-soft);
+  font-weight: 600;
+  color: var(--text);
+  border-bottom: 2px solid var(--border);
+}
+
+.bus-grand-total {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--space-5);
+}

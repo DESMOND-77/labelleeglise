@@ -471,6 +471,13 @@ Toutes gardées par `auth_can_manage_classes()` + `check_csrf()`.
 **Besoin** : suivre les sommes retirées / collectées par centre pour le bus du
 dimanche, avec sous-totaux automatiques par centre et par mois.
 
+**Livré** : table `bus_budget`, `BusController`/`BusBudgetService`/
+`BusBudgetRepository`, vue `Views/pages/budget_bus.php` (tableau annuel : lignes
+par centre, sous-total par mois, total centre, total général), `assets/css/bus.css`.
+Route `budgetBus`, actions `save_bus_budget` (POST) / `delete_bus_budget` (GET).
+Périmètre via `auth_can_manage_center()` + `auth_can_manage_any_centre()` (admin
+ou responsable réel du centre).
+
 **Q/R de cadrage** :
 - « zone » = **centre** (table `centres`).
 - Colonnes : centre, date, somme retirée, observations.

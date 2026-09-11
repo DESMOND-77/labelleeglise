@@ -32,6 +32,7 @@
 @import url('agenda.css');
 @import url('rapports.css');
 @import url('classes.css');
+@import url('bus.css');
 
 /* ---- Utilitaires & animations ---- */
 @import url('utilities.css');
