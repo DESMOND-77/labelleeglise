@@ -1,4 +1,4 @@
-# SP-3 — Unification du pointage culte — Implementation Plan
+# SP-3 - Unification du pointage culte - Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: superpowers:subagent-driven-development ou superpowers:executing-plans. Steps `- [ ]`.
 
@@ -34,11 +34,11 @@
 **Files:** `app/Controllers/ActionsController.php`, `app/Services/AttendanceService.php`, `app/Repositories/AttendanceRepository.php` ; test `tmp/sp3_wrapper_check.php`
 
 **Interfaces produced:**
-- `AttendanceService::pointCulte(int $culteId, string $date, array $userIds): void` — `$ids = array_map('intval', $userIds)` ; `$this->pointOccurrence('cult', $culteId, $date, array_fill_keys($ids, 'present'), $ids)`. Docbloc `@deprecated Utiliser pointOccurrence('cult', …)`.
-- `case 'point_culte'` (action) — voir spec §4 : `auth_can_manage_culte`, population re-dérivée serveur, `save_unit_presence('cult', $culte, $date, array_fill_keys($present, 'present'), $population)`, redirige `page=cultes&id=<id>&tab=presences&date=<date>`. `@deprecated`.
-- `AttendanceRepository::pointCulte()` — `@deprecated` (conservé).
+- `AttendanceService::pointCulte(int $culteId, string $date, array $userIds): void` - `$ids = array_map('intval', $userIds)` ; `$this->pointOccurrence('cult', $culteId, $date, array_fill_keys($ids, 'present'), $ids)`. Docbloc `@deprecated Utiliser pointOccurrence('cult', …)`.
+- `case 'point_culte'` (action) - voir spec §4 : `auth_can_manage_culte`, population re-dérivée serveur, `save_unit_presence('cult', $culte, $date, array_fill_keys($present, 'present'), $population)`, redirige `page=cultes&id=<id>&tab=presences&date=<date>`. `@deprecated`.
+- `AttendanceRepository::pointCulte()` - `@deprecated` (conservé).
 
-- [ ] **Step 1: Assertion qui échoue** — `tmp/sp3_wrapper_check.php` :
+- [ ] **Step 1: Assertion qui échoue** - `tmp/sp3_wrapper_check.php` :
 ```php
 <?php declare(strict_types=1);
 chdir('/home/foxtrot/Téléchargements/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6/labelleeglise');
@@ -54,7 +54,7 @@ assert(count($rows) === 2, 'pointCulte deleg: 2 lignes attendues, vu '.count($ro
 assert($rows[0]['statut'] === 'present' && (int)$rows[0]['culte_id'] === $culte, 'statut/culte_id KO');
 $svc->pointCulte($culte, '2018-12-02', [$u1, $u2]); // idempotence
 assert((int) Query::value('SELECT COUNT(*) FROM presences WHERE culte_id=? AND date_presence=?', [$culte,'2018-12-02']) === 2, 'idempotence KO');
-// hors population ignoré (via save_unit_presence path — simulé)
+// hors population ignoré (via save_unit_presence path - simulé)
 $svc->pointCulte($culte, '2018-12-02', [$u1]); // seul u1 → 1 ligne
 assert((int) Query::value('SELECT COUNT(*) FROM presences WHERE culte_id=? AND date_presence=?', [$culte,'2018-12-02']) === 1, 'remplacement KO');
 $src = file_get_contents('app/Controllers/ActionsController.php');
@@ -64,9 +64,9 @@ Query::run('DELETE FROM presences WHERE culte_id=? AND date_presence=?', [$culte
 echo "OK sp3 wrapper\n";
 ```
 - [ ] **Step 2: FAIL** (`pointCulte` fait encore l'ancien DELETE/INSERT via le repo ; l'assertion `save_unit_presence('cult'` échoue).
-- [ ] **Step 3: `AttendanceService::pointCulte`** — remplacer le corps par la délégation (voir Interfaces). Garder la signature.
-- [ ] **Step 4: `case 'point_culte'`** — remplacer par le wrapper de la spec §4. `\App\Core\Query` est importé dans `ActionsController`.
-- [ ] **Step 5: `AttendanceRepository::pointCulte`** — ajouter `/** @deprecated Plus appelé (SP-3). Conservé pour compat. */` au-dessus.
+- [ ] **Step 3: `AttendanceService::pointCulte`** - remplacer le corps par la délégation (voir Interfaces). Garder la signature.
+- [ ] **Step 4: `case 'point_culte'`** - remplacer par le wrapper de la spec §4. `\App\Core\Query` est importé dans `ActionsController`.
+- [ ] **Step 5: `AttendanceRepository::pointCulte`** - ajouter `/** @deprecated Plus appelé (SP-3). Conservé pour compat. */` au-dessus.
 - [ ] **Step 6: GREEN + `php -l` (3 fichiers) + commit** `refactor(presences): point_culte et pointCulte délèguent à pointOccurrence (dépréciés)`.
 
 ---
@@ -75,7 +75,7 @@ echo "OK sp3 wrapper\n";
 
 **Files:** `app/Compat/sections.php`, suppression `Views/pages/culte_detail.php` ; test `tmp/sp3_render_check.php`
 
-- [ ] **Step 1: Assertion** — `tmp/sp3_render_check.php` :
+- [ ] **Step 1: Assertion** - `tmp/sp3_render_check.php` :
 ```php
 <?php declare(strict_types=1);
 chdir('/home/foxtrot/Téléchargements/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6/labelleeglise');
@@ -91,7 +91,7 @@ assert(strpos(file_get_contents('Routes/web.php').file_get_contents('app/Compat/
 echo "OK sp3 render\n";
 ```
 - [ ] **Step 2: FAIL**.
-- [ ] **Step 3: Réécrire `render_culte_detail()`** — garder `get_culte` + redirect si absent + `has_verified_access('cultes', $culteId)` + `render_gate`. Ensuite :
+- [ ] **Step 3: Réécrire `render_culte_detail()`** - garder `get_culte` + redirect si absent + `has_verified_access('cultes', $culteId)` + `render_gate`. Ensuite :
 ```php
     $culteMembers = Query::all("SELECT * FROM users WHERE role IN ('membre','leader','assistant','pasteur','reverant') ORDER BY prenom, nom");
     $tab = nav('tab');
@@ -105,7 +105,7 @@ echo "OK sp3 render\n";
 
 ### Task 3: Non-régression + balayage
 
-- [ ] `grep -rn "culte_detail\|point_culte\|pointCulte\|'pointage'" app/ Views/ Routes/` — attendu : `point_culte` (action wrapper `@deprecated`), `pointCulte` (service délégation + repo `@deprecated`), `point_culte_presence` (compat). **Aucun** `pages/culte_detail`, **aucun** onglet `'pointage'`.
+- [ ] `grep -rn "culte_detail\|point_culte\|pointCulte\|'pointage'" app/ Views/ Routes/` - attendu : `point_culte` (action wrapper `@deprecated`), `pointCulte` (service délégation + repo `@deprecated`), `point_culte_presence` (compat). **Aucun** `pages/culte_detail`, **aucun** onglet `'pointage'`.
 - [ ] Repo-wide `php -l` ; `php install.php` ; re-lancer `tmp/sp3_wrapper_check.php` + `tmp/sp3_render_check.php` + les scripts M1 présence (`pointOccurrence`, matrice) + le smoke SP-2 (`presence_occurrence` rend le composant).
 - [ ] Parcours substitué : smoke render `render_unit_presence_tab('cult', 'cultes', <culte>, 'presences', <members>)` → contient `name="statut[` et `unit_type" value="cult"` ; `tab=presences_annuel` rend la matrice ; `presencePrint?unit_type=cult&unit_id=<id>` rend la fiche imprimable.
 - [ ] commit `chore(cultes): non-régression unification pointage culte`.
@@ -114,11 +114,11 @@ echo "OK sp3 render\n";
 
 ## Self-Review
 
-**Spec coverage :** onglet « Pointage rapide » retiré (T2) ; `culte_detail.php` supprimé (T2) ; `point_culte` conservé comme wrapper `@deprecated` routant vers `pointOccurrence` (T1) ; `AttendanceService::pointCulte` délègue (T1) ; `AttendanceRepository::pointCulte` marqué `@deprecated` (T1) ; zéro migration / zéro perte (les lignes `culte_id` restent lues à l'identique — testé T1) ; `nb_presents` de la grille reste correct (occurrence écrit `culte_id` — vérifié T3) ; `tab=presences_annuel` + impression + `save_presence_occurrence unit_type=cult` intacts (T3).
+**Spec coverage :** onglet « Pointage rapide » retiré (T2) ; `culte_detail.php` supprimé (T2) ; `point_culte` conservé comme wrapper `@deprecated` routant vers `pointOccurrence` (T1) ; `AttendanceService::pointCulte` délègue (T1) ; `AttendanceRepository::pointCulte` marqué `@deprecated` (T1) ; zéro migration / zéro perte (les lignes `culte_id` restent lues à l'identique - testé T1) ; `nb_presents` de la grille reste correct (occurrence écrit `culte_id` - vérifié T3) ; `tab=presences_annuel` + impression + `save_presence_occurrence unit_type=cult` intacts (T3).
 
-**Placeholder scan :** une tranche bornée — `AttendanceRepository::pointCulte` marqué `@deprecated` plutôt que supprimé (moins risqué ; un futur SP de nettoyage le retirera). Aucun TODO ouvert.
+**Placeholder scan :** une tranche bornée - `AttendanceRepository::pointCulte` marqué `@deprecated` plutôt que supprimé (moins risqué ; un futur SP de nettoyage le retirera). Aucun TODO ouvert.
 
-**Type consistency :** `pointCulte(int,string,array):void` signature inchangée (T1) — les appelants (`point_culte_presence` compat) restent valides. Le wrapper `point_culte` poste vers `save_unit_presence('cult', …)` qui attend `(string $unitType, int $unitId, string $date, array $rawStatuts, array $allowedUserIds)` — respecté.
+**Type consistency :** `pointCulte(int,string,array):void` signature inchangée (T1) - les appelants (`point_culte_presence` compat) restent valides. Le wrapper `point_culte` poste vers `save_unit_presence('cult', …)` qui attend `(string $unitType, int $unitId, string $date, array $rawStatuts, array $allowedUserIds)` - respecté.
 
 ## Execution Handoff
 

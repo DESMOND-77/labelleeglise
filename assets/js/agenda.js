@@ -1,4 +1,4 @@
-/* Agenda unifié — sélection d'un jour sans rechargement + restauration du scroll.
+/* Agenda unifié - sélection d'un jour sans rechargement + restauration du scroll.
    Aucune dépendance. Chargé uniquement sur ?page=agenda (voir layout.php). */
 (function () {
   'use strict';
@@ -64,7 +64,7 @@
     }
 
     function birthdayLine(b) {
-      var age = (b.age !== null && b.age !== undefined) ? ' — ' + (b.age | 0) + ' ans' : '';
+      var age = (b.age !== null && b.age !== undefined) ? ' - ' + (b.age | 0) + ' ans' : '';
       return '<li>🎂 ' + esc(b.nom) + age + '</li>';
     }
 

@@ -5,7 +5,7 @@ $cls = ['present' => 'presence-cell-present', 'absent' => 'presence-cell-absent'
 <div class="section-toolbar">
   <div>
     <h2><?= h($unit['nom']) ?></h2>
-    <div class="sub">Présences <?= (int) $year ?> — matrice annuelle</div>
+    <div class="sub">Présences <?= (int) $year ?> - matrice annuelle</div>
   </div>
   <div class="toolbar-actions">
     <form method="get" action="index.php" class="inline-form">
@@ -34,7 +34,7 @@ $cls = ['present' => 'presence-cell-present', 'absent' => 'presence-cell-absent'
         <tr>
           <td><?= h(full_name($row['user'])) ?></td>
           <?php foreach ($matrix['dates'] as $d): $s = $row['cells'][$d] ?? ''; ?>
-            <td class="<?= h($cls[$s] ?? '') ?>"><?= $s ? h(mb_substr($statuts[$s], 0, 1)) : '—' ?></td>
+            <td class="<?= h($cls[$s] ?? '') ?>"><?= $s ? h(mb_substr($statuts[$s], 0, 1)) : '-' ?></td>
           <?php endforeach; ?>
         </tr>
       <?php endforeach; ?>

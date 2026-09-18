@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Migration 001 — Schéma complet de la base « la_belle_eglise_db ».
+ * Migration 001 - Schéma complet de la base « la_belle_eglise_db ».
  * -------------------------------------------------------------
  * Tables : centres, users, bacentas, basontas, users_basontas, cultes,
  * presences, offrandes, dimes, visites, suivi_hebdo, examens, veillees,
@@ -248,7 +248,7 @@ function up(): void
         // Table polymorphe unique : user × responsibility_type × target_type
         // × target_id. `target_type` est un VARCHAR (pas un ENUM) pour que
         // de futurs types de cibles (département, province, activité,
-        // événement, groupe — voir spec §49) n'exigent jamais de migration
+        // événement, groupe - voir spec §49) n'exigent jamais de migration
         // de schéma. Pas de FK sur target_id (polymorphe) : l'existence de
         // la cible est validée au niveau service (ResponsibilityService).
         "CREATE TABLE IF NOT EXISTS responsibilities (
@@ -398,16 +398,16 @@ function up(): void
      * Le ministère des placiers s'écrit « ushers ». BASONTAS_DEFAULT corrige
      * les nouvelles installations (via le seeder) ; cette requête répare les
      * bases déjà en place. Idempotente : aucun effet si la ligne n'existe
-     * pas ou a déjà été renommée. `basontas.nom` n'est pas UNIQUE — aucune
+     * pas ou a déjà été renommée. `basontas.nom` n'est pas UNIQUE - aucune
      * collision de clé possible.
      */
     $pdo->exec("UPDATE basontas SET nom = 'Ushers' WHERE nom = 'Ashers'");
 
-    /* ---- 10. M1 — Présences par occurrence -------------------------------
+    /* ---- 10. M1 - Présences par occurrence -------------------------------
      * a) Récurrence hebdomadaire des unités : jour(s) de la semaine (CSV de
      *    libellés WEEK_DAYS, ex. "Vendredi" ou "Lundi,Mercredi") + plage
      *    horaire facultative. `cultes` a déjà heure_debut/heure_fin.
-     * b) `presences.statut` : Présent / Absent / Excusé. Défaut 'present' —
+     * b) `presences.statut` : Présent / Absent / Excusé. Défaut 'present' -
      *    une ligne de présence existante signifiait déjà "présent".
      * c) Index d'unicité : une ligne de présence par (personne, date, unité).
      *    centre_id est inclus (des lignes "centre" existent dans la table).
@@ -465,11 +465,11 @@ function up(): void
         );
     }
 
-    /* ---- 11. M4 — Calendriers (événements + anniversaires) --------------
+    /* ---- 11. M4 - Calendriers (événements + anniversaires) --------------
      * a) evenements : nom, plage date/heure, lieu, responsable, créateur.
      * b) anniversaires : saisies manuelles (personnes sans compte). Les
      *    anniversaires des membres sont dérivés de users.date_naissance.
-     * c) Addendum M1 : une occurrence d'événement devient pointable —
+     * c) Addendum M1 : une occurrence d'événement devient pointable -
      *    presences.evenement_id + reconstruction de l'index uniq_presence.
      */
     $pdo->exec(
@@ -522,9 +522,9 @@ function up(): void
         );
     }
 
-    /* ---- 12. M5 — Rapport du Jour des responsables de bacenta -----------
+    /* ---- 12. M5 - Rapport du Jour des responsables de bacenta -----------
      * Un rapport par (centre, date). resp_centre_nom / resp_bacenta_nom sont
-     * un INSTANTANÉ rempli côté service depuis `responsibilities` — jamais
+     * un INSTANTANÉ rempli côté service depuis `responsibilities` - jamais
      * saisis par le client. bacenta_id facultatif (rapport au niveau centre).
      */
     $pdo->exec(
@@ -557,13 +557,21 @@ function up(): void
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
     );
 
-    /* ---- 13. M6 — Classes / Écoles post-culte (discipleship) -----------
+    if (!column_exists($pdo, 'offrandes', 'rapport_id')) {
+        $pdo->exec('ALTER TABLE offrandes ADD COLUMN rapport_id INT NULL AFTER bacenta_id');
+        $pdo->exec('ALTER TABLE offrandes ADD CONSTRAINT fk_off_rapport FOREIGN KEY (rapport_id) REFERENCES rapports_jour(id) ON DELETE CASCADE');
+    }
+    if (!index_exists($pdo, 'offrandes', 'uniq_off_rapport')) {
+        $pdo->exec('CREATE UNIQUE INDEX uniq_off_rapport ON offrandes (rapport_id)');
+    }
+
+    /* ---- 13. M6 - Classes / Écoles post-culte (discipleship) -----------
      * classes : cursus (nom, formateur, ordre de progression, nb de modules,
      * prochaine session, actif). classe_inscrits : un inscrit par (classe,
-     * user) — modules validés + statut des examens oral/écrit. Progression
+     * user) - modules validés + statut des examens oral/écrit. Progression
      * automatique gérée côté service (ClasseService). Les 7 cursus par
      * défaut sont semés ici si la table est vide (le DatabaseSeeder fait un
-     * TRUNCATE d'une liste figée et ne rejoue pas — inadapté).
+     * TRUNCATE d'une liste figée et ne rejoue pas - inadapté).
      */
     $pdo->exec(
         "CREATE TABLE IF NOT EXISTS classes (
@@ -600,6 +608,20 @@ function up(): void
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
     );
 
+    // Les notes et dates sont propres à chaque type d'examen. Les anciennes
+    // colonnes restent lues pour compatibilité avec les données existantes.
+    $classeEvaluationColumns = [
+        'exam_oral_note'  => "ALTER TABLE classe_inscrits ADD COLUMN exam_oral_note DECIMAL(5,2) NULL AFTER exam_oral",
+        'exam_oral_date'  => "ALTER TABLE classe_inscrits ADD COLUMN exam_oral_date DATE NULL AFTER exam_oral_note",
+        'exam_ecrit_note' => "ALTER TABLE classe_inscrits ADD COLUMN exam_ecrit_note DECIMAL(5,2) NULL AFTER exam_ecrit",
+        'exam_ecrit_date' => "ALTER TABLE classe_inscrits ADD COLUMN exam_ecrit_date DATE NULL AFTER exam_ecrit_note",
+    ];
+    foreach ($classeEvaluationColumns as $column => $alterSql) {
+        if (!column_exists($pdo, 'classe_inscrits', $column)) {
+            $pdo->exec($alterSql);
+        }
+    }
+
     // Seed idempotent des 7 cursus : uniquement si aucune classe n'existe.
     if ((int) $pdo->query('SELECT COUNT(*) FROM classes')->fetchColumn() === 0) {
         $cursus = [
@@ -617,11 +639,11 @@ function up(): void
         }
     }
 
-    /* ---- 14. M2 — Budget Bus du dimanche par centre -------------------
+    /* ---- 14. M2 - Budget Bus du dimanche par centre -------------------
      * Sommes retirées / collectées par centre pour le bus du dimanche.
      * Une ligne = un mouvement (centre, date, montant, observations).
      * Les sous-totaux (par centre, par mois) et le total année sont
-     * calculés à la volée côté service — aucune donnée dérivée stockée.
+     * calculés à la volée côté service - aucune donnée dérivée stockée.
      */
     $pdo->exec(
         "CREATE TABLE IF NOT EXISTS bus_budget (

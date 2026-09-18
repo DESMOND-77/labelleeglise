@@ -1,5 +1,5 @@
 <?php
-/* Fiche présences imprimable — page autonome (pas de sidebar/topbar).
+/* Fiche présences imprimable - page autonome (pas de sidebar/topbar).
  * Variables : $member, $rows (list<{date_presence,statut,activity_type,activity_nom}>),
  *             $periodLabel, $from, $to, $type, $statut, $printedAt. */
 $activityLabels = [
@@ -16,7 +16,7 @@ $activityLabels = [
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fiche présences — <?= h(full_name($member)) ?> — <?= h(APP_NAME) ?></title>
+  <title>Fiche présences - <?= h(full_name($member)) ?> - <?= h(APP_NAME) ?></title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="stylesheet" href="assets/css/app.css">
   <link rel="stylesheet" href="assets/css/print.css">
@@ -37,7 +37,7 @@ $activityLabels = [
       <label>au <input type="date" name="to" value="<?= h($to ?? '') ?>"></label>
       <label>Type
         <select name="type">
-          <option value="">— Tous —</option>
+          <option value="">- Tous -</option>
           <?php foreach ($activityLabels as $k => $lbl): ?>
             <option value="<?= h($k) ?>" <?= ($type ?? '') === $k ? 'selected' : '' ?>><?= h($lbl) ?></option>
           <?php endforeach; ?>
@@ -45,7 +45,7 @@ $activityLabels = [
       </label>
       <label>Statut
         <select name="statut">
-          <option value="">— Tous —</option>
+          <option value="">- Tous -</option>
           <?php foreach (PRESENCE_STATUTS as $k => $lbl): ?>
             <option value="<?= h($k) ?>" <?= ($statut ?? '') === $k ? 'selected' : '' ?>><?= h($lbl) ?></option>
           <?php endforeach; ?>
@@ -60,7 +60,7 @@ $activityLabels = [
     </div>
 
     <h1 class="print-title">Fiche de présences</h1>
-    <p class="print-sub"><?= h(full_name($member)) ?> — <?= h(ROLE_LABELS[$member['role']] ?? $member['role']) ?> — <?= h($periodLabel) ?></p>
+    <p class="print-sub"><?= h(full_name($member)) ?> - <?= h(ROLE_LABELS[$member['role']] ?? $member['role']) ?> - <?= h($periodLabel) ?></p>
 
     <table class="print-table">
       <thead>
@@ -72,12 +72,12 @@ $activityLabels = [
             <?php
               $ts = strtotime((string) $r['date_presence']);
               $typeLbl = $activityLabels[$r['activity_type']] ?? $r['activity_type'];
-              $statutLbl = PRESENCE_STATUTS[$r['statut']] ?? ($r['statut'] ?: '—');
+              $statutLbl = PRESENCE_STATUTS[$r['statut']] ?? ($r['statut'] ?: '-');
             ?>
             <tr>
               <td><?= h(date('d/m/Y', $ts)) ?></td>
               <td><?= h(date('o-\WW', $ts)) ?></td>
-              <td><?= h(trim($typeLbl . ' — ' . ($r['activity_nom'] ?? ''), ' —')) ?></td>
+              <td><?= h(trim($typeLbl . ' - ' . ($r['activity_nom'] ?? ''), ' -')) ?></td>
               <td><?= presence_badge($statutLbl) ?></td>
             </tr>
           <?php endforeach; ?>
@@ -87,7 +87,7 @@ $activityLabels = [
       </tbody>
     </table>
 
-    <div class="print-footer"><?= h(APP_NAME) ?> — Fiche générée automatiquement, à usage administratif.</div>
+    <div class="print-footer"><?= h(APP_NAME) ?> - Fiche générée automatiquement, à usage administratif.</div>
   </div>
 </body>
 

@@ -66,7 +66,7 @@ class ProfileService
 
     /**
      * Traite l'upload de photo si un fichier a été soumis : validation
-     * réelle du contenu (Upload::photo — getimagesize, pas l'extension),
+     * réelle du contenu (Upload::photo - getimagesize, pas l'extension),
      * suppression de l'ancienne photo, mise à jour en base.
      *
      * @return array{ok:bool, error:?string} error='invalid_image' si un fichier a été soumis mais rejeté

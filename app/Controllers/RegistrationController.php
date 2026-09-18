@@ -19,7 +19,7 @@ class RegistrationController extends Controller
         $this->registrations = $registrations ?? new RegistrationService();
     }
 
-    /** GET ?page=register — formulaire d'inscription publique. */
+    /** GET ?page=register - formulaire d'inscription publique. */
     public function form(): void
     {
         echo view('pages/register', [
@@ -29,7 +29,7 @@ class RegistrationController extends Controller
         ]);
     }
 
-    /** GET ?page=verify_email&token=... — vérification du lien reçu par email. */
+    /** GET ?page=verify_email&token=... - vérification du lien reçu par email. */
     public function verify(): void
     {
         $token = (string) (Request::get('token') ?? '');
@@ -42,7 +42,7 @@ class RegistrationController extends Controller
     }
 
     /**
-     * POST action=register — traitement du formulaire d'inscription publique.
+     * POST action=register - traitement du formulaire d'inscription publique.
      * Validation entièrement côté serveur (ne fait jamais confiance au JS).
      * Le rôle n'est JAMAIS lu depuis la requête : il est imposé par
      * RegistrationService/UserRepository::createRegistration().

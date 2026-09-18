@@ -1,5 +1,5 @@
 <?php
-/* Email — vérification de la NOUVELLE adresse (changement d'email).
+/* Email - vérification de la NOUVELLE adresse (changement d'email).
  * Variables : $user, $newEmail, $verifyUrl, $expiresHours, $appName. */
 $prenom = h($user['prenom'] ?? '');
 $nom = h($user['nom'] ?? '');
@@ -57,7 +57,7 @@ $expiresHours = (int) ($expiresHours ?? 24);
         </tr>
         <tr>
           <td style="padding:20px 32px;border-top:1px solid #F0F1F5;">
-            <p style="margin:0;font-size:12px;color:#9CA3AF;text-align:center;"><?= $appName ?> — Plateforme de gestion des membres</p>
+            <p style="margin:0;font-size:12px;color:#9CA3AF;text-align:center;"><?= $appName ?> - Plateforme de gestion des membres</p>
           </td>
         </tr>
       </table>

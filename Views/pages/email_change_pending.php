@@ -1,11 +1,11 @@
-<?php /* "Vérifiez votre nouvel email" — affichée juste après la déconnexion immédiate (spec §12). */ ?>
+<?php /* "Vérifiez votre nouvel email" - affichée juste après la déconnexion immédiate (spec §12). */ ?>
 <!DOCTYPE html>
 <html lang="fr">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vérifiez votre nouvel email — <?= h(APP_NAME) ?></title>
+  <title>Vérifiez votre nouvel email - <?= h(APP_NAME) ?></title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96x96.png">
   <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml" sizes="any">

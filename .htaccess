@@ -1,8 +1,8 @@
 # ============================================================
-# La Belle Église — sécurité Apache (racine du projet = racine web)
+# La Belle Église - sécurité Apache (racine du projet = racine web)
 # ------------------------------------------------------------
 # Ce projet ne pointe pas la racine web vers un dossier public/
-# séparé (compatibilité hébergement mutualisé — voir ARCHITECTURE.md) :
+# séparé (compatibilité hébergement mutualisé - voir ARCHITECTURE.md) :
 # app/, Config/, Database/, Storage/, .env, .git, etc. sont physiquement
 # à côté d'index.php. Ce fichier empêche leur accès direct par HTTP.
 # ============================================================
@@ -57,7 +57,7 @@ ServerSignature Off
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
-  # Dossiers applicatifs : jamais accessibles directement en HTTP —
+  # Dossiers applicatifs : jamais accessibles directement en HTTP -
   # uniquement via index.php (front controller) côté serveur.
   RewriteRule ^(app|Bootstrap|Config|Database|Routes|Storage|Views|views|prompts|Bootstrap)(/|$) - [F,L,NC]
 </IfModule>

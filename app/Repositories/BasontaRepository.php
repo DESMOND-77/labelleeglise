@@ -26,7 +26,7 @@ class BasontaRepository
         );
     }
 
-    /** $respId accepté pour compatibilité mais IGNORÉ — voir BacentaRepository::create(). */
+    /** $respId accepté pour compatibilité mais IGNORÉ - voir BacentaRepository::create(). */
     public function create(string $nom, ?int $respId = null, ?string $jours = null, ?string $debut = null, ?string $fin = null): int
     {
         return Query::run(

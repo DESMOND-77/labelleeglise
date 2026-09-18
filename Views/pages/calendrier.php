@@ -66,7 +66,7 @@ if (($mode ?? 'list') === 'fiche'):
       <div class="form-group">
         <label>Responsable</label>
         <select name="responsable_id">
-          <option value="">—</option>
+          <option value="">-</option>
           <?php foreach ($responsables as $r): ?>
             <option value="<?= (int) $r['id'] ?>" <?= (int) ($old['responsable_id'] ?? ($e['responsable_id'] ?? 0)) === (int) $r['id'] ? 'selected' : '' ?>><?= h(trim($r['prenom'] . ' ' . $r['nom'])) ?></option>
           <?php endforeach; ?>

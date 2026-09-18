@@ -32,7 +32,7 @@
           <tr>
             <td><?= h(date('d/m/Y', strtotime((string) $r['date_rapport']))) ?></td>
             <td><?= h($r['centre_nom']) ?></td>
-            <td><?= h($r['bacenta_nom'] ?? '—') ?></td>
+            <td><?= h($r['bacenta_nom'] ?? '-') ?></td>
             <td><?= (int) $r['nb_presents'] ?></td>
             <td><?= h(number_format((float) $r['offrande'], 0, ',', ' ')) ?></td>
             <td><?= h(trim(($r['auteur_prenom'] ?? '') . ' ' . ($r['auteur_nom'] ?? ''))) ?></td>

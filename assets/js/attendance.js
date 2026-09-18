@@ -1,4 +1,4 @@
-/* Composant de pointage unifié — recherche, filtres, compteurs live,
+/* Composant de pointage unifié - recherche, filtres, compteurs live,
    « Tout présent » / « Réinitialiser ». Aucune dépendance, auto-gardé, defer.
    Le partial fonctionne sans ce script (radios + submit). */
 (function () {

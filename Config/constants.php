@@ -7,7 +7,7 @@
 
 declare(strict_types=1);
 
-// Rôles (enum de la table users). ROLE ≠ RESPONSABILITÉ ≠ PÉRIMÈTRE — voir
+// Rôles (enum de la table users). ROLE ≠ RESPONSABILITÉ ≠ PÉRIMÈTRE - voir
 // docs/roles-and-permissions.md. `responsable` reste dans l'ENUM SQL pour
 // compatibilité/rollback (voir migration) mais n'est plus un rôle actif :
 // il a été remplacé par `berger` + le modèle de responsabilités.
@@ -222,8 +222,8 @@ define('SUIVI_FIELDS', [
     ['key' => 'meditation',     'label' => 'Temps de méditation', 'type' => 'text'],
     ['key' => 'jourFlow',       'label' => 'Jour de prière du flow', 'type' => 'select'],
     ['key' => 'livre',          'label' => 'Livre lu', 'type' => 'text'],
-    ['key' => 'themeEveque',    'label' => 'Thème — Prédication de l\'Évêque écoutée', 'type' => 'text'],
-    ['key' => 'themeReverend',  'label' => 'Thème — Prédication du Révérend écoutée', 'type' => 'text'],
+    ['key' => 'themeEveque',    'label' => 'Thème - Prédication de l\'Évêque écoutée', 'type' => 'text'],
+    ['key' => 'themeReverend',  'label' => 'Thème - Prédication du Révérend écoutée', 'type' => 'text'],
     ['key' => 'visites',        'label' => 'Personne(s) visitée(s) en semaine', 'type' => 'text'],
     ['key' => 'invitesDimanche', 'label' => 'Personne(s) invitée(s) pour dimanche', 'type' => 'text'],
     ['key' => 'invitesApres',   'label' => 'Invité(s) après le culte / deep sea fishing', 'type' => 'text', 'sundayOnly' => true],

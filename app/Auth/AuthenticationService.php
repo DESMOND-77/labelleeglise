@@ -36,7 +36,7 @@ class AuthenticationService
         ];
     }
 
-    /** Vérifie des identifiants (email OU nom/prénom + mot de passe) — porte d'accès. */
+    /** Vérifie des identifiants (email OU nom/prénom + mot de passe) - porte d'accès. */
     public function verifyCredentials(string $name, string $password): bool
     {
         $n = mb_strtolower(trim($name));
@@ -53,7 +53,7 @@ class AuthenticationService
     /**
      * Authentifie un compte et distingue précisément la raison d'un refus
      * (email/mot de passe invalide, email non vérifié, compte en attente
-     * de validation admin, compte désactivé) — sans créer de session.
+     * de validation admin, compte désactivé) - sans créer de session.
      *
      * @return array{ok:bool, reason:string, account:?array}
      *   reason ∈ invalid | not_verified | pending | disabled | ok

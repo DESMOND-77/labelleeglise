@@ -89,7 +89,7 @@ function add_button(string $label, array $params): string
 function presence_badge(?string $val): string
 {
     if (!$val) {
-        return '<span class="badge neutral">—</span>';
+        return '<span class="badge neutral">-</span>';
     }
     $cls = $val === 'Présent' ? 'present' : 'absent';
     return '<span class="badge ' . $cls . '">' . h($val) . '</span>';
@@ -99,7 +99,7 @@ function info_rows_html(array $rows): string
 {
     $html = '';
     foreach ($rows as [$label, $val]) {
-        $html .= '<div class="info-row"><span>' . h($label) . '</span><b>' . ($val !== null && $val !== '' ? h($val) : '—') . '</b></div>';
+        $html .= '<div class="info-row"><span>' . h($label) . '</span><b>' . ($val !== null && $val !== '' ? h($val) : '-') . '</b></div>';
     }
     return $html;
 }

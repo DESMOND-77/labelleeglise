@@ -7,14 +7,14 @@ use App\Repositories\BacentaRepository;
 use App\Services\ResponsibilityService;
 
 /**
- * RBAC — périmètre du compte courant, sections autorisées, accès porte d'entrée.
+ * RBAC - périmètre du compte courant, sections autorisées, accès porte d'entrée.
  *
  * Le "scope" retourné ici gouverne uniquement la NAVIGATION / le
  * verrouillage historique (leader/pasteur/reverant/berger/ms limités à leur
- * bacenta d'APPARTENANCE — users.bacenta_id, comportement préservé).
+ * bacenta d'APPARTENANCE - users.bacenta_id, comportement préservé).
  * Les décisions d'autorisation fines (CRUD sur une ressource précise)
  * passent par AuthorizationService, qui consulte la table
- * `responsibilities` — jamais un simple rôle. Voir docs/authorization.md.
+ * `responsibilities` - jamais un simple rôle. Voir docs/authorization.md.
  */
 class RbacService
 {
@@ -35,7 +35,7 @@ class RbacService
         $this->authz = $authz ?? new AuthorizationService($this->responsibilities);
     }
 
-    /** Bacentas dont l'utilisateur est responsable (legacy : colonne responsable_id — conservé pour le kind 'responsable' historique). */
+    /** Bacentas dont l'utilisateur est responsable (legacy : colonne responsable_id - conservé pour le kind 'responsable' historique). */
     public function myBacentaIds(int $userId): array
     {
         return $this->bacentas->forResponsible($userId);
@@ -121,7 +121,7 @@ class RbacService
         return ['apropos', 'centresPresentation', 'bacentas', 'centres', 'cultes', 'basontas'];
     }
 
-    /** true si l'utilisateur peut gérer l'entité demandée (délègue à AuthorizationService — voir docs/authorization.md). */
+    /** true si l'utilisateur peut gérer l'entité demandée (délègue à AuthorizationService - voir docs/authorization.md). */
     public function canManageEntity(string $type, int $id): bool
     {
         $u = $this->auth->currentUser();

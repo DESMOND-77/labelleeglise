@@ -45,7 +45,7 @@ $renderPanel = static function (array $detail) {
       <?php else: ?>
         <ul class="agenda-detail-list">
           <?php foreach ($birthdays as $b): ?>
-            <li>🎂 <?= h((string) $b['nom']) ?><?php if (isset($b['age']) && $b['age'] !== null): ?> — <?= (int) $b['age'] ?> ans<?php endif; ?></li>
+            <li>🎂 <?= h((string) $b['nom']) ?><?php if (isset($b['age']) && $b['age'] !== null): ?> - <?= (int) $b['age'] ?> ans<?php endif; ?></li>
           <?php endforeach; ?>
         </ul>
       <?php endif; ?>
@@ -146,7 +146,7 @@ $renderPanel = static function (array $detail) {
         <div class="form-group">
           <label>Responsable</label>
           <select name="responsable_id">
-            <option value="">—</option>
+            <option value="">-</option>
             <?php foreach ($responsables as $r): ?>
               <option value="<?= (int) $r['id'] ?>" <?= (int) ($old['responsable_id'] ?? 0) === (int) $r['id'] ? 'selected' : '' ?>><?= h(trim($r['prenom'] . ' ' . $r['nom'])) ?></option>
             <?php endforeach; ?>
@@ -174,7 +174,7 @@ $renderPanel = static function (array $detail) {
         <div class="form-group">
           <label>Mois</label>
           <select name="mois" required>
-            <option value="">—</option>
+            <option value="">-</option>
             <?php foreach ($monthsFr as $i => $m): ?>
               <option value="<?= $i + 1 ?>" <?= (int) ($old['mois'] ?? 0) === $i + 1 ? 'selected' : '' ?>><?= h($m) ?></option>
             <?php endforeach; ?>

@@ -1,4 +1,4 @@
-# ⛪ La Belle Église — Application PHP modulaire
+# ⛪ La Belle Église - Application PHP modulaire
 
 Application **PHP** (server-side rendering) de gestion d'église, construite sur un
 **modèle de données MySQL/MariaDB**. Ce projet a été réorganisé selon une
@@ -31,7 +31,7 @@ aucun CLI, aucune installation. Il suffit de copier les fichiers dans la racine 
    ```
 
 3. **Copier `.env.example` en `.env`** et adapter les identifiants (base de
-   données, SMTP, URL de l'application…) — voir §7.3. Ce fichier n'est jamais
+   données, SMTP, URL de l'application…) - voir §7.3. Ce fichier n'est jamais
    versionné (`.gitignore`) ; `Config/database.php`, `Config/app.php` et
    `Config/mail.php` lisent leurs valeurs depuis ces variables d'environnement
    (via `Bootstrap/env.php`), avec des valeurs par défaut neutres si `.env`
@@ -66,7 +66,7 @@ php -S 127.0.0.1:8000
 | `admin@labelleeglise.ga` | `LBEGF` | Accès complet (admin) |
 | `user@labelleeglise.ga` | `user1111` | Membre (pages publiques) |
 | `resp.bacenta.sion@labelleeglise.ga` | `ESKLna` | Responsable du Bacenta Sion |
-| `berger.eric.bongo@labelleeglise.ga` | `BergerEB1` | Berger (leader) — fiche, suivi, bacenta |
+| `berger.eric.bongo@labelleeglise.ga` | `BergerEB1` | Berger (leader) - fiche, suivi, bacenta |
 
 ---
 
@@ -134,18 +134,18 @@ labelleeglise/
 - `uploads/` accessible en écriture ; validation des types/images au téléversement.
 - Jeton de vérification d'email généré par `random_bytes()`, stocké haché (SHA-256),
   usage unique, expiration 24h (voir §7.2).
-- Rôle **toujours** forcé à `membre` côté serveur à l'inscription publique — jamais lu
+- Rôle **toujours** forcé à `membre` côté serveur à l'inscription publique - jamais lu
   depuis la requête HTTP.
 - Activation de compte et affectation aux bacentas protégées par un contrôle
-  d'autorisation serveur (`AdminMiddleware`, RBAC) — jamais un simple bouton masqué.
+  d'autorisation serveur (`AdminMiddleware`, RBAC) - jamais un simple bouton masqué.
 
 ---
 
 ## 6. Documentation
 
-- [ARCHITECTURE.md](ARCHITECTURE.md) — décision d'architecture, principes SOLID/DRY/KISS.
-- [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) — rôle de chaque dossier/fichier.
-- [CONTRIBUTING.md](CONTRIBUTING.md) — conventions, PSR-12, workflow de contribution.
+- [ARCHITECTURE.md](ARCHITECTURE.md) - décision d'architecture, principes SOLID/DRY/KISS.
+- [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) - rôle de chaque dossier/fichier.
+- [CONTRIBUTING.md](CONTRIBUTING.md) - conventions, PSR-12, workflow de contribution.
 
 ---
 
@@ -169,7 +169,7 @@ Visiteur → Formulaire d'inscription (?page=register)
 
 ### 7.2 Schéma de base de données
 
-Colonnes ajoutées à `users` (ajoutées de façon idempotente — voir
+Colonnes ajoutées à `users` (ajoutées de façon idempotente - voir
 `Database/Migrations/2024_01_01_000000_create_schema.php`, fonction `up()` ;
 compatible ré-exécution sur une base déjà à jour) :
 
@@ -182,7 +182,7 @@ compatible ré-exécution sur une base déjà à jour) :
 | `account_status`             | `ENUM('pending','active','disabled')`, défaut `pending` | Statut de validation administrative |
 
 `compte_actif` (colonne préexistante, déjà utilisée par le login) reste
-synchronisée automatiquement : `1` quand `account_status = active`, `0` sinon —
+synchronisée automatiquement : `1` quand `account_status = active`, `0` sinon -
 tout le code existant qui lit `compte_actif` continue de fonctionner sans
 modification.
 
@@ -205,7 +205,7 @@ Nouvelle table `notifications` (centre de notifications in-app) :
 | `created_at`    | `TIMESTAMP DEFAULT CURRENT_TIMESTAMP`   |
 
 **Étape manuelle requise après mise à jour du code** : exécuter à nouveau
-`php install.php` (environnement de développement — réinitialise tout) **ou**,
+`php install.php` (environnement de développement - réinitialise tout) **ou**,
 en production, exécuter uniquement les nouvelles instructions idempotentes du
 fichier de migration (ALTER TABLE + CREATE TABLE notifications) via un petit
 script `php -r` appelant `\Database\Migrations\up()` sans passer par `down()`.
@@ -217,14 +217,14 @@ réinitialise la base.
 `app/Services/MailService.php` centralise l'envoi (aucun HTML dans les
 contrôleurs/services métier) via l'installation **vendorisée** de PHPMailer
 (`app/Core/PHPMailer/`, mappée en PSR-4 sur le namespace `PHPMailer\PHPMailer`
-dans `Bootstrap/autoload.php` — aucun Composer). Templates HTML séparés :
+dans `Bootstrap/autoload.php` - aucun Composer). Templates HTML séparés :
 
-- `Views/emails/verify-email.php` — lien de vérification (durée 24h affichée).
-- `Views/emails/registration-admin.php` — notification admin (identité,
+- `Views/emails/verify-email.php` - lien de vérification (durée 24h affichée).
+- `Views/emails/registration-admin.php` - notification admin (identité,
   contact, date, statut, bouton "Voir la demande").
-- `Views/emails/account-activated.php` — confirmation d'activation.
+- `Views/emails/account-activated.php` - confirmation d'activation.
 
-**Configuration SMTP** (`Config/mail.php`) — lue depuis des **variables
+**Configuration SMTP** (`Config/mail.php`) - lue depuis des **variables
 d'environnement** (jamais codées en dur) :
 
 ```
@@ -236,14 +236,14 @@ En local, ces variables (ainsi que `DB_HOST`/`DB_PORT`/`DB_NAME`/`DB_USER`/
 `DB_PASS`/`DB_CHARSET` et `APP_NAME`/`APP_URL`/`APP_TIMEZONE`/`APP_DEBUG`/
 `APP_SESSION_NAME`/`APP_UPLOAD_DIR`/`APP_MAX_UPLOAD_BYTES`) se définissent
 dans un fichier `.env` à la racine (copié depuis `.env.example`, **jamais
-versionné** — voir `.gitignore`), chargé automatiquement par
+versionné** - voir `.gitignore`), chargé automatiquement par
 `Bootstrap/env.php` au tout début de `Bootstrap/init.php`. En production,
 définissez plutôt les **vraies variables d'environnement du serveur**
 (configuration Apache/PHP-FPM, panneau d'hébergement) : elles sont toujours
 prioritaires sur `.env` si les deux existent. **Tant que `SMTP_HOST` n'est pas configuré, les
 emails ne sont pas envoyés** : ils sont journalisés dans `Storage/logs/mail.log`
 (et `Storage/logs/app-*.log`) sans jamais faire échouer l'inscription, la
-vérification ou l'activation en cours — une erreur d'envoi est toujours
+vérification ou l'activation en cours - une erreur d'envoi est toujours
 non bloquante.
 
 ### 7.4 Nouvelles routes
@@ -289,7 +289,7 @@ Chaque identifiant de membre soumis est ensuite **revalidé individuellement**
 (`UserRepository::findEligibleUnassignedMember()`) avant d'être affecté, le
 tout dans une transaction SQL unique (`Query::transaction()`).
 
-### 7.7 Permissions — résumé
+### 7.7 Permissions - résumé
 
 | Action                              | Qui |
 |--------------------------------------|-----|

@@ -1,4 +1,4 @@
-# SP-2 — Composant de pointage unifié & enrichi — Implementation Plan
+# SP-2 - Composant de pointage unifié & enrichi - Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: superpowers:subagent-driven-development ou superpowers:executing-plans. Steps `- [ ]`.
 
@@ -23,7 +23,7 @@
 | Fichier | Action |
 |---|---|
 | `app/Services/AttendanceService.php` | Modifier : `occurrenceSummary(...)` ; option : `occurrenceGrid` renvoie aussi le summary (voir T1) |
-| `app/Repositories/AttendanceRepository.php` | (lecture seule — `occurrenceStatuts` déjà présent) |
+| `app/Repositories/AttendanceRepository.php` | (lecture seule - `occurrenceStatuts` déjà présent) |
 | `Views/pages/partials/attendance_pointage.php` | Créer |
 | `assets/js/attendance.js` | Créer |
 | `assets/css/presences.css` | Modifier : styles du composant |
@@ -41,9 +41,9 @@
 
 **Interfaces produced:**
 - `AttendanceService::occurrenceSummary(string $unitType, int $unitId, string $date, int $totalMembers): array` → `['present'=>int,'absent'=>int,'excuse'=>int,'non_renseigne'=>int,'total'=>int]`. Implémentation : `$s = $this->attendance->occurrenceStatuts($unitType, $unitId, $date)` ; `$present = count(array_filter($s, fn($v)=>$v==='present'))` etc. ; `non_renseigne = max(0, $totalMembers - count($s))`.
-- (facultatif) `occurrenceGrid(...)` — laisser inchangé ; le contrôleur/compat appellera `occurrenceStatuts` une seule fois s'il veut éviter la double lecture, mais `occurrenceStatuts` est un `SELECT` léger (index `uniq_presence`) : la double lecture est acceptable. **Décision : ne pas modifier `occurrenceGrid`.**
+- (facultatif) `occurrenceGrid(...)` - laisser inchangé ; le contrôleur/compat appellera `occurrenceStatuts` une seule fois s'il veut éviter la double lecture, mais `occurrenceStatuts` est un `SELECT` léger (index `uniq_presence`) : la double lecture est acceptable. **Décision : ne pas modifier `occurrenceGrid`.**
 
-- [ ] **Step 1: Assertion qui échoue** — `tmp/sp2_summary_check.php` :
+- [ ] **Step 1: Assertion qui échoue** - `tmp/sp2_summary_check.php` :
 ```php
 <?php declare(strict_types=1);
 chdir('/home/foxtrot/Téléchargements/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6/labelleeglise');
@@ -73,11 +73,11 @@ echo "OK sp2 summary\n";
 
 **Contrat de variables** (spec §4) : `$unitType, $unitId, $unitLabel, $date, $dateBarUrl (array), $grid, $summary, $statuts, $joursHint, $csrf, $canPointe`.
 
-- [ ] **Step 1: Assertion** — smoke render deux fois :
+- [ ] **Step 1: Assertion** - smoke render deux fois :
   - `$canPointe=true` : la sortie contient `name="statut[`, 4 `<input type="radio"` par membre dont un `value=""`, `value="save_presence_occurrence"`, les `data-count="present"`…, `class="attendance-toolbar` et `js-only`.
   - `$canPointe=false` : pas de `name="statut[`, pas de `value="save_presence_occurrence"`, présence de `presence_badge`/badge.
 - [ ] **Step 2: FAIL**.
-- [ ] **Step 3: Créer le partial** — d'après spec §4 « Markup ». Détails :
+- [ ] **Step 3: Créer le partial** - d'après spec §4 « Markup ». Détails :
   - racine `<div class="attendance-pointage" data-total="<?= (int)$summary['total'] ?>">`.
   - barre date : `<form method="get" action="index.php" class="presence-datebar"><?php foreach ($dateBarUrl as $k=>$v): ?><input type="hidden" name="<?= h($k) ?>" value="<?= h($v) ?>"><?php endforeach; ?><label>Date</label><input type="date" name="date" value="<?= h($date) ?>" onchange="this.form.submit()"><?php if ($joursHint): ?><span class="presence-hint">Jours habituels : <?= h($joursHint) ?></span><?php endif; ?></form>`.
   - toolbar `js-only is-hidden` : `<input type="search" class="attendance-search" aria-label="Rechercher un membre" placeholder="Rechercher un membre…">` ; filtres = `<button type="button" class="attendance-filter is-active" data-filter="all">Tous</button>` + `present/absent/excuse/non_renseigne` ; actions = `<button type="button" class="attendance-all-present">✓ Tout présent</button> <button type="button" class="attendance-reset">Réinitialiser</button>`.
@@ -93,9 +93,9 @@ echo "OK sp2 summary\n";
 
 **Files:** `assets/js/attendance.js` (créer), `Views/layouts/layout.php` (include) ; test : grep + lint
 
-- [ ] **Step 1: Assertion** — `is_file` ; `str_contains(layout.php,'attendance.js')` ; le JS contient `querySelector('.attendance-pointage')`, `data-count`, `normalize(`, `addEventListener`, et **ne contient pas** `import `, `require(`, `http`.
+- [ ] **Step 1: Assertion** - `is_file` ; `str_contains(layout.php,'attendance.js')` ; le JS contient `querySelector('.attendance-pointage')`, `data-count`, `normalize(`, `addEventListener`, et **ne contient pas** `import `, `require(`, `http`.
 - [ ] **Step 2: FAIL**.
-- [ ] **Step 3: Écrire `attendance.js`** — IIFE + `DOMContentLoaded` :
+- [ ] **Step 3: Écrire `attendance.js`** - IIFE + `DOMContentLoaded` :
   - `const root = document.querySelector('.attendance-pointage'); if (!root) return;`
   - `root.querySelectorAll('.js-only').forEach(el => el.classList.remove('is-hidden'));`
   - `const rows = [...root.querySelectorAll('.attendance-row')];`
@@ -108,7 +108,7 @@ echo "OK sp2 summary\n";
   - `.attendance-all-present` → chaque row : coche `input[value="present"]` ; `recount()`. `.attendance-reset` → coche `input[value=""]` ; `recount()`.
   - `root.addEventListener('change', e => { if (e.target.matches('input[type=radio]')) recount(); })`.
   - init : `recount()`.
-- [ ] **Step 4: Include** — `layout.php` : `<script src="<?= h(url('assets/js/attendance.js')) ?>" defer></script>` près de `app.js` (toujours ; auto-gardé).
+- [ ] **Step 4: Include** - `layout.php` : `<script src="<?= h(url('assets/js/attendance.js')) ?>" defer></script>` près de `app.js` (toujours ; auto-gardé).
 - [ ] **Step 5: GREEN + `php -l layout.php` + commit** `feat(presences): attendance.js (recherche, filtres, compteurs, tout présent)`.
 
 ---
@@ -117,10 +117,10 @@ echo "OK sp2 summary\n";
 
 **Files:** `assets/css/presences.css` ; test : grep
 
-- [ ] **Step 1: Assertion** — `presences.css` contient `.segmented`, `.attendance-toolbar`, `.attendance-counts`, `.attendance-row`, `.is-hidden`, et **aucune couleur hex** (`!preg_match('/#[0-9a-fA-F]{3,6}\b/', $css)`), uniquement `var(--…)`.
+- [ ] **Step 1: Assertion** - `presences.css` contient `.segmented`, `.attendance-toolbar`, `.attendance-counts`, `.attendance-row`, `.is-hidden`, et **aucune couleur hex** (`!preg_match('/#[0-9a-fA-F]{3,6}\b/', $css)`), uniquement `var(--…)`.
 - [ ] **Step 2: FAIL**.
 - [ ] **Step 3: Ajouter les styles** :
-  - `.attendance-toolbar.is-hidden, .attendance-counts.is-hidden { display:none; }` (le `js-only` porte `is-hidden` au rendu ; le JS le retire — **inverser** : la toolbar a `class="attendance-toolbar js-only is-hidden"`, `.is-hidden{display:none}` global ; sans JS elle reste masquée).
+  - `.attendance-toolbar.is-hidden, .attendance-counts.is-hidden { display:none; }` (le `js-only` porte `is-hidden` au rendu ; le JS le retire - **inverser** : la toolbar a `class="attendance-toolbar js-only is-hidden"`, `.is-hidden{display:none}` global ; sans JS elle reste masquée).
   - `.segmented { display:inline-flex; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }`
   - `.segmented label { position:relative; }` ; `.segmented input { position:absolute; opacity:0; }` ; `.segmented span { display:block; padding:8px 10px; font-size:13px; cursor:pointer; min-height:40px; line-height:24px; }`
   - `.segmented input:checked + span` : `present`→`var(--success-soft)`/`var(--success)`, `absent`→`var(--danger-soft)`/`var(--danger)`, `excuse`→`var(--warning-soft)`/`var(--warning)`, `value=""`→`var(--bg)`/`var(--text-muted)`. (Cibler par ordre : `.segmented label:nth-child(1) input:checked + span { … }` etc., ou ajouter une classe par label.)
@@ -137,21 +137,21 @@ echo "OK sp2 summary\n";
 
 **Files:** `Views/pages/presence_occurrence.php`, `Views/pages/calendrier.php`, `app/Compat/sections.php`, `app/Controllers/CalendrierController.php` ; test `tmp/sp2_wire_check.php` + smoke
 
-- [ ] **Step 1: Assertion** — `presence_occurrence.php` et le bloc fiche de `calendrier.php` contiennent `partials/attendance_pointage` (via `view('pages/partials/attendance_pointage', …)` ou `include`) ; `render_unit_presence_tab` dans `sections.php` construit `$summary` (grep `occurrenceSummary`) ; `CalendrierController::evenementFiche` idem. Smoke render de `presence_occurrence.php` avec données minimales → contient `name="statut[` et `data-count`.
+- [ ] **Step 1: Assertion** - `presence_occurrence.php` et le bloc fiche de `calendrier.php` contiennent `partials/attendance_pointage` (via `view('pages/partials/attendance_pointage', …)` ou `include`) ; `render_unit_presence_tab` dans `sections.php` construit `$summary` (grep `occurrenceSummary`) ; `CalendrierController::evenementFiche` idem. Smoke render de `presence_occurrence.php` avec données minimales → contient `name="statut[` et `data-count`.
 - [ ] **Step 2: FAIL**.
-- [ ] **Step 3: `render_unit_presence_tab()`** (`sections.php`) — là où il rend `view('pages/presence_occurrence', [...])` : ajouter `'summary' => attendance_service()->occurrenceSummary($unitType, $unitId, $date, count($members))` aux données passées ; laisser `presence_occurrence.php` transmettre au partial (contrat §4). `$dateBarUrl` = `['page'=>$pageKey, 'id'=>$unitId, 'tab'=>'presences']`. `$unitLabel` = `$unit['nom']`. `$canPointe` = `true` (l'accès est déjà gardé en amont par `can_manage_entity`).
-- [ ] **Step 4: `presence_occurrence.php`** — remplacer le corps (barre date + tableau `<select>`) par `<?= view('pages/partials/attendance_pointage', ['unitType'=>$unitType,'unitId'=>$unit['id'],'unitLabel'=>$unit['nom'],'date'=>$date,'dateBarUrl'=>['page'=>$pageKey,'id'=>$unit['id'],'tab'=>'presences'],'grid'=>$grid,'summary'=>$summary,'statuts'=>$statuts,'joursHint'=>$joursHint,'csrf'=>$csrf,'canPointe'=>true]) ?>`. Conserver le lien « Matrice annuelle » (`$matrixUrl`) hors partial.
-- [ ] **Step 5: `CalendrierController::evenementFiche()`** — calculer `$members` (déjà fait), `$grid` (déjà via `unit_presence_grid('evenement', …)`), ajouter `$summary = attendance_service()->occurrenceSummary('evenement', $id, $date, count($members))` ; passer à la vue.
-- [ ] **Step 6: `calendrier.php`** (bloc `mode==='fiche'`, `if (!empty($canPointe))`) — remplacer le tableau `<select>` par `<?= view('pages/partials/attendance_pointage', ['unitType'=>'evenement','unitId'=>$e['id'],'unitLabel'=>$e['nom'],'date'=>$presenceDate,'dateBarUrl'=>['page'=>'calendrier','evt'=>$e['id']],'grid'=>$presenceGrid,'summary'=>$presenceSummary,'statuts'=>$presenceStatuts,'joursHint'=>'','csrf'=>$csrf,'canPointe'=>true]) ?>`.
+- [ ] **Step 3: `render_unit_presence_tab()`** (`sections.php`) - là où il rend `view('pages/presence_occurrence', [...])` : ajouter `'summary' => attendance_service()->occurrenceSummary($unitType, $unitId, $date, count($members))` aux données passées ; laisser `presence_occurrence.php` transmettre au partial (contrat §4). `$dateBarUrl` = `['page'=>$pageKey, 'id'=>$unitId, 'tab'=>'presences']`. `$unitLabel` = `$unit['nom']`. `$canPointe` = `true` (l'accès est déjà gardé en amont par `can_manage_entity`).
+- [ ] **Step 4: `presence_occurrence.php`** - remplacer le corps (barre date + tableau `<select>`) par `<?= view('pages/partials/attendance_pointage', ['unitType'=>$unitType,'unitId'=>$unit['id'],'unitLabel'=>$unit['nom'],'date'=>$date,'dateBarUrl'=>['page'=>$pageKey,'id'=>$unit['id'],'tab'=>'presences'],'grid'=>$grid,'summary'=>$summary,'statuts'=>$statuts,'joursHint'=>$joursHint,'csrf'=>$csrf,'canPointe'=>true]) ?>`. Conserver le lien « Matrice annuelle » (`$matrixUrl`) hors partial.
+- [ ] **Step 5: `CalendrierController::evenementFiche()`** - calculer `$members` (déjà fait), `$grid` (déjà via `unit_presence_grid('evenement', …)`), ajouter `$summary = attendance_service()->occurrenceSummary('evenement', $id, $date, count($members))` ; passer à la vue.
+- [ ] **Step 6: `calendrier.php`** (bloc `mode==='fiche'`, `if (!empty($canPointe))`) - remplacer le tableau `<select>` par `<?= view('pages/partials/attendance_pointage', ['unitType'=>'evenement','unitId'=>$e['id'],'unitLabel'=>$e['nom'],'date'=>$presenceDate,'dateBarUrl'=>['page'=>'calendrier','evt'=>$e['id']],'grid'=>$presenceGrid,'summary'=>$presenceSummary,'statuts'=>$presenceStatuts,'joursHint'=>'','csrf'=>$csrf,'canPointe'=>true]) ?>`.
 - [ ] **Step 7: GREEN + repo-wide `php -l` + smoke renders + commit** `feat(presences): les 4 occurrences (bacenta/basonta/culte/événement) utilisent le composant unique`.
 
-*(Note : l'onglet culte passe déjà par `render_unit_presence_tab` avec `unitType='cult'` — il hérite automatiquement du composant. SP-3 traitera la suppression de l'onglet « Pointage rapide » hérité.)*
+*(Note : l'onglet culte passe déjà par `render_unit_presence_tab` avec `unitType='cult'` - il hérite automatiquement du composant. SP-3 traitera la suppression de l'onglet « Pointage rapide » hérité.)*
 
 ---
 
 ### Task 6: Non-régression + parcours manuel substitué
 
-- [ ] `grep -rn "statut\[\|<select name=\"statut" Views/` — plus aucun `<select name="statut[`.
+- [ ] `grep -rn "statut\[\|<select name=\"statut" Views/` - plus aucun `<select name="statut[`.
 - [ ] `tmp/sp2_summary_check.php` + tous les scripts M1 présence encore verts (`pointOccurrence` inchangé).
 - [ ] Repo-wide `php -l` ; `php install.php`.
 - [ ] Parcours substitué (lint + smoke, pas de navigateur) : smoke render `pages/presence_occurrence` (bacenta) + `pages/calendrier` mode fiche + `pages/partials/attendance_pointage` `$canPointe` true/false ; grep confirmant que `save_presence_occurrence` reçoit toujours `unit_type`/`unit_id`/`date`/`statut[]` depuis le partial.
@@ -161,9 +161,9 @@ echo "OK sp2 summary\n";
 
 ## Self-Review
 
-**Spec coverage :** composant unique (T2) utilisé par bacenta/basonta/culte/événement (T5) ; 4ᵉ état « non renseigné » = radio `value=""` = pas de ligne (T2 + moteur inchangé, testé T1 non-régression) ; boutons segmentés fonctionnant sans JS (T2/T4) ; recherche + filtres + compteurs + « Tout présent »/« Réinitialiser » en JS progressif (T3) ; compteurs valeur serveur initiale (T1 `occurrenceSummary` + T2) ; sécurité inchangée (aucune modif de `save_presence_occurrence`/`pointOccurrence` — T5 ne touche que les vues et les données passées) ; idempotence/transaction déjà en place (testé T1) ; responsive + a11y (T2 `role="group"`/`aria-label`, T4 CSS mobile).
+**Spec coverage :** composant unique (T2) utilisé par bacenta/basonta/culte/événement (T5) ; 4ᵉ état « non renseigné » = radio `value=""` = pas de ligne (T2 + moteur inchangé, testé T1 non-régression) ; boutons segmentés fonctionnant sans JS (T2/T4) ; recherche + filtres + compteurs + « Tout présent »/« Réinitialiser » en JS progressif (T3) ; compteurs valeur serveur initiale (T1 `occurrenceSummary` + T2) ; sécurité inchangée (aucune modif de `save_presence_occurrence`/`pointOccurrence` - T5 ne touche que les vues et les données passées) ; idempotence/transaction déjà en place (testé T1) ; responsive + a11y (T2 `role="group"`/`aria-label`, T4 CSS mobile).
 
-**Placeholder scan :** deux tranches bornées — T3 « Tout présent » agit sur **toutes** les lignes (pas seulement visibles) ; T4 ciblage CSS des radios cochés (par `nth-child` ou classe — l'implémenteur choisit, contrainte : pas de hex). Aucun TODO ouvert.
+**Placeholder scan :** deux tranches bornées - T3 « Tout présent » agit sur **toutes** les lignes (pas seulement visibles) ; T4 ciblage CSS des radios cochés (par `nth-child` ou classe - l'implémenteur choisit, contrainte : pas de hex). Aucun TODO ouvert.
 
 **Type consistency :** `occurrenceSummary` → `{present,absent,excuse,non_renseigne,total}` consommé par T2 (compteurs) et testé T1. Contrat du partial (§4) identique dans les 4 appelants (T5). `data-status` du JS ∈ `{present,absent,excuse,non_renseigne}` cohérent avec `PRESENCE_STATUTS` + le 4ᵉ état implicite.
 

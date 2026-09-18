@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Compatibilité — pages bergers (fiche berger + suivi hebdomadaire).
+ * Compatibilité - pages bergers (fiche berger + suivi hebdomadaire).
  * Portage de l'ancien pages_bergers.php.
  */
 

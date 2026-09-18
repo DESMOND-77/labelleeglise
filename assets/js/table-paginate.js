@@ -1,4 +1,4 @@
-/* Pagination client des tableaux — auto sur chaque table.data-table dépassant
+/* Pagination client des tableaux - auto sur chaque table.data-table dépassant
    le seuil, sauf [data-no-paginate]. Aucune dépendance, defer, auto-gardé.
    Sans JS : le tableau complet reste affiché (dégradation propre). */
 (function () {

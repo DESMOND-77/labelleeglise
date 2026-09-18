@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Core\Query;
 use App\Repositories\RapportJourRepository;
 use App\Repositories\ResponsibilityRepository;
+use App\Repositories\ContributionRepository;
 
 /**
  * Rapport du Jour : validation, instantané des responsables, upsert.
@@ -15,11 +16,13 @@ class RapportJourService
 {
     private RapportJourRepository $repo;
     private ResponsibilityRepository $resp;
+    private ContributionRepository $contributions;
 
-    public function __construct(?RapportJourRepository $repo = null, ?ResponsibilityRepository $resp = null)
+    public function __construct(?RapportJourRepository $repo = null, ?ResponsibilityRepository $resp = null, ?ContributionRepository $contributions = null)
     {
         $this->repo = $repo ?? new RapportJourRepository();
         $this->resp = $resp ?? new ResponsibilityRepository();
+        $this->contributions = $contributions ?? new ContributionRepository();
     }
 
     public function report(int $id): ?array
@@ -98,9 +101,14 @@ class RapportJourService
         $ts = $date !== '' ? strtotime($date) : false;
         if ($ts === false || date('Y-m-d', $ts) !== $date) {
             $errors['date_rapport'] = 'Date invalide (format attendu AAAA-MM-JJ).';
+        } elseif ($date > date('Y-m-d')) {
+            $errors['date_rapport'] = 'La date du rapport ne peut pas être postérieure à aujourd’hui.';
         }
 
         $bacentaIdRaw = (int) ($in['bacenta_id'] ?? 0) ?: null;
+        if ($bacentaIdRaw === null) {
+            $errors['bacenta_id'] = 'Choisissez un bacenta avant de compléter le rapport.';
+        }
         if ($bacentaIdRaw !== null && $centreId > 0) {
             $allowed = array_column($this->reportableBacentas($userId, $centreId, $isAdmin), 'id');
             if (!in_array($bacentaIdRaw, $allowed, true)) {
@@ -163,7 +171,11 @@ class RapportJourService
             'resp_bacenta_nom' => $names['resp_bacenta_nom'],
         ]);
 
-        $id = $this->repo->upsert($data);
+        $id = Query::transaction(function () use ($data, $bacentaIdRaw): int {
+            $id = $this->repo->upsert($data);
+            $this->contributions->saveReportOffering($id, (int) $bacentaIdRaw, (string) $data['date_rapport'], (float) $data['offrande']);
+            return $id;
+        });
         return ['ok' => true, 'errors' => [], 'id' => $id];
     }
 }

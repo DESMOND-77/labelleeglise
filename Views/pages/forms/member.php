@@ -29,7 +29,7 @@ $isNew = !$member;
       <div class="form-group">
         <label>Bacenta d'appartenance</label>
         <select name="bacenta_id">
-          <option value="">— Aucun —</option>
+          <option value="">- Aucun -</option>
           <?= $bacentaOptions ?>
         </select>
       </div>
@@ -54,11 +54,11 @@ $isNew = !$member;
       <div class="form-grid">
         <div class="form-group">
           <label>Invité par</label>
-          <select name="invite_par"><option value="">— Aucun —</option><?= $userOptions ?></select>
+          <select name="invite_par"><option value="">- Aucun -</option><?= $userOptions ?></select>
         </div>
         <div class="form-group">
           <label>Reçu par (Akwaba)</label>
-          <select name="recu_par"><option value="">— Aucun —</option><?= $akwabaOptions ?></select>
+          <select name="recu_par"><option value="">- Aucun -</option><?= $akwabaOptions ?></select>
         </div>
         <div class="form-group"><label>Date d'arrivée</label><input type="date" name="date_recu" value="<?= h($member['date_recu'] ?? '') ?>"></div>
       </div>

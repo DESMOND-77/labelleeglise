@@ -24,6 +24,11 @@ class BusBudgetService
         return $this->repo->find($id);
     }
 
+    public function availableBalance(int $centreId, ?int $excludingId = null): float
+    {
+        return $this->repo->availableBalance($centreId, $excludingId);
+    }
+
     /**
      * Tableau annuel prêt à afficher.
      *
@@ -61,7 +66,7 @@ class BusBudgetService
     /**
      * Crée (id absent) ou met à jour (id présent) un mouvement.
      * Le contrôle de périmètre (centre autorisé) est fait en amont par
-     * l'appelant (ActionsController) — ici : validation des valeurs.
+     * l'appelant (ActionsController) - ici : validation des valeurs.
      *
      * @param array<string,mixed> $in
      * @return array{ok:bool,errors:array<string,string>,id:?int}
@@ -85,6 +90,9 @@ class BusBudgetService
         $montant = (float) str_replace([' ', ','], ['', '.'], (string) ($in['montant'] ?? ''));
         if ($montant < 0) {
             $errors['montant'] = 'Montant négatif interdit.';
+        }
+        if (!$errors && $montant > $this->availableBalance($centreId, $id)) {
+            $errors['montant'] = 'Le montant dépasse le solde disponible de la caisse du centre.';
         }
 
         $obs = trim((string) ($in['observations'] ?? ''));

@@ -1,5 +1,5 @@
 /* ========================================================
-   La Belle Église — app.js (léger)
+   La Belle Église - app.js (léger)
    Graphiques Chart.js, carrousel, confirmations.
    ======================================================== */
 
@@ -186,6 +186,22 @@ data: [charts.doughnut.present, charts.doughnut.absent, charts.doughnut.none],
     });
   }
 
+  function initBusBalance() {
+    var select = document.getElementById("busCentreSelect");
+    var amount = document.getElementById("busAmount");
+    var hint = document.querySelector("[data-bus-balance]");
+    if (!select || !amount || !hint) return;
+    var balances = {};
+    try { balances = JSON.parse(select.getAttribute("data-bus-balances") || "{}"); } catch (e) { return; }
+    function update() {
+      var balance = Number(balances[select.value] || 0);
+      amount.max = String(balance);
+      hint.innerHTML = "Solde disponible : <strong>" + balance.toLocaleString("fr-FR") + " FCFA</strong>";
+    }
+    select.addEventListener("change", update);
+    update();
+  }
+
 /* ---------------- Menu mobile ---------------- */
 
   function initMenuToggle() {
@@ -313,6 +329,7 @@ data: [charts.doughnut.present, charts.doughnut.absent, charts.doughnut.none],
     initCharts();
     initCarousel();
     initConfirms();
+    initBusBalance();
     initMenuToggle();
     initSidebarCollapse();
     initSidebarScrollRestore();

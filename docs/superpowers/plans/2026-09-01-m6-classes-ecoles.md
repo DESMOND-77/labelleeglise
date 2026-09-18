@@ -1,12 +1,12 @@
-# M6 — Classes / Écoles post-culte (discipleship) — Implementation Plan
+# M6 - Classes / Écoles post-culte (discipleship) - Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Gérer les cursus de discipleship proposés après le culte : une grille des classes (nom, formateur, nombre de modules, prochaine session, actif/inactif — CRUD complet), et pour chaque classe la liste des inscrits avec, par inscrit, le nombre de modules validés et le statut des examens oral / écrit. Quand un inscrit valide **les deux** examens (`reussi`), il est marqué `termine` et **automatiquement inscrit dans la classe d'`ordre` immédiatement supérieur**.
+**Goal:** Gérer les cursus de discipleship proposés après le culte : une grille des classes (nom, formateur, nombre de modules, prochaine session, actif/inactif - CRUD complet), et pour chaque classe la liste des inscrits avec, par inscrit, le nombre de modules validés et le statut des examens oral / écrit. Quand un inscrit valide **les deux** examens (`reussi`), il est marqué `termine` et **automatiquement inscrit dans la classe d'`ordre` immédiatement supérieur**.
 
-**Architecture:** Code neuf en couches strictes : `ClasseController` → `ClasseService` → `ClasseRepository` → `App\Core\Query`. Deux nouvelles tables (`classes`, `classe_inscrits`) dans le fichier de migration unique, plus un **seed idempotent des 7 cursus dans la migration elle-même** (le `DatabaseSeeder` fait un TRUNCATE d'une liste figée et ne rejoue pas — inadapté). Deux routes GET (`classes` grille, `classe` détail), quatre actions (`save_classe`, `save_classe_inscrit` en POST ; `delete_classe`, `remove_classe_inscrit` en GET). Nouveau helper RBAC `auth_can_manage_classes()`. La progression automatique se fait dans `ClasseService` sous `Query::transaction()`, idempotente via `UNIQUE(classe_id, user_id)`.
+**Architecture:** Code neuf en couches strictes : `ClasseController` → `ClasseService` → `ClasseRepository` → `App\Core\Query`. Deux nouvelles tables (`classes`, `classe_inscrits`) dans le fichier de migration unique, plus un **seed idempotent des 7 cursus dans la migration elle-même** (le `DatabaseSeeder` fait un TRUNCATE d'une liste figée et ne rejoue pas - inadapté). Deux routes GET (`classes` grille, `classe` détail), quatre actions (`save_classe`, `save_classe_inscrit` en POST ; `delete_classe`, `remove_classe_inscrit` en GET). Nouveau helper RBAC `auth_can_manage_classes()`. La progression automatique se fait dans `ClasseService` sous `Query::transaction()`, idempotente via `UNIQUE(classe_id, user_id)`.
 
-**Tech Stack:** PHP 8 SSR, micro-framework maison, zéro dépendance. MySQL/MariaDB via `App\Core\Query`. Pas de PHPUnit — vérification = `php -l` + scripts d'assertion `php` contre la base de dev + smoke-render des vues.
+**Tech Stack:** PHP 8 SSR, micro-framework maison, zéro dépendance. MySQL/MariaDB via `App\Core\Query`. Pas de PHPUnit - vérification = `php -l` + scripts d'assertion `php` contre la base de dev + smoke-render des vues.
 
 **Spec:** `docs/superpowers/specs/2026-09-01-integration-modules-eglise-design.md` (§4 « M6 »)
 
@@ -19,12 +19,12 @@
 - CSS modulaire sous `assets/css/`, `@import` dans `assets/css/app.css`, variables de `assets/css/variables.css` (`--primary --primary-soft --card --border --text --text-soft --text-muted --success --danger --warning --space-1..12 --radius --radius-md --radius-sm --shadow-sm --shadow-xs`), aucun style/script inline dans une vue (`onchange="this.form.submit()"` = motif projet établi, autorisé).
 - Ne jamais casser une URL, l'auth, un formulaire existant. On ajoute une page.
 - RBAC sur les données, jamais seulement l'affichage. Un `classe_id` / `user_id` / `id` reçu n'est jamais fait confiance : re-vérifier côté serveur (`auth_can_manage_classes()`), revalider le `user_id` d'un inscrit (doit être un compte membre plausible).
-- `check_csrf()` est déjà appelé une fois en tête de `ActionsController::postAction()` — les nouveaux cas POST n'en ajoutent aucun ; les suppressions GET ne sont pas protégées CSRF dans ce projet (motif `delete_evenement`) — reproduire tel quel.
+- `check_csrf()` est déjà appelé une fois en tête de `ActionsController::postAction()` - les nouveaux cas POST n'en ajoutent aucun ; les suppressions GET ne sont pas protégées CSRF dans ce projet (motif `delete_evenement`) - reproduire tel quel.
 - `install.php` reste supprimable.
 - Comptes de démo : `admin@labelleeglise.ga` / `LBEGF` (admin) ; `berger.eric.bongo@labelleeglise.ga` / `BergerEB1` (berger) ; `resp.bacenta.sion@labelleeglise.ga` / `ESKLna` (responsable) ; `user@labelleeglise.ga` / `user1111` (membre).
-- Base de dev joignable : MySQL `127.0.0.1:3306`, `root`, db `la_belle_eglise_db` (`.env` configuré). Si vide, repeupler avec `Database\Seeders\seed()` (non destructif du schéma) — ne pas committer d'artefact.
+- Base de dev joignable : MySQL `127.0.0.1:3306`, `root`, db `la_belle_eglise_db` (`.env` configuré). Si vide, repeupler avec `Database\Seeders\seed()` (non destructif du schéma) - ne pas committer d'artefact.
 
-## Décisions de cadrage (spec §4 M6 + Q/R — tranchées ici, spec = autorité)
+## Décisions de cadrage (spec §4 M6 + Q/R - tranchées ici, spec = autorité)
 
 1. **Seed des 7 cursus dans la migration**, gardé par `classes` vide. Le `DatabaseSeeder` n'est pas modifié.
 2. **`auth_can_manage_classes()`** = admin **OU** (`role ∈ {'berger','ms','pasteur','reverant'}` **ET** l'utilisateur possède ≥ 1 ligne `responsibilities` avec `responsibility_type = 'manager'`). `leader` est volontairement exclu (spec). C'est aussi le gate d'accès aux deux pages et à toutes les actions.
@@ -38,10 +38,10 @@
 6. **Formateur** : `formateur_id` est un `<select>` de comptes `role ∈ {'berger','ms','pasteur','reverant','leader','admin'}`, facultatif (`NULL`).
 7. **Inscription d'un membre** : `<select>` des comptes `role IN ('membre','leader','assistant','pasteur','reverant')` pas encore inscrits à cette classe (motif `MemberRepository::candidatesForBasonta`).
 8. **Suppressions** : `delete_classe` et `remove_classe_inscrit` en GET via `getAction()` (motif `delete_evenement` / `basonta_remove_member`), gardées par `auth_can_manage_classes()`. `DELETE classes` fait tomber ses `classe_inscrits` par `ON DELETE CASCADE`.
-9. **Suivi/examens** : les colonnes `exam_note` / `exam_date` sont facultatives et purement informatives (pas de règle métier dessus). Une seule note/date par inscrit (pas d'historique) — spec ne demande pas d'historique.
-10. **Deux actions d'inscrit distinctes** (imbrication `<form>` valide — motif `Views/pages/suivi_week.php`) :
-    - `save_classe_inscrit` (singulier) — l'`inline-add-form` en haut de la fiche : `{classe_id, user_id}` seul → crée l'inscription (valeurs par défaut).
-    - `save_classe_inscrits` (pluriel) — **un seul `<form>` englobant toute la table** des inscrits, champs indexés `name="inscrit[<inscritId>][modules_valides]"`, `[exam_oral]`, `[exam_ecrit]`, `[exam_note]`, `[exam_date]`, un seul bouton « Enregistrer ». L'action itère `$_POST['inscrit']`, retrouve le `user_id` de chaque inscritId via `repo->findInscrit`, et appelle `saveInscrit(...)` par ligne (progression auto incluse).
+9. **Suivi/examens** : les colonnes `exam_note` / `exam_date` sont facultatives et purement informatives (pas de règle métier dessus). Une seule note/date par inscrit (pas d'historique) - spec ne demande pas d'historique.
+10. **Deux actions d'inscrit distinctes** (imbrication `<form>` valide - motif `Views/pages/suivi_week.php`) :
+    - `save_classe_inscrit` (singulier) - l'`inline-add-form` en haut de la fiche : `{classe_id, user_id}` seul → crée l'inscription (valeurs par défaut).
+    - `save_classe_inscrits` (pluriel) - **un seul `<form>` englobant toute la table** des inscrits, champs indexés `name="inscrit[<inscritId>][modules_valides]"`, `[exam_oral]`, `[exam_ecrit]`, `[exam_note]`, `[exam_date]`, un seul bouton « Enregistrer ». L'action itère `$_POST['inscrit']`, retrouve le `user_id` de chaque inscritId via `repo->findInscrit`, et appelle `saveInscrit(...)` par ligne (progression auto incluse).
 
 ## Constante `CLASSES_CURSUS`
 
@@ -183,25 +183,25 @@ echo "OK m6 schema\n";
 - [ ] **Step 2: Lancer, vérifier l'échec**
 
 Run: `cd /home/foxtrot/Téléchargements/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6/labelleeglise && php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m6_schema_check.php`
-Expected: FAIL — `AssertionError: table classes manquante` (ou `CLASSES_CURSUS KO`).
+Expected: FAIL - `AssertionError: table classes manquante` (ou `CLASSES_CURSUS KO`).
 
 - [ ] **Step 3: Ajouter les constantes**
 
-`Config/constants.php`, après `define('RAPPORT_JOUR_FIELDS', [ … ]);` — coller les deux `define(...)` de la section « Constante `CLASSES_CURSUS` » ci-dessus, verbatim.
+`Config/constants.php`, après `define('RAPPORT_JOUR_FIELDS', [ … ]);` - coller les deux `define(...)` de la section « Constante `CLASSES_CURSUS` » ci-dessus, verbatim.
 
 - [ ] **Step 4: Ajouter le bloc de migration**
 
-`Database/Migrations/2024_01_01_000000_create_schema.php`, dans `up()`, tout à la fin (après le bloc « 12. M5 — Rapport du Jour », avant l'accolade fermante de `up()`) :
+`Database/Migrations/2024_01_01_000000_create_schema.php`, dans `up()`, tout à la fin (après le bloc « 12. M5 - Rapport du Jour », avant l'accolade fermante de `up()`) :
 
 ```php
 
-    /* ---- 13. M6 — Classes / Écoles post-culte (discipleship) -----------
+    /* ---- 13. M6 - Classes / Écoles post-culte (discipleship) -----------
      * classes : cursus (nom, formateur, ordre de progression, nb de modules,
      * prochaine session, actif). classe_inscrits : un inscrit par (classe,
-     * user) — modules validés + statut des examens oral/écrit. Progression
+     * user) - modules validés + statut des examens oral/écrit. Progression
      * automatique gérée côté service (ClasseService). Les 7 cursus par
      * défaut sont semés ici si la table est vide (le DatabaseSeeder fait un
-     * TRUNCATE d'une liste figée et ne rejoue pas — inadapté).
+     * TRUNCATE d'une liste figée et ne rejoue pas - inadapté).
      */
     $pdo->exec(
         "CREATE TABLE IF NOT EXISTS classes (
@@ -260,7 +260,7 @@ Expected: FAIL — `AssertionError: table classes manquante` (ou `CLASSES_CURSUS
 
 - [ ] **Step 5: Mettre à jour `down()`**
 
-Dans `down()`, la liste `$tables` — ajouter `'classes'` et `'classe_inscrits'` juste après `'rapports_jour'` :
+Dans `down()`, la liste `$tables` - ajouter `'classes'` et `'classe_inscrits'` juste après `'rapports_jour'` :
 
 ```php
     $tables = ['responsibilities', 'notifications', 'users_basontas', 'presences', 'evenements', 'anniversaires', 'rapports_jour', 'classe_inscrits', 'classes', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
@@ -311,7 +311,7 @@ EOF
 **Interfaces:**
 - Consumes: rien.
 - Produces :
-  - `auth_can_manage_classes(): bool` — `current_user()` null → false ; admin → true ; sinon `in_array($u['role'] ?? '', ['berger','ms','pasteur','reverant'], true)` **ET** `(int) \App\Core\Query::value("SELECT COUNT(*) FROM responsibilities WHERE user_id = ? AND responsibility_type = 'manager'", [$uid]) > 0`.
+  - `auth_can_manage_classes(): bool` - `current_user()` null → false ; admin → true ; sinon `in_array($u['role'] ?? '', ['berger','ms','pasteur','reverant'], true)` **ET** `(int) \App\Core\Query::value("SELECT COUNT(*) FROM responsibilities WHERE user_id = ? AND responsibility_type = 'manager'", [$uid]) > 0`.
   - `SECTION_LABELS['classes'] = 'Classes & Écoles'` ; `SECTION_ICONS['classes'] = '<i class="fa-solid fa-graduation-cap"></i>'` ; `'classes'` dans `NAV_ORDER` après `'rapports'`, avant `'parametres'`.
 
 - [ ] **Step 1: Écrire l'assertion qui échoue**
@@ -335,7 +335,7 @@ echo "OK m6 rbac\n";
 - [ ] **Step 2: Lancer, vérifier l'échec**
 
 Run: `cd /home/foxtrot/Téléchargements/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6/labelleeglise && php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m6_rbac_check.php`
-Expected: FAIL — `AssertionError: auth_can_manage_classes absente`.
+Expected: FAIL - `AssertionError: auth_can_manage_classes absente`.
 
 - [ ] **Step 3: Helper RBAC**
 
@@ -371,7 +371,7 @@ function auth_can_manage_classes(): bool
 
 - [ ] **Step 5: Lien de menu (motif hoist)**
 
-`Views/layouts/layout.php` — juste après le bloc `if ($user && !$isAdmin && auth_can_report_any()) { … }` ajouté par M5 :
+`Views/layouts/layout.php` - juste après le bloc `if ($user && !$isAdmin && auth_can_report_any()) { … }` ajouté par M5 :
 
 ```php
 // Classes / Écoles : lien pour tout gestionnaire de classes non-admin
@@ -410,21 +410,21 @@ EOF
 **Interfaces:**
 - Consumes de Task 1 : tables `classes`, `classe_inscrits`.
 - Produces : `App\Repositories\ClasseRepository`
-  - `all(): array` — `SELECT c.*, f.prenom AS formateur_prenom, f.nom AS formateur_nom, (SELECT COUNT(*) FROM classe_inscrits ci WHERE ci.classe_id = c.id) AS nb_inscrits FROM classes c LEFT JOIN users f ON f.id = c.formateur_id ORDER BY c.ordre, c.id`
-  - `find(int $id): ?array` — mêmes colonnes jointes, `WHERE c.id = ?`
+  - `all(): array` - `SELECT c.*, f.prenom AS formateur_prenom, f.nom AS formateur_nom, (SELECT COUNT(*) FROM classe_inscrits ci WHERE ci.classe_id = c.id) AS nb_inscrits FROM classes c LEFT JOIN users f ON f.id = c.formateur_id ORDER BY c.ordre, c.id`
+  - `find(int $id): ?array` - mêmes colonnes jointes, `WHERE c.id = ?`
   - `create(string $nom, ?int $formateurId, int $ordre, int $nbModules, ?string $prochaineSession, int $actif): int`
   - `update(int $id, string $nom, ?int $formateurId, int $ordre, int $nbModules, ?string $prochaineSession, int $actif): void`
-  - `delete(int $id): void` — `DELETE FROM classes WHERE id = ?`
-  - `nextActiveClassId(int $ordre): ?int` — `SELECT id FROM classes WHERE actif = 1 AND ordre > ? ORDER BY ordre ASC, id ASC LIMIT 1`
-  - `inscritsOf(int $classeId): array` — `SELECT ci.*, u.prenom, u.nom, u.email FROM classe_inscrits ci JOIN users u ON u.id = ci.user_id WHERE ci.classe_id = ? ORDER BY u.prenom, u.nom`
-  - `findInscrit(int $id): ?array` — `SELECT * FROM classe_inscrits WHERE id = ?`
+  - `delete(int $id): void` - `DELETE FROM classes WHERE id = ?`
+  - `nextActiveClassId(int $ordre): ?int` - `SELECT id FROM classes WHERE actif = 1 AND ordre > ? ORDER BY ordre ASC, id ASC LIMIT 1`
+  - `inscritsOf(int $classeId): array` - `SELECT ci.*, u.prenom, u.nom, u.email FROM classe_inscrits ci JOIN users u ON u.id = ci.user_id WHERE ci.classe_id = ? ORDER BY u.prenom, u.nom`
+  - `findInscrit(int $id): ?array` - `SELECT * FROM classe_inscrits WHERE id = ?`
   - `findInscritByClasseUser(int $classeId, int $userId): ?array`
-  - `insertInscrit(int $classeId, int $userId): int` — `INSERT IGNORE INTO classe_inscrits (classe_id, user_id) VALUES (?, ?)` ; renvoie l'id existant ou nouveau (relire via `findInscritByClasseUser` si `rowCount() === 0`)
-  - `updateInscrit(int $id, int $modulesValides, string $examOral, string $examEcrit, ?float $examNote, ?string $examDate): void` — n'écrit PAS `statut` (géré par le service)
+  - `insertInscrit(int $classeId, int $userId): int` - `INSERT IGNORE INTO classe_inscrits (classe_id, user_id) VALUES (?, ?)` ; renvoie l'id existant ou nouveau (relire via `findInscritByClasseUser` si `rowCount() === 0`)
+  - `updateInscrit(int $id, int $modulesValides, string $examOral, string $examEcrit, ?float $examNote, ?string $examDate): void` - n'écrit PAS `statut` (géré par le service)
   - `setInscritStatut(int $id, string $statut): void`
   - `deleteInscrit(int $id): void`
-  - `candidates(int $classeId): array` — `SELECT id, prenom, nom FROM users WHERE role IN ('membre','leader','assistant','pasteur','reverant') AND id NOT IN (SELECT user_id FROM classe_inscrits WHERE classe_id = ?) ORDER BY prenom, nom`
-  - `formateurCandidates(): array` — `SELECT id, prenom, nom FROM users WHERE role IN ('berger','ms','pasteur','reverant','leader','admin') ORDER BY prenom, nom`
+  - `candidates(int $classeId): array` - `SELECT id, prenom, nom FROM users WHERE role IN ('membre','leader','assistant','pasteur','reverant') AND id NOT IN (SELECT user_id FROM classe_inscrits WHERE classe_id = ?) ORDER BY prenom, nom`
+  - `formateurCandidates(): array` - `SELECT id, prenom, nom FROM users WHERE role IN ('berger','ms','pasteur','reverant','leader','admin') ORDER BY prenom, nom`
 
 - [ ] **Step 1: Écrire l'assertion qui échoue**
 
@@ -472,7 +472,7 @@ echo "OK m6 repo\n";
 - [ ] **Step 2: Lancer, vérifier l'échec**
 
 Run: `cd /home/foxtrot/Téléchargements/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6/labelleeglise && php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m6_repo_check.php`
-Expected: FAIL — `Error: Class "App\Repositories\ClasseRepository" not found`.
+Expected: FAIL - `Error: Class "App\Repositories\ClasseRepository" not found`.
 
 - [ ] **Step 3: Créer `app/Repositories/ClasseRepository.php`**
 
@@ -635,10 +635,10 @@ EOF
 - Consumes de Task 3 : `ClasseRepository`. De Task 1 : `EXAM_STATUTS`.
 - Produces : `App\Services\ClasseService`
   - `__construct(?ClasseRepository $repo = null)`
-  - `all(): array` / `find(int $id): ?array` / `inscrits(int $classeId): array` / `candidates(int $id): array` / `formateurCandidates(): array` / `findInscrit(int $id): ?array` — délégations.
-  - `saveClasse(array $in): array` — `['ok'=>bool,'errors'=>array<string,string>,'id'=>?int]`. Valide : `nom` requis ; `ordre` entier ≥ 0 ; `nb_modules` entier ≥ 1 ; `prochaine_session` vide ou `Y-m-d` valide ; `formateur_id` (facultatif) `?: null` ; `actif` → `0|1`. `id` présent → update.
-  - `saveInscrit(array $in): array` — `['ok'=>bool,'errors'=>array<string,string>,'id'=>?int,'promoted_to'=>?int]`.
-    - Valide : `classe_id` entier > 0 et classe existante ; `user_id` entier > 0 et compte existant (`SELECT id FROM users WHERE id = ?`) — sinon `errors`. `exam_oral` / `exam_ecrit` ∈ `array_keys(EXAM_STATUTS)` (défaut `non_passe`). `exam_note` vide ou float ; `exam_date` vide ou `Y-m-d`. `modules_valides` entier, **borné à `[0, classe.nb_modules]`**.
+  - `all(): array` / `find(int $id): ?array` / `inscrits(int $classeId): array` / `candidates(int $id): array` / `formateurCandidates(): array` / `findInscrit(int $id): ?array` - délégations.
+  - `saveClasse(array $in): array` - `['ok'=>bool,'errors'=>array<string,string>,'id'=>?int]`. Valide : `nom` requis ; `ordre` entier ≥ 0 ; `nb_modules` entier ≥ 1 ; `prochaine_session` vide ou `Y-m-d` valide ; `formateur_id` (facultatif) `?: null` ; `actif` → `0|1`. `id` présent → update.
+  - `saveInscrit(array $in): array` - `['ok'=>bool,'errors'=>array<string,string>,'id'=>?int,'promoted_to'=>?int]`.
+    - Valide : `classe_id` entier > 0 et classe existante ; `user_id` entier > 0 et compte existant (`SELECT id FROM users WHERE id = ?`) - sinon `errors`. `exam_oral` / `exam_ecrit` ∈ `array_keys(EXAM_STATUTS)` (défaut `non_passe`). `exam_note` vide ou float ; `exam_date` vide ou `Y-m-d`. `modules_valides` entier, **borné à `[0, classe.nb_modules]`**.
     - `Query::transaction(function () { … })` :
       1. `insertInscrit(classe_id, user_id)` → `$inscritId` (crée si absent).
       2. `updateInscrit($inscritId, modules, oral, ecrit, note, date)`.
@@ -703,7 +703,7 @@ echo "OK m6 service\n";
 - [ ] **Step 2: Lancer, vérifier l'échec**
 
 Run: `cd /home/foxtrot/Téléchargements/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6/labelleeglise && php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m6_service_check.php`
-Expected: FAIL — `Error: Class "App\Services\ClasseService" not found`.
+Expected: FAIL - `Error: Class "App\Services\ClasseService" not found`.
 
 - [ ] **Step 3: Créer `app/Services/ClasseService.php`**
 
@@ -853,7 +853,7 @@ php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e
 php -l app/Services/ClasseService.php && php -l app/Compat/data.php
 git add app/Services/ClasseService.php app/Compat/data.php
 git commit -m "$(cat <<'EOF'
-feat(classes): ClasseService — validation + progression automatique
+feat(classes): ClasseService - validation + progression automatique
 
 saveInscrit : upsert de l'inscription (INSERT IGNORE), modules_valides
 borné à classe.nb_modules, et quand oral+écrit sont tous deux 'reussi',
@@ -880,8 +880,8 @@ EOF
 - Consumes de Task 4 : `classe_service()`. De Task 2 : `auth_can_manage_classes()`. De Task 1 : `EXAM_STATUTS`.
 - Produces :
   - `App\Controllers\ClasseController` (`declare(strict_types=1)`, extends `Controller`) :
-    - `index(): void` — GET `?page=classes`. `!current_user()` → `redirect(page=apropos)` ; `!auth_can_manage_classes()` → `redirect(page=accueil)`. `?edit=<id>` → `$edit = classe_service()->find($id)` sinon `null`. Passe à `view('pages/classes', …)` : `classes` (`service->all()`), `edit`, `formateurs` (`service->formateurCandidates()`), `errors` `[]`, `old` `[]`, `csrf`.
-    - `detail(): void` — GET `?page=classe&id=<id>`. Mêmes gardes. `$classe = service->find($id)` sinon `redirect(page=classes)`. Passe à `view('pages/classe_detail', …)` : `classe`, `inscrits` (`service->inscrits($id)`), `candidates` (`service->candidates($id)`), `statuts` (`EXAM_STATUTS`), `errors` `[]`, `old` `[]`, `csrf`.
+    - `index(): void` - GET `?page=classes`. `!current_user()` → `redirect(page=apropos)` ; `!auth_can_manage_classes()` → `redirect(page=accueil)`. `?edit=<id>` → `$edit = classe_service()->find($id)` sinon `null`. Passe à `view('pages/classes', …)` : `classes` (`service->all()`), `edit`, `formateurs` (`service->formateurCandidates()`), `errors` `[]`, `old` `[]`, `csrf`.
+    - `detail(): void` - GET `?page=classe&id=<id>`. Mêmes gardes. `$classe = service->find($id)` sinon `redirect(page=classes)`. Passe à `view('pages/classe_detail', …)` : `classe`, `inscrits` (`service->inscrits($id)`), `candidates` (`service->candidates($id)`), `statuts` (`EXAM_STATUTS`), `errors` `[]`, `old` `[]`, `csrf`.
   - Routes `Router::get('classes', ClasseController::class, 'index')`, `Router::get('classe', ClasseController::class, 'detail')` + `use App\Controllers\ClasseController;`.
   - `assets/css/app.css` : `@import url('classes.css');` après `@import url('rapports.css');`.
 
@@ -923,7 +923,7 @@ echo "OK m6 views\n";
 - [ ] **Step 2: Lancer, vérifier l'échec**
 
 Run: `cd /home/foxtrot/Téléchargements/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6/labelleeglise && php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m6_view_check.php`
-Expected: FAIL — `AssertionError: ClasseController absent`.
+Expected: FAIL - `AssertionError: ClasseController absent`.
 
 - [ ] **Step 3: Créer `app/Controllers/ClasseController.php`**
 
@@ -1022,7 +1022,7 @@ $val = fn($k, $d = '') => h($old[$k] ?? ($e[$k] ?? $d));
     <div class="form-group">
       <label>Formateur</label>
       <select name="formateur_id">
-        <option value="">—</option>
+        <option value="">-</option>
         <?php foreach ($formateurs as $f): ?>
           <option value="<?= (int) $f['id'] ?>" <?= (int) ($old['formateur_id'] ?? ($e['formateur_id'] ?? 0)) === (int) $f['id'] ? 'selected' : '' ?>><?= h(trim($f['prenom'] . ' ' . $f['nom'])) ?></option>
         <?php endforeach; ?>
@@ -1080,7 +1080,7 @@ $val = fn($k, $d = '') => h($old[$k] ?? ($e[$k] ?? $d));
   <?= $csrf ?>
   <input type="hidden" name="classe_id" value="<?= (int) $classe['id'] ?>">
   <select name="user_id" required>
-    <option value="">— Inscrire un membre —</option>
+    <option value="">- Inscrire un membre -</option>
     <?php foreach ($candidates as $u): ?>
       <option value="<?= (int) $u['id'] ?>"><?= h(trim($u['prenom'] . ' ' . $u['nom'])) ?></option>
     <?php endforeach; ?>
@@ -1121,12 +1121,12 @@ $val = fn($k, $d = '') => h($old[$k] ?? ($e[$k] ?? $d));
 </form>
 ```
 
-Notes : (a) le `<a>` « Retirer » est hors du `<form>` visuellement mais reste dans le flux DOM du form — c'est un lien GET, aucun impact sur la soumission POST ; c'est le même motif que les liens `data-confirm` ailleurs. (b) `data-table td input/select` reçoit déjà `width:100%` de `forms.css` — pas de style inline.
+Notes : (a) le `<a>` « Retirer » est hors du `<form>` visuellement mais reste dans le flux DOM du form - c'est un lien GET, aucun impact sur la soumission POST ; c'est le même motif que les liens `data-confirm` ailleurs. (b) `data-table td input/select` reçoit déjà `width:100%` de `forms.css` - pas de style inline.
 
 - [ ] **Step 7: Créer `assets/css/classes.css` + import**
 
 ```css
-/* M6 — Classes / Écoles post-culte */
+/* M6 - Classes / Écoles post-culte */
 
 .classe-form {
   margin-bottom: var(--space-6);
@@ -1176,11 +1176,11 @@ EOF
 
 **Interfaces:**
 - Consumes de Task 4 : `classe_service()`. De Task 2 : `auth_can_manage_classes()`.
-- Requires de Task 4 : une méthode `ClasseService::findInscrit(int $id): ?array` (délégation vers `repo->findInscrit`) — l'ajouter en Task 4 Step 3 si absente, ou l'ajouter ici en modifiant `ClasseService` (le commit de Task 6 inclut déjà `app/Services/ClasseService.php`).
+- Requires de Task 4 : une méthode `ClasseService::findInscrit(int $id): ?array` (délégation vers `repo->findInscrit`) - l'ajouter en Task 4 Step 3 si absente, ou l'ajouter ici en modifiant `ClasseService` (le commit de Task 6 inclut déjà `app/Services/ClasseService.php`).
 - Produces :
-  - POST `save_classe` : `$this->requireUser()` ; `if (!auth_can_manage_classes()) $this->deny();` ; `$res = classe_service()->saveClasse($_POST)` ; sur `!$res['ok']` → re-render `view('pages/classes', [...])` (mêmes clés que `ClasseController::index()` : `classes, edit, formateurs, errors, old, csrf` — `edit` = `$editId ? find($editId) : null`, `errors` = `$res['errors']`, `old` = `$_POST`) puis `return;` ; sinon `redirect(page=classes)`.
-  - POST `save_classe_inscrit` (**singulier — ajout d'un inscrit**) : `requireUser` + `auth_can_manage_classes()` else `deny` ; `$classeId = (int)($_POST['classe_id'] ?? 0)` ; `classe_service()->saveInscrit($_POST)` (le service crée via `INSERT IGNORE`) ; `redirect(page=classe, id=$classeId)` (ou `page=classes` si `!$classeId`).
-  - POST `save_classe_inscrits` (**pluriel — enregistrement du tableau**) : mêmes gardes ; `$classeId = (int)($_POST['classe_id'] ?? 0)` ; `foreach ((array)($_POST['inscrit'] ?? []) as $inscritId => $fields) { $ins = classe_service()->findInscrit((int) $inscritId); if (!$ins || (int) $ins['classe_id'] !== $classeId) continue; classe_service()->saveInscrit(array_merge((array) $fields, ['classe_id' => $classeId, 'user_id' => (int) $ins['user_id']])); }` ; `redirect(page=classe, id=$classeId)`.
+  - POST `save_classe` : `$this->requireUser()` ; `if (!auth_can_manage_classes()) $this->deny();` ; `$res = classe_service()->saveClasse($_POST)` ; sur `!$res['ok']` → re-render `view('pages/classes', [...])` (mêmes clés que `ClasseController::index()` : `classes, edit, formateurs, errors, old, csrf` - `edit` = `$editId ? find($editId) : null`, `errors` = `$res['errors']`, `old` = `$_POST`) puis `return;` ; sinon `redirect(page=classes)`.
+  - POST `save_classe_inscrit` (**singulier - ajout d'un inscrit**) : `requireUser` + `auth_can_manage_classes()` else `deny` ; `$classeId = (int)($_POST['classe_id'] ?? 0)` ; `classe_service()->saveInscrit($_POST)` (le service crée via `INSERT IGNORE`) ; `redirect(page=classe, id=$classeId)` (ou `page=classes` si `!$classeId`).
+  - POST `save_classe_inscrits` (**pluriel - enregistrement du tableau**) : mêmes gardes ; `$classeId = (int)($_POST['classe_id'] ?? 0)` ; `foreach ((array)($_POST['inscrit'] ?? []) as $inscritId => $fields) { $ins = classe_service()->findInscrit((int) $inscritId); if (!$ins || (int) $ins['classe_id'] !== $classeId) continue; classe_service()->saveInscrit(array_merge((array) $fields, ['classe_id' => $classeId, 'user_id' => (int) $ins['user_id']])); }` ; `redirect(page=classe, id=$classeId)`.
   - GET `delete_classe` : `requireUser` + `auth_can_manage_classes()` else `deny` ; `$id = (int)($_GET['id'] ?? 0)` ; `if ($id) classe_service()->deleteClasse($id)` ; `redirect(page=classes)`.
   - GET `remove_classe_inscrit` : `requireUser` + `auth_can_manage_classes()` else `deny` ; `$id = (int)($_GET['id'] ?? 0)` ; `$ins = $id ? classe_service()->findInscrit($id) : null` ; `$classeId = $ins ? (int) $ins['classe_id'] : 0` ; `if ($id) classe_service()->deleteInscrit($id)` ; `redirect` vers `page=classe&id=$classeId` si connu, sinon `page=classes`.
 
@@ -1216,7 +1216,7 @@ echo "OK m6 action\n";
 - [ ] **Step 2: Lancer, vérifier l'échec**
 
 Run: `cd /home/foxtrot/Téléchargements/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6/labelleeglise && php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m6_action_check.php`
-Expected: FAIL — `AssertionError: cas save_classe absent`.
+Expected: FAIL - `AssertionError: cas save_classe absent`.
 
 - [ ] **Step 3: Ajouter les cas POST**
 
@@ -1361,14 +1361,14 @@ EOF
 | Qui gère / inscrit : bergers, révérend, pasteurs, ms (désignés) | Task 2 (`auth_can_manage_classes` = admin OU rôle pastoral + responsabilité manager) |
 | CSS modulaire | Task 5 (`assets/css/classes.css`) |
 
-**2. Placeholder scan :** chaque step fournit code exact + commande + sortie attendue. `classe_detail.php` (Task 5 Step 6) est désormais un fichier complet suivant le motif `suivi_week.php` (un `<form>` englobant, champs `inscrit[<id>][…]`) — plus d'ambiguïté d'imbrication. Les « vérifier l'alignement sur CalendrierController » sont des ancrages sur des conventions M4/M5 déjà en place, pas des TODO.
+**2. Placeholder scan :** chaque step fournit code exact + commande + sortie attendue. `classe_detail.php` (Task 5 Step 6) est désormais un fichier complet suivant le motif `suivi_week.php` (un `<form>` englobant, champs `inscrit[<id>][…]`) - plus d'ambiguïté d'imbrication. Les « vérifier l'alignement sur CalendrierController » sont des ancrages sur des conventions M4/M5 déjà en place, pas des TODO.
 
 **3. Type consistency :**
-- `saveClasse()` / `saveInscrit()` renvoient `['ok'=>bool,'errors'=>array<string,string>,'id'=>?int(,'promoted_to'=>?int)]` — consommés par Task 6 et les scripts d'assertion.
-- `ClasseRepository::insertInscrit()` renvoie `int` (id existant ou nouveau) — utilisé par `saveInscrit` (`$inscritId`) et l'assertion d'idempotence.
-- `nextActiveClassId(int): ?int` — consommé par `saveInscrit` (`$nextId !== null`).
-- `EXAM_STATUTS` : clés `non_passe|reussi|echoue` — whitelist dans `saveInscrit`, `<option>` dans `classe_detail.php`.
-- `all()`/`find()` renvoient des lignes avec `formateur_prenom`, `formateur_nom`, `nb_inscrits` — lues par `classes.php` / `classe_detail.php`.
+- `saveClasse()` / `saveInscrit()` renvoient `['ok'=>bool,'errors'=>array<string,string>,'id'=>?int(,'promoted_to'=>?int)]` - consommés par Task 6 et les scripts d'assertion.
+- `ClasseRepository::insertInscrit()` renvoie `int` (id existant ou nouveau) - utilisé par `saveInscrit` (`$inscritId`) et l'assertion d'idempotence.
+- `nextActiveClassId(int): ?int` - consommé par `saveInscrit` (`$nextId !== null`).
+- `EXAM_STATUTS` : clés `non_passe|reussi|echoue` - whitelist dans `saveInscrit`, `<option>` dans `classe_detail.php`.
+- `all()`/`find()` renvoient des lignes avec `formateur_prenom`, `formateur_nom`, `nb_inscrits` - lues par `classes.php` / `classe_detail.php`.
 - `modules_valides` : `INT`, borné `[0, nb_modules]` service-side ; `<input type="number" min="0" max="nb_modules">` côté vue (défense en profondeur).
 
 **4. Ordre des tâches :** 1 (schéma+constantes+seed) → 2 (RBAC/nav) → 3 (repo, dépend de 1) → 4 (service, dépend de 3+1) → 5 (contrôleur/vues, dépend de 4+2) → 6 (actions, dépend de 4+5). Séquentiel strict.
@@ -1377,4 +1377,4 @@ EOF
 
 ## Execution Handoff
 
-Six tâches séquentielles. Chacune se termine par un livrable testable (script d'assertion contre la base de dev réelle + `php -l` + smoke-render des vues) et un commit. La progression automatique (Task 4) est le point le plus délicat — l'assertion `m6_service_check.php` la couvre explicitement (promotion + idempotence + borne `modules_valides` + `user_id` inexistant).
+Six tâches séquentielles. Chacune se termine par un livrable testable (script d'assertion contre la base de dev réelle + `php -l` + smoke-render des vues) et un commit. La progression automatique (Task 4) est le point le plus délicat - l'assertion `m6_service_check.php` la couvre explicitement (promotion + idempotence + borne `modules_valides` + `user_id` inexistant).

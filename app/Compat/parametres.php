@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Compatibilité — page Paramètres (comptes + accès & responsabilités).
+ * Compatibilité - page Paramètres (comptes + accès & responsabilités).
  * Portage de l'ancien pages_parametres.php, remanié pour le nouveau modèle
  * ROLE ≠ RESPONSABILITÉ ≠ PÉRIMÈTRE (voir docs/roles-and-permissions.md,
  * docs/responsibilities.md).
@@ -13,7 +13,7 @@ use App\Core\Query;
 
 function render_parametres_page(): void
 {
-    // Accès réservé à l'admin — voir AuthorizationService (permission
+    // Accès réservé à l'admin - voir AuthorizationService (permission
     // 'users.manage', détenue uniquement par le rôle admin via '*').
     if (!auth_has_permission('users.manage')) {
         render_page(SECTION_LABELS['parametres'], empty_state('fa-ban', 'Accès réservé à l\'administrateur.'));
@@ -25,7 +25,7 @@ function render_parametres_page(): void
         $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
         $user = $id ? get_user($id) : null;
         $bacentas = get_bacentas();
-        $bacentaOptions = '<option value="">— Aucun —</option>';
+        $bacentaOptions = '<option value="">- Aucun -</option>';
         foreach ($bacentas as $b) {
             $bacentaOptions .= '<option value="' . $b['id'] . '"' . ($user && (int) $user['bacenta_id'] === (int) $b['id'] ? ' selected' : '') . '>' . h($b['nom']) . '</option>';
         }
@@ -64,7 +64,7 @@ function parametres_comptes(): string
             . '<td><span class="badge ' . $badge . '">' . h($role) . '</span></td>'
             . '<td>' . $actif . '</td>'
             . '<td class="row-actions">'
-            . '<a class="icon-btn" title="Voir la fiche" href="' . h(url('index.php', ['page' => 'personProfile', 'membre' => $u['id']])) . '"><i class="fa-solid fa-address-card"></i></a>'
+            . '<a class="icon-btn" title="Voir la fiche" href="' . h(url('index.php', ['page' => 'personProfile', 'membre' => $u['id'], 'return' => 'parametres', 'param_tab' => 'comptes'])) . '"><i class="fa-solid fa-address-card"></i></a>'
             . '<a class="icon-btn" title="Modifier" href="' . h(url('index.php', ['page' => 'parametres', 'form' => 'user', 'id' => $u['id']])) . '"><i class="fa-solid fa-pen"></i></a>'
             . '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer cet utilisateur ?" href="' . h(url('index.php', ['page' => 'parametres', 'action' => 'delete_user', 'id' => $u['id']])) . '"><i class="fa-solid fa-trash"></i></a>'
             . '</td></tr>';
@@ -84,6 +84,7 @@ const RESPONSIBILITY_TARGET_LABELS = [
     'bacenta' => ['singular' => 'bacenta', 'label' => 'Bacenta'],
     'cult'    => ['singular' => 'culte',   'label' => 'Culte'],
     'basonta' => ['singular' => 'basonta', 'label' => 'Basonta'],
+    'classe'  => ['singular' => 'classe',  'label' => 'Classe'],
 ];
 
 /** Libellé "Prénom Nom (Rôle)" pour une ligne de responsabilité affichée. */
@@ -112,7 +113,7 @@ function responsibility_target_row_html(string $targetType, int $targetId, strin
     $candidates = Query::all("SELECT id, prenom, nom, role FROM users WHERE role IN ($placeholders) ORDER BY prenom, nom", $eligibleRoles);
     $alreadyIds = array_map(fn($r) => (int) $r['user_id'], $current);
 
-    $options = '<option value="">— Ajouter un responsable —</option>';
+    $options = '<option value="">- Ajouter un responsable -</option>';
     foreach ($candidates as $c) {
         if (in_array((int) $c['id'], $alreadyIds, true)) {
             continue;
@@ -138,7 +139,7 @@ function parametres_acces(): string
 
     $html = '<p class="sub" style="margin-bottom:16px;">Une <strong>responsabilité</strong> est indépendante du <strong>rôle</strong> : un même rôle (berger, ms, pasteur…) peut être responsable de plusieurs structures, et une structure peut avoir plusieurs responsables.</p>';
 
-    // Centres — NOUVEAU (n'existait pas avant ce remaniement).
+    // Centres - NOUVEAU (n'existait pas avant ce remaniement).
     $centerRows = '';
     foreach (get_centres() as $c) {
         $centerRows .= responsibility_target_row_html('center', (int) $c['id'], $c['nom']);
@@ -147,7 +148,7 @@ function parametres_acces(): string
 
     $bacRows = '';
     foreach (get_bacentas() as $b) {
-        $label = $b['nom'] . ($b['centre_nom'] ? ' — ' . $b['centre_nom'] : '');
+        $label = $b['nom'] . ($b['centre_nom'] ? ' - ' . $b['centre_nom'] : '');
         $bacRows .= responsibility_target_row_html('bacenta', (int) $b['id'], $label);
     }
     $bacRows = $bacRows ?: '<tr><td colspan="3">' . empty_state('fa-inbox', 'Aucun bacenta.') . '</td></tr>';
@@ -164,21 +165,28 @@ function parametres_acces(): string
     }
     $basRows = $basRows ?: '<tr><td colspan="3">' . empty_state('fa-inbox', 'Aucun basonta.') . '</td></tr>';
 
+    $classeRows = '';
+    foreach (classe_service()->all() as $classe) {
+        $classeRows .= responsibility_target_row_html('classe', (int) $classe['id'], (string) $classe['nom']);
+    }
+    $classeRows = $classeRows ?: '<tr><td colspan="3">' . empty_state('fa-inbox', 'Aucune classe.') . '</td></tr>';
+
     $section = function (string $title, string $sub, string $rows) {
         return '<div class="dash-section-title"><h2>' . h($title) . '</h2><span>' . h($sub) . '</span></div>'
             . '<div class="table-wrap"><table class="data-table"><thead><tr><th>Structure</th><th>Responsable(s)</th><th>Ajouter</th></tr></thead><tbody>' . $rows . '</tbody></table></div>';
     };
 
     $html .= $section('Responsables de centres', 'Éligibles : Berger, MS, Pasteur', $centerRows)
-        . $section('Responsables de bacentas', 'Éligibles : Berger, MS, Pasteur (hérite aussi du centre — voir périmètre)', $bacRows)
+        . $section('Responsables de bacentas', 'Éligibles : Berger, MS, Pasteur (hérite aussi du centre - voir périmètre)', $bacRows)
         . $section('Responsables de cultes', 'Éligibles : Pasteur, Révérend uniquement', $culRows)
-        . $section('Responsables de basontas', 'Éligibles : Berger, MS, Pasteur', $basRows);
+        . $section('Responsables de basontas', 'Éligibles : Berger, MS, Pasteur', $basRows)
+        . $section('Responsables de classes', 'Éligibles : Berger, MS, Pasteur, Révérend', $classeRows);
 
     return section_toolbar('Accès & Responsables', 'Responsables des centres, bacentas, cultes et basontas') . $html;
 }
 
 /**
- * Panneau "Responsabilités" affiché sur la fiche utilisateur (spec §32-33) —
+ * Panneau "Responsabilités" affiché sur la fiche utilisateur (spec §32-33) -
  * clairement séparé du champ "Rôle" (jamais présenté comme un rôle).
  */
 function user_responsibilities_panel(array $user): string
@@ -194,6 +202,7 @@ function user_responsibilities_panel(array $user): string
             'bacenta' => Query::value('SELECT nom FROM bacentas WHERE id = ?', [$row['target_id']]),
             'cult'    => Query::value('SELECT nom FROM cultes WHERE id = ?', [$row['target_id']]),
             'basonta' => Query::value('SELECT nom FROM basontas WHERE id = ?', [$row['target_id']]),
+            'classe'  => Query::value('SELECT nom FROM classes WHERE id = ?', [$row['target_id']]),
             default   => '#' . $row['target_id'],
         };
         $typeLabel = RESPONSIBILITY_TARGET_LABELS[$targetType]['label'] ?? $targetType;
@@ -212,6 +221,9 @@ function user_responsibilities_panel(array $user): string
         $addForms .= user_responsibility_add_form($userId, 'center', get_centres(), 'nom');
         $addForms .= user_responsibility_add_form($userId, 'bacenta', get_bacentas(), 'nom');
     }
+    if (in_array($user['role'], ['berger', 'ms', 'pasteur', 'reverant'], true)) {
+        $addForms .= user_responsibility_add_form($userId, 'classe', classe_service()->all(), 'nom');
+    }
     if (in_array($user['role'], CULT_RESPONSIBILITY_ROLES, true)) {
         $addForms .= user_responsibility_add_form($userId, 'cult', get_cultes(), 'nom');
     }
@@ -228,9 +240,9 @@ function user_responsibilities_panel(array $user): string
 
 function user_responsibility_add_form(int $userId, string $targetType, array $targets, string $nameField): string
 {
-    $options = '<option value="">— ' . h(RESPONSIBILITY_TARGET_LABELS[$targetType]['label'] ?? $targetType) . ' à ajouter —</option>';
+    $options = '<option value="">- ' . h(RESPONSIBILITY_TARGET_LABELS[$targetType]['label'] ?? $targetType) . ' à ajouter -</option>';
     foreach ($targets as $t) {
-        $label = $t[$nameField] . (isset($t['centre_nom']) && $t['centre_nom'] ? ' — ' . $t['centre_nom'] : '');
+        $label = $t[$nameField] . (isset($t['centre_nom']) && $t['centre_nom'] ? ' - ' . $t['centre_nom'] : '');
         $options .= '<option value="' . (int) $t['id'] . '">' . h($label) . '</option>';
     }
     return '<form method="post" action="index.php" class="inline-resp-form">'

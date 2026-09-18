@@ -2,11 +2,11 @@
 
 ## Modèle
 
-Une seule table polymorphe, `responsibilities` — pas trois tables séparées
+Une seule table polymorphe, `responsibilities` - pas trois tables séparées
 (`center_responsibilities`, `bacenta_responsibilities`,
 `cult_responsibilities`) comme suggéré à titre d'exemple par la spec §8/§14 :
 un modèle unique rend triviale l'extension future (département, province,
-activité, événement, groupe — spec §49) sans nouvelle migration de schéma.
+activité, événement, groupe - spec §49) sans nouvelle migration de schéma.
 
 ```sql
 CREATE TABLE responsibilities (
@@ -37,7 +37,7 @@ la cible est validée au niveau service
 | `center`  | `centres`  | `berger`, `ms`, `pasteur` | **Nouvelle capacité** : n'existait pas avant ce remaniement. |
 | `bacenta` | `bacentas` | `berger`, `ms`, `pasteur` | Hérite aussi d'une responsabilité de centre (voir périmètre ci-dessous). |
 | `cult`    | `cultes`   | `pasteur`, `reverant` | Jamais `leader`/`berger`/`ms` (spec §24-25, contrairement à l'ancien formulaire qui l'autorisait à tort). |
-| `basonta` | `basontas` | `berger`, `ms`, `pasteur` | Migré depuis l'ancien `responsable_id`, choix (non explicitement spécifié) aligné sur centre/bacenta — voir "déviations" dans le rapport de livraison. |
+| `basonta` | `basontas` | `berger`, `ms`, `pasteur` | Migré depuis l'ancien `responsable_id`, choix (non explicitement spécifié) aligné sur centre/bacenta - voir "déviations" dans le rapport de livraison. |
 
 ## Héritage du périmètre (spec §17)
 
@@ -65,7 +65,7 @@ public function isResponsibleForBacenta(int $userId, int $bacentaId): bool
 ```
 
 Un responsable de Centre A **ne peut jamais** toucher au Centre B ou à ses
-bacentas — vérifié par `AuthorizationService::canManageCenter()` /
+bacentas - vérifié par `AuthorizationService::canManageCenter()` /
 `canManageBacenta()`, jamais en faisant confiance à un id d'URL/formulaire
 (voir `docs/authorization.md`, section IDOR).
 
@@ -85,7 +85,7 @@ colonne) comme reflet dénormalisé de confort pour les lectures existantes
 (affichage "Responsable : X" dans les listes). Elles sont synchronisées
 automatiquement par `ResponsibilityService::syncLegacyResponsableId()` à
 chaque affectation/révocation (dernier responsable affecté, ou `NULL` si
-aucun). **Aucune décision d'autorisation ne lit jamais cette colonne** —
+aucun). **Aucune décision d'autorisation ne lit jamais cette colonne** -
 uniquement la table `responsibilities`, via `AuthorizationService`.
 
 ## API (`ResponsibilityRepository` / `ResponsibilityService`)
@@ -108,12 +108,12 @@ $service->reconcileForNewRole($userId, $newRole); // spec §31
 ## Intégrité (spec §38)
 
 - `assign()` refuse : utilisateur inexistant, rôle inéligible pour ce
-  `target_type`, cible inexistante — retourne
+  `target_type`, cible inexistante - retourne
   `['ok' => false, 'error' => '...']` (jamais d'exception silencieuse).
 - Doublon empêché par la contrainte `UNIQUE` + un pré-check applicatif.
 - Suppression d'une structure (`delete_centre`/`delete_bacenta`/…) nettoie
   explicitement les lignes `responsibilities` associées (pas de FK
-  `target_id` possible sur une relation polymorphe) — voir
+  `target_id` possible sur une relation polymorphe) - voir
   `BacentaRepository::delete()`, `CentreRepository::delete()`,
   `CulteRepository::delete()`, `BasontaRepository::delete()`.
 - Suppression d'un utilisateur : `ON DELETE CASCADE` sur `user_id`

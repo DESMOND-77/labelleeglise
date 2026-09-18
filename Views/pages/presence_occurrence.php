@@ -3,7 +3,7 @@
 <div class="section-toolbar">
   <div>
     <h2><?= h($unit['nom']) ?></h2>
-    <div class="sub">Pointage des présences — une date</div>
+    <div class="sub">Pointage des présences - une date</div>
   </div>
   <a class="btn btn-outline" href="<?= h($matrixUrl) ?>"><i class="fa-solid fa-table-cells"></i> Matrice annuelle</a>
 </div>

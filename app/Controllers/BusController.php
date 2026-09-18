@@ -53,6 +53,10 @@ class BusController extends Controller
             'errors'       => [],
             'old'          => [],
             'csrf'         => csrf_field(),
+            'balances'     => array_reduce($centres, static function (array $out, array $centre) use ($editId): array {
+                $out[(int) $centre['id']] = bus_budget_service()->availableBalance((int) $centre['id'], $editId ?: null);
+                return $out;
+            }, []),
         ]));
     }
 }

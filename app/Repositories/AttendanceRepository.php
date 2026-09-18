@@ -28,7 +28,7 @@ class AttendanceRepository
     }
 
     /**
-     * @deprecated SP-3 — plus appelé (AttendanceService::pointCulte délègue à
+     * @deprecated SP-3 - plus appelé (AttendanceService::pointCulte délègue à
      * pointOccurrence). Conservé pour compat, sans statut ni transaction.
      */
     public function pointCulte(int $culteId, string $date, array $userIds): void
@@ -102,7 +102,7 @@ class AttendanceRepository
         return Query::all($sql, $params);
     }
 
-    /** @deprecated SP-5 — plus utilisé par statsForUser (compte toutes les lignes, pas seulement les présences). */
+    /** @deprecated SP-5 - plus utilisé par statsForUser (compte toutes les lignes, pas seulement les présences). */
     public function countForUser(int $userId): int
     {
         return (int) Query::value('SELECT COUNT(*) FROM presences WHERE user_id = ?', [$userId]);
@@ -145,7 +145,7 @@ class AttendanceRepository
 
     /**
      * Nombre de dates de culte distinctes enregistrées sur la période.
-     * @deprecated SP-5 — plus utilisé par statsForUser (dénominateur biaisé : cultes seuls,
+     * @deprecated SP-5 - plus utilisé par statsForUser (dénominateur biaisé : cultes seuls,
      * ignore absent/excuse). Le taux passe par statusCountsForUser.
      */
     public function distinctCulteDatesInRange(?string $fromDate, ?string $toDate): int
@@ -163,7 +163,7 @@ class AttendanceRepository
         return (int) Query::value($sql, $params);
     }
 
-    /* ================= M1 — Présences par occurrence (unité, date, statut) ================= */
+    /* ================= M1 - Présences par occurrence (unité, date, statut) ================= */
 
     private const UNIT_COLUMNS = ['bacenta' => 'bacenta_id', 'cult' => 'culte_id', 'basonta' => 'basonta_id', 'evenement' => 'evenement_id'];
 

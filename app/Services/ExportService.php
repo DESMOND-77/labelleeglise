@@ -3,7 +3,7 @@
 namespace App\Services;
 
 /**
- * Exports bruts (téléchargement de fichiers) — sortie directe, pas de
+ * Exports bruts (téléchargement de fichiers) - sortie directe, pas de
  * rendu de page. Chaque méthode termine l'exécution (exit).
  */
 class ExportService

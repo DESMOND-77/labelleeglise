@@ -1,5 +1,5 @@
 <?php
-/* Écran de connexion (par email). Variable : $error (string|null) — reason ∈ invalid|not_verified|pending|disabled. */
+/* Écran de connexion (par email). Variable : $error (string|null) - reason ∈ invalid|not_verified|pending|disabled. */
 $error = $error ?? null;
 $errorMessages = [
   'invalid'      => 'Email ou mot de passe incorrect.',
@@ -15,7 +15,7 @@ $errorMessage = $error ? ($errorMessages[$error] ?? $errorMessages['invalid']) :
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Connexion — <?= h(APP_NAME) ?></title>
+  <title>Connexion - <?= h(APP_NAME) ?></title>
   <!-- Écran de connexion : utilitaire, jamais indexé. -->
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96x96.png">
@@ -61,8 +61,8 @@ $errorMessage = $error ? ($errorMessages[$error] ?? $errorMessages['invalid']) :
 
       <!-- <div class="login-hint">
         <strong>Comptes de démonstration</strong>
-        <span><code>admin@labelleeglise.ga</code> / <code>LBEGF</code> — accès complet</span>
-        <span><code>user@labelleeglise.ga</code> / <code>user1111</code> — accès limité</span>
+        <span><code>admin@labelleeglise.ga</code> / <code>LBEGF</code> - accès complet</span>
+        <span><code>user@labelleeglise.ga</code> / <code>user1111</code> - accès limité</span>
         <span><code>resp.bacenta.sion@labelleeglise.ga</code> / <code>ESKLna</code></span>
         <span><code>berger.eric.bongo@labelleeglise.ga</code> / <code>BergerEB1</code></span>
       </div> -->

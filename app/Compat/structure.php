@@ -72,7 +72,7 @@ function save_article_record(?int $id, array $fields): void { _repo(CMSRepositor
 function delete_article_record(int $id): ?array { return _repo(CMSRepository::class)->deleteCentreArticle($id); }
 
 /* ---------- Responsables ----------
- * Délègue à ResponsibilityService (table `responsibilities` — source de
+ * Délègue à ResponsibilityService (table `responsibilities` - source de
  * vérité) : la colonne responsable_id historique n'est plus qu'un reflet
  * synchronisé automatiquement (spec §41), jamais écrite directement ici.
  * Types acceptés : 'center' | 'bacenta' | 'cult' | 'basonta'

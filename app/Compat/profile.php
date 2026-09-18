@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Compatibilité — profil libre-service ("Mon profil"), fiche administrative
+ * Compatibilité - profil libre-service ("Mon profil"), fiche administrative
  * d'un utilisateur (identité/rôle/responsabilités/présences/suivi hebdo) et
  * fiches imprimables (présences, suivi hebdomadaire).
  *
  * RÈGLE ABSOLUE (spec) : jamais de confiance dans un id "membre" venant du
- * navigateur pour une ressource sensible — toute consultation d'une fiche
+ * navigateur pour une ressource sensible - toute consultation d'une fiche
  * autre que la sienne passe par AuthorizationService::canManageMember()
  * (admin bypass inclus).
  */
@@ -80,7 +80,7 @@ function deny_profile_access(): never
  */
 function member_recent_presence_html(array $stats, int $memberId): string
 {
-    $last = !empty($stats['last_date']) ? date('d/m/Y', strtotime((string) $stats['last_date'])) : '—';
+    $last = !empty($stats['last_date']) ? date('d/m/Y', strtotime((string) $stats['last_date'])) : '-';
     $rate = $stats['rate'] !== null ? (int) $stats['rate'] . ' %' : 'n/d';
 
     return '<div class="dash-section-title"><h2><i class="fa-solid fa-clipboard-check"></i> Présences récentes</h2><span>Lecture seule</span></div>'
@@ -124,6 +124,7 @@ function render_profile_page(): void
             'bacenta' => \App\Core\Query::value('SELECT nom FROM bacentas WHERE id = ?', [$row['target_id']]),
             'cult'    => \App\Core\Query::value('SELECT nom FROM cultes WHERE id = ?', [$row['target_id']]),
             'basonta' => \App\Core\Query::value('SELECT nom FROM basontas WHERE id = ?', [$row['target_id']]),
+            'classe'  => \App\Core\Query::value('SELECT nom FROM classes WHERE id = ?', [$row['target_id']]),
             default   => '#' . $row['target_id'],
         };
         $responsibilities[] = [
@@ -132,13 +133,17 @@ function render_profile_page(): void
         ];
     }
 
-    // Présences — semaine consultée (spec §26).
+    // Présences - semaine consultée (spec §26).
     $weekKey = (string) (nav('semaine') ?: current_week_key());
     $weekRows = attendance_service()->weekForUser((int) $membreId, $weekKey);
     $stats = attendance_service()->statsForUser((int) $membreId);
 
     $hasWeeklyFollowup = in_array($member['role'], WEEKLY_FOLLOWUP_ROLES, true);
     $suiviWeek = $hasWeeklyFollowup ? get_suivi_week((int) $membreId, $weekKey) : [];
+
+    $returnUrl = nav('return') === 'parametres'
+        ? url('index.php', ['page' => 'parametres', 'param_tab' => nav('param_tab') === 'acces' ? 'acces' : 'comptes'])
+        : url('index.php', ['page' => 'recherche']);
 
     $content = view('pages/profile', [
         'member'           => $member,
@@ -160,6 +165,7 @@ function render_profile_page(): void
         'weekDays'         => WEEK_DAYS,
         'isSelf'           => (int) $current['id'] === (int) $membreId,
         'csrf'             => csrf_field(),
+        'returnUrl'        => $returnUrl,
     ]);
 
     $content .= member_recent_presence_html($stats, (int) $membreId);
@@ -191,7 +197,7 @@ function render_my_profile_page(): void
     render_page('Mon profil', $content);
 }
 
-/* ================= IMPRESSION — PRÉSENCES ================= */
+/* ================= IMPRESSION - PRÉSENCES ================= */
 
 function render_attendance_print_page(): void
 {
@@ -212,7 +218,7 @@ function render_attendance_print_page(): void
     $semaine = (string) (nav('semaine') ?: '');
 
     // Une semaine explicite (lien « Imprimer » de la fiche) borne la période
-    // si from/to ne sont pas fournis — sinon historique complet.
+    // si from/to ne sont pas fournis - sinon historique complet.
     if ($from === '' && $to === '' && $semaine !== '') {
         $monday = monday_of_week_key($semaine);
         $from = iso_date_of($monday);
@@ -249,7 +255,7 @@ function render_attendance_print_page(): void
     ]);
 }
 
-/* ================= IMPRESSION — SUIVI HEBDOMADAIRE D'UN BERGER ================= */
+/* ================= IMPRESSION - SUIVI HEBDOMADAIRE D'UN BERGER ================= */
 
 function render_suivi_print_page(): void
 {

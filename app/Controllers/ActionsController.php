@@ -11,11 +11,11 @@ use App\Repositories\CMSRepository;
  * Chaque action se termine par une redirection (comportement identique à
  * l'ancien actions.php).
  *
- * IMPORTANT — contrôle serveur (spec §34, §40, §42) : `getAction()` est
+ * IMPORTANT - contrôle serveur (spec §34, §40, §42) : `getAction()` est
  * dispatché par index.php AVANT la vérification de session (voir front
  * controller), donc CHAQUE case doit revérifier explicitement
  * current_user() + l'autorisation réelle (rôle + permission + responsabilité
- * + périmètre) — jamais seulement un bouton masqué côté vue.
+ * + périmètre) - jamais seulement un bouton masqué côté vue.
  */
 class ActionsController extends Controller
 {
@@ -108,10 +108,10 @@ class ActionsController extends Controller
 
             case 'delete_classe': {
                 $this->requireUser();
-                if (!auth_can_manage_classes()) {
+                $id = (int) ($_GET['id'] ?? 0);
+                if (!auth_can_manage_class($id)) {
                     $this->deny();
                 }
-                $id = (int) ($_GET['id'] ?? 0);
                 if ($id) {
                     classe_service()->deleteClasse($id);
                 }
@@ -135,12 +135,12 @@ class ActionsController extends Controller
 
             case 'remove_classe_inscrit': {
                 $this->requireUser();
-                if (!auth_can_manage_classes()) {
-                    $this->deny();
-                }
                 $id = (int) ($_GET['id'] ?? 0);
                 $ins = $id ? classe_service()->findInscrit($id) : null;
                 $classeId = $ins ? (int) $ins['classe_id'] : 0;
+                if (!$ins || !auth_can_manage_class($classeId)) {
+                    $this->deny();
+                }
                 if ($id) {
                     classe_service()->deleteInscrit($id);
                 }
@@ -268,7 +268,7 @@ class ActionsController extends Controller
 
             case 'export_attendance': {
                 // Export CSV réel (spec §27) : gate identique à la fiche/aux
-                // impressions — soi-même toujours autorisé, sinon
+                // impressions - soi-même toujours autorisé, sinon
                 // canManageMember() (admin bypass inclus). GET volontairement
                 // non protégé CSRF, comme le reste des cases getAction()
                 // existantes (convention préexistante de l'app, hors périmètre).
@@ -416,12 +416,12 @@ class ActionsController extends Controller
                 break;
             }
 
-            /* ---------- Mon profil (libre-service — spec §1-13) ---------- */
+            /* ---------- Mon profil (libre-service - spec §1-13) ---------- */
 
             case 'save_profile': {
                 // Auto-ciblage exclusif sur l'utilisateur connecté : jamais
                 // d'id "membre" lu depuis la requête pour cette action (spec
-                // §1(a)) — un membre ne peut modifier QUE son propre profil.
+                // §1(a)) - un membre ne peut modifier QUE son propre profil.
                 $user = $this->requireUser();
                 $svc = profile_service();
                 $errors = $svc->validatePersonalInfo($_POST);
@@ -457,7 +457,7 @@ class ActionsController extends Controller
 
             case 'request_email_change': {
                 // Spec §12 : la déconnexion a lieu ICI, à la DEMANDE, avant
-                // même que le lien de vérification soit cliqué — jamais au
+                // même que le lien de vérification soit cliqué - jamais au
                 // moment de la vérification.
                 $user = $this->requireUser();
                 $newEmail = trim((string) ($_POST['new_email'] ?? ''));
@@ -528,7 +528,7 @@ class ActionsController extends Controller
                     }
                 }
 
-                // SP-4 : plus de pointage depuis le formulaire membre — le pointage
+                // SP-4 : plus de pointage depuis le formulaire membre - le pointage
                 // se fait exclusivement depuis l'occurrence (save_presence_occurrence).
 
                 if (($_POST['retour'] ?? '') === 'fiche') {
@@ -544,7 +544,7 @@ class ActionsController extends Controller
                 $data = user_data_from_post($id ?: null);
                 // Le rôle soumis doit être un rôle actif réellement
                 // sélectionnable (jamais 'responsable', jamais une valeur
-                // arbitraire) — voir ROLE_LABELS (Config/constants.php).
+                // arbitraire) - voir ROLE_LABELS (Config/constants.php).
                 $submittedRole = (string) ($_POST['role'] ?? 'membre');
                 $data['role'] = array_key_exists($submittedRole, ROLE_LABELS) ? $submittedRole : 'membre';
 
@@ -557,7 +557,7 @@ class ActionsController extends Controller
                 $newPass = trim((string) ($_POST['password'] ?? ''));
                 if ($id) {
                     update_user_from_post($id, $data, null, $newPass !== '' ? $newPass : null);
-                    // §31 — changement de rôle : révoque toute responsabilité
+                    // §31 - changement de rôle : révoque toute responsabilité
                     // devenue incohérente avec le nouveau rôle (choix
                     // documenté : auto-révocation + journalisation, voir
                     // ResponsibilityService::reconcileForNewRole).
@@ -616,7 +616,7 @@ class ActionsController extends Controller
 
             /* ---------- Présence par événement (culte) ---------- */
 
-            // @deprecated SP-3 — conservé pour compat (liens/bookmarks/POST externes).
+            // @deprecated SP-3 - conservé pour compat (liens/bookmarks/POST externes).
             // Le pointage culte passe désormais par save_presence_occurrence
             // (unit_type=cult) ; ce wrapper route vers pointOccurrence via
             // save_unit_presence('cult', …). Effet net identique à l'ancien pointCulte.
@@ -751,6 +751,7 @@ class ActionsController extends Controller
                         'date'     => $date,
                         'report'   => $existing,
                         'bacentas' => $svc->reportableBacentas($uid, $centreId, $isAdmin),
+                        'bacentaId' => (int) ($_POST['bacenta_id'] ?? 0) ?: null,
                         'fields'   => RAPPORT_JOUR_FIELDS,
                         'derived'  => $svc->derivedNames($centreId, (int) ($_POST['bacenta_id'] ?? 0) ?: null, $uid),
                         'canEdit'  => $existing === null || $isAdmin || (int) $existing['auteur_id'] === $uid,
@@ -767,8 +768,9 @@ class ActionsController extends Controller
             /* ---------- Classes / Écoles (M6) ---------- */
 
             case 'save_classe': {
-                $this->requireUser();
-                if (!auth_can_manage_classes()) {
+                $user = $this->requireUser();
+                $classeId = (int) ($_POST['id'] ?? 0);
+                if (($user['role'] ?? '') !== 'admin' && (!$classeId || !auth_can_manage_class($classeId))) {
                     $this->deny();
                 }
                 $res = classe_service()->saveClasse($_POST);
@@ -790,21 +792,21 @@ class ActionsController extends Controller
 
             case 'save_classe_inscrit': {
                 $this->requireUser();
-                if (!auth_can_manage_classes()) {
+                $classeId = (int) ($_POST['classe_id'] ?? 0);
+                if (!auth_can_manage_class($classeId)) {
                     $this->deny();
                 }
-                $classeId = (int) ($_POST['classe_id'] ?? 0);
                 classe_service()->saveInscrit($_POST);
-                $this->redirect('index.php', $classeId ? ['page' => 'classe', 'id' => $classeId] : ['page' => 'classes']);
+                $this->redirect('index.php', $classeId ? ['page' => 'classe', 'id' => $classeId, 'tab' => 'eleves'] : ['page' => 'classes']);
                 break;
             }
 
             case 'save_classe_inscrits': {
                 $this->requireUser();
-                if (!auth_can_manage_classes()) {
+                $classeId = (int) ($_POST['classe_id'] ?? 0);
+                if (!auth_can_manage_class($classeId)) {
                     $this->deny();
                 }
-                $classeId = (int) ($_POST['classe_id'] ?? 0);
                 foreach ((array) ($_POST['inscrit'] ?? []) as $inscritId => $fields) {
                     $ins = classe_service()->findInscrit((int) $inscritId);
                     if (!$ins || (int) $ins['classe_id'] !== $classeId) {
@@ -815,7 +817,7 @@ class ActionsController extends Controller
                         'user_id'   => (int) $ins['user_id'],
                     ]));
                 }
-                $this->redirect('index.php', $classeId ? ['page' => 'classe', 'id' => $classeId] : ['page' => 'classes']);
+                $this->redirect('index.php', $classeId ? ['page' => 'classe', 'id' => $classeId, 'tab' => 'eleves'] : ['page' => 'classes']);
                 break;
             }
 
@@ -852,6 +854,10 @@ class ActionsController extends Controller
                         'errors'       => $res['errors'],
                         'old'          => $_POST,
                         'csrf'         => csrf_field(),
+                        'balances'     => array_reduce($centres, static function (array $out, array $centre) use ($editId): array {
+                            $out[(int) $centre['id']] = bus_budget_service()->availableBalance((int) $centre['id'], $editId ?: null);
+                            return $out;
+                        }, []),
                     ]));
                     return;
                 }
@@ -882,7 +888,7 @@ class ActionsController extends Controller
             case 'add_veillee': {
                 $user = $this->requireUser();
                 $membre = (int) ($_POST['membre'] ?? 0);
-                // spec §20 : "SA PROPRE fiche" — jamais celle d'un autre,
+                // spec §20 : "SA PROPRE fiche" - jamais celle d'un autre,
                 // sauf admin. C'est ici, côté serveur, que la règle est
                 // réellement appliquée (le verrouillage de vue n'est qu'un
                 // confort UI, jamais une sécurité).
@@ -919,7 +925,7 @@ class ActionsController extends Controller
                 $user = $this->requireUser();
                 $membre = (int) ($_POST['membre'] ?? 0);
                 // BUG CRITIQUE corrigé (spec §20) : auparavant $membre était
-                // pris tel quel depuis $_POST, sans aucune vérification —
+                // pris tel quel depuis $_POST, sans aucune vérification -
                 // n'importe quel utilisateur authentifié pouvait écraser le
                 // suivi_hebdo d'un autre. Seul le propriétaire (ou l'admin)
                 // peut désormais écrire sa fiche.
@@ -936,7 +942,7 @@ class ActionsController extends Controller
                 break;
             }
 
-            /* ---------- Responsabilités (nouveau modèle — remplace l'ancien save_responsable ad hoc) ---------- */
+            /* ---------- Responsabilités (nouveau modèle - remplace l'ancien save_responsable ad hoc) ---------- */
 
             case 'assign_responsibility': {
                 // BUG CRITIQUE corrigé (spec §29/§34/§40) : auparavant

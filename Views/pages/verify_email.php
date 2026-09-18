@@ -43,7 +43,7 @@ if ($copy === null) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vérification email — <?= h(APP_NAME) ?></title>
+  <title>Vérification email - <?= h(APP_NAME) ?></title>
   <!-- Page fonctionnelle (consomme un jeton à usage unique) : jamais indexée. -->
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96x96.png">

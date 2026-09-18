@@ -1,5 +1,5 @@
 <?php
-/* Email — compte activé. Variables : $user, $loginUrl, $appName. */
+/* Email - compte activé. Variables : $user, $loginUrl, $appName. */
 $prenom = h($user['prenom'] ?? '');
 $appName = h($appName ?? 'La Belle Église');
 $loginUrl = h($loginUrl);
@@ -38,7 +38,7 @@ $loginUrl = h($loginUrl);
         </tr>
         <tr>
           <td style="padding:20px 32px;border-top:1px solid #F0F1F5;">
-            <p style="margin:0;font-size:12px;color:#9CA3AF;text-align:center;"><?= $appName ?> — Plateforme de gestion des membres</p>
+            <p style="margin:0;font-size:12px;color:#9CA3AF;text-align:center;"><?= $appName ?> - Plateforme de gestion des membres</p>
           </td>
         </tr>
       </table>

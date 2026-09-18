@@ -65,6 +65,16 @@ class ClasseRepository
         );
     }
 
+    public function activeInscritsOf(int $classeId): array
+    {
+        return array_values(array_filter($this->inscritsOf($classeId), static fn(array $row): bool => ($row['statut'] ?? '') !== 'termine'));
+    }
+
+    public function anciensInscritsOf(int $classeId): array
+    {
+        return array_values(array_filter($this->inscritsOf($classeId), static fn(array $row): bool => ($row['statut'] ?? '') === 'termine'));
+    }
+
     public function findInscrit(int $id): ?array
     {
         return Query::one('SELECT * FROM classe_inscrits WHERE id = ?', [$id]);
@@ -83,11 +93,11 @@ class ClasseRepository
         return $row ? (int) $row['id'] : 0;
     }
 
-    public function updateInscrit(int $id, int $modulesValides, string $examOral, string $examEcrit, ?float $examNote, ?string $examDate): void
+    public function updateInscrit(int $id, int $modulesValides, string $examOral, string $examEcrit, ?float $oralNote, ?string $oralDate, ?float $ecritNote, ?string $ecritDate): void
     {
         Query::run(
-            'UPDATE classe_inscrits SET modules_valides = ?, exam_oral = ?, exam_ecrit = ?, exam_note = ?, exam_date = ? WHERE id = ?',
-            [$modulesValides, $examOral, $examEcrit, $examNote, $examDate, $id]
+            'UPDATE classe_inscrits SET modules_valides = ?, exam_oral = ?, exam_ecrit = ?, exam_oral_note = ?, exam_oral_date = ?, exam_ecrit_note = ?, exam_ecrit_date = ? WHERE id = ?',
+            [$modulesValides, $examOral, $examEcrit, $oralNote, $oralDate, $ecritNote, $ecritDate, $id]
         );
     }
 

@@ -1,13 +1,13 @@
 <?php
-/* Email admin — nouvelle inscription à valider. Variables : $admin, $user, $reviewUrl, $appName. */
+/* Email admin - nouvelle inscription à valider. Variables : $admin, $user, $reviewUrl, $appName. */
 $adminPrenom = h($admin['prenom'] ?? '');
 $prenom = h($user['prenom'] ?? '');
 $nom = h($user['nom'] ?? '');
 $email = h($user['email'] ?? '');
-$telephone = h($user['telephone'] ?? '—');
+$telephone = h($user['telephone'] ?? '-');
 $appName = h($appName ?? 'La Belle Église');
 $reviewUrl = h($reviewUrl);
-$dateInscription = !empty($user['created_at']) ? date('d/m/Y à H:i', strtotime($user['created_at'])) : '—';
+$dateInscription = !empty($user['created_at']) ? date('d/m/Y à H:i', strtotime($user['created_at'])) : '-';
 $statutVerif = ((int) ($user['email_verified'] ?? 0) === 1) ? 'Email vérifié ✓' : 'Email non vérifié';
 ?>
 <!DOCTYPE html>
@@ -53,7 +53,7 @@ $statutVerif = ((int) ($user['email_verified'] ?? 0) === 1) ? 'Email vérifié �
         </tr>
         <tr>
           <td style="padding:20px 32px;border-top:1px solid #F0F1F5;">
-            <p style="margin:0;font-size:12px;color:#9CA3AF;text-align:center;"><?= $appName ?> — Plateforme de gestion des membres</p>
+            <p style="margin:0;font-size:12px;color:#9CA3AF;text-align:center;"><?= $appName ?> - Plateforme de gestion des membres</p>
           </td>
         </tr>
       </table>

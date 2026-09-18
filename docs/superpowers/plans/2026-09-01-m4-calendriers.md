@@ -1,12 +1,12 @@
-# M4 — Calendrier événementiel + Calendrier d'anniversaires — Implementation Plan
+# M4 - Calendrier événementiel + Calendrier d'anniversaires - Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Ajouter deux pages : un **calendrier événementiel** (nom, date & heure début-fin, lieu, responsable — CRUD par les gestionnaires de calendrier) et un **calendrier d'anniversaires** (fusion automatique des `users.date_naissance` + saisies manuelles pour les personnes sans compte ; âge calculé si l'année est connue ; mois courant surligné). En complément, une occurrence d'événement devient pointable (addendum M1).
+**Goal:** Ajouter deux pages : un **calendrier événementiel** (nom, date & heure début-fin, lieu, responsable - CRUD par les gestionnaires de calendrier) et un **calendrier d'anniversaires** (fusion automatique des `users.date_naissance` + saisies manuelles pour les personnes sans compte ; âge calculé si l'année est connue ; mois courant surligné). En complément, une occurrence d'événement devient pointable (addendum M1).
 
 **Architecture:** Deux nouvelles tables (`evenements`, `anniversaires`) dans le fichier de migration unique. Code neuf en couches strictes : `CalendrierController` → `CalendrierService` → (`EvenementRepository` | `AnniversaireRepository`) → `App\Core\Query`. Deux nouvelles routes GET (`calendrier`, `anniversaires`) et quatre actions (`save_evenement`, `delete_evenement`, `save_anniversaire`, `delete_anniversaire`). Nouveau helper RBAC global `auth_can_manage_calendar()` = admin OU détenteur d'au moins une responsabilité `manager`. L'addendum M1 ajoute `presences.evenement_id`, étend le moteur de présence (`AttendanceRepository::UNIT_COLUMNS`) et l'action `save_presence_occurrence` au type `evenement`, et expose une fiche événement avec pointage.
 
-**Tech Stack:** PHP 8 SSR, micro-framework maison, zéro dépendance. MySQL/MariaDB via `App\Core\Query`. Pas de PHPUnit — vérification = `php -l` + scripts d'assertion `php` exécutés contre la base de dev + smoke-render des vues.
+**Tech Stack:** PHP 8 SSR, micro-framework maison, zéro dépendance. MySQL/MariaDB via `App\Core\Query`. Pas de PHPUnit - vérification = `php -l` + scripts d'assertion `php` exécutés contre la base de dev + smoke-render des vues.
 
 **Spec:** `docs/superpowers/specs/2026-09-01-integration-modules-eglise-design.md` (§4 « M4 » + addendum M1)
 
@@ -23,20 +23,20 @@
 - Comptes de démo : `admin@labelleeglise.ga` / `LBEGF` (admin) ; `berger.eric.bongo@labelleeglise.ga` / `BergerEB1` (berger, détient des responsabilités) ; `user@labelleeglise.ga` / `user1111` (membre simple).
 - Base de dev joignable : MySQL `127.0.0.1:3306`, `root`, db `la_belle_eglise_db` (`.env` configuré).
 
-## Décisions de cadrage (spec §7 + §4 M4 — tranchées ici, spec = autorité)
+## Décisions de cadrage (spec §7 + §4 M4 - tranchées ici, spec = autorité)
 
-1. **Un seul `CalendrierService`** (pas d'`EvenementService` + `AnniversaireService` séparés) : les deux fonctionnalités partagent page et navigation et sont petites. Deux **repositories** distincts (un par table — norme projet).
+1. **Un seul `CalendrierService`** (pas d'`EvenementService` + `AnniversaireService` séparés) : les deux fonctionnalités partagent page et navigation et sont petites. Deux **repositories** distincts (un par table - norme projet).
 2. **Gestion via `responsibilities`** : `auth_can_manage_calendar()` = `current_user` est admin OU possède ≥ 1 ligne dans `responsibilities` (n'importe quel `target_type`, `responsibility_type = 'manager'`). Édition/suppression d'un **événement** : admin OU `created_by` OU `responsable_id` de l'événement.
 3. **Visibilité** : les deux pages exigent une session. Les contrôles d'édition (formulaires, boutons Supprimer) ne s'affichent que si `auth_can_manage_calendar()`. Un membre simple voit les calendriers en **lecture seule**. Liens de menu : admin (via `NAV_ORDER`) + utilisateurs `berger`-scope qui `auth_can_manage_calendar()`.
 4. **Anniversaires manuels** : table `anniversaires` (nom, jour, mois, année facultative). Vue = fusion `users` (date_naissance non NULL) + `anniversaires`, triée par (mois, jour). Âge affiché seulement si l'année est connue (`users.date_naissance` complète, ou `anniversaires.annee` non NULL). Mois courant surligné. **Pas** de masquage de membres du calendrier (spec §6b : non demandé).
-5. **Addendum M1 — pointage d'événement** : `save_presence_occurrence` accepte `unit_type = 'evenement'`, population = ensemble des membres (comme un culte). Accessible depuis une **fiche événement** `?page=calendrier&evt=<id>` (pointage d'une date). **Pas de matrice annuelle** pour un événement (non récurrent — dépourvu de sens). L'index `uniq_presence` est reconstruit pour inclure `evenement_id`.
+5. **Addendum M1 - pointage d'événement** : `save_presence_occurrence` accepte `unit_type = 'evenement'`, population = ensemble des membres (comme un culte). Accessible depuis une **fiche événement** `?page=calendrier&evt=<id>` (pointage d'une date). **Pas de matrice annuelle** pour un événement (non récurrent - dépourvu de sens). L'index `uniq_presence` est reconstruit pour inclure `evenement_id`.
 6. **Vue calendrier = liste chronologique** (tableau trié par date), pas de grille mensuelle type agenda. YAGNI : la grille visuelle demanderait beaucoup de CSS/JS pour peu de valeur ; le texte « Vue type agenda (ou tableau chronologique) » de la spec autorise le tableau.
 
 ## File Structure
 
 | Fichier | Rôle | Action |
 |---|---|---|
-| `Database/Migrations/2024_01_01_000000_create_schema.php` | Migration unique | Modifier : bloc « 11 » — tables `evenements`, `anniversaires`, `presences.evenement_id` + reconstruction `uniq_presence` ; `down()` |
+| `Database/Migrations/2024_01_01_000000_create_schema.php` | Migration unique | Modifier : bloc « 11 » - tables `evenements`, `anniversaires`, `presences.evenement_id` + reconstruction `uniq_presence` ; `down()` |
 | `Config/constants.php` | Constantes | Modifier : `SECTION_LABELS`, `SECTION_ICONS`, `NAV_ORDER` (`calendrier`, `anniversaires`) |
 | `app/Auth/compat.php` | Wrappers RBAC globaux | Modifier : `auth_can_manage_calendar()`, `auth_can_edit_evenement(array $evt)` |
 | `Views/layouts/layout.php` | Sidebar | Modifier : liens calendriers pour le scope `berger` gestionnaire de calendrier |
@@ -54,7 +54,7 @@
 
 ---
 
-### Task 1: Schéma — tables `evenements`, `anniversaires` + addendum présence événement
+### Task 1: Schéma - tables `evenements`, `anniversaires` + addendum présence événement
 
 **Files:**
 - Modify: `Database/Migrations/2024_01_01_000000_create_schema.php` (fin de `up()`, après le bloc « 10 » de M1 ; et `down()`)
@@ -63,9 +63,9 @@
 **Interfaces:**
 - Consumes: rien.
 - Produces :
-  - Table `evenements (id, nom VARCHAR(150) NOT NULL, date_debut DATETIME NOT NULL, date_fin DATETIME NULL, lieu VARCHAR(150) NULL, responsable_id INT NULL, created_by INT NULL, created_at TIMESTAMP)` — FK `responsable_id` / `created_by` → `users(id)` ON DELETE SET NULL ; index `idx_evt_debut (date_debut)`.
-  - Table `anniversaires (id, nom VARCHAR(150) NOT NULL, jour TINYINT NOT NULL, mois TINYINT NOT NULL, annee SMALLINT NULL, created_by INT NULL, created_at TIMESTAMP)` — FK `created_by` → `users(id)` ON DELETE SET NULL ; index `idx_anniv_mois (mois, jour)`.
-  - `presences.evenement_id INT NULL` — FK → `evenements(id)` ON DELETE CASCADE.
+  - Table `evenements (id, nom VARCHAR(150) NOT NULL, date_debut DATETIME NOT NULL, date_fin DATETIME NULL, lieu VARCHAR(150) NULL, responsable_id INT NULL, created_by INT NULL, created_at TIMESTAMP)` - FK `responsable_id` / `created_by` → `users(id)` ON DELETE SET NULL ; index `idx_evt_debut (date_debut)`.
+  - Table `anniversaires (id, nom VARCHAR(150) NOT NULL, jour TINYINT NOT NULL, mois TINYINT NOT NULL, annee SMALLINT NULL, created_by INT NULL, created_at TIMESTAMP)` - FK `created_by` → `users(id)` ON DELETE SET NULL ; index `idx_anniv_mois (mois, jour)`.
+  - `presences.evenement_id INT NULL` - FK → `evenements(id)` ON DELETE CASCADE.
   - Index `uniq_presence` reconstruit : `(user_id, date_presence, culte_id, bacenta_id, basonta_id, centre_id, evenement_id)`.
   - `down()` : `evenements`, `anniversaires` ajoutées à la liste des tables droppées.
 
@@ -116,19 +116,19 @@ echo "OK m4 schema\n";
 - [ ] **Step 2: Lancer, vérifier l'échec**
 
 Run: `cd /home/foxtrot/Téléchargements/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6/labelleeglise && php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m4_schema_check.php`
-Expected: FAIL — `AssertionError: table evenements manquante`.
+Expected: FAIL - `AssertionError: table evenements manquante`.
 
 - [ ] **Step 3: Ajouter le bloc de migration**
 
-Dans `up()`, tout à la fin (après le bloc « 10. M1 — Présences par occurrence », avant l'accolade fermante) :
+Dans `up()`, tout à la fin (après le bloc « 10. M1 - Présences par occurrence », avant l'accolade fermante) :
 
 ```php
 
-    /* ---- 11. M4 — Calendriers (événements + anniversaires) --------------
+    /* ---- 11. M4 - Calendriers (événements + anniversaires) --------------
      * a) evenements : nom, plage date/heure, lieu, responsable, créateur.
      * b) anniversaires : saisies manuelles (personnes sans compte). Les
      *    anniversaires des membres sont dérivés de users.date_naissance.
-     * c) Addendum M1 : une occurrence d'événement devient pointable —
+     * c) Addendum M1 : une occurrence d'événement devient pointable -
      *    presences.evenement_id + reconstruction de l'index uniq_presence.
      */
     $pdo->exec(
@@ -185,7 +185,7 @@ Dans `up()`, tout à la fin (après le bloc « 10. M1 — Présences par occurre
 
 - [ ] **Step 4: Mettre à jour `down()`**
 
-Dans `down()`, la liste `$tables` — ajouter `'evenements'` et `'anniversaires'` juste après `'presences'` :
+Dans `down()`, la liste `$tables` - ajouter `'evenements'` et `'anniversaires'` juste après `'presences'` :
 
 ```php
     $tables = ['responsibilities', 'notifications', 'users_basontas', 'presences', 'evenements', 'anniversaires', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
@@ -201,7 +201,7 @@ Expected: `up() OK`.
 - [ ] **Step 6: Relancer l'assertion, vérifier le succès**
 
 Run: `php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m4_schema_check.php`
-Expected: PASS — `OK m4 schema`
+Expected: PASS - `OK m4 schema`
 
 - [ ] **Step 7: Idempotence**
 
@@ -239,8 +239,8 @@ EOF
 **Interfaces:**
 - Consumes: rien.
 - Produces :
-  - `auth_can_manage_calendar(): bool` — `true` si `current_user()` est admin, ou si `App\Core\Query::value("SELECT COUNT(*) FROM responsibilities WHERE user_id = ? AND responsibility_type = 'manager'", [id])` > 0.
-  - `auth_can_edit_evenement(array $evt): bool` — `true` si admin, ou `current_user()['id'] === (int) $evt['created_by']`, ou `=== (int) $evt['responsable_id']`.
+  - `auth_can_manage_calendar(): bool` - `true` si `current_user()` est admin, ou si `App\Core\Query::value("SELECT COUNT(*) FROM responsibilities WHERE user_id = ? AND responsibility_type = 'manager'", [id])` > 0.
+  - `auth_can_edit_evenement(array $evt): bool` - `true` si admin, ou `current_user()['id'] === (int) $evt['created_by']`, ou `=== (int) $evt['responsable_id']`.
   - `SECTION_LABELS['calendrier'] = 'Calendrier'`, `SECTION_LABELS['anniversaires'] = 'Anniversaires'` ; mêmes clés dans `SECTION_ICONS` (`<i class="fa-solid fa-calendar-day"></i>`, `<i class="fa-solid fa-cake-candles"></i>`) ; `NAV_ORDER` reçoit `'calendrier'` et `'anniversaires'` avant `'parametres'`.
 
 - [ ] **Step 1: Écrire l'assertion qui échoue**
@@ -268,7 +268,7 @@ echo "OK m4 rbac\n";
 - [ ] **Step 2: Lancer, vérifier l'échec**
 
 Run: `cd /home/foxtrot/Téléchargements/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6/labelleeglise && php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m4_rbac_check.php`
-Expected: FAIL — `AssertionError: auth_can_manage_calendar absente`.
+Expected: FAIL - `AssertionError: auth_can_manage_calendar absente`.
 
 - [ ] **Step 3: Ajouter les helpers RBAC**
 
@@ -306,7 +306,7 @@ function auth_can_edit_evenement(array $evt): bool
 }
 ```
 
-Vérifier que `App\Core\Query` est utilisable ici (le fichier utilise probablement déjà des classes pleinement qualifiées — sinon `\App\Core\Query` en FQN suffit).
+Vérifier que `App\Core\Query` est utilisable ici (le fichier utilise probablement déjà des classes pleinement qualifiées - sinon `\App\Core\Query` en FQN suffit).
 
 - [ ] **Step 4: Constantes de navigation**
 
@@ -362,13 +362,13 @@ EOF
 - Consumes de Task 1 : tables `evenements`, `anniversaires`.
 - Produces :
   - `App\Repositories\EvenementRepository`
-    - `all(?string $fromDate = null): array` — événements (avec `resp_prenom`, `resp_nom` joints), triés par `date_debut ASC` ; si `$fromDate` fourni, `WHERE date_debut >= :fromDate`.
-    - `find(int $id): ?array` — un événement (mêmes colonnes jointes).
+    - `all(?string $fromDate = null): array` - événements (avec `resp_prenom`, `resp_nom` joints), triés par `date_debut ASC` ; si `$fromDate` fourni, `WHERE date_debut >= :fromDate`.
+    - `find(int $id): ?array` - un événement (mêmes colonnes jointes).
     - `create(string $nom, string $dateDebut, ?string $dateFin, ?string $lieu, ?int $responsableId, ?int $createdBy): int`
     - `update(int $id, string $nom, string $dateDebut, ?string $dateFin, ?string $lieu, ?int $responsableId): void`
     - `delete(int $id): void`
   - `App\Repositories\AnniversaireRepository`
-    - `all(): array` — saisies manuelles, triées `mois, jour`.
+    - `all(): array` - saisies manuelles, triées `mois, jour`.
     - `find(int $id): ?array`
     - `create(string $nom, int $jour, int $mois, ?int $annee, ?int $createdBy): int`
     - `delete(int $id): void`
@@ -411,7 +411,7 @@ echo "OK m4 repo\n";
 - [ ] **Step 2: Lancer, vérifier l'échec**
 
 Run: `cd /home/foxtrot/Téléchargements/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6/labelleeglise && php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m4_repo_check.php`
-Expected: FAIL — `Error: Class "App\Repositories\EvenementRepository" not found`.
+Expected: FAIL - `Error: Class "App\Repositories\EvenementRepository" not found`.
 
 - [ ] **Step 3: Créer `app/Repositories/EvenementRepository.php`**
 
@@ -516,7 +516,7 @@ class AnniversaireRepository
 - [ ] **Step 5: Relancer l'assertion, vérifier le succès**
 
 Run: `php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m4_repo_check.php`
-Expected: PASS — `OK m4 repo`
+Expected: PASS - `OK m4 repo`
 
 - [ ] **Step 6: Lint + commit**
 
@@ -546,13 +546,13 @@ EOF
 - Produces :
   - `App\Services\CalendrierService`
     - `__construct(?EvenementRepository $evt = null, ?AnniversaireRepository $anniv = null)`
-    - `upcomingEvents(): array` — `all()` filtrés à `date_debut >= aujourd'hui 00:00`, tri chronologique.
-    - `allEvents(): array` — tous, chronologiques.
+    - `upcomingEvents(): array` - `all()` filtrés à `date_debut >= aujourd'hui 00:00`, tri chronologique.
+    - `allEvents(): array` - tous, chronologiques.
     - `event(int $id): ?array`
-    - `saveEvent(array $in, int $userId): array` — valide (`nom` requis, `date_debut` requise et parseable ; `date_fin` si fournie doit être ≥ `date_debut`) ; retourne `['ok' => bool, 'errors' => array<string,string>, 'id' => ?int]`. Sur update (`$in['id']` présent), n'écrit **pas** `created_by`.
+    - `saveEvent(array $in, int $userId): array` - valide (`nom` requis, `date_debut` requise et parseable ; `date_fin` si fournie doit être ≥ `date_debut`) ; retourne `['ok' => bool, 'errors' => array<string,string>, 'id' => ?int]`. Sur update (`$in['id']` présent), n'écrit **pas** `created_by`.
     - `deleteEvent(int $id): void`
-    - `birthdays(): array` — fusion : pour chaque `users` avec `date_naissance` non NULL → `['nom' => full name, 'jour' => (int), 'mois' => (int), 'annee' => (int|null), 'source' => 'membre', 'id' => user id]` ; pour chaque ligne `anniversaires` → `['nom' => ..., 'jour' => ..., 'mois' => ..., 'annee' => ..., 'source' => 'manuel', 'id' => anniv id]`. Trié par (mois, jour). Chaque entrée reçoit `age` = âge révolu cette année si `annee` connue, sinon `null`, et `is_current_month` = (mois === date('n')).
-    - `saveBirthday(array $in, int $userId): array` — valide (`nom` requis ; `jour` 1..31 ; `mois` 1..12 ; `annee` vide ou 1900..année courante) ; crée une ligne `anniversaires` ; `['ok','errors','id']`.
+    - `birthdays(): array` - fusion : pour chaque `users` avec `date_naissance` non NULL → `['nom' => full name, 'jour' => (int), 'mois' => (int), 'annee' => (int|null), 'source' => 'membre', 'id' => user id]` ; pour chaque ligne `anniversaires` → `['nom' => ..., 'jour' => ..., 'mois' => ..., 'annee' => ..., 'source' => 'manuel', 'id' => anniv id]`. Trié par (mois, jour). Chaque entrée reçoit `age` = âge révolu cette année si `annee` connue, sinon `null`, et `is_current_month` = (mois === date('n')).
+    - `saveBirthday(array $in, int $userId): array` - valide (`nom` requis ; `jour` 1..31 ; `mois` 1..12 ; `annee` vide ou 1900..année courante) ; crée une ligne `anniversaires` ; `['ok','errors','id']`.
     - `deleteBirthday(int $id): void`
   - `app/Compat/data.php` : `function calendrier_service(): \App\Services\CalendrierService { return _repo(\App\Services\CalendrierService::class); }`
 
@@ -606,7 +606,7 @@ echo "OK m4 service\n";
 - [ ] **Step 2: Lancer, vérifier l'échec**
 
 Run: `cd /home/foxtrot/Téléchargements/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6/labelleeglise && php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m4_service_check.php`
-Expected: FAIL — `Error: Class "App\Services\CalendrierService" not found`.
+Expected: FAIL - `Error: Class "App\Services\CalendrierService" not found`.
 
 - [ ] **Step 3: Créer `app/Services/CalendrierService.php`**
 
@@ -805,12 +805,12 @@ class CalendrierService
 function calendrier_service(): \App\Services\CalendrierService { return _repo(\App\Services\CalendrierService::class); }
 ```
 
-(Vérifier comment les autres services sont exposés dans `data.php` — reproduire l'idiome exact, `_repo(...)` ou `new ...`.)
+(Vérifier comment les autres services sont exposés dans `data.php` - reproduire l'idiome exact, `_repo(...)` ou `new ...`.)
 
 - [ ] **Step 5: Relancer l'assertion, vérifier le succès**
 
 Run: `php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m4_service_check.php`
-Expected: PASS — `OK m4 service`
+Expected: PASS - `OK m4 service`
 
 - [ ] **Step 6: Lint + commit**
 
@@ -846,9 +846,9 @@ EOF
 **Interfaces:**
 - Consumes de Task 4 : `calendrier_service()`. De Task 2 : `auth_can_manage_calendar()`, `auth_can_edit_evenement()`.
 - Produces :
-  - `App\Controllers\CalendrierController::evenements(): void` — GET `?page=calendrier` : si `?evt=<id>` présent → délègue à `evenementFiche($id)` ; sinon liste. Variables passées à `pages/calendrier` : `$events` (liste `allEvents()`), `$canManage` (`auth_can_manage_calendar()`), `$edit` (événement en cours d'édition si `?edit=<id>` et droit, sinon null), `$responsables` (liste `SELECT id, prenom, nom FROM users WHERE role IN ('berger','ms','pasteur','reverant','admin') ORDER BY prenom, nom`), `$errors` (array, vide hors retour d'erreur), `$old` (repopulation), `$csrf`, `$mode` = `'list'`.
-  - `CalendrierController::anniversaires(): void` — GET `?page=anniversaires` : passe `$birthdays` (`birthdays()`), `$canManage`, `$monthsFr` (`MONTHS_FR`), `$currentMonth` (`(int) date('n')`), `$errors`, `$old`, `$csrf`.
-  - `CalendrierController::evenementFiche(int $id): void` — rendu d'une fiche événement (détails + emplacement du pointage, câblé en Task 7). Pour cette tâche : affiche les détails + un lien retour ; le bloc pointage est ajouté en Task 7.
+  - `App\Controllers\CalendrierController::evenements(): void` - GET `?page=calendrier` : si `?evt=<id>` présent → délègue à `evenementFiche($id)` ; sinon liste. Variables passées à `pages/calendrier` : `$events` (liste `allEvents()`), `$canManage` (`auth_can_manage_calendar()`), `$edit` (événement en cours d'édition si `?edit=<id>` et droit, sinon null), `$responsables` (liste `SELECT id, prenom, nom FROM users WHERE role IN ('berger','ms','pasteur','reverant','admin') ORDER BY prenom, nom`), `$errors` (array, vide hors retour d'erreur), `$old` (repopulation), `$csrf`, `$mode` = `'list'`.
+  - `CalendrierController::anniversaires(): void` - GET `?page=anniversaires` : passe `$birthdays` (`birthdays()`), `$canManage`, `$monthsFr` (`MONTHS_FR`), `$currentMonth` (`(int) date('n')`), `$errors`, `$old`, `$csrf`.
+  - `CalendrierController::evenementFiche(int $id): void` - rendu d'une fiche événement (détails + emplacement du pointage, câblé en Task 7). Pour cette tâche : affiche les détails + un lien retour ; le bloc pointage est ajouté en Task 7.
   - Route `Router::get('calendrier', CalendrierController::class, 'evenements')` et `Router::get('anniversaires', CalendrierController::class, 'anniversaires')` + `use App\Controllers\CalendrierController;`.
   - `assets/css/calendrier.css` importé dans `app.css` juste après `@import url('presences.css');`.
 
@@ -895,7 +895,7 @@ echo "OK m4 views\n";
 - [ ] **Step 2: Lancer, vérifier l'échec**
 
 Run: `cd /home/foxtrot/Téléchargements/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6/labelleeglise && php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m4_view_check.php`
-Expected: FAIL — `AssertionError: CalendrierController absent`.
+Expected: FAIL - `AssertionError: CalendrierController absent`.
 
 - [ ] **Step 3: Créer `app/Controllers/CalendrierController.php`**
 
@@ -1053,7 +1053,7 @@ if (($mode ?? 'list') === 'fiche'):
       <div class="form-group">
         <label>Responsable</label>
         <select name="responsable_id">
-          <option value="">—</option>
+          <option value="">-</option>
           <?php foreach ($responsables as $r): ?>
             <option value="<?= (int) $r['id'] ?>" <?= (int) ($old['responsable_id'] ?? ($e['responsable_id'] ?? 0)) === (int) $r['id'] ? 'selected' : '' ?>><?= h(trim($r['prenom'] . ' ' . $r['nom'])) ?></option>
           <?php endforeach; ?>
@@ -1102,7 +1102,7 @@ if (($mode ?? 'list') === 'fiche'):
 <?php /* Calendrier d'anniversaires : fusion membres + saisies manuelles.
    Variables : $birthdays, $canManage, $monthsFr, $currentMonth, $errors, $old, $csrf. */ ?>
 <div class="section-toolbar">
-  <div><h2><?= h(SECTION_LABELS['anniversaires']) ?></h2><div class="sub">Anniversaires de l'année — mois courant surligné</div></div>
+  <div><h2><?= h(SECTION_LABELS['anniversaires']) ?></h2><div class="sub">Anniversaires de l'année - mois courant surligné</div></div>
 </div>
 
 <?php if ($canManage): ?>
@@ -1123,7 +1123,7 @@ if (($mode ?? 'list') === 'fiche'):
       <div class="form-group">
         <label>Mois</label>
         <select name="mois" required>
-          <option value="">—</option>
+          <option value="">-</option>
           <?php foreach ($monthsFr as $i => $m): ?>
             <option value="<?= $i + 1 ?>" <?= (int) ($old['mois'] ?? 0) === $i + 1 ? 'selected' : '' ?>><?= h($m) ?></option>
           <?php endforeach; ?>
@@ -1151,7 +1151,7 @@ if (($mode ?? 'list') === 'fiche'):
           <tr class="<?= $b['is_current_month'] ? 'anniv-current' : '' ?>">
             <td><?= (int) $b['jour'] ?> <?= h($monthsFr[$b['mois'] - 1] ?? '') ?></td>
             <td><?= h($b['nom']) ?></td>
-            <td><?= $b['age'] !== null ? (int) $b['age'] . ' ans' : '—' ?></td>
+            <td><?= $b['age'] !== null ? (int) $b['age'] . ' ans' : '-' ?></td>
             <td><?= $b['source'] === 'membre' ? 'Membre' : 'Saisie manuelle' ?></td>
             <?php if ($canManage): ?>
               <td class="row-actions">
@@ -1171,7 +1171,7 @@ if (($mode ?? 'list') === 'fiche'):
 - [ ] **Step 7: Créer `assets/css/calendrier.css` + import**
 
 ```css
-/* M4 — Calendriers (événements + anniversaires) */
+/* M4 - Calendriers (événements + anniversaires) */
 
 .cal-form {
   margin-bottom: var(--space-6);
@@ -1194,7 +1194,7 @@ tr.anniv-current td {
 }
 ```
 
-Puis `assets/css/app.css` — après `@import url('presences.css');` :
+Puis `assets/css/app.css` - après `@import url('presences.css');` :
 
 ```css
 @import url('calendrier.css');
@@ -1205,7 +1205,7 @@ Puis `assets/css/app.css` — après `@import url('presences.css');` :
 - [ ] **Step 8: Relancer l'assertion, vérifier le succès**
 
 Run: `php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m4_view_check.php`
-Expected: PASS — `OK m4 views`
+Expected: PASS - `OK m4 views`
 
 - [ ] **Step 9: Lint + commit**
 
@@ -1233,12 +1233,12 @@ EOF
 - Modify: `app/Controllers/ActionsController.php` (postAction : `save_evenement`, `save_anniversaire` ; getAction : `delete_evenement`, `delete_anniversaire`)
 - Test: `/home/foxtrot/.claude/jobs/e2c26e8c/tmp/m4_action_check.php`
 
-> **CSRF :** `postAction()` appelle `check_csrf()` une seule fois en tête, avant le `switch` (ligne ~248). Les nouveaux cas POST n'ajoutent donc **aucun** appel CSRF. Les suppressions passent par `getAction()` en GET, comme `delete_bacenta` (pas de CSRF sur les suppressions GET dans ce projet — reproduire tel quel, ne pas ajouter).
+> **CSRF :** `postAction()` appelle `check_csrf()` une seule fois en tête, avant le `switch` (ligne ~248). Les nouveaux cas POST n'ajoutent donc **aucun** appel CSRF. Les suppressions passent par `getAction()` en GET, comme `delete_bacenta` (pas de CSRF sur les suppressions GET dans ce projet - reproduire tel quel, ne pas ajouter).
 
 **Interfaces:**
 - Consumes de Task 4 : `calendrier_service()`. De Task 2 : `auth_can_manage_calendar()`, `auth_can_edit_evenement()`.
 - Produces :
-  - POST `save_evenement` : `$this->requireUser()`, `auth_can_manage_calendar()` sinon `deny()`. Sur `id` présent : charge l'événement, `auth_can_edit_evenement()` sinon `deny()`. Appelle `calendrier_service()->saveEvent($_POST, currentUserId)`. Succès → `redirect(page=calendrier)`. Échec de validation → re-render la vue `pages/calendrier` avec `errors` + `old` (ou, plus simple et cohérent avec le reste du projet qui `redirect()` toujours : `redirect(page=calendrier, edit=<id?>)` — **choisir la re-render pour préserver la saisie**, voir Step 3).
+  - POST `save_evenement` : `$this->requireUser()`, `auth_can_manage_calendar()` sinon `deny()`. Sur `id` présent : charge l'événement, `auth_can_edit_evenement()` sinon `deny()`. Appelle `calendrier_service()->saveEvent($_POST, currentUserId)`. Succès → `redirect(page=calendrier)`. Échec de validation → re-render la vue `pages/calendrier` avec `errors` + `old` (ou, plus simple et cohérent avec le reste du projet qui `redirect()` toujours : `redirect(page=calendrier, edit=<id?>)` - **choisir la re-render pour préserver la saisie**, voir Step 3).
   - POST `save_anniversaire` : idem, `calendrier_service()->saveBirthday($_POST, currentUserId)`.
   - GET `delete_evenement` : `requireUser()`, charge l'événement, `auth_can_edit_evenement()` sinon `deny()`, `deleteEvent()`, `redirect(page=calendrier)`.
   - GET `delete_anniversaire` : `requireUser()`, `auth_can_manage_calendar()` sinon `deny()`, `deleteBirthday((int) id)`, `redirect(page=anniversaires)`.
@@ -1264,7 +1264,7 @@ echo "OK m4 actions wiring\n";
 - [ ] **Step 2: Lancer, vérifier l'échec**
 
 Run: `cd /home/foxtrot/Téléchargements/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6/labelleeglise && php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m4_action_check.php`
-Expected: FAIL — `AssertionError: save_evenement absent`.
+Expected: FAIL - `AssertionError: save_evenement absent`.
 
 - [ ] **Step 3: Ajouter les cas POST**
 
@@ -1327,7 +1327,7 @@ Repérer comment les cas `save_*` existants font le CSRF (par ex. `save_bacenta`
             }
 ```
 
-> `check_csrf()` est déjà global en tête de `postAction()` — ne rien ajouter dans ces cas.
+> `check_csrf()` est déjà global en tête de `postAction()` - ne rien ajouter dans ces cas.
 
 - [ ] **Step 4: Ajouter les cas GET (suppression)**
 
@@ -1417,7 +1417,7 @@ EOF
 
 ---
 
-### Task 7: Addendum M1 — pointage de présence d'un événement
+### Task 7: Addendum M1 - pointage de présence d'un événement
 
 **Files:**
 - Modify: `app/Repositories/AttendanceRepository.php` (`UNIT_COLUMNS`)
@@ -1429,7 +1429,7 @@ EOF
 **Interfaces:**
 - Consumes de Task 1 : `presences.evenement_id`. De M1 (déjà livré) : `AttendanceService::pointOccurrence`, `unit_presence_grid`, `save_unit_presence`, action `save_presence_occurrence`, `PRESENCE_STATUTS`.
 - Produces :
-  - `AttendanceRepository::UNIT_COLUMNS` inclut `'evenement' => 'evenement_id'` — `pointOccurrence`/`occurrenceStatuts`/`distinctDatesForUnit`/`matrixForUnit` fonctionnent avec `unitType = 'evenement'`.
+  - `AttendanceRepository::UNIT_COLUMNS` inclut `'evenement' => 'evenement_id'` - `pointOccurrence`/`occurrenceStatuts`/`distinctDatesForUnit`/`matrixForUnit` fonctionnent avec `unitType = 'evenement'`.
   - `save_presence_occurrence` accepte `unit_type = 'evenement'` : population autorisée = `SELECT id FROM users WHERE role IN ('membre','leader','assistant','pasteur','reverant')` ; garde d'accès = `auth_can_manage_calendar()` OU `auth_can_edit_evenement($evt)` (l'événement est rechargé) ; redirection vers `?page=calendrier&evt=<id>&date=<date>`.
   - `CalendrierController::evenementFiche` passe `presenceGrid` (`unit_presence_grid('evenement', $id, $date, $members)`), `presenceDate`, `presenceStatuts`, `canPointe` à la vue.
   - `Views/pages/calendrier.php` (mode fiche) : si `$canPointe`, affiche un sélecteur de date + un tableau membre → `<select>` statut postant `save_presence_occurrence` avec `unit_type=evenement`.
@@ -1474,7 +1474,7 @@ echo "OK m4 evt presence\n";
 - [ ] **Step 2: Lancer, vérifier l'échec**
 
 Run: `cd /home/foxtrot/Téléchargements/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6/labelleeglise && php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m4_evt_presence_check.php`
-Expected: FAIL — `InvalidArgumentException: Type d'unité inconnu: evenement`.
+Expected: FAIL - `InvalidArgumentException: Type d'unité inconnu: evenement`.
 
 - [ ] **Step 3: Étendre `UNIT_COLUMNS`**
 
@@ -1520,9 +1520,9 @@ Et la redirection finale gère le type `evenement` :
                 $this->redirect('index.php', ['page' => $pageKey, 'id' => $unitId, 'tab' => 'presences', 'date' => $date]);
 ```
 
-- [ ] **Step 5: Fiche événement — grille de pointage (contrôleur)**
+- [ ] **Step 5: Fiche événement - grille de pointage (contrôleur)**
 
-`app/Controllers/CalendrierController.php`, `evenementFiche()` — compléter le tableau passé à la vue :
+`app/Controllers/CalendrierController.php`, `evenementFiche()` - compléter le tableau passé à la vue :
 
 ```php
         $canPointe = auth_can_manage_calendar() || auth_can_edit_evenement($evt);
@@ -1548,7 +1548,7 @@ Et la redirection finale gère le type `evenement` :
         ]));
 ```
 
-- [ ] **Step 6: Fiche événement — bloc de pointage (vue)**
+- [ ] **Step 6: Fiche événement - bloc de pointage (vue)**
 
 `Views/pages/calendrier.php`, remplacer `<div id="evt-presence"><!-- ... --></div>` par :
 
@@ -1576,7 +1576,7 @@ Et la redirection finale gère le type `evenement` :
             <td><?= h(full_name($u)) ?></td>
             <td>
               <select name="statut[<?= (int) $u['id'] ?>]">
-                <option value="">—</option>
+                <option value="">-</option>
                 <?php foreach ($presenceStatuts as $k => $lbl): ?>
                   <option value="<?= h($k) ?>" <?= $line['statut'] === $k ? 'selected' : '' ?>><?= h($lbl) ?></option>
                 <?php endforeach; ?>
@@ -1595,7 +1595,7 @@ Et la redirection finale gère le type `evenement` :
 - [ ] **Step 7: Relancer l'assertion, vérifier le succès**
 
 Run: `php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m4_evt_presence_check.php`
-Expected: PASS — `OK m4 evt presence`
+Expected: PASS - `OK m4 evt presence`
 
 - [ ] **Step 8: Lint + smoke-render fiche**
 
@@ -1652,17 +1652,17 @@ EOF
 | `save_presence_occurrence` accepte `unit_type='evenement'`, population = tous les membres, accessible depuis la fiche événement | Task 7 |
 | CSS `assets/css/calendrier.css` | Task 5, Step 7 |
 | Table d'appoint pour non-utilisateurs (ex. « AKELE NZUE Leïla 30/11 ») | Task 3 (`AnniversaireRepository`), Task 4 (`saveBirthday`) |
-| Masquage de membres du calendrier | Hors périmètre — Décision #4 (spec §6b : non demandé) |
-| Grille mensuelle type agenda | Non retenue — Décision #6 (tableau chronologique, autorisé par la spec) |
-| Matrice annuelle de présence pour un événement | Non retenue — Décision #5 (événement non récurrent) |
+| Masquage de membres du calendrier | Hors périmètre - Décision #4 (spec §6b : non demandé) |
+| Grille mensuelle type agenda | Non retenue - Décision #6 (tableau chronologique, autorisé par la spec) |
+| Matrice annuelle de présence pour un événement | Non retenue - Décision #5 (événement non récurrent) |
 
-**2. Placeholder scan :** chaque step fournit le code exact et la commande exacte avec sa sortie attendue. Les « vérifier l'idiome exact » (Task 4 Step 4 accessor `data.php`, Task 6 Step 3 appel CSRF) nomment précisément quoi copier et depuis quel voisin — ce sont des ancrages sur des conventions du dépôt, pas des TODO de logique.
+**2. Placeholder scan :** chaque step fournit le code exact et la commande exacte avec sa sortie attendue. Les « vérifier l'idiome exact » (Task 4 Step 4 accessor `data.php`, Task 6 Step 3 appel CSRF) nomment précisément quoi copier et depuis quel voisin - ce sont des ancrages sur des conventions du dépôt, pas des TODO de logique.
 
 **3. Type consistency :**
-- `saveEvent()` / `saveBirthday()` renvoient toujours `['ok'=>bool,'errors'=>array,'id'=>?int]` — consommé identiquement par les actions (Task 6) et les scripts d'assertion (Task 4).
-- `birthdays()` renvoie des entrées `{nom,jour,mois,annee,source,id,age,is_current_month}` — clés utilisées à l'identique dans `Views/pages/anniversaires.php` et `m4_service_check.php`.
-- `unitType` pour le moteur de présence : `bacenta|cult|basonta|evenement` — `UNIT_COLUMNS` (Task 7 Step 3), l'action (Task 7 Step 4) et la fiche (Task 7 Step 6) alignés ; `evenement` mappe la colonne `evenement_id`.
-- `auth_can_manage_calendar(): bool` et `auth_can_edit_evenement(array): bool` — signatures fixes, référencées en Tasks 2, 5, 6, 7.
+- `saveEvent()` / `saveBirthday()` renvoient toujours `['ok'=>bool,'errors'=>array,'id'=>?int]` - consommé identiquement par les actions (Task 6) et les scripts d'assertion (Task 4).
+- `birthdays()` renvoie des entrées `{nom,jour,mois,annee,source,id,age,is_current_month}` - clés utilisées à l'identique dans `Views/pages/anniversaires.php` et `m4_service_check.php`.
+- `unitType` pour le moteur de présence : `bacenta|cult|basonta|evenement` - `UNIT_COLUMNS` (Task 7 Step 3), l'action (Task 7 Step 4) et la fiche (Task 7 Step 6) alignés ; `evenement` mappe la colonne `evenement_id`.
+- `auth_can_manage_calendar(): bool` et `auth_can_edit_evenement(array): bool` - signatures fixes, référencées en Tasks 2, 5, 6, 7.
 - `EvenementRepository::create/update` : ordre des paramètres `(nom, dateDebut, dateFin, lieu, responsableId[, createdBy])` identique entre le repo (Task 3), le service (Task 4) et les assertions.
 
 **4. Ordre des tâches :** 1 (schéma) → 2 (RBAC/nav, indépendant du schéma mais requis par la suite) → 3 (repos, dépend de 1) → 4 (service, dépend de 3) → 5 (contrôleur/vues, dépend de 4 et 2) → 6 (actions, dépend de 4/5) → 7 (addendum présence événement, dépend de 1/4/5/6 et du M1 déjà livré). Séquentiel strict.

@@ -21,7 +21,7 @@ if ($scope && $scope['kind'] === 'berger') {
     $navLis[] = '<li><a class="nav-item' . ($page === 'suiviBergers' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'suiviBergers', 'membre' => $scope['user_id']])) . '"><span class="ico"><i class="fa-solid fa-calendar-days"></i></span><span class="label">Mon suivi hebdomadaire</span></a></li>';
     if ($scope['bacenta_id']) {
         $grp = get_bacenta($scope['bacenta_id']);
-        $navLis[] = '<li><a class="nav-item' . ($page === 'bacentas' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'bacentas', 'id' => $scope['bacenta_id']])) . '"><span class="ico"><i class="fa-solid fa-church"></i></span><span class="label">Mon Bacenta — ' . h($grp['nom'] ?? '') . '</span></a></li>';
+        $navLis[] = '<li><a class="nav-item' . ($page === 'bacentas' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'bacentas', 'id' => $scope['bacenta_id']])) . '"><span class="ico"><i class="fa-solid fa-church"></i></span><span class="label">Mon Bacenta - ' . h($grp['nom'] ?? '') . '</span></a></li>';
     }
     // Responsabilités réelles (table `responsibilities`, spec §17) : liens
     // additifs vers les sections de gestion correspondantes, indépendants
@@ -42,7 +42,7 @@ if ($scope && $scope['kind'] === 'berger') {
     // compte public : pages publiques uniquement
 } else {
     // 'apropos' et 'centresPresentation' sont déjà fournis par $publicLis
-    // (toujours en première position — voir array_merge ci-dessous) : les
+    // (toujours en première position - voir array_merge ci-dessous) : les
     // ignorer ici pour ne pas les afficher deux fois dans le menu admin.
     foreach (NAV_ORDER as $key) {
         if (in_array($key, ['apropos', 'centresPresentation'], true)) {
@@ -152,7 +152,7 @@ if (in_array($page, ['bacentas', 'cultes', 'basontas'], true) && nav('id')) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title><?= h($title) ?> — <?= h(APP_NAME) ?></title>
+<title><?= h($title) ?> - <?= h(APP_NAME) ?></title>
 <!-- Espace de gestion interne (session requise) : jamais indexé. -->
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96x96.png">

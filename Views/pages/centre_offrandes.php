@@ -2,7 +2,7 @@
            Variables : $centre, $monthKey, $monthOptions, $offrandes, $monthTotal, $yearTotal, $year, $csrf. */ ?>
 <div class="section-toolbar">
   <div>
-    <h2><?= h($centre['nom']) ?> — Offrandes</h2>
+    <h2><?= h($centre['nom']) ?> - Offrandes</h2>
     <div class="sub">Offrandes des mercredis</div>
   </div>
   <form method="get" action="index.php" class="suivi-toolbar">
@@ -20,7 +20,7 @@
   <input type="hidden" name="centre" value="<?= h($centre['id']) ?>">
   <input type="hidden" name="mois" value="<?= h($monthKey) ?>">
   <div class="suivi-block">
-    <h3><i class="fa-solid fa-sack-dollar"></i> Offrandes — <?= h($monthLabel ?? month_label($monthKey)) ?></h3>
+    <h3><i class="fa-solid fa-sack-dollar"></i> Offrandes - <?= h($monthLabel ?? month_label($monthKey)) ?></h3>
     <div class="table-wrap">
       <table class="data-table">
         <thead><tr><th>Semaine</th><th>Montant (FCFA)</th></tr></thead>

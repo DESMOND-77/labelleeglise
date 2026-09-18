@@ -3,7 +3,7 @@
  * Configuration générale de l'application.
  * -------------------------------------------------------------
  * Les valeurs qui varient selon l'environnement (URL, debug, fuseau…)
- * sont lues depuis les variables d'environnement (`.env` en local) —
+ * sont lues depuis les variables d'environnement (`.env` en local) -
  * voir `.env.example`.
  */
 

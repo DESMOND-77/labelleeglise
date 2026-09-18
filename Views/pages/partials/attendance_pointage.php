@@ -64,7 +64,7 @@ $segClass = ['present' => 'seg-present', 'absent' => 'seg-absent', 'excuse' => '
                       . ($st === (string) $key ? ' checked' : '') . '><span>' . h((string) $label) . '</span></label>';
               }
               echo '<label class="seg-none"><input type="radio" name="statut[' . $uid . ']" value=""'
-                  . ($st === '' ? ' checked' : '') . '><span>— Non renseigné</span></label>';
+                  . ($st === '' ? ' checked' : '') . '><span>- Non renseigné</span></label>';
               echo '</div>';
           } else {
               echo '<span>' . presence_badge($st !== '' ? ($statuts[$st] ?? $st) : null) . '</span>';

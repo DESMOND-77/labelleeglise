@@ -20,7 +20,7 @@ $val = fn($k, $d = '') => h($old[$k] ?? ($e[$k] ?? $d));
     <div class="form-group">
       <label>Formateur</label>
       <select name="formateur_id">
-        <option value="">—</option>
+        <option value="">-</option>
         <?php foreach ($formateurs as $f): ?>
           <option value="<?= (int) $f['id'] ?>" <?= (int) ($old['formateur_id'] ?? ($e['formateur_id'] ?? 0)) === (int) $f['id'] ? 'selected' : '' ?>><?= h(trim($f['prenom'] . ' ' . $f['nom'])) ?></option>
         <?php endforeach; ?>

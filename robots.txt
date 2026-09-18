@@ -1,4 +1,4 @@
-# La Belle Église — robots.txt
+# La Belle Église - robots.txt
 # ------------------------------------------------------------
 # IMPORTANT : la quasi-totalité des pages (?page=bacentas, ?page=finances,
 # ?page=parametres…) exige une session authentifiée (voir index.php) :
@@ -24,7 +24,7 @@ Disallow: /index.php?page=parametres
 Disallow: /index.php?page=finances
 Disallow: /install.php
 
-# Dossiers applicatifs (également bloqués côté serveur — voir .htaccess).
+# Dossiers applicatifs (également bloqués côté serveur - voir .htaccess).
 Disallow: /app/
 Disallow: /Bootstrap/
 Disallow: /Config/

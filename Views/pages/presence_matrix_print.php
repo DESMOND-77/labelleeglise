@@ -1,5 +1,5 @@
 <?php
-/* Matrice annuelle imprimable — page autonome (pas de sidebar/topbar).
+/* Matrice annuelle imprimable - page autonome (pas de sidebar/topbar).
  * Variables : $unit, $year, $matrix, $statuts, $printedAt. */
 ?>
 <!DOCTYPE html>
@@ -8,7 +8,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Présences <?= (int) $year ?> — <?= h($unit['nom']) ?> — <?= h(APP_NAME) ?></title>
+  <title>Présences <?= (int) $year ?> - <?= h($unit['nom']) ?> - <?= h(APP_NAME) ?></title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="stylesheet" href="assets/css/app.css">
   <link rel="stylesheet" href="assets/css/print.css">
@@ -43,7 +43,7 @@
         <?php foreach ($matrix['rows'] as $row): ?>
           <tr><td><?= h(full_name($row['user'])) ?></td>
             <?php foreach ($matrix['dates'] as $d): $s = $row['cells'][$d] ?? ''; ?>
-              <td><?= $s ? h(mb_substr($statuts[$s], 0, 1)) : '—' ?></td>
+              <td><?= $s ? h(mb_substr($statuts[$s], 0, 1)) : '-' ?></td>
             <?php endforeach; ?>
           </tr>
         <?php endforeach; ?>
@@ -52,7 +52,7 @@
     <p>P = Présent · A = Absent · E = Excusé</p>
     <?php endif; ?>
 
-    <div class="print-footer"><?= h(APP_NAME) ?> — Fiche générée automatiquement, à usage administratif.</div>
+    <div class="print-footer"><?= h(APP_NAME) ?> - Fiche générée automatiquement, à usage administratif.</div>
   </div>
 </body>
 

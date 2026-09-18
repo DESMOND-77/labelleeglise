@@ -23,7 +23,7 @@ $culte = $culte ?? null;
       </div>
     </div>
     <?php if (!empty($respUrl)): ?>
-    <p class="form-hint">Responsable(s) — pasteur/révérend uniquement : gérez-les depuis <a href="<?= h($respUrl) ?>">Paramètres → Accès &amp; Responsables</a>.</p>
+    <p class="form-hint">Responsable(s) - pasteur/révérend uniquement : gérez-les depuis <a href="<?= h($respUrl) ?>">Paramètres → Accès &amp; Responsables</a>.</p>
     <?php endif; ?>
     <div class="modal-actions">
       <a class="btn btn-outline" href="<?= h($cancelUrl) ?>">Annuler</a>

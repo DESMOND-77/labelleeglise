@@ -55,6 +55,20 @@ class ContributionRepository
         return (int) Query::value("SELECT COALESCE(SUM(montant),0) FROM offrandes WHERE $col IS NOT NULL AND mois LIKE ?", [$year . '-%']);
     }
 
+    public function saveReportOffering(int $reportId, int $bacentaId, string $date, float $amount): void
+    {
+        Query::run('DELETE FROM offrandes WHERE rapport_id = ?', [$reportId]);
+        if ($amount <= 0) {
+            return;
+        }
+        $month = substr($date, 0, 7);
+        $weekIndex = min(3, max(0, (int) floor(((int) substr($date, 8, 2) - 1) / 7)));
+        Query::run(
+            'INSERT INTO offrandes (bacenta_id, rapport_id, montant, date_offrande, mois, jour_index) VALUES (?, ?, ?, ?, ?, ?)',
+            [$bacentaId, $reportId, $amount, $date, $month, $weekIndex]
+        );
+    }
+
     /** Dîmes d'un membre sur une année (12 mois). */
     public function dimes(int $userId, int $year): array
     {

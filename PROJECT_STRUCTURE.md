@@ -1,4 +1,4 @@
-# PROJECT_STRUCTURE — La Belle Église
+# PROJECT_STRUCTURE - La Belle Église
 
 Rôle détaillé de chaque dossier et fichier de l'application.
 

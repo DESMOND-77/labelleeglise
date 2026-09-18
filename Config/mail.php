@@ -5,7 +5,7 @@
  * Les identifiants SMTP ne doivent JAMAIS être codés en dur ici en
  * production : ils sont lus depuis les variables d'environnement
  * (`env_value()`, défini dans `Bootstrap/env.php` et chargé depuis le
- * fichier `.env` en local — voir `.env.example`), avec des valeurs par
+ * fichier `.env` en local - voir `.env.example`), avec des valeurs par
  * défaut neutres pour le développement local. Sur l'hébergement, définissez
  * ces variables via `.env` (non versionné) ou les vraies variables
  * d'environnement du serveur (Apache/PHP-FPM, panneau d'hébergement).

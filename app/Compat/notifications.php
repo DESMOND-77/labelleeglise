@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Compatibilité — centre de notifications & administration des inscriptions.
+ * Compatibilité - centre de notifications & administration des inscriptions.
  * Expose des fonctions globales pour les vues, à l'image des autres
  * fichiers app/Compat/*.php (délègue aux services applicatifs).
  */

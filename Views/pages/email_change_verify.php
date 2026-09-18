@@ -9,7 +9,7 @@ $copy = [
         'class' => 'success',
         'title' => 'Adresse email confirmée',
         'text'  => 'Votre nouvelle adresse email est maintenant active. Vous pouvez vous reconnecter avec cette '
-                 . 'nouvelle adresse — votre ancienne adresse ne fonctionne plus pour la connexion.',
+                 . 'nouvelle adresse - votre ancienne adresse ne fonctionne plus pour la connexion.',
     ],
     'expired' => [
         'icon'  => 'fa-solid fa-triangle-exclamation',
@@ -35,7 +35,7 @@ if ($copy === null) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Changement d'email — <?= h(APP_NAME) ?></title>
+  <title>Changement d'email - <?= h(APP_NAME) ?></title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96x96.png">
   <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml" sizes="any">

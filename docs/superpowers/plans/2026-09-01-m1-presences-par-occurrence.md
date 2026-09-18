@@ -1,12 +1,12 @@
-# M1 — Présences par occurrence (Bacentas / Basontas / Cultes) + matrice annuelle — Implementation Plan
+# M1 - Présences par occurrence (Bacentas / Basontas / Cultes) + matrice annuelle - Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Pouvoir définir un ou plusieurs jour(s) de récurrence sur un culte / bacenta / basonta, puis pointer pour une date donnée la présence de chaque membre (Présent / Absent / Excusé), et consulter/imprimer une matrice annuelle des présences par unité.
 
-**Architecture:** La table `presences` existe déjà et porte `user_id, date_presence, culte_id, bacenta_id, basonta_id, centre_id`. On lui ajoute une colonne `statut` et un index d'unicité. Le pointage passe par un upsert transactionnel (delete des lignes de l'(unité, date) puis insert des nouveaux statuts) ajouté à `AttendanceRepository` / `AttendanceService` (pas de nouveau service parallèle). La config de récurrence (`jours_semaine`, `heure_debut`, `heure_fin`) est ajoutée aux repositories `Bacenta`/`Culte`/`Basonta` et à leurs formulaires + actions existants. L'UI de pointage et la matrice sont des **onglets** rendus dans les pages détail existantes (`render_bacenta_detail` / `render_culte_detail` / `render_basonta_detail` du compat layer) — aucune nouvelle entrée de menu. Seule l'impression de la matrice est une route autonome (`presencePrint`).
+**Architecture:** La table `presences` existe déjà et porte `user_id, date_presence, culte_id, bacenta_id, basonta_id, centre_id`. On lui ajoute une colonne `statut` et un index d'unicité. Le pointage passe par un upsert transactionnel (delete des lignes de l'(unité, date) puis insert des nouveaux statuts) ajouté à `AttendanceRepository` / `AttendanceService` (pas de nouveau service parallèle). La config de récurrence (`jours_semaine`, `heure_debut`, `heure_fin`) est ajoutée aux repositories `Bacenta`/`Culte`/`Basonta` et à leurs formulaires + actions existants. L'UI de pointage et la matrice sont des **onglets** rendus dans les pages détail existantes (`render_bacenta_detail` / `render_culte_detail` / `render_basonta_detail` du compat layer) - aucune nouvelle entrée de menu. Seule l'impression de la matrice est une route autonome (`presencePrint`).
 
-**Tech Stack:** PHP 8 SSR, micro-framework maison, zéro dépendance. MySQL/MariaDB via `App\Core\Query` (`all/one/value/run/transaction`). Pas de PHPUnit — vérification = `php -l` + scripts d'assertion `php` exécutés contre la base de dev + parcours manuel substitué par lint/grep là où un navigateur est requis.
+**Tech Stack:** PHP 8 SSR, micro-framework maison, zéro dépendance. MySQL/MariaDB via `App\Core\Query` (`all/one/value/run/transaction`). Pas de PHPUnit - vérification = `php -l` + scripts d'assertion `php` exécutés contre la base de dev + parcours manuel substitué par lint/grep là où un navigateur est requis.
 
 **Spec:** `docs/superpowers/specs/2026-09-01-integration-modules-eglise-design.md` (§4 « M1 »)
 
@@ -23,13 +23,13 @@
 - Comptes de démo : `admin@labelleeglise.ga` / `LBEGF` (admin) ; `berger.eric.bongo@labelleeglise.ga` / `BergerEB1` (berger) ; `resp.bacenta.sion@labelleeglise.ga` / `ESKLna` (responsable).
 - Base de dev joignable : MySQL `127.0.0.1:3306`, user `root`, db `la_belle_eglise_db` (via `.env` déjà configuré).
 
-## Décisions de cadrage (spec §7 « points ouverts » — tranchées ici, spec = autorité)
+## Décisions de cadrage (spec §7 « points ouverts » - tranchées ici, spec = autorité)
 
-1. **Extension de `AttendanceRepository` / `AttendanceService`**, pas de nouveau `PresenceService`. La classe est déjà « Présences (culte, bacenta, basonta, centre) et pointage » et porte `historyForUser`, `hasPresence`, `insert`, `deleteByColumn` — un service parallèle dupliquerait cette logique.
+1. **Extension de `AttendanceRepository` / `AttendanceService`**, pas de nouveau `PresenceService`. La classe est déjà « Présences (culte, bacenta, basonta, centre) et pointage » et porte `historyForUser`, `hasPresence`, `insert`, `deleteByColumn` - un service parallèle dupliquerait cette logique.
 2. **Index d'unicité incluant `centre_id`** : `(user_id, date_presence, culte_id, bacenta_id, basonta_id, centre_id)`. La spec §4 l'écrit sans `centre_id`, mais des lignes de présence « centre » existent dans la même table (`MemberService::presenceStatus` cas `presenceCentre`) et provoqueraient une fausse collision `(uid, date, NULL, NULL, NULL)`. Un bloc de déduplication précède la création de l'index.
 3. **Pointage culte hérité laissé intact** : `point_culte` + `Views/pages/culte_detail.php` ne sont pas touchés. Le nouvel onglet `tab=presences` est ajouté à côté (norme projet « étendre sans toucher à l'UI qui marche »). Les deux écrivent des lignes `presences` sur `(culte_id, date)` ; le nouvel écrit `statut`, l'ancien laisse le défaut `'present'`.
-4. **Aucune entrée de navigation ajoutée** : toute l'UI M1 est en onglets dans les pages détail d'unité existantes. Seul `presencePrint` est une route neuve (fenêtre d'impression, pas une destination de menu). C'est une déviation assumée du §D de la spec (« chaque page → entrée de menu ») — M1 n'ajoute pas de page de niveau menu.
-5. **« Nom de la personne visitée » (Bacentas) : hors périmètre de ce plan** — spec §4 M1 la laisse explicitement à confirmer avec l'utilisateur ; la table `visites` la couvre déjà.
+4. **Aucune entrée de navigation ajoutée** : toute l'UI M1 est en onglets dans les pages détail d'unité existantes. Seul `presencePrint` est une route neuve (fenêtre d'impression, pas une destination de menu). C'est une déviation assumée du §D de la spec (« chaque page → entrée de menu ») - M1 n'ajoute pas de page de niveau menu.
+5. **« Nom de la personne visitée » (Bacentas) : hors périmètre de ce plan** - spec §4 M1 la laisse explicitement à confirmer avec l'utilisateur ; la table `visites` la couvre déjà.
 6. **Restriction du sélecteur de date aux jours configurés : non implémentée en JS.** Le champ `<input type="date">` reste libre ; un texte d'aide rappelle les jours de récurrence. Pas de build JS pour si peu.
 
 ## Statuts
@@ -46,7 +46,7 @@ Valeur par défaut = `present`. Toute valeur reçue hors de ces clés est rejet�
 
 | Fichier | Rôle | Action |
 |---|---|---|
-| `Database/Migrations/2024_01_01_000000_create_schema.php` | Migration idempotente unique | Modifier : bloc « 10 » — colonnes `jours_semaine`/`heure_debut`/`heure_fin`, colonne `presences.statut`, dédup + `CREATE UNIQUE INDEX uniq_presence` |
+| `Database/Migrations/2024_01_01_000000_create_schema.php` | Migration idempotente unique | Modifier : bloc « 10 » - colonnes `jours_semaine`/`heure_debut`/`heure_fin`, colonne `presences.statut`, dédup + `CREATE UNIQUE INDEX uniq_presence` |
 | `Config/constants.php` | Constantes métier | Modifier : `PRESENCE_STATUTS` |
 | `app/Repositories/CulteRepository.php` | SQL cultes | Modifier : `create`/`update` acceptent `?string $jours` |
 | `app/Repositories/BacentaRepository.php` | SQL bacentas | Modifier : `create`/`update` acceptent `?string $jours, ?string $debut, ?string $fin` |
@@ -60,16 +60,16 @@ Valeur par défaut = `present`. Toute valeur reçue hors de ces clés est rejet�
 | `app/Repositories/AttendanceRepository.php` | SQL présences | Modifier : `pointOccurrence`, `occurrenceStatuts`, `annualMatrix`, `distinctDatesForUnit` |
 | `app/Services/AttendanceService.php` | Logique pointage | Modifier : `pointOccurrence`, `occurrenceGrid`, `annualMatrix` |
 | `app/Compat/data.php` | Wrappers globaux données | Modifier : `unit_presence_grid`, `unit_annual_matrix`, `save_unit_presence` |
-| `app/Controllers/PresenceController.php` | **Nouveau** — impression matrice | Créer : `matrixPrint()` |
+| `app/Controllers/PresenceController.php` | **Nouveau** - impression matrice | Créer : `matrixPrint()` |
 | `Routes/web.php` | Routes | Modifier : `Router::get('presencePrint', PresenceController::class, 'matrixPrint')` |
-| `Views/pages/presence_occurrence.php` | **Nouveau** — pointage d'une date | Créer |
-| `Views/pages/presence_matrix.php` | **Nouveau** — matrice annuelle in-app | Créer |
-| `Views/pages/presence_matrix_print.php` | **Nouveau** — matrice imprimable autonome | Créer |
-| `assets/css/presences.css` | **Nouveau** — styles M1 | Créer + inclure comme les autres CSS |
+| `Views/pages/presence_occurrence.php` | **Nouveau** - pointage d'une date | Créer |
+| `Views/pages/presence_matrix.php` | **Nouveau** - matrice annuelle in-app | Créer |
+| `Views/pages/presence_matrix_print.php` | **Nouveau** - matrice imprimable autonome | Créer |
+| `assets/css/presences.css` | **Nouveau** - styles M1 | Créer + inclure comme les autres CSS |
 
 ---
 
-### Task 1: Schéma — récurrence, colonne `statut`, index d'unicité + constante
+### Task 1: Schéma - récurrence, colonne `statut`, index d'unicité + constante
 
 **Files:**
 - Modify: `Database/Migrations/2024_01_01_000000_create_schema.php` (fin de `up()`, après le bloc « 9 » de M3, avant l'accolade fermante)
@@ -138,7 +138,7 @@ echo "OK schema\n";
 - [ ] **Step 2: Lancer, vérifier l'échec**
 
 Run: `cd /home/foxtrot/Téléchargements/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6/labelleeglise && php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m1_schema_check.php`
-Expected: FAIL — `AssertionError: cultes.jours_semaine manquante` (ou `PRESENCE_STATUTS non définie` selon l'ordre de chargement).
+Expected: FAIL - `AssertionError: cultes.jours_semaine manquante` (ou `PRESENCE_STATUTS non définie` selon l'ordre de chargement).
 
 - [ ] **Step 3: Ajouter la constante**
 
@@ -155,11 +155,11 @@ Dans `Database/Migrations/2024_01_01_000000_create_schema.php`, fonction `up()`,
 
 ```php
 
-    /* ---- 10. M1 — Présences par occurrence -------------------------------
+    /* ---- 10. M1 - Présences par occurrence -------------------------------
      * a) Récurrence hebdomadaire des unités : jour(s) de la semaine (CSV de
      *    libellés WEEK_DAYS, ex. "Vendredi" ou "Lundi,Mercredi") + plage
      *    horaire facultative. `cultes` a déjà heure_debut/heure_fin.
-     * b) `presences.statut` : Présent / Absent / Excusé. Défaut 'present' —
+     * b) `presences.statut` : Présent / Absent / Excusé. Défaut 'present' -
      *    une ligne de présence existante signifiait déjà "présent".
      * c) Index d'unicité : une ligne de présence par (personne, date, unité).
      *    centre_id est inclus (des lignes "centre" existent dans la table).
@@ -226,7 +226,7 @@ Expected: `up() OK`, aucune exception.
 - [ ] **Step 6: Relancer l'assertion, vérifier le succès**
 
 Run: `php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m1_schema_check.php`
-Expected: PASS — `OK schema`
+Expected: PASS - `OK schema`
 
 - [ ] **Step 7: Vérifier l'idempotence**
 
@@ -266,10 +266,10 @@ EOF
 - Modify: `app/Repositories/BacentaRepository.php:50-60` (`create`, `update`)
 - Modify: `app/Repositories/BasontaRepository.php:30-38` (`create`, `update`)
 - Modify: `app/Compat/structure.php:32-64` (`save_bacenta`, `save_culte`, `save_basonta`)
-- Modify: `app/Controllers/ActionsController.php` (cas `save_bacenta`, `save_culte`, `save_basonta` — vers lignes 284-338)
+- Modify: `app/Controllers/ActionsController.php` (cas `save_bacenta`, `save_culte`, `save_basonta` - vers lignes 284-338)
 - Modify: `Views/pages/forms/bacenta.php`, `Views/pages/forms/culte.php`
 - Create: `Views/pages/forms/basonta.php`
-- Modify: `app/Compat/sections.php` (`render_basonta_form` — vers ligne 712)
+- Modify: `app/Compat/sections.php` (`render_basonta_form` - vers ligne 712)
 - Test: `/home/foxtrot/.claude/jobs/e2c26e8c/tmp/m1_schedule_check.php`
 
 **Interfaces:**
@@ -316,11 +316,11 @@ echo "OK schedule persistence\n";
 - [ ] **Step 2: Lancer, vérifier l'échec**
 
 Run: `cd /home/foxtrot/Téléchargements/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6/labelleeglise && php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m1_schedule_check.php`
-Expected: FAIL — `ArgumentCountError` ou `AssertionError: jours_semaine non persisté` (la signature actuelle de `create` n'accepte pas les jours).
+Expected: FAIL - `ArgumentCountError` ou `AssertionError: jours_semaine non persisté` (la signature actuelle de `create` n'accepte pas les jours).
 
 - [ ] **Step 3: Étendre `CulteRepository`**
 
-`app/Repositories/CulteRepository.php` — `create` et `update` :
+`app/Repositories/CulteRepository.php` - `create` et `update` :
 
 ```php
     public function create(string $nom, ?string $date, ?string $debut, ?string $fin, ?int $resp = null, ?string $jours = null): int
@@ -340,7 +340,7 @@ Expected: FAIL — `ArgumentCountError` ou `AssertionError: jours_semaine non pe
     }
 ```
 
-(Adapter aux `[...]` de paramètres réellement présents lignes 36-44 — seul l'ajout de `jours_semaine` dans les colonnes/valeurs et du paramètre `$jours` est requis. `$resp` reste ignoré comme aujourd'hui.)
+(Adapter aux `[...]` de paramètres réellement présents lignes 36-44 - seul l'ajout de `jours_semaine` dans les colonnes/valeurs et du paramètre `$jours` est requis. `$resp` reste ignoré comme aujourd'hui.)
 
 - [ ] **Step 4: Étendre `BacentaRepository`**
 
@@ -420,7 +420,7 @@ function save_basonta(?int $id, string $nom, ?int $resp, ?string $jours = null, 
 - [ ] **Step 7: Relancer l'assertion de persistance, vérifier le succès**
 
 Run: `php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m1_schedule_check.php`
-Expected: PASS — `OK schedule persistence`
+Expected: PASS - `OK schedule persistence`
 
 - [ ] **Step 8: Lire les champs récurrence dans les actions**
 
@@ -435,7 +435,7 @@ Expected: PASS — `OK schedule persistence`
     }
 ```
 
-Cas `save_bacenta` — après la vérification d'autorisation, remplacer l'appel `save_bacenta(...)` par :
+Cas `save_bacenta` - après la vérification d'autorisation, remplacer l'appel `save_bacenta(...)` par :
 
 ```php
                 if ($nom !== '') {
@@ -446,7 +446,7 @@ Cas `save_bacenta` — après la vérification d'autorisation, remplacer l'appel
                 }
 ```
 
-Cas `save_culte` — le corps lit déjà `$debut`/`$fin` ; remplacer l'appel par :
+Cas `save_culte` - le corps lit déjà `$debut`/`$fin` ; remplacer l'appel par :
 
 ```php
                 if ($nom !== '') {
@@ -454,7 +454,7 @@ Cas `save_culte` — le corps lit déjà `$debut`/`$fin` ; remplacer l'appel par
                 }
 ```
 
-Cas `save_basonta` — remplacer l'appel par :
+Cas `save_basonta` - remplacer l'appel par :
 
 ```php
                 if ($nom !== '') {
@@ -537,7 +537,7 @@ $jours = explode(',', (string) ($basonta['jours_semaine'] ?? ''));
 
 - [ ] **Step 12: Pointer `render_basonta_form` vers la nouvelle vue**
 
-`app/Compat/sections.php`, fonction `render_basonta_form` — remplacer le `view('pages/forms/name', [...])` par :
+`app/Compat/sections.php`, fonction `render_basonta_form` - remplacer le `view('pages/forms/name', [...])` par :
 
 ```php
     $content = view('pages/forms/basonta', [
@@ -588,14 +588,14 @@ EOF
 **Interfaces:**
 - Consumes de Task 1 : colonne `presences.statut`, index `uniq_presence`.
 - Produces :
-  - `AttendanceRepository::UNIT_COLUMNS` — `['bacenta' => 'bacenta_id', 'cult' => 'culte_id', 'basonta' => 'basonta_id']` (const de classe privée ; `'cult'` = même clé que `RbacService::canManageEntity`).
-  - `AttendanceRepository::pointOccurrence(string $unitType, int $unitId, string $date, array $statutByUserId): void` — dans une transaction : `DELETE FROM presences WHERE <col> = ? AND date_presence = ?` puis une insertion par entrée `[userId => statut]`. Lève `\InvalidArgumentException` si `$unitType` inconnu.
-  - `AttendanceRepository::occurrenceStatuts(string $unitType, int $unitId, string $date): array` — `[userId => statut]` pour cette occurrence.
-  - `AttendanceRepository::distinctDatesForUnit(string $unitType, int $unitId, string $from, string $to): array` — liste triée de `date_presence` (chaînes `Y-m-d`) sur l'intervalle.
-  - `AttendanceRepository::matrixForUnit(string $unitType, int $unitId, string $from, string $to): array` — `[userId => [date => statut]]`.
-  - `AttendanceService::pointOccurrence(string $unitType, int $unitId, string $date, array $rawStatutByUserId, array $allowedUserIds): void` — filtre : ne garde que les `userId ∈ $allowedUserIds` et les statuts ∈ `array_keys(PRESENCE_STATUTS)` ; délègue au repo dans `Query::transaction()`.
-  - `AttendanceService::occurrenceGrid(string $unitType, int $unitId, string $date, array $members): array` — `[ ['user' => <row>, 'statut' => <statut|''> ], ... ]` dans l'ordre de `$members`.
-  - `AttendanceService::annualMatrix(string $unitType, int $unitId, int $year, array $members): array` — `['dates' => string[], 'rows' => [ ['user' => <row>, 'cells' => [date => statut] ], ... ]]`.
+  - `AttendanceRepository::UNIT_COLUMNS` - `['bacenta' => 'bacenta_id', 'cult' => 'culte_id', 'basonta' => 'basonta_id']` (const de classe privée ; `'cult'` = même clé que `RbacService::canManageEntity`).
+  - `AttendanceRepository::pointOccurrence(string $unitType, int $unitId, string $date, array $statutByUserId): void` - dans une transaction : `DELETE FROM presences WHERE <col> = ? AND date_presence = ?` puis une insertion par entrée `[userId => statut]`. Lève `\InvalidArgumentException` si `$unitType` inconnu.
+  - `AttendanceRepository::occurrenceStatuts(string $unitType, int $unitId, string $date): array` - `[userId => statut]` pour cette occurrence.
+  - `AttendanceRepository::distinctDatesForUnit(string $unitType, int $unitId, string $from, string $to): array` - liste triée de `date_presence` (chaînes `Y-m-d`) sur l'intervalle.
+  - `AttendanceRepository::matrixForUnit(string $unitType, int $unitId, string $from, string $to): array` - `[userId => [date => statut]]`.
+  - `AttendanceService::pointOccurrence(string $unitType, int $unitId, string $date, array $rawStatutByUserId, array $allowedUserIds): void` - filtre : ne garde que les `userId ∈ $allowedUserIds` et les statuts ∈ `array_keys(PRESENCE_STATUTS)` ; délègue au repo dans `Query::transaction()`.
+  - `AttendanceService::occurrenceGrid(string $unitType, int $unitId, string $date, array $members): array` - `[ ['user' => <row>, 'statut' => <statut|''> ], ... ]` dans l'ordre de `$members`.
+  - `AttendanceService::annualMatrix(string $unitType, int $unitId, int $year, array $members): array` - `['dates' => string[], 'rows' => [ ['user' => <row>, 'cells' => [date => statut] ], ... ]]`.
   - Wrappers `app/Compat/data.php` :
     - `save_unit_presence(string $unitType, int $unitId, string $date, array $rawStatuts, array $allowedUserIds): void`
     - `unit_presence_grid(string $unitType, int $unitId, string $date, array $members): array`
@@ -658,7 +658,7 @@ echo "OK engine\n";
 - [ ] **Step 2: Lancer, vérifier l'échec**
 
 Run: `cd /home/foxtrot/Téléchargements/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6/labelleeglise && php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m1_engine_check.php`
-Expected: FAIL — `Error: Call to undefined method App\Services\AttendanceService::pointOccurrence()`.
+Expected: FAIL - `Error: Call to undefined method App\Services\AttendanceService::pointOccurrence()`.
 
 - [ ] **Step 3: Ajouter les méthodes au repository**
 
@@ -799,7 +799,7 @@ function unit_annual_matrix(string $unitType, int $unitId, int $year, array $mem
 - [ ] **Step 6: Relancer l'assertion, vérifier le succès**
 
 Run: `php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m1_engine_check.php`
-Expected: PASS — `OK engine`
+Expected: PASS - `OK engine`
 
 - [ ] **Step 7: Lint**
 
@@ -809,7 +809,7 @@ Expected: `No syntax errors detected` partout.
 - [ ] **Step 8: Non-régression du pointage culte hérité**
 
 Run: `grep -n "function pointCulte\|function point_culte_presence\|pointCulte(" app/Repositories/AttendanceRepository.php app/Services/AttendanceService.php app/Compat/data.php`
-Expected : `pointCulte` (repo + service) et `point_culte_presence` (compat) sont toujours présents et inchangés — les ajouts sont purement additifs.
+Expected : `pointCulte` (repo + service) et `point_culte_presence` (compat) sont toujours présents et inchangés - les ajouts sont purement additifs.
 
 - [ ] **Step 9: Commit**
 
@@ -838,8 +838,8 @@ EOF
 **Files:**
 - Create: `Views/pages/presence_occurrence.php`
 - Create: `assets/css/presences.css`
-- Modify: le point d'inclusion CSS (même mécanisme que les CSS existants — voir Step 5)
-- Modify: `app/Compat/sections.php` (`render_bacenta_detail`, `render_culte_detail`, `render_basonta_detail` — ajout onglet `presences`)
+- Modify: le point d'inclusion CSS (même mécanisme que les CSS existants - voir Step 5)
+- Modify: `app/Compat/sections.php` (`render_bacenta_detail`, `render_culte_detail`, `render_basonta_detail` - ajout onglet `presences`)
 - Modify: `app/Controllers/ActionsController.php` (nouveau cas `save_presence_occurrence`)
 - Test: `/home/foxtrot/.claude/jobs/e2c26e8c/tmp/m1_action_check.php` + lint + grep
 
@@ -849,7 +849,7 @@ EOF
 - Produces :
   - Onglet `?page=<bacentas|cultes|basontas>&id=<id>&tab=presences&date=<Y-m-d>` rendu par les renderers détail.
   - Action POST `save_presence_occurrence` : champs `unit_type` (`bacenta|cult|basonta`), `unit_id`, `date` (`Y-m-d`), `statut[<userId>]` (`present|absent|excuse`). Garde : `check_csrf()` + `can_manage_entity($unit_type, $unit_id)`. Redirige vers l'onglet avec la date.
-  - Vue `Views/pages/presence_occurrence.php` — variables : `$unitType`, `$unit`, `$pageKey` (`bacentas|cultes|basontas`), `$date`, `$grid` (sortie `unit_presence_grid`), `$statuts` (`PRESENCE_STATUTS`), `$joursHint` (string), `$csrf`, `$matrixUrl`.
+  - Vue `Views/pages/presence_occurrence.php` - variables : `$unitType`, `$unit`, `$pageKey` (`bacentas|cultes|basontas`), `$date`, `$grid` (sortie `unit_presence_grid`), `$statuts` (`PRESENCE_STATUTS`), `$joursHint` (string), `$csrf`, `$matrixUrl`.
 
 - [ ] **Step 1: Écrire l'assertion qui échoue (action enregistrée)**
 
@@ -881,7 +881,7 @@ echo "OK wiring\n";
 - [ ] **Step 2: Lancer, vérifier l'échec**
 
 Run: `cd /home/foxtrot/Téléchargements/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6/labelleeglise && php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m1_action_check.php`
-Expected: FAIL — `AssertionError: cas save_presence_occurrence absent`.
+Expected: FAIL - `AssertionError: cas save_presence_occurrence absent`.
 
 - [ ] **Step 3: Créer `Views/pages/presence_occurrence.php`**
 
@@ -891,7 +891,7 @@ Expected: FAIL — `AssertionError: cas save_presence_occurrence absent`.
 <div class="section-toolbar">
   <div>
     <h2><?= h($unit['nom']) ?></h2>
-    <div class="sub">Pointage des présences — une date</div>
+    <div class="sub">Pointage des présences - une date</div>
   </div>
   <a class="btn btn-outline" href="<?= h($matrixUrl) ?>"><i class="fa-solid fa-table-cells"></i> Matrice annuelle</a>
 </div>
@@ -924,7 +924,7 @@ Expected: FAIL — `AssertionError: cas save_presence_occurrence absent`.
               <td><?= h(full_name($u)) ?></td>
               <td>
                 <select name="statut[<?= (int) $u['id'] ?>]">
-                  <option value="">—</option>
+                  <option value="">-</option>
                   <?php foreach ($statuts as $key => $label): ?>
                     <option value="<?= h($key) ?>" <?= $line['statut'] === $key ? 'selected' : '' ?>><?= h($label) ?></option>
                   <?php endforeach; ?>
@@ -946,7 +946,7 @@ Expected: FAIL — `AssertionError: cas save_presence_occurrence absent`.
 - [ ] **Step 4: Créer `assets/css/presences.css`**
 
 ```css
-/* M1 — Présences par occurrence & matrice annuelle */
+/* M1 - Présences par occurrence & matrice annuelle */
 .presence-datebar {
   display: flex;
   align-items: center;
@@ -974,7 +974,7 @@ Expected: FAIL — `AssertionError: cas save_presence_occurrence absent`.
 .presence-cell-excuse  { color: var(--color-warning, #d97706); font-weight: 600; }
 ```
 
-(Adapter les noms de variables à ceux réellement définis dans `assets/css/variables.css` — voir Step 5.)
+(Adapter les noms de variables à ceux réellement définis dans `assets/css/variables.css` - voir Step 5.)
 
 - [ ] **Step 5: Inclure le CSS**
 
@@ -1093,7 +1093,7 @@ function render_unit_presence_tab(string $unitType, string $pageKey, array $unit
 - [ ] **Step 10: Relancer l'assertion, vérifier le succès**
 
 Run: `php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m1_action_check.php`
-Expected: PASS — `OK wiring`
+Expected: PASS - `OK wiring`
 
 - [ ] **Step 11: Lint**
 
@@ -1127,7 +1127,7 @@ echo "OK e2e\n";
 ```
 
 Run: `php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m1_e2e_check.php`
-Expected: `OK e2e` (ou `SKIP: ...` si le bacenta n'a pas de membre — dans ce cas noter dans le rapport).
+Expected: `OK e2e` (ou `SKIP: ...` si le bacenta n'a pas de membre - dans ce cas noter dans le rapport).
 
 - [ ] **Step 13: Commit**
 
@@ -1162,11 +1162,11 @@ EOF
 - Test: `/home/foxtrot/.claude/jobs/e2c26e8c/tmp/m1_print_check.php` + lint
 
 **Interfaces:**
-- Consumes de Task 3 : `unit_annual_matrix`. De Task 4 : `render_unit_presence_tab` (branche `presences_annuel` déjà écrite — cette tâche ne fait que fournir les 2 vues + la route d'impression).
+- Consumes de Task 3 : `unit_annual_matrix`. De Task 4 : `render_unit_presence_tab` (branche `presences_annuel` déjà écrite - cette tâche ne fait que fournir les 2 vues + la route d'impression).
 - Produces :
-  - `Views/pages/presence_matrix.php` — variables : `$unit`, `$pageKey`, `$unitType`, `$year`, `$matrix` (`['dates'=>[], 'rows'=>[]]`), `$statuts`, `$printUrl`, `$occUrl`.
-  - `Views/pages/presence_matrix_print.php` — page autonome (pattern `attendance_print.php`) — variables : `$unit`, `$year`, `$matrix`, `$statuts`, `$printedAt`.
-  - `App\Controllers\PresenceController::matrixPrint(): void` — lit `unit_type`, `unit_id`, `year` (GET) ; `can_manage_entity` ; charge l'unité + ses membres ; `echo view('pages/presence_matrix_print', ...)`.
+  - `Views/pages/presence_matrix.php` - variables : `$unit`, `$pageKey`, `$unitType`, `$year`, `$matrix` (`['dates'=>[], 'rows'=>[]]`), `$statuts`, `$printUrl`, `$occUrl`.
+  - `Views/pages/presence_matrix_print.php` - page autonome (pattern `attendance_print.php`) - variables : `$unit`, `$year`, `$matrix`, `$statuts`, `$printedAt`.
+  - `App\Controllers\PresenceController::matrixPrint(): void` - lit `unit_type`, `unit_id`, `year` (GET) ; `can_manage_entity` ; charge l'unité + ses membres ; `echo view('pages/presence_matrix_print', ...)`.
   - Route `Router::get('presencePrint', PresenceController::class, 'matrixPrint')`.
 
 - [ ] **Step 1: Écrire l'assertion qui échoue**
@@ -1193,7 +1193,7 @@ echo "OK print wiring\n";
 - [ ] **Step 2: Lancer, vérifier l'échec**
 
 Run: `cd /home/foxtrot/Téléchargements/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6/labelleeglise && php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m1_print_check.php`
-Expected: FAIL — `AssertionError: PresenceController absent`.
+Expected: FAIL - `AssertionError: PresenceController absent`.
 
 - [ ] **Step 3: Créer `Views/pages/presence_matrix.php`**
 
@@ -1205,7 +1205,7 @@ $cls = ['present' => 'presence-cell-present', 'absent' => 'presence-cell-absent'
 <div class="section-toolbar">
   <div>
     <h2><?= h($unit['nom']) ?></h2>
-    <div class="sub">Présences <?= (int) $year ?> — matrice annuelle</div>
+    <div class="sub">Présences <?= (int) $year ?> - matrice annuelle</div>
   </div>
   <div class="toolbar-actions">
     <form method="get" action="index.php" class="inline-form">
@@ -1234,7 +1234,7 @@ $cls = ['present' => 'presence-cell-present', 'absent' => 'presence-cell-absent'
         <tr>
           <td><?= h(full_name($row['user'])) ?></td>
           <?php foreach ($matrix['dates'] as $d): $s = $row['cells'][$d] ?? ''; ?>
-            <td class="<?= h($cls[$s] ?? '') ?>"><?= $s ? h(mb_substr($statuts[$s], 0, 1)) : '—' ?></td>
+            <td class="<?= h($cls[$s] ?? '') ?>"><?= $s ? h(mb_substr($statuts[$s], 0, 1)) : '-' ?></td>
           <?php endforeach; ?>
         </tr>
       <?php endforeach; ?>
@@ -1251,7 +1251,7 @@ Reproduire la structure autonome de `Views/pages/attendance_print.php` (mêmes `
 
 ```php
 <?php
-/* Matrice annuelle imprimable — page autonome.
+/* Matrice annuelle imprimable - page autonome.
  * Variables : $unit, $year, $matrix, $statuts, $printedAt. */
 ?>
 <!DOCTYPE html>
@@ -1259,7 +1259,7 @@ Reproduire la structure autonome de `Views/pages/attendance_print.php` (mêmes `
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Présences <?= (int) $year ?> — <?= h($unit['nom']) ?> — <?= h(APP_NAME) ?></title>
+  <title>Présences <?= (int) $year ?> - <?= h($unit['nom']) ?> - <?= h(APP_NAME) ?></title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="stylesheet" href="assets/css/app.css">
   <link rel="stylesheet" href="assets/css/print.css">
@@ -1288,7 +1288,7 @@ Reproduire la structure autonome de `Views/pages/attendance_print.php` (mêmes `
         <?php foreach ($matrix['rows'] as $row): ?>
           <tr><td><?= h(full_name($row['user'])) ?></td>
             <?php foreach ($matrix['dates'] as $d): $s = $row['cells'][$d] ?? ''; ?>
-              <td><?= $s ? h(mb_substr($statuts[$s], 0, 1)) : '—' ?></td>
+              <td><?= $s ? h(mb_substr($statuts[$s], 0, 1)) : '-' ?></td>
             <?php endforeach; ?>
           </tr>
         <?php endforeach; ?>
@@ -1296,7 +1296,7 @@ Reproduire la structure autonome de `Views/pages/attendance_print.php` (mêmes `
     </table>
     <p>P = Présent · A = Absent · E = Excusé</p>
     <?php endif; ?>
-    <div class="print-footer"><?= h(APP_NAME) ?> — Fiche générée automatiquement, à usage administratif.</div>
+    <div class="print-footer"><?= h(APP_NAME) ?> - Fiche générée automatiquement, à usage administratif.</div>
   </div>
 </body>
 </html>
@@ -1352,7 +1352,7 @@ Vérifier les vrais noms : classe de base (`Controller`), helpers `requireUser`/
 
 - [ ] **Step 6: Enregistrer la route**
 
-`Routes/web.php` — ajouter avec les autres `Router::get`, et le `use App\Controllers\PresenceController;` en tête :
+`Routes/web.php` - ajouter avec les autres `Router::get`, et le `use App\Controllers\PresenceController;` en tête :
 
 ```php
 Router::get('presencePrint', PresenceController::class, 'matrixPrint');
@@ -1361,7 +1361,7 @@ Router::get('presencePrint', PresenceController::class, 'matrixPrint');
 - [ ] **Step 7: Relancer l'assertion, vérifier le succès**
 
 Run: `php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m1_print_check.php`
-Expected: PASS — `OK print wiring`
+Expected: PASS - `OK print wiring`
 
 - [ ] **Step 8: Lint**
 
@@ -1405,12 +1405,12 @@ EOF
 ### Task 6: Colonne « Prénom » dans le tableau des membres du basonta
 
 **Files:**
-- Modify: `app/Compat/sections.php` (`render_basonta_detail` — vers lignes 401-418)
+- Modify: `app/Compat/sections.php` (`render_basonta_detail` - vers lignes 401-418)
 - Test: lint + grep
 
 **Interfaces:**
 - Consumes: rien des tâches précédentes.
-- Produces : le tableau de `render_basonta_detail` a une colonne « Prénom » (valeur `h($m['prenom'] ?? '')`) juste après « Nom », sans casser la colonne « Nom » (qui reste `full_name($m)` ou, au choix, `h($m['nom'])` — voir Step 1) ni les colonnes suivantes.
+- Produces : le tableau de `render_basonta_detail` a une colonne « Prénom » (valeur `h($m['prenom'] ?? '')`) juste après « Nom », sans casser la colonne « Nom » (qui reste `full_name($m)` ou, au choix, `h($m['nom'])` - voir Step 1) ni les colonnes suivantes.
 
 - [ ] **Step 1: Décider du contenu de la colonne « Nom »**
 
@@ -1469,7 +1469,7 @@ EOF
 | `cultes.jours_semaine` | Task 1, Step 4 |
 | `bacentas`/`basontas` : `jours_semaine`, `heure_debut`, `heure_fin` | Task 1, Step 4 |
 | `presences.statut ENUM('present','absent','excuse') DEFAULT 'present'` | Task 1, Step 4 |
-| Index d'unicité (unité, date, personne) + dédup préalable | Task 1, Step 4 (centre_id inclus — voir Décision #2) |
+| Index d'unicité (unité, date, personne) + dédup préalable | Task 1, Step 4 (centre_id inclus - voir Décision #2) |
 | Onglet pointage `tab=presences&date=` sur bacenta/culte/basonta | Task 4, Steps 6-8 |
 | Menu déroulant Présent/Absent/Excusé par personne | Task 4, Step 3 (`presence_occurrence.php`) |
 | Bacenta → membres du bacenta ; Basonta → membres du basonta ; Culte → tous les membres | Task 4, Step 7 + Task 4, Step 9 (revalidation serveur `$allowed`) |
@@ -1481,17 +1481,17 @@ EOF
 | Config récurrence intégrée aux `save_bacenta/save_culte/save_basonta` existants (pas de nouvelle action) | Task 2, Step 8 |
 | Colonne « Prénom » (Basontas) | Task 6 |
 | CSS modulaire `assets/css/presences.css` | Task 4, Steps 4-5 |
-| « Nom de la personne visitée » (Bacentas) | Hors périmètre — Décision #5 (spec le laisse à confirmer) |
+| « Nom de la personne visitée » (Bacentas) | Hors périmètre - Décision #5 (spec le laisse à confirmer) |
 | Pointage culte hérité non cassé | Task 3 Step 8 + Task 4 Step 7 (onglet `pointage` = contenu actuel inchangé) |
 | Aucune nouvelle entrée de menu (déviation §D assumée) | Décision #4 |
 
-**2. Placeholder scan :** chaque step de code fournit le code exact et la commande exacte avec sa sortie attendue. Les rares « adapter aux noms réels » (Task 4 Step 5/8, Task 5 Step 5) sont des vérifications ciblées de noms d'API du framework, pas des TODO de logique — chacune nomme précisément quoi vérifier et où (`ProfileController`, `assets/css/variables.css`, helpers de `sections.php`).
+**2. Placeholder scan :** chaque step de code fournit le code exact et la commande exacte avec sa sortie attendue. Les rares « adapter aux noms réels » (Task 4 Step 5/8, Task 5 Step 5) sont des vérifications ciblées de noms d'API du framework, pas des TODO de logique - chacune nomme précisément quoi vérifier et où (`ProfileController`, `assets/css/variables.css`, helpers de `sections.php`).
 
 **3. Type consistency :**
-- `$unitType` prend les valeurs `bacenta` | `cult` | `basonta` partout (repo `UNIT_COLUMNS`, service, action `save_presence_occurrence`, `PresenceController`, `render_unit_presence_tab`) — aligné sur `RbacService::canManageEntity` qui accepte `'cult'`.
+- `$unitType` prend les valeurs `bacenta` | `cult` | `basonta` partout (repo `UNIT_COLUMNS`, service, action `save_presence_occurrence`, `PresenceController`, `render_unit_presence_tab`) - aligné sur `RbacService::canManageEntity` qui accepte `'cult'`.
 - `$pageKey` (`bacentas` | `cultes` | `basontas`) est distinct de `$unitType` et converti explicitement (map inline dans l'action et le helper).
-- `unit_annual_matrix()` renvoie `['dates' => string[], 'rows' => [['user'=>..,'cells'=>[date=>statut]]]]` — consommé identiquement par `presence_matrix.php`, `presence_matrix_print.php`, `m1_engine_check.php`, `m1_e2e_check.php`.
-- `unit_presence_grid()` renvoie `[['user'=>row,'statut'=>string]]` — consommé par `presence_occurrence.php` et les scripts d'assertion.
+- `unit_annual_matrix()` renvoie `['dates' => string[], 'rows' => [['user'=>..,'cells'=>[date=>statut]]]]` - consommé identiquement par `presence_matrix.php`, `presence_matrix_print.php`, `m1_engine_check.php`, `m1_e2e_check.php`.
+- `unit_presence_grid()` renvoie `[['user'=>row,'statut'=>string]]` - consommé par `presence_occurrence.php` et les scripts d'assertion.
 - Signatures des repos étendues avec des paramètres **à défaut `null` en fin de liste** → les appelants existants (`save_*` compat, seeders) restent valides sans modification.
 - `PRESENCE_STATUTS` : clés `present|absent|excuse`, utilisées comme whitelist dans `AttendanceService::pointOccurrence` et comme `<option>` dans les vues.
 

@@ -25,6 +25,8 @@ class ClasseService
     public function find(int $id): ?array { return $this->repo->find($id); }
     public function findInscrit(int $id): ?array { return $this->repo->findInscrit($id); }
     public function inscrits(int $classeId): array { return $this->repo->inscritsOf($classeId); }
+    public function activeInscrits(int $classeId): array { return $this->repo->activeInscritsOf($classeId); }
+    public function anciensInscrits(int $classeId): array { return $this->repo->anciensInscritsOf($classeId); }
     public function candidates(int $classeId): array { return $this->repo->candidates($classeId); }
     public function formateurCandidates(): array { return $this->repo->formateurCandidates(); }
     public function deleteInscrit(int $id): void { $this->repo->deleteInscrit($id); }
@@ -87,18 +89,26 @@ class ClasseService
         $oral = in_array($in['exam_oral'] ?? '', $valid, true) ? $in['exam_oral'] : 'non_passe';
         $ecrit = in_array($in['exam_ecrit'] ?? '', $valid, true) ? $in['exam_ecrit'] : 'non_passe';
 
-        $noteRaw = trim((string) ($in['exam_note'] ?? ''));
-        $note = $noteRaw === '' ? null : (float) str_replace(',', '.', $noteRaw);
-        $dateRaw = trim((string) ($in['exam_date'] ?? ''));
-        $date = null;
-        if ($dateRaw !== '') {
-            $ts = strtotime($dateRaw);
-            if ($ts === false || date('Y-m-d', $ts) !== $dateRaw) {
-                $errors['exam_date'] = 'Date invalide.';
-            } else {
-                $date = $dateRaw;
+        $parseEvaluation = static function (string $prefix) use (&$errors, $in): array {
+            $noteRaw = trim((string) ($in[$prefix . '_note'] ?? ''));
+            $note = $noteRaw === '' ? null : (float) str_replace(',', '.', $noteRaw);
+            if ($note !== null && ($note < 0 || $note > 100)) {
+                $errors[$prefix . '_note'] = 'La note doit être comprise entre 0 et 100.';
             }
-        }
+            $dateRaw = trim((string) ($in[$prefix . '_date'] ?? ''));
+            $date = null;
+            if ($dateRaw !== '') {
+                $ts = strtotime($dateRaw);
+                if ($ts === false || date('Y-m-d', $ts) !== $dateRaw || $dateRaw > date('Y-m-d')) {
+                    $errors[$prefix . '_date'] = 'Date invalide ou future.';
+                } else {
+                    $date = $dateRaw;
+                }
+            }
+            return [$note, $date];
+        };
+        $oralEvaluation = $parseEvaluation('exam_oral');
+        $ecritEvaluation = $parseEvaluation('exam_ecrit');
 
         if ($errors) {
             return ['ok' => false, 'errors' => $errors, 'id' => null, 'promoted_to' => null];
@@ -107,9 +117,9 @@ class ClasseService
         $modules = max(0, min((int) ($in['modules_valides'] ?? 0), (int) $classe['nb_modules']));
         $ordreCourant = (int) $classe['ordre'];
 
-        $result = Query::transaction(function () use ($classeId, $userId, $modules, $oral, $ecrit, $note, $date, $ordreCourant) {
+        $result = Query::transaction(function () use ($classeId, $userId, $modules, $oral, $ecrit, $oralEvaluation, $ecritEvaluation, $ordreCourant) {
             $inscritId = $this->repo->insertInscrit($classeId, $userId);
-            $this->repo->updateInscrit($inscritId, $modules, (string) $oral, (string) $ecrit, $note, $date);
+            $this->repo->updateInscrit($inscritId, $modules, (string) $oral, (string) $ecrit, $oralEvaluation[0], $oralEvaluation[1], $ecritEvaluation[0], $ecritEvaluation[1]);
 
             $promotedTo = null;
             if ($oral === 'reussi' && $ecrit === 'reussi') {

@@ -11,7 +11,7 @@ use App\Services\ResponsibilityService;
  * Controller → AuthorizationService → Role + Permission + Responsibility + Scope
  *
  * Ne contient JAMAIS de structure codée en dur dans un rôle
- * ("berger_centre", "responsable_bacenta"…) — voir docs/authorization.md.
+ * ("berger_centre", "responsable_bacenta"…) - voir docs/authorization.md.
  */
 class AuthorizationService
 {
@@ -83,7 +83,7 @@ class AuthorizationService
         return $this->responsibilities->isResponsibleForCenter((int) $user['id'], $centerId);
     }
 
-    /** Périmètre hérité inclus (un responsable de centre gère les bacentas de ce centre — spec §17). */
+    /** Périmètre hérité inclus (un responsable de centre gère les bacentas de ce centre - spec §17). */
     public function isResponsibleForBacenta(?array $user, int $bacentaId): bool
     {
         if (!$user) {
@@ -123,7 +123,7 @@ class AuthorizationService
      * Un utilisateur peut gérer (CRUD) un centre si : admin, OU il détient
      * la permission center.manage_assigned ET en est responsable (direct).
      * Comprend aussi le "leader" historique : n'a jamais eu de droits de
-     * centre — reste false, comportement inchangé.
+     * centre - reste false, comportement inchangé.
      */
     public function canManageCenter(?array $user, int $centerId): bool
     {
@@ -140,7 +140,7 @@ class AuthorizationService
     /**
      * Un utilisateur peut gérer une bacenta si : admin, OU responsable
      * (direct ou hérité du centre) avec la permission bacenta.manage_assigned,
-     * OU (comportement historique préservé — spec §21/§43) il s'agit d'un
+     * OU (comportement historique préservé - spec §21/§43) il s'agit d'un
      * leader/pasteur/reverant/berger/ms dont c'est la bacenta d'APPARTENANCE
      * (users.bacenta_id), indépendamment de toute ligne `responsibilities`.
      */
@@ -163,7 +163,7 @@ class AuthorizationService
 
     /**
      * Un culte ne peut être géré que par : admin, OU pasteur/reverant qui en
-     * est explicitement responsable (spec §24-26 — jamais par simple rôle).
+     * est explicitement responsable (spec §24-26 - jamais par simple rôle).
      */
     public function canManageCulte(?array $user, int $cultId): bool
     {

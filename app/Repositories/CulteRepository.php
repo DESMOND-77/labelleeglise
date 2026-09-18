@@ -30,7 +30,7 @@ class CulteRepository
         );
     }
 
-    /** $resp accepté pour compatibilité mais IGNORÉ — voir BacentaRepository::create(). */
+    /** $resp accepté pour compatibilité mais IGNORÉ - voir BacentaRepository::create(). */
     public function create(string $nom, ?string $date, ?string $debut, ?string $fin, ?int $resp = null, ?string $jours = null): int
     {
         return Query::run('INSERT INTO cultes (nom, date_culte, jours_semaine, heure_debut, heure_fin) VALUES (?, ?, ?, ?, ?)',

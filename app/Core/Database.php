@@ -5,7 +5,7 @@ namespace App\Core;
 use PDO;
 
 /**
- * Connexion PDO unique (singleton) — MySQL / MariaDB.
+ * Connexion PDO unique (singleton) - MySQL / MariaDB.
  * Configuration depuis Config/database.php.
  */
 class Database

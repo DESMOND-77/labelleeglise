@@ -1,12 +1,12 @@
-# M5 — Rapport du Jour des responsables de Bacenta — Implementation Plan
+# M5 - Rapport du Jour des responsables de Bacenta - Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Un formulaire « Rapport du Jour » où un responsable de bacenta saisit, pour un **centre** et une **date**, les remontées terrain : responsables (dérivés, non modifiables), assistants, assistance chiffrée (présents / adultes / enfants / anciens / nouveaux / nés de nouveau), offrande, livre et chapitre enseignés. Un rapport unique par (centre, date), modifiable ensuite par son auteur ou un admin. Plus une page liste filtrable par centre et par mois.
 
-**Architecture:** Code neuf en couches strictes : `RapportController` → `RapportJourService` → `RapportJourRepository` → `App\Core\Query`. Une nouvelle table `rapports_jour` (bloc de migration idempotent, `UNIQUE(centre_id, date_rapport)`). Deux routes GET (`rapports` liste, `rapport` formulaire) et une action POST (`save_rapport_jour`, upsert). Le formulaire est piloté par la constante `RAPPORT_JOUR_FIELDS`. Les noms de responsables (`resp_centre_nom`, `resp_bacenta_nom`) sont un **instantané** calculé côté service à partir de la table `responsibilities` — jamais saisis par le client. Nouveau helper RBAC `auth_can_report_for_centre(int $centreId)`. Le lien de menu suit le motif « hoist » introduit par M4 (visible aussi pour les responsables non-admin).
+**Architecture:** Code neuf en couches strictes : `RapportController` → `RapportJourService` → `RapportJourRepository` → `App\Core\Query`. Une nouvelle table `rapports_jour` (bloc de migration idempotent, `UNIQUE(centre_id, date_rapport)`). Deux routes GET (`rapports` liste, `rapport` formulaire) et une action POST (`save_rapport_jour`, upsert). Le formulaire est piloté par la constante `RAPPORT_JOUR_FIELDS`. Les noms de responsables (`resp_centre_nom`, `resp_bacenta_nom`) sont un **instantané** calculé côté service à partir de la table `responsibilities` - jamais saisis par le client. Nouveau helper RBAC `auth_can_report_for_centre(int $centreId)`. Le lien de menu suit le motif « hoist » introduit par M4 (visible aussi pour les responsables non-admin).
 
-**Tech Stack:** PHP 8 SSR, micro-framework maison, zéro dépendance. MySQL/MariaDB via `App\Core\Query`. Pas de PHPUnit — vérification = `php -l` + scripts d'assertion `php` contre la base de dev + smoke-render des vues.
+**Tech Stack:** PHP 8 SSR, micro-framework maison, zéro dépendance. MySQL/MariaDB via `App\Core\Query`. Pas de PHPUnit - vérification = `php -l` + scripts d'assertion `php` contre la base de dev + smoke-render des vues.
 
 **Spec:** `docs/superpowers/specs/2026-09-01-integration-modules-eglise-design.md` (§4 « M5 »)
 
@@ -19,19 +19,19 @@
 - CSS modulaire sous `assets/css/`, `@import` dans `assets/css/app.css`, variables de `assets/css/variables.css` (`--primary --primary-soft --card --border --text --text-muted --text-soft --success --danger --warning --space-1..12 --radius --radius-md --radius-sm --shadow-sm --shadow-xs`), aucun style/script inline dans une vue (l'attribut `onchange="this.form.submit()"` est le motif projet établi, autorisé).
 - Ne jamais casser une URL, l'auth, un formulaire existant. On ajoute une page ; on n'en modifie aucune.
 - RBAC sur les données, jamais seulement l'affichage. Un `centre_id` / `id` reçu n'est jamais fait confiance : re-vérifier côté serveur (`auth_can_report_for_centre`, et pour l'édition `auteur_id === current` ou admin).
-- `check_csrf()` est déjà appelé une seule fois en tête de `ActionsController::postAction()` — le nouveau cas POST n'en ajoute aucun.
+- `check_csrf()` est déjà appelé une seule fois en tête de `ActionsController::postAction()` - le nouveau cas POST n'en ajoute aucun.
 - `install.php` reste supprimable.
 - Comptes de démo : `admin@labelleeglise.ga` / `LBEGF` (admin) ; `resp.bacenta.sion@labelleeglise.ga` / `ESKLna` (responsable de bacenta) ; `berger.eric.bongo@labelleeglise.ga` / `BergerEB1` (berger).
-- Base de dev joignable : MySQL `127.0.0.1:3306`, `root`, db `la_belle_eglise_db` (`.env` configuré). Si la base est vide, la repeupler avec `Database\Seeders\seed()` (non destructif du schéma) — ne pas committer d'artefact.
+- Base de dev joignable : MySQL `127.0.0.1:3306`, `root`, db `la_belle_eglise_db` (`.env` configuré). Si la base est vide, la repeupler avec `Database\Seeders\seed()` (non destructif du schéma) - ne pas committer d'artefact.
 
-## Décisions de cadrage (spec §4 M5 + Q/R — tranchées ici, spec = autorité)
+## Décisions de cadrage (spec §4 M5 + Q/R - tranchées ici, spec = autorité)
 
 1. **`target_type` du centre dans `responsibilities` = `'center'`** (orthographe US, cf. `ResponsibilityRepository`). Le helper et le service utilisent `'center'`, pas `'centre'`.
 2. **`resp_centre_nom`** = nom complet du 1ᵉʳ responsable (`responsibilities` `target_type='center'`, `responsibility_type='manager'`) du centre ; chaîne vide si aucun. **`resp_bacenta_nom`** = nom complet du 1ᵉʳ responsable du `bacenta_id` choisi ; à défaut (ou si aucun bacenta choisi) = nom complet de l'auteur du rapport. Les deux sont des **instantanés** stockés en clair, jamais relus depuis la requête.
 3. **`bacenta_id` du rapport** : `<select>` limité aux bacentas que l'auteur gère (`responsibilities` `target_type='bacenta'` **ou** `users.bacenta_id`) **et** dont `centre_id` = le centre choisi. Recalculé serveur à chaque rendu et à la sauvegarde. Facultatif (nullable) : un rapport peut être « au niveau centre » sans bacenta précis.
-4. **`auth_can_report_for_centre($centreId)`** = admin **OU** l'auteur gère au moins un bacenta (`responsibilities` `target_type='bacenta'` ou `users.bacenta_id`) dont `centre_id = $centreId`. **`auth_can_report_any()`** = admin OU l'auteur gère au moins un bacenta (quel qu'il soit) — sert au lien de menu et à l'accès à la page liste.
+4. **`auth_can_report_for_centre($centreId)`** = admin **OU** l'auteur gère au moins un bacenta (`responsibilities` `target_type='bacenta'` ou `users.bacenta_id`) dont `centre_id = $centreId`. **`auth_can_report_any()`** = admin OU l'auteur gère au moins un bacenta (quel qu'il soit) - sert au lien de menu et à l'accès à la page liste.
 5. **Édition** : un rapport n'est modifiable que par `auteur_id === current_user` **ou** un admin. Un autre responsable du même centre voit le rapport en lecture seule (pas de bouton « modifier »).
-6. **Flux du formulaire** : on choisit d'abord centre + date (formulaire GET, `onchange` submit), puis le formulaire du rapport de ce (centre, date) s'affiche — pré-rempli si un rapport existe déjà, vierge sinon. Motif identique à `Views/pages/presence_occurrence.php` (M1) et `Views/pages/bacenta_suivi.php`.
+6. **Flux du formulaire** : on choisit d'abord centre + date (formulaire GET, `onchange` submit), puis le formulaire du rapport de ce (centre, date) s'affiche - pré-rempli si un rapport existe déjà, vierge sinon. Motif identique à `Views/pages/presence_occurrence.php` (M1) et `Views/pages/bacenta_suivi.php`.
 7. **Statistiques ultérieures** : hors périmètre v1. Le stockage structuré (une ligne par (centre, date), colonnes typées) les permettra.
 8. **Suppression d'un rapport** : hors périmètre v1 (spec ne la mentionne pas ; un rapport erroné se corrige par édition). Pas de `delete_rapport_jour`.
 
@@ -169,21 +169,21 @@ echo "OK m5 schema\n";
 - [ ] **Step 2: Lancer, vérifier l'échec**
 
 Run: `cd /home/foxtrot/Téléchargements/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6/labelleeglise && php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m5_schema_check.php`
-Expected: FAIL — `AssertionError: rapports_jour.centre_id manquante` (ou `RAPPORT_JOUR_FIELDS non définie`).
+Expected: FAIL - `AssertionError: rapports_jour.centre_id manquante` (ou `RAPPORT_JOUR_FIELDS non définie`).
 
 - [ ] **Step 3: Ajouter la constante**
 
-`Config/constants.php`, après `define('PRESENCE_STATUTS', …);` — coller le bloc `define('RAPPORT_JOUR_FIELDS', [ … ]);` de la section « Constante `RAPPORT_JOUR_FIELDS` » ci-dessus, verbatim.
+`Config/constants.php`, après `define('PRESENCE_STATUTS', …);` - coller le bloc `define('RAPPORT_JOUR_FIELDS', [ … ]);` de la section « Constante `RAPPORT_JOUR_FIELDS` » ci-dessus, verbatim.
 
 - [ ] **Step 4: Ajouter le bloc de migration**
 
-`Database/Migrations/2024_01_01_000000_create_schema.php`, dans `up()`, tout à la fin (après le bloc « 11. M4 — Calendriers » et sa reconstruction d'index, avant l'accolade fermante de `up()`) :
+`Database/Migrations/2024_01_01_000000_create_schema.php`, dans `up()`, tout à la fin (après le bloc « 11. M4 - Calendriers » et sa reconstruction d'index, avant l'accolade fermante de `up()`) :
 
 ```php
 
-    /* ---- 12. M5 — Rapport du Jour des responsables de bacenta -----------
+    /* ---- 12. M5 - Rapport du Jour des responsables de bacenta -----------
      * Un rapport par (centre, date). resp_centre_nom / resp_bacenta_nom sont
-     * un INSTANTANÉ rempli côté service depuis `responsibilities` — jamais
+     * un INSTANTANÉ rempli côté service depuis `responsibilities` - jamais
      * saisis par le client. bacenta_id facultatif (rapport au niveau centre).
      */
     $pdo->exec(
@@ -219,7 +219,7 @@ Expected: FAIL — `AssertionError: rapports_jour.centre_id manquante` (ou `RAPP
 
 - [ ] **Step 5: Mettre à jour `down()`**
 
-Dans `down()`, la liste `$tables` — ajouter `'rapports_jour'` juste après `'anniversaires'` :
+Dans `down()`, la liste `$tables` - ajouter `'rapports_jour'` juste après `'anniversaires'` :
 
 ```php
     $tables = ['responsibilities', 'notifications', 'users_basontas', 'presences', 'evenements', 'anniversaires', 'rapports_jour', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
@@ -269,8 +269,8 @@ EOF
 **Interfaces:**
 - Consumes: rien.
 - Produces :
-  - `auth_can_report_any(): bool` — admin OU `EXISTS` d'un bacenta géré par l'utilisateur (`responsibilities` `target_type='bacenta'` OU `users.bacenta_id`).
-  - `auth_can_report_for_centre(int $centreId): bool` — admin OU `EXISTS` d'un bacenta géré par l'utilisateur dont `centre_id = $centreId`.
+  - `auth_can_report_any(): bool` - admin OU `EXISTS` d'un bacenta géré par l'utilisateur (`responsibilities` `target_type='bacenta'` OU `users.bacenta_id`).
+  - `auth_can_report_for_centre(int $centreId): bool` - admin OU `EXISTS` d'un bacenta géré par l'utilisateur dont `centre_id = $centreId`.
   - `SECTION_LABELS['rapports'] = 'Rapports du Jour'` ; `SECTION_ICONS['rapports'] = '<i class="fa-solid fa-file-lines"></i>'` ; `'rapports'` ajouté à `NAV_ORDER` avant `'parametres'` (après `'anniversaires'`).
 
 - [ ] **Step 1: Écrire l'assertion qui échoue**
@@ -298,7 +298,7 @@ echo "OK m5 rbac\n";
 - [ ] **Step 2: Lancer, vérifier l'échec**
 
 Run: `cd /home/foxtrot/Téléchargements/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6/labelleeglise && php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m5_rbac_check.php`
-Expected: FAIL — `AssertionError: auth_can_report_any absente`.
+Expected: FAIL - `AssertionError: auth_can_report_any absente`.
 
 - [ ] **Step 3: Helpers RBAC**
 
@@ -360,7 +360,7 @@ function auth_can_report_for_centre(int $centreId): bool
 
 - [ ] **Step 5: Lien de menu (motif hoist M4)**
 
-`Views/layouts/layout.php` — juste après le bloc `if ($user && !$isAdmin && auth_can_manage_calendar()) { … }` ajouté par M4 :
+`Views/layouts/layout.php` - juste après le bloc `if ($user && !$isAdmin && auth_can_manage_calendar()) { … }` ajouté par M4 :
 
 ```php
 // Rapport du Jour : lien pour tout responsable de bacenta non-admin
@@ -380,7 +380,7 @@ git commit -m "$(cat <<'EOF'
 feat(rapports): helpers RBAC + entrée de navigation
 
 auth_can_report_any / auth_can_report_for_centre (admin, ou gère un
-bacenta — via responsibilities ou users.bacenta_id — rattaché au centre).
+bacenta - via responsibilities ou users.bacenta_id - rattaché au centre).
 rapports dans SECTION_LABELS/ICONS/NAV_ORDER et dans le menu des
 responsables non-admin (motif hoist M4).
 
@@ -403,8 +403,8 @@ EOF
 - Produces : `App\Repositories\RapportJourRepository`
   - `find(int $id): ?array`
   - `findByCentreDate(int $centreId, string $date): ?array`
-  - `upsert(array $data): int` — `$data` contient `centre_id, date_rapport, auteur_id, bacenta_id, resp_centre_nom, resp_bacenta_nom, assistants, nb_presents, nb_adultes, nb_enfants, nb_anciens, nb_nouveaux, nb_nes_de_nouveau, offrande, livre_enseigne, chapitre_enseigne`. Si une ligne existe pour `(centre_id, date_rapport)` → `UPDATE` (sans toucher `auteur_id` ni `created_at`) et renvoie son id ; sinon `INSERT` et renvoie le nouvel id. Écriture par colonnes explicites (pas de `SELECT *`-based).
-  - `list(?int $centreId, ?string $monthKey): array` — jointures `c.nom AS centre_nom`, `au.prenom/nom` (auteur), `ba.nom AS bacenta_nom` ; filtre optionnel `centre_id = ?` ; filtre optionnel `DATE_FORMAT(date_rapport, '%Y-%m') = ?` ; tri `date_rapport DESC, id DESC`.
+  - `upsert(array $data): int` - `$data` contient `centre_id, date_rapport, auteur_id, bacenta_id, resp_centre_nom, resp_bacenta_nom, assistants, nb_presents, nb_adultes, nb_enfants, nb_anciens, nb_nouveaux, nb_nes_de_nouveau, offrande, livre_enseigne, chapitre_enseigne`. Si une ligne existe pour `(centre_id, date_rapport)` → `UPDATE` (sans toucher `auteur_id` ni `created_at`) et renvoie son id ; sinon `INSERT` et renvoie le nouvel id. Écriture par colonnes explicites (pas de `SELECT *`-based).
+  - `list(?int $centreId, ?string $monthKey): array` - jointures `c.nom AS centre_nom`, `au.prenom/nom` (auteur), `ba.nom AS bacenta_nom` ; filtre optionnel `centre_id = ?` ; filtre optionnel `DATE_FORMAT(date_rapport, '%Y-%m') = ?` ; tri `date_rapport DESC, id DESC`.
 
 - [ ] **Step 1: Écrire l'assertion qui échoue**
 
@@ -455,7 +455,7 @@ echo "OK m5 repo\n";
 - [ ] **Step 2: Lancer, vérifier l'échec**
 
 Run: `cd /home/foxtrot/Téléchargements/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6/labelleeglise && php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m5_repo_check.php`
-Expected: FAIL — `Error: Class "App\Repositories\RapportJourRepository" not found`.
+Expected: FAIL - `Error: Class "App\Repositories\RapportJourRepository" not found`.
 
 - [ ] **Step 3: Créer `app/Repositories/RapportJourRepository.php`**
 
@@ -570,9 +570,9 @@ EOF
   - `__construct(?RapportJourRepository $repo = null, ?ResponsibilityRepository $resp = null)`
   - `report(int $id): ?array` / `reportForCentreDate(int $centreId, string $date): ?array`
   - `list(?int $centreId, ?string $monthKey): array`
-  - `reportableBacentas(int $userId, int $centreId): array` — `[ ['id'=>int,'nom'=>string], … ]` : bacentas de ce centre que l'utilisateur gère (`responsibilities` `target_type='bacenta'` OU `users.bacenta_id`). Admin → tous les bacentas du centre.
-  - `derivedNames(int $centreId, ?int $bacentaId, int $authorId): array` — `['resp_centre_nom' => string, 'resp_bacenta_nom' => string]`. Centre : 1ᵉʳ `ResponsibilityRepository::listForTarget('center', $centreId)` → `prenom nom`, sinon `''`. Bacenta : si `$bacentaId`, 1ᵉʳ `listForTarget('bacenta', $bacentaId)` → `prenom nom`, sinon nom complet de l'auteur (`SELECT prenom, nom FROM users WHERE id = ?`).
-  - `save(array $in, int $userId, bool $isAdmin): array` — `['ok'=>bool, 'errors'=>array<string,string>, 'id'=>?int]`.
+  - `reportableBacentas(int $userId, int $centreId): array` - `[ ['id'=>int,'nom'=>string], … ]` : bacentas de ce centre que l'utilisateur gère (`responsibilities` `target_type='bacenta'` OU `users.bacenta_id`). Admin → tous les bacentas du centre.
+  - `derivedNames(int $centreId, ?int $bacentaId, int $authorId): array` - `['resp_centre_nom' => string, 'resp_bacenta_nom' => string]`. Centre : 1ᵉʳ `ResponsibilityRepository::listForTarget('center', $centreId)` → `prenom nom`, sinon `''`. Bacenta : si `$bacentaId`, 1ᵉʳ `listForTarget('bacenta', $bacentaId)` → `prenom nom`, sinon nom complet de l'auteur (`SELECT prenom, nom FROM users WHERE id = ?`).
+  - `save(array $in, int $userId, bool $isAdmin): array` - `['ok'=>bool, 'errors'=>array<string,string>, 'id'=>?int]`.
     - Valide : `centre_id` entier > 0 requis ; `date_rapport` `Y-m-d` valide requise ; `bacenta_id` (facultatif) doit appartenir à `reportableBacentas($userId, $centre_id)` sinon `errors['bacenta_id']` ; chaque champ `RAPPORT_JOUR_FIELDS` : `int` ≥ 0, `decimal` ≥ 0 (accepte virgule décimale), `text`/`textarea` trim + null si vide.
     - Édition : si un rapport existe déjà pour `(centre_id, date_rapport)` et que `!$isAdmin` et que `auteur_id !== $userId` → `['ok'=>false, 'errors'=>['_form'=>'Ce rapport a été créé par une autre personne ; seul son auteur ou un administrateur peut le modifier.'], 'id'=>null]`.
     - Construit `resp_*_nom` via `derivedNames()` (jamais depuis `$in`), fixe `auteur_id = $userId` **uniquement à la création** (l'`upsert` du repo préserve l'`auteur_id` existant), appelle `repo->upsert(...)`.
@@ -630,7 +630,7 @@ echo "OK m5 service\n";
 - [ ] **Step 2: Lancer, vérifier l'échec**
 
 Run: `cd /home/foxtrot/Téléchargements/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6/labelleeglise && php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m5_service_check.php`
-Expected: FAIL — `Error: Class "App\Services\RapportJourService" not found`.
+Expected: FAIL - `Error: Class "App\Services\RapportJourService" not found`.
 
 - [ ] **Step 3: Créer `app/Services/RapportJourService.php`**
 
@@ -851,8 +851,8 @@ EOF
 - Consumes de Task 4 : `rapport_jour_service()`. De Task 2 : `auth_can_report_any()`, `auth_can_report_for_centre()`. De Task 1 : `RAPPORT_JOUR_FIELDS`.
 - Produces :
   - `App\Controllers\RapportController` (`declare(strict_types=1)`, extends `Controller`) :
-    - `index(): void` — GET `?page=rapports`. Guard : `current_user()` sinon `redirect(page=apropos)` ; `auth_can_report_any()` sinon `redirect(page=accueil)`. Filtres `?centre=` (int|null) et `?mois=` (`Y-m`|null). Centres proposés au filtre = admin → `get_centres()` ; sinon ceux où `auth_can_report_for_centre($c['id'])`. Passe à `view('pages/rapports', …)` : `rows` (`service->list($centre, $mois)`), `centres` (filtrés), `filterCentre`, `filterMois`, `isAdmin`, `currentUserId`.
-    - `form(): void` — GET `?page=rapport` (`?id=` OU `?centre=&date=`). Guard : `current_user()`. Résout `$centreId`/`$date` : depuis `?id=` (charge le rapport → son `centre_id`/`date_rapport`) sinon depuis `?centre=`/`?date=` (défaut `date = today`). Si `$centreId` fixé : `auth_can_report_for_centre($centreId)` sinon `deny` (redirect `page=rapports`). Passe à `view('pages/rapport_form', …)` : `centres` (reportables), `centreId`, `date`, `report` (rapport existant | null), `bacentas` (`service->reportableBacentas(uid, centreId, isAdmin)` si `$centreId`), `fields` (`RAPPORT_JOUR_FIELDS`), `derived` (`service->derivedNames(centreId, report.bacenta_id ?? null, uid)` si `$centreId`), `canEdit` (pas de report, OU `report.auteur_id === uid`, OU admin), `errors` `[]`, `old` `[]`, `csrf`.
+    - `index(): void` - GET `?page=rapports`. Guard : `current_user()` sinon `redirect(page=apropos)` ; `auth_can_report_any()` sinon `redirect(page=accueil)`. Filtres `?centre=` (int|null) et `?mois=` (`Y-m`|null). Centres proposés au filtre = admin → `get_centres()` ; sinon ceux où `auth_can_report_for_centre($c['id'])`. Passe à `view('pages/rapports', …)` : `rows` (`service->list($centre, $mois)`), `centres` (filtrés), `filterCentre`, `filterMois`, `isAdmin`, `currentUserId`.
+    - `form(): void` - GET `?page=rapport` (`?id=` OU `?centre=&date=`). Guard : `current_user()`. Résout `$centreId`/`$date` : depuis `?id=` (charge le rapport → son `centre_id`/`date_rapport`) sinon depuis `?centre=`/`?date=` (défaut `date = today`). Si `$centreId` fixé : `auth_can_report_for_centre($centreId)` sinon `deny` (redirect `page=rapports`). Passe à `view('pages/rapport_form', …)` : `centres` (reportables), `centreId`, `date`, `report` (rapport existant | null), `bacentas` (`service->reportableBacentas(uid, centreId, isAdmin)` si `$centreId`), `fields` (`RAPPORT_JOUR_FIELDS`), `derived` (`service->derivedNames(centreId, report.bacenta_id ?? null, uid)` si `$centreId`), `canEdit` (pas de report, OU `report.auteur_id === uid`, OU admin), `errors` `[]`, `old` `[]`, `csrf`.
   - Routes `Router::get('rapports', RapportController::class, 'index')`, `Router::get('rapport', RapportController::class, 'form')` + `use App\Controllers\RapportController;`.
   - `assets/css/app.css` : `@import url('rapports.css');` après `@import url('calendrier.css');`.
 
@@ -896,7 +896,7 @@ echo "OK m5 views\n";
 - [ ] **Step 2: Lancer, vérifier l'échec**
 
 Run: `cd /home/foxtrot/Téléchargements/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6/labelleeglise && php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m5_view_check.php`
-Expected: FAIL — `AssertionError: RapportController absent`.
+Expected: FAIL - `AssertionError: RapportController absent`.
 
 - [ ] **Step 3: Créer `app/Controllers/RapportController.php`**
 
@@ -1043,7 +1043,7 @@ Router::get('rapport', RapportController::class, 'form');
           <tr>
             <td><?= h(date('d/m/Y', strtotime((string) $r['date_rapport']))) ?></td>
             <td><?= h($r['centre_nom']) ?></td>
-            <td><?= h($r['bacenta_nom'] ?? '—') ?></td>
+            <td><?= h($r['bacenta_nom'] ?? '-') ?></td>
             <td><?= (int) $r['nb_presents'] ?></td>
             <td><?= h(number_format((float) $r['offrande'], 0, ',', ' ')) ?></td>
             <td><?= h(trim(($r['auteur_prenom'] ?? '') . ' ' . ($r['auteur_nom'] ?? ''))) ?></td>
@@ -1079,7 +1079,7 @@ $val = function (string $k, $default = '') use ($old, $report) {
   <input type="hidden" name="page" value="rapport">
   <label>Centre
     <select name="centre" onchange="this.form.submit()" <?= $report ? 'disabled' : '' ?>>
-      <option value="">— Choisir —</option>
+      <option value="">- Choisir -</option>
       <?php foreach ($centres as $c): ?>
         <option value="<?= (int) $c['id'] ?>" <?= (int) $centreId === (int) $c['id'] ? 'selected' : '' ?>><?= h($c['nom']) ?></option>
       <?php endforeach; ?>
@@ -1095,7 +1095,7 @@ $val = function (string $k, $default = '') use ($old, $report) {
 <?php else: ?>
 
   <?php if (!empty($errors['_form'])): ?><div class="alert alert-danger"><?= h($errors['_form']) ?></div><?php endif; ?>
-  <?php if ($report && !$canEdit): ?><div class="alert alert-info">Rapport créé par une autre personne — consultation seule.</div><?php endif; ?>
+  <?php if ($report && !$canEdit): ?><div class="alert alert-info">Rapport créé par une autre personne - consultation seule.</div><?php endif; ?>
 
   <form method="post" action="index.php" class="form-card rapport-form">
     <input type="hidden" name="action" value="save_rapport_jour">
@@ -1113,7 +1113,7 @@ $val = function (string $k, $default = '') use ($old, $report) {
       <div class="form-group">
         <label>Bacenta (facultatif)</label>
         <select name="bacenta_id" <?= $canEdit ? '' : 'disabled' ?>>
-          <option value="">—</option>
+          <option value="">-</option>
           <?php foreach ($bacentas as $b): ?>
             <option value="<?= (int) $b['id'] ?>" <?= (int) $val('bacenta_id') === (int) $b['id'] ? 'selected' : '' ?>><?= h($b['nom']) ?></option>
           <?php endforeach; ?>
@@ -1157,7 +1157,7 @@ $val = function (string $k, $default = '') use ($old, $report) {
 - [ ] **Step 7: Créer `assets/css/rapports.css` + import**
 
 ```css
-/* M5 — Rapport du Jour */
+/* M5 - Rapport du Jour */
 
 .rapport-filters,
 .rapport-picker {
@@ -1261,7 +1261,7 @@ echo "OK m5 action\n";
 - [ ] **Step 2: Lancer, vérifier l'échec**
 
 Run: `cd /home/foxtrot/Téléchargements/workspace-019fc4e4-dfa8-7cdb-aaa9-3d01f70a55a6/labelleeglise && php -d zend.assertions=1 -d assert.exception=1 /home/foxtrot/.claude/jobs/e2c26e8c/tmp/m5_action_check.php`
-Expected: FAIL — `AssertionError: cas save_rapport_jour absent`.
+Expected: FAIL - `AssertionError: cas save_rapport_jour absent`.
 
 - [ ] **Step 3: Ajouter le cas**
 
@@ -1351,12 +1351,12 @@ EOF
 **2. Placeholder scan :** chaque step fournit le code exact et la commande avec sa sortie attendue. Les « vérifier l'alignement sur `CalendrierController` » (Task 5 Step 3) et « accessor forme `_repo(...)` » (Task 4 Step 4) sont des ancrages sur des conventions du dépôt déjà établies par M4, pas des TODO.
 
 **3. Type consistency :**
-- `save()` renvoie `['ok'=>bool,'errors'=>array<string,string>,'id'=>?int]` — consommé identiquement par Task 6 et `m5_service_check.php`.
-- `derivedNames()` renvoie `['resp_centre_nom'=>string,'resp_bacenta_nom'=>string]` — utilisé par `RapportController::form()`, l'action, et stocké tel quel par `upsert()`.
-- `reportableBacentas()` renvoie `list<array{id:int,nom:string}>` — itéré dans `rapport_form.php`, et `array_column(..., 'id')` dans `save()`.
+- `save()` renvoie `['ok'=>bool,'errors'=>array<string,string>,'id'=>?int]` - consommé identiquement par Task 6 et `m5_service_check.php`.
+- `derivedNames()` renvoie `['resp_centre_nom'=>string,'resp_bacenta_nom'=>string]` - utilisé par `RapportController::form()`, l'action, et stocké tel quel par `upsert()`.
+- `reportableBacentas()` renvoie `list<array{id:int,nom:string}>` - itéré dans `rapport_form.php`, et `array_column(..., 'id')` dans `save()`.
 - `RapportJourRepository::upsert(array $data)` attend exactement les 16 clés de `self::WRITABLE` ; `save()` construit ce tableau via `array_merge($clean, [...])` où `$clean` a les 10 clés `RAPPORT_JOUR_FIELDS` et le merge ajoute les 6 clés d'identité/responsables.
-- `list()` renvoie des lignes avec `centre_nom`, `bacenta_nom`, `auteur_prenom`, `auteur_nom` — colonnes lues par `rapports.php`.
-- `RAPPORT_JOUR_FIELDS` : `type ∈ {int, decimal, text, textarea}` — le `switch` de `save()` et le `if/elseif` de `rapport_form.php` couvrent ces 4 valeurs.
+- `list()` renvoie des lignes avec `centre_nom`, `bacenta_nom`, `auteur_prenom`, `auteur_nom` - colonnes lues par `rapports.php`.
+- `RAPPORT_JOUR_FIELDS` : `type ∈ {int, decimal, text, textarea}` - le `switch` de `save()` et le `if/elseif` de `rapport_form.php` couvrent ces 4 valeurs.
 
 **4. Ordre des tâches :** 1 (schéma+constante) → 2 (RBAC/nav) → 3 (repo, dépend de 1) → 4 (service, dépend de 3+1) → 5 (contrôleur/vues, dépend de 4+2) → 6 (action, dépend de 4+5). Séquentiel strict.
 

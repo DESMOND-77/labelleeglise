@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Compatibilité — pages Présentation de l'église et des centres.
+ * Compatibilité - pages Présentation de l'église et des centres.
  * Portage de l'ancien pages_apropos.php.
  */
 

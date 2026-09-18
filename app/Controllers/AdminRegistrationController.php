@@ -8,7 +8,7 @@ use App\Services\RegistrationService;
 
 /**
  * Administration des inscriptions publiques : liste des demandes en attente
- * + fiche détaillée. Accès strictement réservé aux administrateurs — le
+ * + fiche détaillée. Accès strictement réservé aux administrateurs - le
  * contrôle est fait ici côté serveur (AdminMiddleware), pas seulement en
  * masquant les liens côté vue.
  */
@@ -21,7 +21,7 @@ class AdminRegistrationController extends Controller
         $this->registrations = $registrations ?? new RegistrationService();
     }
 
-    /** GET ?page=admin_inscriptions — liste des inscriptions en attente. */
+    /** GET ?page=admin_inscriptions - liste des inscriptions en attente. */
     public function index(): void
     {
         (new AdminMiddleware())->handle();
@@ -32,7 +32,7 @@ class AdminRegistrationController extends Controller
         render_page(SECTION_LABELS['admin_inscriptions'], $content);
     }
 
-    /** GET ?page=admin_inscription&id=... — fiche détaillée d'une demande. */
+    /** GET ?page=admin_inscription&id=... - fiche détaillée d'une demande. */
     public function show(): void
     {
         (new AdminMiddleware())->handle();

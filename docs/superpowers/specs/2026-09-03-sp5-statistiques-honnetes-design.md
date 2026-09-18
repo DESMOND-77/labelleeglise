@@ -1,4 +1,4 @@
-# SP-5 — Statistiques de présence honnêtes — Design
+# SP-5 - Statistiques de présence honnêtes - Design
 
 - **Date** : 2026-09-03
 - **Source** : `prompts/AUDIT…AGENDA & PRÉSENCES.md` (Objectif B, §10, §31-32, §66, §74) + Q/R
@@ -7,7 +7,7 @@
 
 ## 1. Objectif
 
-Remplacer le taux de présence individuel actuel — `présences ÷ dates de culte distinctes enregistrées` (dénominateur biaisé : ignore les statuts `absent`/`excuse`, ne compte que les cultes, compte toutes les lignes comme des « présences ») — par une **formule documentée et honnête** :
+Remplacer le taux de présence individuel actuel - `présences ÷ dates de culte distinctes enregistrées` (dénominateur biaisé : ignore les statuts `absent`/`excuse`, ne compte que les cultes, compte toutes les lignes comme des « présences ») - par une **formule documentée et honnête** :
 
 > **Taux = présences ÷ (présents + absents + excusés)**
 
@@ -17,12 +17,12 @@ Le dénominateur = nombre d'occurrences où le membre a été **explicitement po
 
 | Élément | Détail |
 |---|---|
-| `AttendanceService::statsForUser(int $userId, ?string $from = null, ?string $to = null): array` | renvoie `['total' => countForUser (COUNT(*) — toutes lignes), 'last_date' => mostRecentDateForUser, 'rate' => round(min(100, total/denominator*100)), 'rate_denominator_note' => 'présences ÷ dates de culte distinctes…']` où `denominator = distinctCulteDatesInRange($from, $to)` |
+| `AttendanceService::statsForUser(int $userId, ?string $from = null, ?string $to = null): array` | renvoie `['total' => countForUser (COUNT(*) - toutes lignes), 'last_date' => mostRecentDateForUser, 'rate' => round(min(100, total/denominator*100)), 'rate_denominator_note' => 'présences ÷ dates de culte distinctes…']` où `denominator = distinctCulteDatesInRange($from, $to)` |
 | `AttendanceRepository` | `countForUser` (`SELECT COUNT(*) FROM presences WHERE user_id=?`), `mostRecentDateForUser` (`MAX(date_presence)`), `distinctCulteDatesInRange` (`COUNT(DISTINCT date_presence) WHERE culte_id IS NOT NULL …`) |
-| Appelant unique | `app/Compat/profile.php:113` — `$stats = attendance_service()->statsForUser($membreId)` (fiche membre) |
+| Appelant unique | `app/Compat/profile.php:113` - `$stats = attendance_service()->statsForUser($membreId)` (fiche membre) |
 | `distinctCulteDatesInRange` | appelé **uniquement** par `statsForUser` |
 | `countForUser` | appelé **uniquement** par `statsForUser` |
-| `countDistinctForCultes` | appelé par `StatisticsService::countMembers` — **non concerné** |
+| `countDistinctForCultes` | appelé par `StatisticsService::countMembers` - **non concerné** |
 | SP-4 | ajoute un bloc « Présences récentes » sur la fiche consommant `total` / `last_date` / `rate` / `rate_denominator_note` |
 
 ## 3. Décisions de cadrage
@@ -30,7 +30,7 @@ Le dénominateur = nombre d'occurrences où le membre a été **explicitement po
 1. **Formule retenue** : `rate = present / (present + absent + excuse)` (arrondi entier). `null` si `(present + absent + excuse) === 0`. Documentée dans la clé `formula` (chaîne lisible) **et** dans un docbloc de `statsForUser`.
 2. **`total`** = nombre de lignes `statut='present'` (présences réelles), **pas** `COUNT(*)`. Rétro-compatible : la clé `total` existe toujours, sa valeur change de sens (désormais correcte pour un libellé « Total de présences »).
 3. **Nouvelles clés** dans le retour : `present`, `absent`, `excuse`, `pointed` (= somme des trois). `rate_denominator_note` **conservée** (alias rétro-compat, texte mis à jour).
-4. **Période** : `$from` / `$to` restent des filtres optionnels sur `date_presence` (déjà dans la signature). Pas de notion de « période d'appartenance » : décision assumée — on ne calcule pas un dénominateur d'« occurrences éligibles », trop coûteux et fragile sans date d'entrée fiable (`date_recu` souvent vide). Documenté comme **limite connue**.
+4. **Période** : `$from` / `$to` restent des filtres optionnels sur `date_presence` (déjà dans la signature). Pas de notion de « période d'appartenance » : décision assumée - on ne calcule pas un dénominateur d'« occurrences éligibles », trop coûteux et fragile sans date d'entrée fiable (`date_recu` souvent vide). Documenté comme **limite connue**.
 5. **1 requête** : `SELECT statut, COUNT(*) c FROM presences WHERE user_id = ? [AND date_presence >= ?] [AND date_presence <= ?] GROUP BY statut` via un nouveau `AttendanceRepository::statusCountsForUser()`. `mostRecentDateForUser` reste une 2ᵉ requête légère.
 6. **Nettoyage** : `distinctCulteDatesInRange` et `countForUser` deviennent inutilisés → `/** @deprecated */` (conservés, pas supprimés).
 7. **Fiche** : SP-5 ajoute une ligne de ventilation « N présents · M absents · K excusés » au bloc « Présences récentes » de SP-4 (si SP-4 est livré ; sinon la ligne est ajoutée avec le bloc). Le taux affiche `formula` en info-bulle / légende.
@@ -75,7 +75,7 @@ Le dénominateur = nombre d'occurrences où le membre a été **explicitement po
 ## 6. Hors périmètre
 
 - Dénominateur « occurrences éligibles / période d'appartenance » (limite documentée, évolution possible).
-- Statistiques agrégées par unité / par mois (audit §31 « occurrences prévues / pointées ») — reste à traiter dans un SP ultérieur si besoin.
+- Statistiques agrégées par unité / par mois (audit §31 « occurrences prévues / pointées ») - reste à traiter dans un SP ultérieur si besoin.
 - Graphiques / dashboards de présence.
 
 ## 7. Livrables

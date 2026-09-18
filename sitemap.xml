@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  La Belle Église — sitemap.xml
+  La Belle Église - sitemap.xml
   ------------------------------------------------------------
-  À maintenir manuellement (pas de génération dynamique — voir
+  À maintenir manuellement (pas de génération dynamique - voir
   ARCHITECTURE.md : aucune dépendance, aucun build).
 
   Seules deux URLs sont réellement accessibles sans compte aujourd'hui

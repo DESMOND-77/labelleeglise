@@ -11,7 +11,7 @@ $v = static fn(string $k) => h($old[$k] ?? '');
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Créer un compte — <?= h(APP_NAME) ?></title>
+  <title>Créer un compte - <?= h(APP_NAME) ?></title>
   <meta name="description" content="Créez votre compte sur la plateforme de gestion de <?= h(APP_NAME) ?>. Votre inscription sera vérifiée par email puis validée par un administrateur.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="<?= h(url('index.php', ['page' => 'register'])) ?>">
@@ -44,7 +44,7 @@ $v = static fn(string $k) => h($old[$k] ?? '');
         <?= csrf_field() ?>
         <div class="login-logo"><img src="/assets/images/logo.png" alt="<?= h(APP_NAME) ?>"></div>
         <h1>Créer un compte</h1>
-        <p class="login-sub">Rejoignez <?= h(APP_NAME) ?> — votre inscription sera vérifiée par email puis validée par un administrateur.</p>
+        <p class="login-sub">Rejoignez <?= h(APP_NAME) ?> - votre inscription sera vérifiée par email puis validée par un administrateur.</p>
 
         <?php if ($errors): ?>
           <div class="modal-error show"><i class="fa-solid fa-triangle-exclamation"></i> Merci de corriger les champs signalés ci-dessous.</div>

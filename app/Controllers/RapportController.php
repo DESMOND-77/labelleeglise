@@ -64,6 +64,9 @@ class RapportController extends Controller
         $date = $report
             ? (string) $report['date_rapport']
             : (trim((string) (Request::get('date') ?? '')) ?: date('Y-m-d'));
+        $bacentaId = $report
+            ? (int) ($report['bacenta_id'] ?? 0)
+            : ((int) (Request::get('bacenta') ?? 0) ?: null);
 
         if ($centreId !== null && !auth_can_report_for_centre($centreId)) {
             $this->redirect('index.php', ['page' => 'rapports']);
@@ -77,6 +80,10 @@ class RapportController extends Controller
             get_centres(),
             static fn($c) => $isAdmin || auth_can_report_for_centre((int) $c['id'])
         ));
+        $allowedBacentas = $centreId !== null ? $svc->reportableBacentas($uid, $centreId, $isAdmin) : [];
+        if ($bacentaId !== null && !in_array($bacentaId, array_column($allowedBacentas, 'id'), true)) {
+            $bacentaId = null;
+        }
 
         $canEdit = $report === null || $isAdmin || (int) $report['auteur_id'] === $uid;
 
@@ -85,11 +92,12 @@ class RapportController extends Controller
             'centreId'  => $centreId,
             'date'      => $date,
             'report'    => $report,
-            'bacentas'  => $centreId !== null ? $svc->reportableBacentas($uid, $centreId, $isAdmin) : [],
+            'bacentas'  => $allowedBacentas,
             'fields'    => RAPPORT_JOUR_FIELDS,
+            'bacentaId' => $bacentaId,
             'derived'   => $report
                 ? ['resp_centre_nom' => (string) ($report['resp_centre_nom'] ?? ''), 'resp_bacenta_nom' => (string) ($report['resp_bacenta_nom'] ?? '')]
-                : ($centreId !== null ? $svc->derivedNames($centreId, null, $uid) : null),
+                : ($centreId !== null ? $svc->derivedNames($centreId, $bacentaId, $uid) : null),
             'canEdit'   => $canEdit,
             'errors'    => [],
             'old'       => [],

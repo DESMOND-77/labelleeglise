@@ -43,7 +43,7 @@ function responsibility_service(): ResponsibilityService
 
 /* ---------- Nouveaux wrappers d'autorisation (couche rôle/responsabilité/périmètre) ---------- */
 
-/** $auth->can($user, 'permission', $resource?) — voir docs/authorization.md. */
+/** $auth->can($user, 'permission', $resource?) - voir docs/authorization.md. */
 function auth_can(string $permission, $resource = null): bool
 {
     return authz_service()->can(current_user(), $permission, $resource);
@@ -110,8 +110,29 @@ function auth_can_manage_calendar(): bool
         return true;
     }
     return (int) \App\Core\Query::value(
-        "SELECT COUNT(*) FROM responsibilities WHERE user_id = ? AND responsibility_type = 'manager'",
+        "SELECT COUNT(*) FROM responsibilities
+          WHERE user_id = ? AND target_type = 'classe' AND responsibility_type = 'manager'",
         [(int) $u['id']]
+    ) > 0;
+}
+
+/** Un utilisateur ne gère qu'une classe qui lui est explicitement attribuée. */
+function auth_can_manage_class(int $classeId): bool
+{
+    $u = current_user();
+    if (!$u || $classeId <= 0) {
+        return false;
+    }
+    if (($u['role'] ?? '') === 'admin') {
+        return true;
+    }
+    if (!in_array($u['role'] ?? '', ['berger', 'ms', 'pasteur', 'reverant'], true)) {
+        return false;
+    }
+    return (int) \App\Core\Query::value(
+        "SELECT COUNT(*) FROM responsibilities
+          WHERE user_id = ? AND target_type = 'classe' AND target_id = ? AND responsibility_type = 'manager'",
+        [(int) $u['id'], $classeId]
     ) > 0;
 }
 

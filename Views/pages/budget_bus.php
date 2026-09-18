@@ -1,5 +1,5 @@
 <?php /* Budget Bus du dimanche par centre (M2).
-   Variables : $table, $centres, $year, $filterCentre, $edit, $errors, $old, $csrf.
+  Variables : $table, $centres, $balances, $year, $filterCentre, $edit, $errors, $old, $csrf.
    $table = ['centres' => [cid => ['nom','rows','months','total']], 'grandTotal', 'count']. */
 $val = function (string $k, $default = '') use ($old, $edit) {
     if (array_key_exists($k, $old)) {
@@ -47,13 +47,14 @@ $yearsOpt = range((int) date('Y') + 1, (int) date('Y') - 5);
   <div class="form-grid">
     <div class="form-group">
       <label>Centre</label>
-      <select name="centre_id">
-        <option value="">— Choisir —</option>
+      <select id="busCentreSelect" name="centre_id" data-bus-balances="<?= h(json_encode($balances, JSON_THROW_ON_ERROR)) ?>">
+        <option value="">- Choisir -</option>
         <?php foreach ($centres as $c): ?>
           <option value="<?= (int) $c['id'] ?>" <?= (int) $val('centre_id') === (int) $c['id'] ? 'selected' : '' ?>><?= h($c['nom']) ?></option>
         <?php endforeach; ?>
       </select>
       <?php if (!empty($errors['centre_id'])): ?><span class="form-error"><?= h($errors['centre_id']) ?></span><?php endif; ?>
+      <div class="form-hint" data-bus-balance>Solde disponible : <strong><?= $fcfa($balances[(int) $val('centre_id', $edit['centre_id'] ?? 0)] ?? 0) ?> FCFA</strong></div>
     </div>
     <div class="form-group">
       <label>Date</label>
@@ -62,7 +63,7 @@ $yearsOpt = range((int) date('Y') + 1, (int) date('Y') - 5);
     </div>
     <div class="form-group">
       <label>Montant (FCFA)</label>
-      <input type="text" inputmode="decimal" name="montant" value="<?= h((string) $val('montant', '0')) ?>">
+      <input id="busAmount" type="number" min="0" step="0.01" max="<?= h((string) ($balances[(int) $val('centre_id', $edit['centre_id'] ?? 0)] ?? 0)) ?>" name="montant" value="<?= h((string) $val('montant', '0')) ?>">
       <?php if (!empty($errors['montant'])): ?><span class="form-error"><?= h($errors['montant']) ?></span><?php endif; ?>
     </div>
   </div>
@@ -102,8 +103,8 @@ $yearsOpt = range((int) date('Y') + 1, (int) date('Y') - 5);
               <tr>
                 <td><?= h(date('d/m/Y', strtotime((string) $r['date_retrait']))) ?></td>
                 <td class="text-right"><?= $fcfa($r['montant']) ?></td>
-                <td><?= h((string) ($r['observations'] ?? '')) ?: '—' ?></td>
-                <td><?= h(trim(($r['auteur_prenom'] ?? '') . ' ' . ($r['auteur_nom'] ?? ''))) ?: '—' ?></td>
+                <td><?= h((string) ($r['observations'] ?? '')) ?: '-' ?></td>
+                <td><?= h(trim(($r['auteur_prenom'] ?? '') . ' ' . ($r['auteur_nom'] ?? ''))) ?: '-' ?></td>
                 <td class="row-actions">
                   <a class="icon-btn" title="Modifier" href="<?= h(url('index.php', ['page' => 'budgetBus', 'annee' => $year, 'edit' => $r['id']])) ?>"><i class="fa-solid fa-pen"></i></a>
                   <a class="icon-btn danger" title="Supprimer" href="<?= h(url('index.php', ['action' => 'delete_bus_budget', 'id' => $r['id']])) ?>" onclick="return confirm('Supprimer ce mouvement ?')"><i class="fa-solid fa-trash"></i></a>
@@ -120,6 +121,6 @@ $yearsOpt = range((int) date('Y') + 1, (int) date('Y') - 5);
   <?php endforeach; ?>
 
   <div class="bus-grand-total">
-    <?= total_chip('Total général ' . (int) $year . ($filterCentre ? '' : ' — tous centres'), $fcfa($table['grandTotal']) . ' FCFA') ?>
+    <?= total_chip('Total général ' . (int) $year . ($filterCentre ? '' : ' - tous centres'), $fcfa($table['grandTotal']) . ' FCFA') ?>
   </div>
 <?php endif; ?>

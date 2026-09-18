@@ -25,7 +25,7 @@ class BusBudgetRepository
      *
      * @param ?int         $centreId  filtre d'affichage (un seul centre) ou null
      * @param int          $year      année civile (YEAR(date_retrait))
-     * @param ?array<int>  $centreIds périmètre autorisé — null = pas de restriction ; [] = aucun résultat
+     * @param ?array<int>  $centreIds périmètre autorisé - null = pas de restriction ; [] = aucun résultat
      * @return array<int,array<string,mixed>>
      */
     public function list(?int $centreId, int $year, ?array $centreIds = null): array
@@ -78,5 +78,18 @@ class BusBudgetRepository
     public function delete(int $id): void
     {
         Query::run('DELETE FROM bus_budget WHERE id = ?', [$id]);
+    }
+
+    public function availableBalance(int $centreId, ?int $excludingId = null): float
+    {
+        $params = [$centreId];
+        $excludeSql = '';
+        if ($excludingId !== null) {
+            $excludeSql = ' AND id <> ?';
+            $params[] = $excludingId;
+        }
+        $income = (float) Query::value('SELECT COALESCE(SUM(montant), 0) FROM offrandes WHERE centre_id = ?', [$centreId]);
+        $withdrawals = (float) Query::value('SELECT COALESCE(SUM(montant), 0) FROM bus_budget WHERE centre_id = ?' . $excludeSql, $params);
+        return max(0.0, $income - $withdrawals);
     }
 }

@@ -20,7 +20,7 @@ class AttendanceService
     }
 
     /**
-     * @deprecated SP-3 — le pointage culte passe par pointOccurrence('cult', …).
+     * @deprecated SP-3 - le pointage culte passe par pointOccurrence('cult', …).
      * Conservé pour compat (signature inchangée) ; délègue désormais à l'occurrence :
      * tous les user_id fournis sont marqués « present », les autres membres n'ont pas de ligne.
      */
@@ -125,7 +125,7 @@ class AttendanceService
         ];
     }
 
-    /* ================= M1 — Présences par occurrence ================= */
+    /* ================= M1 - Présences par occurrence ================= */
 
     /**
      * Enregistre les statuts d'une occurrence (unité, date). Filtre : ne garde
