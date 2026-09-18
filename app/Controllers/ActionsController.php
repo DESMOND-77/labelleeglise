@@ -776,8 +776,13 @@ class ActionsController extends Controller
                 $res = classe_service()->saveClasse($_POST);
                 if (!$res['ok']) {
                     $editId = (int) ($_POST['id'] ?? 0);
+                    $classes = array_values(array_filter(
+                        classe_service()->all(),
+                        static fn(array $classe): bool => ($user['role'] ?? '') === 'admin'
+                            || auth_can_manage_class((int) $classe['id'])
+                    ));
                     render_page(SECTION_LABELS['classes'], view('pages/classes', [
-                        'classes'    => classe_service()->all(),
+                        'classes'    => $classes,
                         'edit'       => $editId ? classe_service()->find($editId) : null,
                         'formateurs' => classe_service()->formateurCandidates(),
                         'errors'     => $res['errors'],

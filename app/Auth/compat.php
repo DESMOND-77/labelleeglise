@@ -192,7 +192,7 @@ function auth_can_report_for_centre(int $centreId): bool
     ) === 1;
 }
 
-/** Gestion des classes/écoles post-culte : admin OU rôle pastoral désigné (manager). */
+/** Gestion des classes/écoles post-culte : admin OU classe explicitement attribuée. */
 function auth_can_manage_classes(): bool
 {
     $u = current_user();
@@ -206,7 +206,8 @@ function auth_can_manage_classes(): bool
         return false;
     }
     return (int) \App\Core\Query::value(
-        "SELECT COUNT(*) FROM responsibilities WHERE user_id = ? AND responsibility_type = 'manager'",
+        "SELECT COUNT(*) FROM responsibilities
+          WHERE user_id = ? AND target_type = 'classe' AND responsibility_type = 'manager'",
         [(int) $u['id']]
     ) > 0;
 }

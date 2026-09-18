@@ -9,7 +9,7 @@ $fmt = fn($n) => ($n >= 0 ? '+' : '') . $n;
 ?>
 <div class="welcome-banner">
   <div>
-    <h2>Bonjour <?= h(trim($user['prenom'] ?? 'Administrateur')) ?> 👋</h2>
+    <h2>Bonjour <?= h(trim($user['prenom'] ?? 'Administrateur')) ?></h2>
     <p>Voici un aperçu de l'activité de l'église pour l'année <?= h($year) ?>.</p>
   </div>
   <div class="welcome-badge">
