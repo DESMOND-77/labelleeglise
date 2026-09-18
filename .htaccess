@@ -57,6 +57,12 @@ ServerSignature Off
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
+  # Forcer HTTPS en production (Hostinger / Apache). Si le site est servi via
+  # un proxy inverse, la variable X-Forwarded-Proto sert de garde-fou.
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301,NE]
+
   # Dossiers applicatifs : jamais accessibles directement en HTTP -
   # uniquement via index.php (front controller) côté serveur.
   RewriteRule ^(app|Bootstrap|Config|Database|Routes|Storage|Views|views|prompts|Bootstrap)(/|$) - [F,L,NC]
@@ -66,4 +72,7 @@ ServerSignature Off
 <IfModule mod_php.c>
   php_flag display_errors Off
   php_flag expose_php Off
+  php_flag session.cookie_httponly On
+  php_flag session.cookie_secure On
+  php_value session.use_only_cookies 1
 </IfModule>

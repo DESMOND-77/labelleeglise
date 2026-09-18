@@ -25,12 +25,36 @@ require_once __DIR__ . '/autoload.php';
 require_once __DIR__ . '/env.php';
 load_env(BASE_PATH . '/.env');
 
+// Sécurité session/cookie côté runtime (Hostinger derrière Apache / HTTPS).
+if (function_exists('ini_set')) {
+    $isSecureRequest = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https')
+        || (($_SERVER['HTTP_X_FORWARDED_SSL'] ?? '') === 'on');
+
+    @ini_set('session.use_only_cookies', '1');
+    @ini_set('session.cookie_httponly', '1');
+    @ini_set('session.cookie_samesite', 'Lax');
+    @ini_set('session.cookie_secure', $isSecureRequest ? '1' : '0');
+}
+
 // 2. Chemins absolus.
 require_once BASE_PATH . '/Config/paths.php';
 
 // 3. Configuration.
 $appConfig = require APP_CONFIG_PATH . '/app.php';
 $dbConfig  = require APP_CONFIG_PATH . '/database.php';
+
+define('APP_DEBUG', (bool) ($appConfig['debug'] ?? false));
+if (APP_DEBUG) {
+    @ini_set('display_errors', '1');
+    @ini_set('display_startup_errors', '1');
+    error_reporting(E_ALL);
+} else {
+    @ini_set('display_errors', '0');
+    @ini_set('display_startup_errors', '0');
+    error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
+}
+@ini_set('log_errors', '1');
 
 // Fuseau horaire.
 if (!empty($appConfig['timezone'])) {
@@ -73,9 +97,16 @@ define('APP_NAME', $appConfig['name'] ?? 'La Belle Église');
 // tolérer une valeur .env incomplète (ex. `192.168.1.102:3000` sans schéma,
 // ou sans slash final) plutôt que de produire des redirections cassées.
 $appUrl = trim((string) ($appConfig['url'] ?? ''));
+if ($appUrl === '' && !empty($_SERVER['HTTP_HOST'])) {
+    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https')
+        || (($_SERVER['HTTP_X_FORWARDED_SSL'] ?? '') === 'on');
+    $scheme = $isHttps ? 'https' : 'http';
+    $appUrl = $scheme . '://' . $_SERVER['HTTP_HOST'] . '/';
+}
 if ($appUrl !== '') {
     if (!preg_match('#^https?://#i', $appUrl)) {
-        $appUrl = 'http://' . $appUrl;
+        $appUrl = 'https://' . $appUrl;
     }
     $appUrl = rtrim($appUrl, '/') . '/';
 }
