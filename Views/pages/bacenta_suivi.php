@@ -4,7 +4,7 @@
 <div class="section-toolbar">
   <div>
     <h2><?= h($bacenta['nom']) ?></h2>
-    <div class="sub">Suivi mensuel — Visites & Offrandes</div>
+    <div class="sub">Suivi mensuel - Visites & Offrandes</div>
   </div>
   <form method="get" action="index.php" class="suivi-toolbar">
     <input type="hidden" name="page" value="bacentas">
@@ -22,7 +22,7 @@
   <input type="hidden" name="mois" value="<?= h($monthKey) ?>">
 
   <div class="suivi-block">
-    <h3><i class="fa-solid fa-people-group"></i> Fiche Visites — <?= h($monthLabel) ?></h3>
+    <h3><i class="fa-solid fa-people-group"></i> Fiche Visites - <?= h($monthLabel) ?></h3>
     <div class="table-wrap">
       <table class="data-table">
         <thead><tr><th>Semaine</th><th>Nom du visiteur</th><th>Date de visite</th><th>Observation</th></tr></thead>
@@ -41,7 +41,7 @@
   </div>
 
   <div class="suivi-block">
-    <h3><i class="fa-solid fa-sack-dollar"></i> Offrandes des vendredis — <?= h($monthLabel) ?></h3>
+    <h3><i class="fa-solid fa-sack-dollar"></i> Offrandes des vendredis - <?= h($monthLabel) ?></h3>
     <div class="table-wrap">
       <table class="data-table">
         <thead><tr><th>Semaine</th><th>Montant (FCFA)</th></tr></thead>

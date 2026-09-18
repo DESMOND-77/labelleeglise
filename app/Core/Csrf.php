@@ -3,7 +3,7 @@
 namespace App\Core;
 
 /**
- * Jetons CSRF — protection des formulaires POST.
+ * Jetons CSRF - protection des formulaires POST.
  */
 class Csrf
 {

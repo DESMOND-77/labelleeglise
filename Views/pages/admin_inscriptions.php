@@ -8,7 +8,7 @@ foreach ($registrations as $r) {
     $statusBadge = $verified
         ? '<span class="badge success"><i class="fa-solid fa-check"></i> Vérifié</span>'
         : '<span class="badge neutral"><i class="fa-solid fa-hourglass-half"></i> En attente</span>';
-    $created = !empty($r['created_at']) ? date('d/m/Y à H:i', strtotime($r['created_at'])) : '—';
+    $created = !empty($r['created_at']) ? date('d/m/Y à H:i', strtotime($r['created_at'])) : '-';
     $rows .= '<tr>'
         . '<td>' . h(full_name($r)) . '</td>'
         . '<td>' . h($r['email']) . '</td>'

@@ -11,11 +11,11 @@ use App\Repositories\CMSRepository;
  * Chaque action se termine par une redirection (comportement identique à
  * l'ancien actions.php).
  *
- * IMPORTANT — contrôle serveur (spec §34, §40, §42) : `getAction()` est
+ * IMPORTANT - contrôle serveur (spec §34, §40, §42) : `getAction()` est
  * dispatché par index.php AVANT la vérification de session (voir front
  * controller), donc CHAQUE case doit revérifier explicitement
  * current_user() + l'autorisation réelle (rôle + permission + responsabilité
- * + périmètre) — jamais seulement un bouton masqué côté vue.
+ * + périmètre) - jamais seulement un bouton masqué côté vue.
  */
 class ActionsController extends Controller
 {
@@ -41,6 +41,13 @@ class ActionsController extends Controller
             $this->deny();
         }
         return $user;
+    }
+
+    /** Jours de récurrence soumis (cases) → CSV filtré sur WEEK_DAYS, ou null. */
+    private function scheduleDaysFromPost(): ?string
+    {
+        $days = array_values(array_intersect(WEEK_DAYS, (array) ($_POST['jours_semaine'] ?? [])));
+        return $days ? implode(',', $days) : null;
     }
 
     /** Suppressions / déconnexions passées en GET (?action=…). */
@@ -71,6 +78,75 @@ class ActionsController extends Controller
                 }
                 $this->redirect('index.php', ['page' => 'bacentas']);
                 break;
+
+            /* ---------- Calendriers (M4) ---------- */
+
+            case 'delete_evenement': {
+                $this->requireUser();
+                $id = (int) ($_GET['id'] ?? 0);
+                $evt = $id ? calendrier_service()->event($id) : null;
+                if (!$evt || !auth_can_edit_evenement($evt)) {
+                    $this->deny();
+                }
+                calendrier_service()->deleteEvent($id);
+                $this->redirect('index.php', ['page' => 'agenda']);
+                break;
+            }
+
+            case 'delete_anniversaire': {
+                $this->requireUser();
+                if (!auth_can_manage_calendar()) {
+                    $this->deny();
+                }
+                $id = (int) ($_GET['id'] ?? 0);
+                if ($id) {
+                    calendrier_service()->deleteBirthday($id);
+                }
+                $this->redirect('index.php', ['page' => 'agenda']);
+                break;
+            }
+
+            case 'delete_classe': {
+                $this->requireUser();
+                $id = (int) ($_GET['id'] ?? 0);
+                if (!auth_can_manage_class($id)) {
+                    $this->deny();
+                }
+                if ($id) {
+                    classe_service()->deleteClasse($id);
+                }
+                $this->redirect('index.php', ['page' => 'classes']);
+                break;
+            }
+
+            case 'delete_bus_budget': {
+                $this->requireUser();
+                $id = (int) ($_GET['id'] ?? 0);
+                $entry = $id ? bus_budget_service()->entry($id) : null;
+                $user = current_user();
+                $isAdmin = ($user['role'] ?? '') === 'admin';
+                if (!$entry || (!$isAdmin && !auth_can_manage_center((int) $entry['centre_id']))) {
+                    $this->deny();
+                }
+                bus_budget_service()->deleteEntry($id);
+                $this->redirect('index.php', ['page' => 'budgetBus']);
+                break;
+            }
+
+            case 'remove_classe_inscrit': {
+                $this->requireUser();
+                $id = (int) ($_GET['id'] ?? 0);
+                $ins = $id ? classe_service()->findInscrit($id) : null;
+                $classeId = $ins ? (int) $ins['classe_id'] : 0;
+                if (!$ins || !auth_can_manage_class($classeId)) {
+                    $this->deny();
+                }
+                if ($id) {
+                    classe_service()->deleteInscrit($id);
+                }
+                $this->redirect('index.php', $classeId ? ['page' => 'classe', 'id' => $classeId] : ['page' => 'classes']);
+                break;
+            }
 
             case 'delete_culte':
                 $this->requireAdmin();
@@ -192,7 +268,7 @@ class ActionsController extends Controller
 
             case 'export_attendance': {
                 // Export CSV réel (spec §27) : gate identique à la fiche/aux
-                // impressions — soi-même toujours autorisé, sinon
+                // impressions - soi-même toujours autorisé, sinon
                 // canManageMember() (admin bypass inclus). GET volontairement
                 // non protégé CSRF, comme le reste des cases getAction()
                 // existantes (convention préexistante de l'app, hors périmètre).
@@ -293,7 +369,10 @@ class ActionsController extends Controller
                     $this->deny();
                 }
                 if ($nom !== '') {
-                    save_bacenta($id ?: null, $nom, $centreId, null);
+                    $jours = $this->scheduleDaysFromPost();
+                    $debut = trim((string) ($_POST['heure_debut'] ?? '')) ?: null;
+                    $fin   = trim((string) ($_POST['heure_fin'] ?? '')) ?: null;
+                    save_bacenta($id ?: null, $nom, $centreId, null, $jours, $debut, $fin);
                 }
                 $this->redirect('index.php', ['page' => 'bacentas']);
                 break;
@@ -313,7 +392,7 @@ class ActionsController extends Controller
                     $this->deny();
                 }
                 if ($nom !== '') {
-                    save_culte($id ?: null, $nom, $date, $debut, $fin, null);
+                    save_culte($id ?: null, $nom, $date, $debut, $fin, null, $this->scheduleDaysFromPost());
                 }
                 $this->redirect('index.php', ['page' => 'cultes']);
                 break;
@@ -328,18 +407,21 @@ class ActionsController extends Controller
                     $this->deny();
                 }
                 if ($nom !== '') {
-                    save_basonta($id ?: null, $nom, null);
+                    $jours = $this->scheduleDaysFromPost();
+                    $debut = trim((string) ($_POST['heure_debut'] ?? '')) ?: null;
+                    $fin   = trim((string) ($_POST['heure_fin'] ?? '')) ?: null;
+                    save_basonta($id ?: null, $nom, null, $jours, $debut, $fin);
                 }
                 $this->redirect('index.php', ['page' => 'basontas']);
                 break;
             }
 
-            /* ---------- Mon profil (libre-service — spec §1-13) ---------- */
+            /* ---------- Mon profil (libre-service - spec §1-13) ---------- */
 
             case 'save_profile': {
                 // Auto-ciblage exclusif sur l'utilisateur connecté : jamais
                 // d'id "membre" lu depuis la requête pour cette action (spec
-                // §1(a)) — un membre ne peut modifier QUE son propre profil.
+                // §1(a)) - un membre ne peut modifier QUE son propre profil.
                 $user = $this->requireUser();
                 $svc = profile_service();
                 $errors = $svc->validatePersonalInfo($_POST);
@@ -375,7 +457,7 @@ class ActionsController extends Controller
 
             case 'request_email_change': {
                 // Spec §12 : la déconnexion a lieu ICI, à la DEMANDE, avant
-                // même que le lien de vérification soit cliqué — jamais au
+                // même que le lien de vérification soit cliqué - jamais au
                 // moment de la vérification.
                 $user = $this->requireUser();
                 $newEmail = trim((string) ($_POST['new_email'] ?? ''));
@@ -446,11 +528,8 @@ class ActionsController extends Controller
                     }
                 }
 
-                foreach (PRESENCE_FIELDS as $f) {
-                    if (isset($_POST[$f])) {
-                        save_quick_presence($id, $f, (string) $_POST[$f]);
-                    }
-                }
+                // SP-4 : plus de pointage depuis le formulaire membre - le pointage
+                // se fait exclusivement depuis l'occurrence (save_presence_occurrence).
 
                 if (($_POST['retour'] ?? '') === 'fiche') {
                     $this->redirect('index.php', ['page' => 'bergerFiche', 'membre' => $id]);
@@ -465,7 +544,7 @@ class ActionsController extends Controller
                 $data = user_data_from_post($id ?: null);
                 // Le rôle soumis doit être un rôle actif réellement
                 // sélectionnable (jamais 'responsable', jamais une valeur
-                // arbitraire) — voir ROLE_LABELS (Config/constants.php).
+                // arbitraire) - voir ROLE_LABELS (Config/constants.php).
                 $submittedRole = (string) ($_POST['role'] ?? 'membre');
                 $data['role'] = array_key_exists($submittedRole, ROLE_LABELS) ? $submittedRole : 'membre';
 
@@ -478,7 +557,7 @@ class ActionsController extends Controller
                 $newPass = trim((string) ($_POST['password'] ?? ''));
                 if ($id) {
                     update_user_from_post($id, $data, null, $newPass !== '' ? $newPass : null);
-                    // §31 — changement de rôle : révoque toute responsabilité
+                    // §31 - changement de rôle : révoque toute responsabilité
                     // devenue incohérente avec le nouveau rôle (choix
                     // documenté : auto-révocation + journalisation, voir
                     // ResponsibilityService::reconcileForNewRole).
@@ -537,6 +616,10 @@ class ActionsController extends Controller
 
             /* ---------- Présence par événement (culte) ---------- */
 
+            // @deprecated SP-3 - conservé pour compat (liens/bookmarks/POST externes).
+            // Le pointage culte passe désormais par save_presence_occurrence
+            // (unit_type=cult) ; ce wrapper route vers pointOccurrence via
+            // save_unit_presence('cult', …). Effet net identique à l'ancien pointCulte.
             case 'point_culte': {
                 $this->requireUser();
                 $culte = (int) ($_POST['culte'] ?? 0);
@@ -547,10 +630,243 @@ class ActionsController extends Controller
                 }
                 $date = (string) ($_POST['date_presence'] ?? date('Y-m-d'));
                 if ($date !== '') {
-                    $userIds = array_map('intval', array_keys($_POST['present'] ?? []));
-                    point_culte_presence($culte, $date, $userIds);
+                    $present = array_map('intval', array_keys($_POST['present'] ?? []));
+                    $population = array_map(
+                        static fn($m) => (int) $m['id'],
+                        \App\Core\Query::all("SELECT id FROM users WHERE role IN ('membre','leader','assistant','pasteur','reverant')")
+                    );
+                    save_unit_presence('cult', $culte, $date, array_fill_keys($present, 'present'), $population);
                 }
-                $this->redirect('index.php', ['page' => 'cultes', 'id' => $culte]);
+                $this->redirect('index.php', ['page' => 'cultes', 'id' => $culte, 'tab' => 'presences', 'date' => $date]);
+                break;
+            }
+
+            /* ---------- Présence par occurrence (bacenta / culte / basonta, statut) ---------- */
+
+            case 'save_presence_occurrence': {
+                $this->requireUser();
+                $unitType = (string) ($_POST['unit_type'] ?? '');
+                $unitId = (int) ($_POST['unit_id'] ?? 0);
+                if (!in_array($unitType, ['bacenta', 'cult', 'basonta', 'evenement'], true) || !$unitId) {
+                    $this->deny();
+                }
+                if ($unitType === 'evenement') {
+                    $evt = calendrier_service()->event($unitId);
+                    if (!$evt || !(auth_can_manage_calendar() || auth_can_edit_evenement($evt))) {
+                        $this->deny();
+                    }
+                } elseif (!can_manage_entity($unitType, $unitId)) {
+                    $this->deny();
+                }
+                $date = (string) ($_POST['date'] ?? date('Y-m-d'));
+                // Population autorisée revalidée serveur selon le type d'unité.
+                $allowed = match ($unitType) {
+                    'bacenta' => array_map(static fn($m) => (int) $m['id'], get_members_of_bacenta($unitId)),
+                    'basonta' => array_map(static fn($m) => (int) $m['id'], get_members_of_basonta($unitId)),
+                    'cult'    => array_map(static fn($m) => (int) $m['id'], Query::all("SELECT id FROM users WHERE role IN ('membre','leader','assistant','pasteur','reverant')")),
+                    'evenement' => array_map(static fn($m) => (int) $m['id'], Query::all("SELECT id FROM users WHERE role IN ('membre','leader','assistant','pasteur','reverant')")),
+                };
+                $raw = [];
+                foreach ((array) ($_POST['statut'] ?? []) as $uid => $st) {
+                    $raw[(int) $uid] = (string) $st;
+                }
+                save_unit_presence($unitType, $unitId, $date, $raw, $allowed);
+                if ($unitType === 'evenement') {
+                    $this->redirect('index.php', ['page' => 'calendrier', 'evt' => $unitId, 'date' => $date]);
+                }
+                $pageKey = ['bacenta' => 'bacentas', 'cult' => 'cultes', 'basonta' => 'basontas'][$unitType];
+                $this->redirect('index.php', ['page' => $pageKey, 'id' => $unitId, 'tab' => 'presences', 'date' => $date]);
+                break;
+            }
+
+            /* ---------- Calendriers (M4) ---------- */
+
+            case 'save_evenement': {
+                $user = $this->requireUser();
+                if (!auth_can_manage_calendar()) {
+                    $this->deny();
+                }
+                $id = (int) ($_POST['id'] ?? 0);
+                if ($id) {
+                    $existing = calendrier_service()->event($id);
+                    if (!$existing || !auth_can_edit_evenement($existing)) {
+                        $this->deny();
+                    }
+                }
+                $res = calendrier_service()->saveEvent($_POST, (int) $user['id']);
+                if (!$res['ok']) {
+                    render_page(SECTION_LABELS['agenda'], view('pages/agenda', CalendrierController::agendaViewData(
+                        '',
+                        '',
+                        $res['errors'],
+                        $_POST
+                    )));
+                    return;
+                }
+                $this->redirect('index.php', ['page' => 'agenda']);
+                break;
+            }
+
+            case 'save_anniversaire': {
+                $user = $this->requireUser();
+                if (!auth_can_manage_calendar()) {
+                    $this->deny();
+                }
+                $res = calendrier_service()->saveBirthday($_POST, (int) $user['id']);
+                if (!$res['ok']) {
+                    render_page(SECTION_LABELS['agenda'], view('pages/agenda', CalendrierController::agendaViewData(
+                        '',
+                        '',
+                        $res['errors'],
+                        $_POST
+                    )));
+                    return;
+                }
+                $this->redirect('index.php', ['page' => 'agenda']);
+                break;
+            }
+
+            /* ---------- Rapport du Jour (M5) ---------- */
+
+            case 'save_rapport_jour': {
+                $user = $this->requireUser();
+                $centreId = (int) ($_POST['centre_id'] ?? 0);
+                if (!$centreId || !auth_can_report_for_centre($centreId)) {
+                    $this->deny();
+                }
+                $isAdmin = ($user['role'] ?? '') === 'admin';
+                $uid = (int) $user['id'];
+                $res = rapport_jour_service()->save($_POST, $uid, $isAdmin);
+                if (!$res['ok']) {
+                    $date = trim((string) ($_POST['date_rapport'] ?? '')) ?: date('Y-m-d');
+                    $svc = rapport_jour_service();
+                    $centres = array_values(array_filter(
+                        get_centres(),
+                        static fn($c) => $isAdmin || auth_can_report_for_centre((int) $c['id'])
+                    ));
+                    $existing = $svc->reportForCentreDate($centreId, $date);
+                    render_page(SECTION_LABELS['rapports'], view('pages/rapport_form', [
+                        'centres'  => $centres,
+                        'centreId' => $centreId,
+                        'date'     => $date,
+                        'report'   => $existing,
+                        'bacentas' => $svc->reportableBacentas($uid, $centreId, $isAdmin),
+                        'bacentaId' => (int) ($_POST['bacenta_id'] ?? 0) ?: null,
+                        'fields'   => RAPPORT_JOUR_FIELDS,
+                        'derived'  => $svc->derivedNames($centreId, (int) ($_POST['bacenta_id'] ?? 0) ?: null, $uid),
+                        'canEdit'  => $existing === null || $isAdmin || (int) $existing['auteur_id'] === $uid,
+                        'errors'   => $res['errors'],
+                        'old'      => $_POST,
+                        'csrf'     => csrf_field(),
+                    ]));
+                    return;
+                }
+                $this->redirect('index.php', ['page' => 'rapport', 'id' => $res['id']]);
+                break;
+            }
+
+            /* ---------- Classes / Écoles (M6) ---------- */
+
+            case 'save_classe': {
+                $user = $this->requireUser();
+                $classeId = (int) ($_POST['id'] ?? 0);
+                if (($user['role'] ?? '') !== 'admin' && (!$classeId || !auth_can_manage_class($classeId))) {
+                    $this->deny();
+                }
+                $res = classe_service()->saveClasse($_POST);
+                if (!$res['ok']) {
+                    $editId = (int) ($_POST['id'] ?? 0);
+                    $classes = array_values(array_filter(
+                        classe_service()->all(),
+                        static fn(array $classe): bool => ($user['role'] ?? '') === 'admin'
+                            || auth_can_manage_class((int) $classe['id'])
+                    ));
+                    render_page(SECTION_LABELS['classes'], view('pages/classes', [
+                        'classes'    => $classes,
+                        'edit'       => $editId ? classe_service()->find($editId) : null,
+                        'formateurs' => classe_service()->formateurCandidates(),
+                        'errors'     => $res['errors'],
+                        'old'        => $_POST,
+                        'csrf'       => csrf_field(),
+                    ]));
+                    return;
+                }
+                $this->redirect('index.php', ['page' => 'classes']);
+                break;
+            }
+
+            case 'save_classe_inscrit': {
+                $this->requireUser();
+                $classeId = (int) ($_POST['classe_id'] ?? 0);
+                if (!auth_can_manage_class($classeId)) {
+                    $this->deny();
+                }
+                classe_service()->saveInscrit($_POST);
+                $this->redirect('index.php', $classeId ? ['page' => 'classe', 'id' => $classeId, 'tab' => 'eleves'] : ['page' => 'classes']);
+                break;
+            }
+
+            case 'save_classe_inscrits': {
+                $this->requireUser();
+                $classeId = (int) ($_POST['classe_id'] ?? 0);
+                if (!auth_can_manage_class($classeId)) {
+                    $this->deny();
+                }
+                foreach ((array) ($_POST['inscrit'] ?? []) as $inscritId => $fields) {
+                    $ins = classe_service()->findInscrit((int) $inscritId);
+                    if (!$ins || (int) $ins['classe_id'] !== $classeId) {
+                        continue;
+                    }
+                    classe_service()->saveInscrit(array_merge((array) $fields, [
+                        'classe_id' => $classeId,
+                        'user_id'   => (int) $ins['user_id'],
+                    ]));
+                }
+                $this->redirect('index.php', $classeId ? ['page' => 'classe', 'id' => $classeId, 'tab' => 'eleves'] : ['page' => 'classes']);
+                break;
+            }
+
+            /* ---------- Budget Bus du dimanche (M2) ---------- */
+
+            case 'save_bus_budget': {
+                $user = $this->requireUser();
+                $isAdmin = ($user['role'] ?? '') === 'admin';
+                $centreId = (int) ($_POST['centre_id'] ?? 0);
+                if (!$centreId || (!$isAdmin && !auth_can_manage_center($centreId))) {
+                    $this->deny();
+                }
+                $editId = (int) ($_POST['id'] ?? 0);
+                if ($editId) {
+                    $existing = bus_budget_service()->entry($editId);
+                    if (!$existing || (!$isAdmin && !auth_can_manage_center((int) $existing['centre_id']))) {
+                        $this->deny();
+                    }
+                }
+                $year = (int) ($_POST['annee'] ?? 0) ?: (int) date('Y');
+                $res = bus_budget_service()->save($_POST, (int) $user['id']);
+                if (!$res['ok']) {
+                    $centres = array_values(array_filter(
+                        get_centres(),
+                        static fn($c) => $isAdmin || auth_can_manage_center((int) $c['id'])
+                    ));
+                    $permittedIds = $isAdmin ? null : array_map(static fn($c) => (int) $c['id'], $centres);
+                    render_page(SECTION_LABELS['budgetBus'], view('pages/budget_bus', [
+                        'table'        => bus_budget_service()->annualTable(null, $year, $permittedIds),
+                        'centres'      => $centres,
+                        'year'         => $year,
+                        'filterCentre' => null,
+                        'edit'         => $editId ? bus_budget_service()->entry($editId) : null,
+                        'errors'       => $res['errors'],
+                        'old'          => $_POST,
+                        'csrf'         => csrf_field(),
+                        'balances'     => array_reduce($centres, static function (array $out, array $centre) use ($editId): array {
+                            $out[(int) $centre['id']] = bus_budget_service()->availableBalance((int) $centre['id'], $editId ?: null);
+                            return $out;
+                        }, []),
+                    ]));
+                    return;
+                }
+                $this->redirect('index.php', ['page' => 'budgetBus', 'annee' => $year]);
                 break;
             }
 
@@ -577,7 +893,7 @@ class ActionsController extends Controller
             case 'add_veillee': {
                 $user = $this->requireUser();
                 $membre = (int) ($_POST['membre'] ?? 0);
-                // spec §20 : "SA PROPRE fiche" — jamais celle d'un autre,
+                // spec §20 : "SA PROPRE fiche" - jamais celle d'un autre,
                 // sauf admin. C'est ici, côté serveur, que la règle est
                 // réellement appliquée (le verrouillage de vue n'est qu'un
                 // confort UI, jamais une sécurité).
@@ -614,7 +930,7 @@ class ActionsController extends Controller
                 $user = $this->requireUser();
                 $membre = (int) ($_POST['membre'] ?? 0);
                 // BUG CRITIQUE corrigé (spec §20) : auparavant $membre était
-                // pris tel quel depuis $_POST, sans aucune vérification —
+                // pris tel quel depuis $_POST, sans aucune vérification -
                 // n'importe quel utilisateur authentifié pouvait écraser le
                 // suivi_hebdo d'un autre. Seul le propriétaire (ou l'admin)
                 // peut désormais écrire sa fiche.
@@ -631,7 +947,7 @@ class ActionsController extends Controller
                 break;
             }
 
-            /* ---------- Responsabilités (nouveau modèle — remplace l'ancien save_responsable ad hoc) ---------- */
+            /* ---------- Responsabilités (nouveau modèle - remplace l'ancien save_responsable ad hoc) ---------- */
 
             case 'assign_responsibility': {
                 // BUG CRITIQUE corrigé (spec §29/§34/§40) : auparavant

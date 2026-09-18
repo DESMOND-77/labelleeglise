@@ -27,7 +27,10 @@ class AttendanceRepository
         Query::run("DELETE FROM presences WHERE user_id = ? AND $column = ?", [$userId, $entityId]);
     }
 
-    /** Pointage de présence à un culte (recenser les présents pour date). */
+    /**
+     * @deprecated SP-3 - plus appelé (AttendanceService::pointCulte délègue à
+     * pointOccurrence). Conservé pour compat, sans statut ni transaction.
+     */
     public function pointCulte(int $culteId, string $date, array $userIds): void
     {
         Query::run('DELETE FROM presences WHERE culte_id = ? AND date_presence = ?', [$culteId, $date]);
@@ -50,17 +53,27 @@ class AttendanceRepository
 
     /**
      * Historique réel des présences d'un utilisateur, jointes aux noms
-     * réels (culte/centre/bacenta), triées par date décroissante.
+     * réels (culte/événement/centre/bacenta/basonta), triées par date décroissante.
      * $fromDate/$toDate au format Y-m-d, optionnels.
+     * $statut ∈ present|absent|excuse (sinon ignoré).
+     * $type ∈ culte|evenement|bacenta|basonta|centre → restreint aux lignes dont
+     * la FK correspondante est renseignée (sinon ignoré).
      */
-    public function historyForUser(int $userId, ?string $fromDate = null, ?string $toDate = null): array
-    {
-        $sql = "SELECT p.id, p.date_presence, p.culte_id, p.centre_id, p.bacenta_id, p.basonta_id,
-                       cu.nom AS culte_nom, ce.nom AS centre_nom, ba.nom AS bacenta_nom
+    public function historyForUser(
+        int $userId,
+        ?string $fromDate = null,
+        ?string $toDate = null,
+        ?string $statut = null,
+        ?string $type = null
+    ): array {
+        $sql = "SELECT p.id, p.date_presence, p.statut, p.culte_id, p.evenement_id, p.centre_id, p.bacenta_id, p.basonta_id,
+                       cu.nom AS culte_nom, ev.nom AS evenement_nom, ce.nom AS centre_nom, ba.nom AS bacenta_nom, bo.nom AS basonta_nom
                   FROM presences p
-                  LEFT JOIN cultes cu ON cu.id = p.culte_id
-                  LEFT JOIN centres ce ON ce.id = p.centre_id
-                  LEFT JOIN bacentas ba ON ba.id = p.bacenta_id
+                  LEFT JOIN cultes cu     ON cu.id = p.culte_id
+                  LEFT JOIN evenements ev ON ev.id = p.evenement_id
+                  LEFT JOIN centres ce    ON ce.id = p.centre_id
+                  LEFT JOIN bacentas ba   ON ba.id = p.bacenta_id
+                  LEFT JOIN basontas bo   ON bo.id = p.basonta_id
                  WHERE p.user_id = ?";
         $params = [$userId];
         if ($fromDate) {
@@ -71,13 +84,57 @@ class AttendanceRepository
             $sql .= ' AND p.date_presence <= ?';
             $params[] = $toDate;
         }
+        if (in_array($statut, ['present', 'absent', 'excuse'], true)) {
+            $sql .= ' AND p.statut = ?';
+            $params[] = $statut;
+        }
+        $typeCol = [
+            'culte'     => 'culte_id',
+            'evenement' => 'evenement_id',
+            'bacenta'   => 'bacenta_id',
+            'basonta'   => 'basonta_id',
+            'centre'    => 'centre_id',
+        ][$type] ?? null;
+        if ($typeCol !== null) {
+            $sql .= " AND p.$typeCol IS NOT NULL";
+        }
         $sql .= ' ORDER BY p.date_presence DESC, p.id DESC';
         return Query::all($sql, $params);
     }
 
+    /** @deprecated SP-5 - plus utilisé par statsForUser (compte toutes les lignes, pas seulement les présences). */
     public function countForUser(int $userId): int
     {
         return (int) Query::value('SELECT COUNT(*) FROM presences WHERE user_id = ?', [$userId]);
+    }
+
+    /**
+     * Ventilation des statuts pointés d'un membre (1 requête groupée).
+     * Clés absentes = 0.
+     *
+     * @return array{present:int,absent:int,excuse:int}
+     */
+    public function statusCountsForUser(int $userId, ?string $from = null, ?string $to = null): array
+    {
+        $sql = 'SELECT statut, COUNT(*) c FROM presences WHERE user_id = ?';
+        $params = [$userId];
+        if ($from) {
+            $sql .= ' AND date_presence >= ?';
+            $params[] = $from;
+        }
+        if ($to) {
+            $sql .= ' AND date_presence <= ?';
+            $params[] = $to;
+        }
+        $sql .= ' GROUP BY statut';
+
+        $out = ['present' => 0, 'absent' => 0, 'excuse' => 0];
+        foreach (Query::all($sql, $params) as $r) {
+            if (isset($out[$r['statut']])) {
+                $out[$r['statut']] = (int) $r['c'];
+            }
+        }
+        return $out;
     }
 
     public function mostRecentDateForUser(int $userId): ?string
@@ -86,7 +143,11 @@ class AttendanceRepository
         return $d ?: null;
     }
 
-    /** Nombre de dates de culte distinctes enregistrées sur la période (dénominateur honnête d'un "taux"). */
+    /**
+     * Nombre de dates de culte distinctes enregistrées sur la période.
+     * @deprecated SP-5 - plus utilisé par statsForUser (dénominateur biaisé : cultes seuls,
+     * ignore absent/excuse). Le taux passe par statusCountsForUser.
+     */
     public function distinctCulteDatesInRange(?string $fromDate, ?string $toDate): int
     {
         $sql = "SELECT COUNT(DISTINCT date_presence) FROM presences WHERE culte_id IS NOT NULL";
@@ -100,5 +161,70 @@ class AttendanceRepository
             $params[] = $toDate;
         }
         return (int) Query::value($sql, $params);
+    }
+
+    /* ================= M1 - Présences par occurrence (unité, date, statut) ================= */
+
+    private const UNIT_COLUMNS = ['bacenta' => 'bacenta_id', 'cult' => 'culte_id', 'basonta' => 'basonta_id', 'evenement' => 'evenement_id'];
+
+    private function unitColumn(string $unitType): string
+    {
+        if (!isset(self::UNIT_COLUMNS[$unitType])) {
+            throw new \InvalidArgumentException("Type d'unité inconnu: {$unitType}");
+        }
+        return self::UNIT_COLUMNS[$unitType];
+    }
+
+    /** Upsert des statuts d'une occurrence (unité, date). Appelé sous transaction. */
+    public function pointOccurrence(string $unitType, int $unitId, string $date, array $statutByUserId): void
+    {
+        $col = $this->unitColumn($unitType);
+        Query::run("DELETE FROM presences WHERE $col = ? AND date_presence = ?", [$unitId, $date]);
+        foreach ($statutByUserId as $userId => $statut) {
+            Query::run(
+                "INSERT INTO presences (user_id, date_presence, statut, $col) VALUES (?, ?, ?, ?)",
+                [(int) $userId, $date, $statut, $unitId]
+            );
+        }
+    }
+
+    /** @return array<int,string> [userId => statut] */
+    public function occurrenceStatuts(string $unitType, int $unitId, string $date): array
+    {
+        $col = $this->unitColumn($unitType);
+        $out = [];
+        foreach (Query::all("SELECT user_id, statut FROM presences WHERE $col = ? AND date_presence = ?", [$unitId, $date]) as $r) {
+            $out[(int) $r['user_id']] = (string) $r['statut'];
+        }
+        return $out;
+    }
+
+    /** @return list<string> dates Y-m-d triées */
+    public function distinctDatesForUnit(string $unitType, int $unitId, string $from, string $to): array
+    {
+        $col = $this->unitColumn($unitType);
+        return array_map(
+            static fn($r) => (string) $r['date_presence'],
+            Query::all(
+                "SELECT DISTINCT date_presence FROM presences
+                  WHERE $col = ? AND date_presence BETWEEN ? AND ? ORDER BY date_presence",
+                [$unitId, $from, $to]
+            )
+        );
+    }
+
+    /** @return array<int,array<string,string>> [userId => [date => statut]] */
+    public function matrixForUnit(string $unitType, int $unitId, string $from, string $to): array
+    {
+        $col = $this->unitColumn($unitType);
+        $out = [];
+        foreach (Query::all(
+            "SELECT user_id, date_presence, statut FROM presences
+              WHERE $col = ? AND date_presence BETWEEN ? AND ?",
+            [$unitId, $from, $to]
+        ) as $r) {
+            $out[(int) $r['user_id']][(string) $r['date_presence']] = (string) $r['statut'];
+        }
+        return $out;
     }
 }

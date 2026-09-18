@@ -1,6 +1,6 @@
 <?php
 /**
- * La Belle Église — Point d'entrée (front controller).
+ * La Belle Église - Point d'entrée (front controller).
  * -------------------------------------------------------------
  * Bootstrap de l'application, dispatch des actions et des pages.
  * Toutes les URL existantes (`index.php?page=...`, POST d'actions,

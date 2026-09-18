@@ -60,7 +60,7 @@ class MailService
                 'to' => $toEmail,
                 'subject' => $subject,
             ]);
-            $this->logMail('SMTP non configuré — email simulé', $toEmail, $subject);
+            $this->logMail('SMTP non configuré - email simulé', $toEmail, $subject);
             return false;
         }
 
@@ -105,11 +105,11 @@ class MailService
             return true;
         } catch (PHPMailerException $e) {
             Logger::error('Échec envoi email', ['to' => $toEmail, 'subject' => $subject, 'error' => $mail->ErrorInfo ?: $e->getMessage()]);
-            $this->logMail('ÉCHEC — ' . ($mail->ErrorInfo ?: $e->getMessage()), $toEmail, $subject);
+            $this->logMail('ÉCHEC - ' . ($mail->ErrorInfo ?: $e->getMessage()), $toEmail, $subject);
             return false;
         } catch (\Throwable $e) {
             Logger::error('Échec envoi email (inattendu)', ['to' => $toEmail, 'subject' => $subject, 'error' => $e->getMessage()]);
-            $this->logMail('ÉCHEC — ' . $e->getMessage(), $toEmail, $subject);
+            $this->logMail('ÉCHEC - ' . $e->getMessage(), $toEmail, $subject);
             return false;
         }
     }
@@ -122,7 +122,7 @@ class MailService
     }
 
     /**
-     * Transcript SMTP (SMTPDebug) — écrit UNIQUEMENT dans le journal, jamais
+     * Transcript SMTP (SMTPDebug) - écrit UNIQUEMENT dans le journal, jamais
      * dans la sortie HTTP. Peut contenir des identifiants/entêtes ; réservé au
      * diagnostic (`SMTP_DEBUG=true`), à ne jamais activer durablement en prod.
      */
@@ -145,7 +145,7 @@ class MailService
         return $this->send(
             $user['email'],
             trim(($user['prenom'] ?? '') . ' ' . ($user['nom'] ?? '')),
-            'Vérifiez votre adresse email — La Belle Église',
+            'Vérifiez votre adresse email - La Belle Église',
             $html
         );
     }
@@ -161,7 +161,7 @@ class MailService
         return $this->send(
             $admin['email'],
             trim(($admin['prenom'] ?? '') . ' ' . ($admin['nom'] ?? '')),
-            'Nouvelle inscription à valider — La Belle Église',
+            'Nouvelle inscription à valider - La Belle Église',
             $html
         );
     }
@@ -194,7 +194,7 @@ class MailService
         return $this->send(
             $newEmail,
             trim(($user['prenom'] ?? '') . ' ' . ($user['nom'] ?? '')),
-            'Confirmez votre nouvelle adresse email — La Belle Église',
+            'Confirmez votre nouvelle adresse email - La Belle Église',
             $html
         );
     }
@@ -210,7 +210,7 @@ class MailService
         return $this->send(
             $oldEmail,
             trim(($user['prenom'] ?? '') . ' ' . ($user['nom'] ?? '')),
-            'Votre adresse email a été modifiée — La Belle Église',
+            'Votre adresse email a été modifiée - La Belle Église',
             $html
         );
     }

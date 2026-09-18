@@ -39,14 +39,14 @@
             <td class="day-cell"><?= h($day) ?><span class="day-date"><?= format_date_short(date_for_day_in_week($weekKey, $dayIndex)) ?></span></td>
             <?php foreach ($fields as $f): ?>
               <?php if (!empty($f['sundayOnly']) && !$isSunday): ?>
-                <td class="cell-na">—</td>
+                <td class="cell-na">-</td>
                 <?php continue; ?>
               <?php endif; ?>
               <?php $val = $data[$f['key']] ?? ''; ?>
               <td>
                 <?php if (($f['type'] ?? 'text') === 'select'): ?>
                   <select name="suivi[<?= h($day) ?>][<?= h($f['key']) ?>]">
-                    <option value="">—</option>
+                    <option value="">-</option>
                     <option value="Oui" <?= $val === 'Oui' ? 'selected' : '' ?>>Oui</option>
                     <option value="Non" <?= $val === 'Non' ? 'selected' : '' ?>>Non</option>
                   </select>

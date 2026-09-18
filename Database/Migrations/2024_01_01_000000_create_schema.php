@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Migration 001 — Schéma complet de la base « la_belle_eglise_db ».
+ * Migration 001 - Schéma complet de la base « la_belle_eglise_db ».
  * -------------------------------------------------------------
  * Tables : centres, users, bacentas, basontas, users_basontas, cultes,
  * presences, offrandes, dimes, visites, suivi_hebdo, examens, veillees,
@@ -248,7 +248,7 @@ function up(): void
         // Table polymorphe unique : user × responsibility_type × target_type
         // × target_id. `target_type` est un VARCHAR (pas un ENUM) pour que
         // de futurs types de cibles (département, province, activité,
-        // événement, groupe — voir spec §49) n'exigent jamais de migration
+        // événement, groupe - voir spec §49) n'exigent jamais de migration
         // de schéma. Pas de FK sur target_id (polymorphe) : l'existence de
         // la cible est validée au niveau service (ResponsibilityService).
         "CREATE TABLE IF NOT EXISTS responsibilities (
@@ -398,10 +398,276 @@ function up(): void
      * Le ministère des placiers s'écrit « ushers ». BASONTAS_DEFAULT corrige
      * les nouvelles installations (via le seeder) ; cette requête répare les
      * bases déjà en place. Idempotente : aucun effet si la ligne n'existe
+<<<<<<< HEAD
      * pas ou a déjà été renommée. `basontas.nom` n'est pas UNIQUE — aucune
      * collision de clé possible.
      */
     $pdo->exec("UPDATE basontas SET nom = 'Ushers' WHERE nom = 'Ashers'");
+=======
+     * pas ou a déjà été renommée. `basontas.nom` n'est pas UNIQUE - aucune
+     * collision de clé possible.
+     */
+    $pdo->exec("UPDATE basontas SET nom = 'Ushers' WHERE nom = 'Ashers'");
+
+    /* ---- 10. M1 - Présences par occurrence -------------------------------
+     * a) Récurrence hebdomadaire des unités : jour(s) de la semaine (CSV de
+     *    libellés WEEK_DAYS, ex. "Vendredi" ou "Lundi,Mercredi") + plage
+     *    horaire facultative. `cultes` a déjà heure_debut/heure_fin.
+     * b) `presences.statut` : Présent / Absent / Excusé. Défaut 'present' -
+     *    une ligne de présence existante signifiait déjà "présent".
+     * c) Index d'unicité : une ligne de présence par (personne, date, unité).
+     *    centre_id est inclus (des lignes "centre" existent dans la table).
+     *    Déduplication préalable (idempotente) pour que la création de
+     *    l'index unique ne bute pas sur d'anciens doublons.
+     */
+    $m1Columns = [
+        ['cultes',   'jours_semaine', "ALTER TABLE cultes ADD COLUMN jours_semaine VARCHAR(60) NULL AFTER date_culte"],
+        ['bacentas', 'jours_semaine', "ALTER TABLE bacentas ADD COLUMN jours_semaine VARCHAR(60) NULL"],
+        ['bacentas', 'heure_debut',   "ALTER TABLE bacentas ADD COLUMN heure_debut TIME NULL"],
+        ['bacentas', 'heure_fin',     "ALTER TABLE bacentas ADD COLUMN heure_fin TIME NULL"],
+        ['basontas', 'jours_semaine', "ALTER TABLE basontas ADD COLUMN jours_semaine VARCHAR(60) NULL"],
+        ['basontas', 'heure_debut',   "ALTER TABLE basontas ADD COLUMN heure_debut TIME NULL"],
+        ['basontas', 'heure_fin',     "ALTER TABLE basontas ADD COLUMN heure_fin TIME NULL"],
+    ];
+    foreach ($m1Columns as [$table, $column, $alterSql]) {
+        if (!column_exists($pdo, $table, $column)) {
+            $pdo->exec($alterSql);
+        }
+    }
+
+    if (!column_exists($pdo, 'presences', 'statut')) {
+        $pdo->exec(
+            "ALTER TABLE presences
+                ADD COLUMN statut ENUM('present','absent','excuse') NOT NULL DEFAULT 'present' AFTER date_presence"
+        );
+    }
+
+    if (!index_exists($pdo, 'presences', 'uniq_presence')) {
+        // Déduplication : garder la ligne d'id minimal par clé logique.
+        $pdo->exec(
+            "DELETE p FROM presences p
+               JOIN (
+                    SELECT MIN(id) AS keep_id,
+                           user_id, date_presence,
+                           COALESCE(culte_id,0)   AS c,
+                           COALESCE(bacenta_id,0) AS b,
+                           COALESCE(basonta_id,0) AS s,
+                           COALESCE(centre_id,0)  AS ce
+                      FROM presences
+                     GROUP BY user_id, date_presence, c, b, s, ce
+                    HAVING COUNT(*) > 1
+               ) d
+                 ON p.user_id = d.user_id
+                AND p.date_presence = d.date_presence
+                AND COALESCE(p.culte_id,0)   = d.c
+                AND COALESCE(p.bacenta_id,0) = d.b
+                AND COALESCE(p.basonta_id,0) = d.s
+                AND COALESCE(p.centre_id,0)  = d.ce
+                AND p.id <> d.keep_id"
+        );
+        $pdo->exec(
+            "CREATE UNIQUE INDEX uniq_presence
+                ON presences (user_id, date_presence, culte_id, bacenta_id, basonta_id, centre_id)"
+        );
+    }
+
+    /* ---- 11. M4 - Calendriers (événements + anniversaires) --------------
+     * a) evenements : nom, plage date/heure, lieu, responsable, créateur.
+     * b) anniversaires : saisies manuelles (personnes sans compte). Les
+     *    anniversaires des membres sont dérivés de users.date_naissance.
+     * c) Addendum M1 : une occurrence d'événement devient pointable -
+     *    presences.evenement_id + reconstruction de l'index uniq_presence.
+     */
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS evenements (
+            id INT NOT NULL AUTO_INCREMENT,
+            nom VARCHAR(150) NOT NULL,
+            date_debut DATETIME NOT NULL,
+            date_fin DATETIME NULL,
+            lieu VARCHAR(150) NULL,
+            responsable_id INT NULL,
+            created_by INT NULL,
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY idx_evt_debut (date_debut),
+            CONSTRAINT fk_evt_resp    FOREIGN KEY (responsable_id) REFERENCES users(id) ON DELETE SET NULL,
+            CONSTRAINT fk_evt_creator FOREIGN KEY (created_by)     REFERENCES users(id) ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
+
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS anniversaires (
+            id INT NOT NULL AUTO_INCREMENT,
+            nom VARCHAR(150) NOT NULL,
+            jour TINYINT NOT NULL,
+            mois TINYINT NOT NULL,
+            annee SMALLINT NULL,
+            created_by INT NULL,
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY idx_anniv_mois (mois, jour),
+            CONSTRAINT fk_anniv_creator FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
+
+    if (!column_exists($pdo, 'presences', 'evenement_id')) {
+        $pdo->exec("ALTER TABLE presences ADD COLUMN evenement_id INT NULL AFTER basonta_id");
+        $pdo->exec("ALTER TABLE presences ADD CONSTRAINT fk_pres_evt FOREIGN KEY (evenement_id) REFERENCES evenements(id) ON DELETE CASCADE");
+    }
+    // Reconstruire l'index d'unicité pour inclure evenement_id (idempotent :
+    // on ne le refait que si la définition actuelle ne contient pas déjà
+    // 7 colonnes).
+    $uniqCount = (int) $pdo->query(
+        "SELECT COUNT(*) FROM information_schema.statistics
+          WHERE table_schema = DATABASE() AND table_name = 'presences' AND index_name = 'uniq_presence'"
+    )->fetchColumn();
+    if ($uniqCount === 6) {
+        $pdo->exec(
+            "ALTER TABLE presences DROP INDEX uniq_presence,
+             ADD UNIQUE INDEX uniq_presence (user_id, date_presence, culte_id, bacenta_id, basonta_id, centre_id, evenement_id)"
+        );
+    }
+
+    /* ---- 12. M5 - Rapport du Jour des responsables de bacenta -----------
+     * Un rapport par (centre, date). resp_centre_nom / resp_bacenta_nom sont
+     * un INSTANTANÉ rempli côté service depuis `responsibilities` - jamais
+     * saisis par le client. bacenta_id facultatif (rapport au niveau centre).
+     */
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS rapports_jour (
+            id INT NOT NULL AUTO_INCREMENT,
+            centre_id INT NOT NULL,
+            date_rapport DATE NOT NULL,
+            auteur_id INT NOT NULL,
+            bacenta_id INT NULL,
+            resp_centre_nom  VARCHAR(150) NULL,
+            resp_bacenta_nom VARCHAR(150) NULL,
+            assistants TEXT NULL,
+            nb_presents       INT NOT NULL DEFAULT 0,
+            nb_adultes        INT NOT NULL DEFAULT 0,
+            nb_enfants        INT NOT NULL DEFAULT 0,
+            nb_anciens        INT NOT NULL DEFAULT 0,
+            nb_nouveaux       INT NOT NULL DEFAULT 0,
+            nb_nes_de_nouveau INT NOT NULL DEFAULT 0,
+            offrande DECIMAL(12,2) NOT NULL DEFAULT 0,
+            livre_enseigne VARCHAR(150) NULL,
+            chapitre_enseigne VARCHAR(80) NULL,
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY uniq_rapport (centre_id, date_rapport),
+            KEY idx_rapport_centre_date (centre_id, date_rapport),
+            CONSTRAINT fk_rap_centre  FOREIGN KEY (centre_id)  REFERENCES centres(id)  ON DELETE CASCADE,
+            CONSTRAINT fk_rap_auteur  FOREIGN KEY (auteur_id)  REFERENCES users(id)    ON DELETE CASCADE,
+            CONSTRAINT fk_rap_bacenta FOREIGN KEY (bacenta_id) REFERENCES bacentas(id) ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
+
+    if (!column_exists($pdo, 'offrandes', 'rapport_id')) {
+        $pdo->exec('ALTER TABLE offrandes ADD COLUMN rapport_id INT NULL AFTER bacenta_id');
+        $pdo->exec('ALTER TABLE offrandes ADD CONSTRAINT fk_off_rapport FOREIGN KEY (rapport_id) REFERENCES rapports_jour(id) ON DELETE CASCADE');
+    }
+    if (!index_exists($pdo, 'offrandes', 'uniq_off_rapport')) {
+        $pdo->exec('CREATE UNIQUE INDEX uniq_off_rapport ON offrandes (rapport_id)');
+    }
+
+    /* ---- 13. M6 - Classes / Écoles post-culte (discipleship) -----------
+     * classes : cursus (nom, formateur, ordre de progression, nb de modules,
+     * prochaine session, actif). classe_inscrits : un inscrit par (classe,
+     * user) - modules validés + statut des examens oral/écrit. Progression
+     * automatique gérée côté service (ClasseService). Les 7 cursus par
+     * défaut sont semés ici si la table est vide (le DatabaseSeeder fait un
+     * TRUNCATE d'une liste figée et ne rejoue pas - inadapté).
+     */
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS classes (
+            id INT NOT NULL AUTO_INCREMENT,
+            nom VARCHAR(150) NOT NULL,
+            formateur_id INT NULL,
+            ordre INT NOT NULL DEFAULT 0,
+            nb_modules INT NOT NULL DEFAULT 1,
+            prochaine_session DATE NULL,
+            actif TINYINT(1) NOT NULL DEFAULT 1,
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY idx_classe_ordre (ordre),
+            CONSTRAINT fk_classe_formateur FOREIGN KEY (formateur_id) REFERENCES users(id) ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
+
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS classe_inscrits (
+            id INT NOT NULL AUTO_INCREMENT,
+            classe_id INT NOT NULL,
+            user_id INT NOT NULL,
+            modules_valides INT NOT NULL DEFAULT 0,
+            exam_oral  ENUM('non_passe','reussi','echoue') NOT NULL DEFAULT 'non_passe',
+            exam_ecrit ENUM('non_passe','reussi','echoue') NOT NULL DEFAULT 'non_passe',
+            exam_note DECIMAL(5,2) NULL,
+            exam_date DATE NULL,
+            statut ENUM('inscrit','termine') NOT NULL DEFAULT 'inscrit',
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY uniq_inscrit (classe_id, user_id),
+            CONSTRAINT fk_ci_classe FOREIGN KEY (classe_id) REFERENCES classes(id) ON DELETE CASCADE,
+            CONSTRAINT fk_ci_user   FOREIGN KEY (user_id)   REFERENCES users(id)   ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
+
+    // Les notes et dates sont propres à chaque type d'examen. Les anciennes
+    // colonnes restent lues pour compatibilité avec les données existantes.
+    $classeEvaluationColumns = [
+        'exam_oral_note'  => "ALTER TABLE classe_inscrits ADD COLUMN exam_oral_note DECIMAL(5,2) NULL AFTER exam_oral",
+        'exam_oral_date'  => "ALTER TABLE classe_inscrits ADD COLUMN exam_oral_date DATE NULL AFTER exam_oral_note",
+        'exam_ecrit_note' => "ALTER TABLE classe_inscrits ADD COLUMN exam_ecrit_note DECIMAL(5,2) NULL AFTER exam_ecrit",
+        'exam_ecrit_date' => "ALTER TABLE classe_inscrits ADD COLUMN exam_ecrit_date DATE NULL AFTER exam_ecrit_note",
+    ];
+    foreach ($classeEvaluationColumns as $column => $alterSql) {
+        if (!column_exists($pdo, 'classe_inscrits', $column)) {
+            $pdo->exec($alterSql);
+        }
+    }
+
+    // Seed idempotent des 7 cursus : uniquement si aucune classe n'existe.
+    if ((int) $pdo->query('SELECT COUNT(*) FROM classes')->fetchColumn() === 0) {
+        $cursus = [
+            'Manuel du nouveau croyant',
+            'Sept grands principes',
+            'Ce que signifie être un chrétien fort',
+            'École de la fondation solide',
+            'École de la vie victorieuse',
+            'École de la parole',
+            "École de l'apologétique",
+        ];
+        $ins = $pdo->prepare('INSERT INTO classes (nom, ordre, nb_modules, actif) VALUES (?, ?, 1, 1)');
+        foreach ($cursus as $i => $nom) {
+            $ins->execute([$nom, $i + 1]);
+        }
+    }
+
+    /* ---- 14. M2 - Budget Bus du dimanche par centre -------------------
+     * Sommes retirées / collectées par centre pour le bus du dimanche.
+     * Une ligne = un mouvement (centre, date, montant, observations).
+     * Les sous-totaux (par centre, par mois) et le total année sont
+     * calculés à la volée côté service - aucune donnée dérivée stockée.
+     */
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS bus_budget (
+            id INT NOT NULL AUTO_INCREMENT,
+            centre_id INT NOT NULL,
+            date_retrait DATE NOT NULL,
+            montant DECIMAL(12,2) NOT NULL DEFAULT 0,
+            observations TEXT NULL,
+            created_by INT NULL,
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY idx_bus_centre_date (centre_id, date_retrait),
+            CONSTRAINT fk_bus_centre  FOREIGN KEY (centre_id)  REFERENCES centres(id) ON DELETE CASCADE,
+            CONSTRAINT fk_bus_creator FOREIGN KEY (created_by) REFERENCES users(id)   ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
+>>>>>>> to-prod
 }
 
 /** Vérifie si une colonne existe déjà (idempotence des ALTER TABLE). */
@@ -432,7 +698,7 @@ function index_exists(\PDO $pdo, string $table, string $index): bool
 function down(): void
 {
     $pdo = Database::connection();
-    $tables = ['responsibilities', 'notifications', 'users_basontas', 'presences', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
+    $tables = ['responsibilities', 'notifications', 'users_basontas', 'presences', 'evenements', 'anniversaires', 'rapports_jour', 'bus_budget', 'classe_inscrits', 'classes', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
                'examens', 'veillees', 'cultes', 'basontas', 'bacentas', 'users',
                'centres_presentation', 'equipe', 'presentation', 'centres'];
     $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');

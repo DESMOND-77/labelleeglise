@@ -1,9 +1,14 @@
 
 
-# Variables d'environnement locales (secrets — jamais versionnées)
+# Variables d'environnement locales (secrets - jamais versionnées)
 .env
 
 #Ignore vscode AI rules
 .github/instructions/codacy.instructions.md
 prompts/
 logs/
+graphify-out
+
+# Scripts d'assertion jetables (vérification manuelle - jamais versionnés)
+tmp/
+.claude/

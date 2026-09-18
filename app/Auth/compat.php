@@ -43,7 +43,7 @@ function responsibility_service(): ResponsibilityService
 
 /* ---------- Nouveaux wrappers d'autorisation (couche rôle/responsabilité/périmètre) ---------- */
 
-/** $auth->can($user, 'permission', $resource?) — voir docs/authorization.md. */
+/** $auth->can($user, 'permission', $resource?) - voir docs/authorization.md. */
 function auth_can(string $permission, $resource = null): bool
 {
     return authz_service()->can(current_user(), $permission, $resource);
@@ -97,6 +97,137 @@ function auth_can_manage_member(int $memberId): bool
 function auth_can_manage_responsibilities(): bool
 {
     return authz_service()->canManageResponsibilities(current_user());
+}
+
+/** Gestionnaire de calendrier : admin OU détenteur d'≥1 responsabilité `manager`. */
+function auth_can_manage_calendar(): bool
+{
+    $u = current_user();
+    if (!$u) {
+        return false;
+    }
+    if (($u['role'] ?? '') === 'admin') {
+        return true;
+    }
+    return (int) \App\Core\Query::value(
+        "SELECT COUNT(*) FROM responsibilities
+          WHERE user_id = ? AND target_type = 'classe' AND responsibility_type = 'manager'",
+        [(int) $u['id']]
+    ) > 0;
+}
+
+/** Un utilisateur ne gère qu'une classe qui lui est explicitement attribuée. */
+function auth_can_manage_class(int $classeId): bool
+{
+    $u = current_user();
+    if (!$u || $classeId <= 0) {
+        return false;
+    }
+    if (($u['role'] ?? '') === 'admin') {
+        return true;
+    }
+    if (!in_array($u['role'] ?? '', ['berger', 'ms', 'pasteur', 'reverant'], true)) {
+        return false;
+    }
+    return (int) \App\Core\Query::value(
+        "SELECT COUNT(*) FROM responsibilities
+          WHERE user_id = ? AND target_type = 'classe' AND target_id = ? AND responsibility_type = 'manager'",
+        [(int) $u['id'], $classeId]
+    ) > 0;
+}
+
+/** Édition/suppression d'UN événement : admin, son créateur, ou son responsable. */
+function auth_can_edit_evenement(array $evt): bool
+{
+    $u = current_user();
+    if (!$u) {
+        return false;
+    }
+    if (($u['role'] ?? '') === 'admin') {
+        return true;
+    }
+    $uid = (int) $u['id'];
+    return $uid === (int) ($evt['created_by'] ?? 0) || $uid === (int) ($evt['responsable_id'] ?? 0);
+}
+
+/** L'utilisateur peut-il produire au moins un Rapport du Jour ? (admin ou gère un bacenta) */
+function auth_can_report_any(): bool
+{
+    $u = current_user();
+    if (!$u) {
+        return false;
+    }
+    if (($u['role'] ?? '') === 'admin') {
+        return true;
+    }
+    $uid = (int) $u['id'];
+    return (int) \App\Core\Query::value(
+        "SELECT EXISTS(
+            SELECT 1 FROM responsibilities
+             WHERE user_id = ? AND target_type = 'bacenta' AND responsibility_type = 'manager'
+        )",
+        [$uid]
+    ) === 1;
+}
+
+/** Rapport du Jour pour CE centre : admin ou gère un bacenta rattaché à ce centre. */
+function auth_can_report_for_centre(int $centreId): bool
+{
+    $u = current_user();
+    if (!$u) {
+        return false;
+    }
+    if (($u['role'] ?? '') === 'admin') {
+        return true;
+    }
+    $uid = (int) $u['id'];
+    return (int) \App\Core\Query::value(
+        "SELECT EXISTS(
+            SELECT 1 FROM bacentas b
+              JOIN responsibilities r
+                ON r.target_id = b.id AND r.target_type = 'bacenta' AND r.responsibility_type = 'manager'
+             WHERE b.centre_id = ? AND r.user_id = ?
+        )",
+        [$centreId, $uid]
+    ) === 1;
+}
+
+/** Gestion des classes/écoles post-culte : admin OU classe explicitement attribuée. */
+function auth_can_manage_classes(): bool
+{
+    $u = current_user();
+    if (!$u) {
+        return false;
+    }
+    if (($u['role'] ?? '') === 'admin') {
+        return true;
+    }
+    if (!in_array($u['role'] ?? '', ['berger', 'ms', 'pasteur', 'reverant'], true)) {
+        return false;
+    }
+    return (int) \App\Core\Query::value(
+        "SELECT COUNT(*) FROM responsibilities
+          WHERE user_id = ? AND target_type = 'classe' AND responsibility_type = 'manager'",
+        [(int) $u['id']]
+    ) > 0;
+}
+
+/** Budget Bus (M2) : peut gérer le budget bus d'au moins un centre (admin OU responsable réel d'un centre). */
+function auth_can_manage_any_centre(): bool
+{
+    $u = current_user();
+    if (!$u) {
+        return false;
+    }
+    if (($u['role'] ?? '') === 'admin') {
+        return true;
+    }
+    foreach (get_centres() as $c) {
+        if (auth_can_manage_center((int) $c['id'])) {
+            return true;
+        }
+    }
+    return false;
 }
 
 function start_session(): void

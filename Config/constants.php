@@ -7,7 +7,7 @@
 
 declare(strict_types=1);
 
-// Rôles (enum de la table users). ROLE ≠ RESPONSABILITÉ ≠ PÉRIMÈTRE — voir
+// Rôles (enum de la table users). ROLE ≠ RESPONSABILITÉ ≠ PÉRIMÈTRE - voir
 // docs/roles-and-permissions.md. `responsable` reste dans l'ENUM SQL pour
 // compatibilité/rollback (voir migration) mais n'est plus un rôle actif :
 // il a été remplacé par `berger` + le modèle de responsabilités.
@@ -60,6 +60,12 @@ define('SECTION_LABELS', [
     'generale'           => 'Liste générale des membres',
     'bergers'            => 'Liste des bergers',
     'suiviBergers'       => 'Suivi Hebdo. des Bergers',
+    'agenda'             => 'Agenda',
+    'calendrier'         => 'Calendrier',
+    'anniversaires'      => 'Anniversaires',
+    'rapports'           => 'Rapports du Jour',
+    'classes'            => 'Classes & Écoles',
+    'budgetBus'          => 'Budget Bus',
     'finances'           => 'Finances & Offrandes',
     'parametres'         => 'Paramètres',
     'bergerFiche'        => 'Fiche Berger',
@@ -81,6 +87,12 @@ define('SECTION_ICONS', [
     'generale'           => '<i class="fa-solid fa-clipboard-list"></i>',
     'bergers'            => '<i class="fa-solid fa-people-roof"></i>',
     'suiviBergers'       => '<i class="fa-solid fa-calendar-days"></i>',
+    'agenda'             => '<i class="fa-solid fa-calendar-days"></i>',
+    'calendrier'         => '<i class="fa-solid fa-calendar-day"></i>',
+    'anniversaires'      => '<i class="fa-solid fa-cake-candles"></i>',
+    'rapports'           => '<i class="fa-solid fa-file-lines"></i>',
+    'classes'            => '<i class="fa-solid fa-graduation-cap"></i>',
+    'budgetBus'          => '<i class="fa-solid fa-bus"></i>',
     'finances'           => '<i class="fa-solid fa-sack-dollar"></i>',
     'parametres'         => '<i class="fa-solid fa-gear"></i>',
     'admin_inscriptions' => '<i class="fa-solid fa-user-plus"></i>',
@@ -113,6 +125,10 @@ define('NAV_ORDER', [
     'bergers',
     'suiviBergers',
     'finances',
+    'agenda',
+    'rapports',
+    'classes',
+    'budgetBus',
     'parametres'
 ]);
 
@@ -141,6 +157,33 @@ define('FIELD_LABELS', [
 ]);
 
 define('PRESENCE_FIELDS', ['presenceCulte', 'presenceBasonta', 'presenceCentre', 'presenceBacenta']);
+
+define('PRESENCE_STATUTS', ['present' => 'Présent', 'absent' => 'Absent', 'excuse' => 'Excusé']);
+
+define('RAPPORT_JOUR_FIELDS', [
+    ['key' => 'nb_presents',       'label' => 'Nombre de présents',               'type' => 'int',      'group' => 'Assistance'],
+    ['key' => 'nb_adultes',        'label' => 'Nombre d\'adultes',                'type' => 'int',      'group' => 'Assistance'],
+    ['key' => 'nb_enfants',        'label' => 'Nombre d\'enfants',                'type' => 'int',      'group' => 'Assistance'],
+    ['key' => 'nb_anciens',        'label' => 'Nombre d\'anciens',                'type' => 'int',      'group' => 'Assistance'],
+    ['key' => 'nb_nouveaux',       'label' => 'Nombre de nouveaux',               'type' => 'int',      'group' => 'Assistance'],
+    ['key' => 'nb_nes_de_nouveau', 'label' => 'Nombre de nés de nouveau',         'type' => 'int',      'group' => 'Assistance'],
+    ['key' => 'offrande',          'label' => 'Montant de l\'offrande',           'type' => 'decimal',  'group' => 'Finances'],
+    ['key' => 'assistants',        'label' => 'Noms des assistants',               'type' => 'textarea', 'group' => 'Équipe'],
+    ['key' => 'livre_enseigne',    'label' => 'Livre enseigné',                  'type' => 'text',     'group' => 'Enseignement', 'max' => 150],
+    ['key' => 'chapitre_enseigne', 'label' => 'Chapitre enseigné',               'type' => 'text',     'group' => 'Enseignement', 'max' => 80],
+]);
+
+define('CLASSES_CURSUS', [
+    'Manuel du nouveau croyant',
+    'Sept grands principes',
+    'Ce que signifie être un chrétien fort',
+    'École de la fondation solide',
+    'École de la vie victorieuse',
+    'École de la parole',
+    "École de l'apologétique",
+]);
+
+define('EXAM_STATUTS', ['non_passe' => 'Non passé', 'reussi' => 'Réussi', 'echoue' => 'Échoué']);
 
 define('SECTION_EXTRA_FIELDS', [
     'nouveaux' => ['invite_par', 'recu_par', 'date_recu'],
@@ -179,8 +222,8 @@ define('SUIVI_FIELDS', [
     ['key' => 'meditation',     'label' => 'Temps de méditation', 'type' => 'text'],
     ['key' => 'jourFlow',       'label' => 'Jour de prière du flow', 'type' => 'select'],
     ['key' => 'livre',          'label' => 'Livre lu', 'type' => 'text'],
-    ['key' => 'themeEveque',    'label' => 'Thème — Prédication de l\'Évêque écoutée', 'type' => 'text'],
-    ['key' => 'themeReverend',  'label' => 'Thème — Prédication du Révérend écoutée', 'type' => 'text'],
+    ['key' => 'themeEveque',    'label' => 'Thème - Prédication de l\'Évêque écoutée', 'type' => 'text'],
+    ['key' => 'themeReverend',  'label' => 'Thème - Prédication du Révérend écoutée', 'type' => 'text'],
     ['key' => 'visites',        'label' => 'Personne(s) visitée(s) en semaine', 'type' => 'text'],
     ['key' => 'invitesDimanche', 'label' => 'Personne(s) invitée(s) pour dimanche', 'type' => 'text'],
     ['key' => 'invitesApres',   'label' => 'Invité(s) après le culte / deep sea fishing', 'type' => 'text', 'sundayOnly' => true],

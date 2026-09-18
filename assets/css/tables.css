@@ -1,5 +1,5 @@
 /* ============================================================
-   Tableaux — conteneur arrondi, header sticky, hover
+   Tableaux - conteneur arrondi, header sticky, hover
    ============================================================ */
 
 .table-wrap {
@@ -193,4 +193,29 @@
 
 .suivi-block .table-wrap {
   margin-bottom: 0;
+}
+
+/* ---- Pagination client des tableaux (table-paginate.js) ---- */
+.table-pager {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: calc(-1 * var(--space-3)) 0 var(--space-5);
+  flex-wrap: wrap;
+}
+
+.table-pager-status {
+  font-size: 13px;
+  color: var(--text-soft);
+}
+
+.table-pager .btn[disabled] {
+  opacity: 0.45;
+  cursor: default;
+}
+
+@media print {
+  .table-pager {
+    display: none;
+  }
 }

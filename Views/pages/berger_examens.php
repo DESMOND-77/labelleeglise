@@ -17,7 +17,7 @@
         <?php foreach ($examens as $ex): ?>
           <tr>
             <td><?= h($ex['nom']) ?></td>
-            <td><?= h($ex['date_examen'] ?? '') ?: '—' ?></td>
+            <td><?= h($ex['date_examen'] ?? '') ?: '-' ?></td>
             <td class="row-actions">
               <a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer cet examen ?"
                  href="<?= h(url('index.php', ['page' => 'bergerFiche', 'tab' => 'examens', 'membre' => $member['id'], 'action' => 'delete_examen', 'id' => $ex['id']])) ?>"><i class="fa-solid fa-trash"></i></a>

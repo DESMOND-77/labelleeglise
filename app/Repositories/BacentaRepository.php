@@ -46,22 +46,28 @@ class BacentaRepository
      * $respId est accepté pour compatibilité de signature mais IGNORÉ :
      * responsable_id est désormais une colonne dénormalisée synchronisée
      * automatiquement par ResponsibilityService à partir de la table
-     * `responsibilities` (source de vérité) — jamais écrite directement ici.
+     * `responsibilities` (source de vérité) - jamais écrite directement ici.
      */
-    public function create(string $nom, ?int $centreId, ?int $respId = null): int
+    public function create(string $nom, ?int $centreId, ?int $respId = null, ?string $jours = null, ?string $debut = null, ?string $fin = null): int
     {
-        return Query::run('INSERT INTO bacentas (nom, centre_id) VALUES (?, ?)', [$nom, $centreId]);
+        return Query::run(
+            'INSERT INTO bacentas (nom, centre_id, jours_semaine, heure_debut, heure_fin) VALUES (?, ?, ?, ?, ?)',
+            [$nom, $centreId, $jours, $debut, $fin]
+        );
     }
 
-    public function update(int $id, string $nom, ?int $centreId, ?int $respId = null): void
+    public function update(int $id, string $nom, ?int $centreId, ?int $respId = null, ?string $jours = null, ?string $debut = null, ?string $fin = null): void
     {
-        Query::run('UPDATE bacentas SET nom = ?, centre_id = ? WHERE id = ?', [$nom, $centreId, $id]);
+        Query::run(
+            'UPDATE bacentas SET nom = ?, centre_id = ?, jours_semaine = ?, heure_debut = ?, heure_fin = ? WHERE id = ?',
+            [$nom, $centreId, $jours, $debut, $fin, $id]
+        );
     }
 
     public function delete(int $id): void
     {
         // Intégrité (spec §38) : une responsabilité ne référence jamais une
-        // structure supprimée — `responsibilities` n'a pas de FK sur
+        // structure supprimée - `responsibilities` n'a pas de FK sur
         // target_id (polymorphe), le nettoyage est donc explicite ici.
         Query::run("DELETE FROM responsibilities WHERE target_type = 'bacenta' AND target_id = ?", [$id]);
         Query::run('UPDATE users SET bacenta_id = NULL WHERE bacenta_id = ?', [$id]);

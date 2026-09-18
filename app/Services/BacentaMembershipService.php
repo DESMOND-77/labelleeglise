@@ -10,8 +10,8 @@ use App\Repositories\UserRepository;
 /**
  * Affectation de membres actifs/vérifiés à un bacenta, par son responsable
  * (ou un administrateur). Le bacenta cible est toujours re-dérivé/vérifié
- * côté serveur via AuthorizationService — jamais accepté tel quel depuis le
- * formulaire — et chaque identifiant de membre soumis est revalidé
+ * côté serveur via AuthorizationService - jamais accepté tel quel depuis le
+ * formulaire - et chaque identifiant de membre soumis est revalidé
  * individuellement avant affectation, dans une transaction SQL unique.
  */
 class BacentaMembershipService
@@ -55,7 +55,7 @@ class BacentaMembershipService
     }
 
     /**
-     * Affecte plusieurs membres (ids soumis par le client — jamais fiables
+     * Affecte plusieurs membres (ids soumis par le client - jamais fiables
      * tels quels) au bacenta autorisé, après revalidation individuelle de
      * chaque candidat. Toute l'opération est exécutée dans une transaction
      * SQL : soit tous les membres éligibles sont affectés, soit rien ne

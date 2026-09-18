@@ -1,0 +1,271 @@
+/* ============================================================
+   La Belle Église - Agenda unifié (grille mensuelle + panneau détail)
+   ============================================================ */
+
+.agenda-gotobar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.agenda-gotobar label {
+  font-size: 0.85rem;
+  color: var(--text-soft);
+}
+
+.agenda-gotobar input[type="date"] {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  font: inherit;
+}
+
+.agenda-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: var(--space-6);
+  align-items: start;
+  scroll-behavior: smooth;
+}
+
+.agenda-cal {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+
+.agenda-cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.agenda-month {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.agenda-nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  font-size: 1.3rem;
+  line-height: 1;
+  color: var(--text);
+  text-decoration: none;
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.agenda-nav:hover {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.agenda-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--space-1);
+}
+
+.agenda-dow {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  padding-bottom: var(--space-2);
+}
+
+.agenda-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 52px;
+  padding: var(--space-2) 0 var(--space-1);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  text-decoration: none;
+  transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+
+.agenda-day:hover {
+  background: var(--bg);
+}
+
+.agenda-day.is-adjacent {
+  opacity: 0.4;
+}
+
+.agenda-day.is-selected {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+}
+
+.agenda-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.agenda-day.is-today .agenda-num {
+  background: var(--primary);
+  color: #fff;
+  border-radius: 50%;
+}
+
+.agenda-dots {
+  display: flex;
+  gap: 3px;
+  min-height: 6px;
+}
+
+.dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+
+.dot-event {
+  background: var(--primary);
+}
+
+.dot-birthday {
+  background: var(--warning);
+}
+
+.agenda-legend {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-4) 0 0;
+  font-size: 0.8rem;
+  color: var(--text-soft);
+}
+
+.agenda-legend .dot {
+  margin-left: var(--space-3);
+}
+
+.agenda-legend .dot:first-child {
+  margin-left: 0;
+}
+
+/* ---- Panneau détail ---- */
+
+.agenda-side {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+
+.agenda-detail-day {
+  margin: 0 0 var(--space-4);
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.agenda-detail-block {
+  margin-bottom: var(--space-4);
+}
+
+.agenda-detail-title {
+  margin: 0 0 var(--space-2);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.agenda-detail-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.agenda-detail-list li {
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.agenda-detail-list a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.agenda-detail-list a:hover {
+  text-decoration: underline;
+}
+
+.agenda-time {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.agenda-place {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-soft);
+}
+
+.agenda-badge {
+  display: inline-block;
+  margin-top: var(--space-1);
+  padding: 1px var(--space-2);
+  font-size: 0.7rem;
+  border-radius: var(--radius-full);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.agenda-empty {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.agenda-empty-global {
+  margin-top: var(--space-4);
+  font-style: italic;
+}
+
+.agenda-forms {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 900px) {
+  .agenda-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .agenda-day {
+    min-height: 44px;
+  }
+}

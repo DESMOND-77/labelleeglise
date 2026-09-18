@@ -21,7 +21,7 @@ if ($scope && $scope['kind'] === 'berger') {
     $navLis[] = '<li><a class="nav-item' . ($page === 'suiviBergers' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'suiviBergers', 'membre' => $scope['user_id']])) . '"><span class="ico"><i class="fa-solid fa-calendar-days"></i></span><span class="label">Mon suivi hebdomadaire</span></a></li>';
     if ($scope['bacenta_id']) {
         $grp = get_bacenta($scope['bacenta_id']);
-        $navLis[] = '<li><a class="nav-item' . ($page === 'bacentas' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'bacentas', 'id' => $scope['bacenta_id']])) . '"><span class="ico"><i class="fa-solid fa-church"></i></span><span class="label">Mon Bacenta — ' . h($grp['nom'] ?? '') . '</span></a></li>';
+        $navLis[] = '<li><a class="nav-item' . ($page === 'bacentas' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'bacentas', 'id' => $scope['bacenta_id']])) . '"><span class="ico"><i class="fa-solid fa-church"></i></span><span class="label">Mon Bacenta - ' . h($grp['nom'] ?? '') . '</span></a></li>';
     }
     // Responsabilités réelles (table `responsibilities`, spec §17) : liens
     // additifs vers les sections de gestion correspondantes, indépendants
@@ -42,7 +42,7 @@ if ($scope && $scope['kind'] === 'berger') {
     // compte public : pages publiques uniquement
 } else {
     // 'apropos' et 'centresPresentation' sont déjà fournis par $publicLis
-    // (toujours en première position — voir array_merge ci-dessous) : les
+    // (toujours en première position - voir array_merge ci-dessous) : les
     // ignorer ici pour ne pas les afficher deux fois dans le menu admin.
     foreach (NAV_ORDER as $key) {
         if (in_array($key, ['apropos', 'centresPresentation'], true)) {
@@ -51,6 +51,32 @@ if ($scope && $scope['kind'] === 'berger') {
         $active = $page === $key ? ' active' : '';
         $navLis[] = '<li><a class="nav-item' . $active . '" href="' . h(url('index.php', ['page' => $key])) . '"><span class="ico">' . SECTION_ICONS[$key] . '</span><span class="label">' . h(SECTION_LABELS[$key]) . '</span></a></li>';
     }
+}
+
+// Calendriers : lien pour tout gestionnaire de calendrier non-admin
+// (l'admin les a déjà via la boucle NAV_ORDER ci-dessus).
+if ($user && !$isAdmin && auth_can_manage_calendar()) {
+    foreach (['agenda'] as $ck) {
+        $navLis[] = '<li><a class="nav-item' . ($page === $ck ? ' active' : '') . '" href="' . h(url('index.php', ['page' => $ck])) . '"><span class="ico">' . SECTION_ICONS[$ck] . '</span><span class="label">' . h(SECTION_LABELS[$ck]) . '</span></a></li>';
+    }
+}
+
+// Rapport du Jour : lien pour tout responsable de bacenta non-admin
+// (l'admin l'a déjà via la boucle NAV_ORDER).
+if ($user && !$isAdmin && auth_can_report_any()) {
+    $navLis[] = '<li><a class="nav-item' . ($page === 'rapports' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'rapports'])) . '"><span class="ico">' . SECTION_ICONS['rapports'] . '</span><span class="label">' . h(SECTION_LABELS['rapports']) . '</span></a></li>';
+}
+
+// Classes / Écoles : lien pour tout gestionnaire de classes non-admin
+// (l'admin l'a déjà via la boucle NAV_ORDER).
+if ($user && !$isAdmin && auth_can_manage_classes()) {
+    $navLis[] = '<li><a class="nav-item' . ($page === 'classes' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'classes'])) . '"><span class="ico">' . SECTION_ICONS['classes'] . '</span><span class="label">' . h(SECTION_LABELS['classes']) . '</span></a></li>';
+}
+
+// Budget Bus : lien pour tout responsable réel de centre non-admin
+// (l'admin l'a déjà via la boucle NAV_ORDER).
+if ($user && !$isAdmin && auth_can_manage_any_centre()) {
+    $navLis[] = '<li><a class="nav-item' . ($page === 'budgetBus' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'budgetBus'])) . '"><span class="ico">' . SECTION_ICONS['budgetBus'] . '</span><span class="label">' . h(SECTION_LABELS['budgetBus']) . '</span></a></li>';
 }
 
 /* ---------- Inscriptions en attente (admin) ---------- */
@@ -126,7 +152,7 @@ if (in_array($page, ['bacentas', 'cultes', 'basontas'], true) && nav('id')) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title><?= h($title) ?> — <?= h(APP_NAME) ?></title>
+<title><?= h($title) ?> - <?= h(APP_NAME) ?></title>
 <!-- Espace de gestion interne (session requise) : jamais indexé. -->
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96x96.png">
@@ -138,8 +164,8 @@ if (in_array($page, ['bacentas', 'cultes', 'basontas'], true) && nav('id')) {
 <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
 
 <link rel="stylesheet" href="assets/css/app.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
+<script src="assets/vendor/chartjs/chart.umd.min.js"></script>
 </head>
 <body>
 <div class="app-shell" id="appShell">
@@ -232,5 +258,8 @@ if (in_array($page, ['bacentas', 'cultes', 'basontas'], true) && nav('id')) {
 </script>
 <?php endif; ?>
 <script src="assets/js/app.js"></script>
+<script src="assets/js/attendance.js" defer></script>
+<script src="assets/js/table-paginate.js" defer></script>
+<?php if (($page ?? '') === 'agenda'): ?><script src="assets/js/agenda.js" defer></script><?php endif; ?>
 </body>
 </html>

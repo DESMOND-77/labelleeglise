@@ -1,5 +1,5 @@
 <?php
-/* Email — vérification d'adresse. Variables : $user, $verifyUrl, $expiresHours, $appName. */
+/* Email - vérification d'adresse. Variables : $user, $verifyUrl, $expiresHours, $appName. */
 $prenom = h($user['prenom'] ?? '');
 $nom = h($user['nom'] ?? '');
 $appName = h($appName ?? 'La Belle Église');
@@ -44,13 +44,13 @@ $expiresHours = (int) ($expiresHours ?? 24);
             </p>
             <p style="margin:0 0 16px;font-size:12.5px;line-height:1.6;color:#4F46E5;word-break:break-all;"><?= $verifyUrl ?></p>
             <p style="margin:0;font-size:12.5px;line-height:1.6;color:#9CA3AF;">
-              Si vous n'êtes pas à l'origine de cette inscription, vous pouvez ignorer cet email en toute sécurité — aucun compte ne sera activé sans cette confirmation.
+              Si vous n'êtes pas à l'origine de cette inscription, vous pouvez ignorer cet email en toute sécurité - aucun compte ne sera activé sans cette confirmation.
             </p>
           </td>
         </tr>
         <tr>
           <td style="padding:20px 32px;border-top:1px solid #F0F1F5;">
-            <p style="margin:0;font-size:12px;color:#9CA3AF;text-align:center;"><?= $appName ?> — Plateforme de gestion des membres</p>
+            <p style="margin:0;font-size:12px;color:#9CA3AF;text-align:center;"><?= $appName ?> - Plateforme de gestion des membres</p>
           </td>
         </tr>
       </table>

@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Compatibilité — profil libre-service ("Mon profil"), fiche administrative
+ * Compatibilité - profil libre-service ("Mon profil"), fiche administrative
  * d'un utilisateur (identité/rôle/responsabilités/présences/suivi hebdo) et
  * fiches imprimables (présences, suivi hebdomadaire).
  *
  * RÈGLE ABSOLUE (spec) : jamais de confiance dans un id "membre" venant du
- * navigateur pour une ressource sensible — toute consultation d'une fiche
+ * navigateur pour une ressource sensible - toute consultation d'une fiche
  * autre que la sienne passe par AuthorizationService::canManageMember()
  * (admin bypass inclus).
  */
@@ -71,6 +71,31 @@ function deny_profile_access(): never
 
 /* ================= FICHE ADMINISTRATIVE (personProfile) ================= */
 
+/**
+ * Bloc « Présences récentes » en lecture seule (fiche membre / mon profil).
+ * Consomme `statsForUser` : dernière présence, total, taux (si disponible),
+ * + lien vers l'historique complet (attendancePrint).
+ *
+ * @param array{total:int,last_date:?string,rate:?int,rate_denominator_note?:string} $stats
+ */
+function member_recent_presence_html(array $stats, int $memberId): string
+{
+    $last = !empty($stats['last_date']) ? date('d/m/Y', strtotime((string) $stats['last_date'])) : '-';
+    $rate = $stats['rate'] !== null ? (int) $stats['rate'] . ' %' : 'n/d';
+
+    return '<div class="dash-section-title"><h2><i class="fa-solid fa-clipboard-check"></i> Présences récentes</h2><span>Lecture seule</span></div>'
+        . '<div class="stats-grid">'
+        . stat_card('Dernière présence', h($last), '#6C63FF')
+        . stat_card('Total de présences', (string) (int) $stats['total'], '#4CAF8E')
+        . stat_card('Taux', h($rate), '#F59E0B', (string) ($stats['rate_denominator_note'] ?? ''))
+        . '</div>'
+        . '<div class="stat-label">' . (int) ($stats['present'] ?? 0) . ' présents · '
+        . (int) ($stats['absent'] ?? 0) . ' absents · ' . (int) ($stats['excuse'] ?? 0) . ' excusés</div>'
+        . '<p class="form-hint">' . h((string) ($stats['formula'] ?? $stats['rate_denominator_note'] ?? '')) . '</p>'
+        . '<a class="btn btn-outline btn-sm" href="' . h(url('index.php', ['page' => 'attendancePrint', 'membre' => $memberId]))
+        . '"><i class="fa-solid fa-list"></i> Voir l\'historique</a>';
+}
+
 function render_profile_page(): void
 {
     $current = current_user();
@@ -99,6 +124,7 @@ function render_profile_page(): void
             'bacenta' => \App\Core\Query::value('SELECT nom FROM bacentas WHERE id = ?', [$row['target_id']]),
             'cult'    => \App\Core\Query::value('SELECT nom FROM cultes WHERE id = ?', [$row['target_id']]),
             'basonta' => \App\Core\Query::value('SELECT nom FROM basontas WHERE id = ?', [$row['target_id']]),
+            'classe'  => \App\Core\Query::value('SELECT nom FROM classes WHERE id = ?', [$row['target_id']]),
             default   => '#' . $row['target_id'],
         };
         $responsibilities[] = [
@@ -107,13 +133,17 @@ function render_profile_page(): void
         ];
     }
 
-    // Présences — semaine consultée (spec §26).
+    // Présences - semaine consultée (spec §26).
     $weekKey = (string) (nav('semaine') ?: current_week_key());
     $weekRows = attendance_service()->weekForUser((int) $membreId, $weekKey);
     $stats = attendance_service()->statsForUser((int) $membreId);
 
     $hasWeeklyFollowup = in_array($member['role'], WEEKLY_FOLLOWUP_ROLES, true);
     $suiviWeek = $hasWeeklyFollowup ? get_suivi_week((int) $membreId, $weekKey) : [];
+
+    $returnUrl = nav('return') === 'parametres'
+        ? url('index.php', ['page' => 'parametres', 'param_tab' => nav('param_tab') === 'acces' ? 'acces' : 'comptes'])
+        : url('index.php', ['page' => 'recherche']);
 
     $content = view('pages/profile', [
         'member'           => $member,
@@ -135,7 +165,10 @@ function render_profile_page(): void
         'weekDays'         => WEEK_DAYS,
         'isSelf'           => (int) $current['id'] === (int) $membreId,
         'csrf'             => csrf_field(),
+        'returnUrl'        => $returnUrl,
     ]);
+
+    $content .= member_recent_presence_html($stats, (int) $membreId);
 
     $charts = ['doughnut' => member_presence_counts($member)];
     render_page(SECTION_LABELS['personProfile'], $content, $charts);
@@ -157,10 +190,14 @@ function render_my_profile_page(): void
         'psection'=> (string) ($_GET['psection'] ?? 'info'),
         'csrf'    => csrf_field(),
     ]);
+    $content .= member_recent_presence_html(
+        attendance_service()->statsForUser((int) $user['id']),
+        (int) $user['id']
+    );
     render_page('Mon profil', $content);
 }
 
-/* ================= IMPRESSION — PRÉSENCES ================= */
+/* ================= IMPRESSION - PRÉSENCES ================= */
 
 function render_attendance_print_page(): void
 {
@@ -180,24 +217,45 @@ function render_attendance_print_page(): void
     $to = trim((string) ($_GET['to'] ?? ''));
     $semaine = (string) (nav('semaine') ?: '');
 
-    if ($from !== '' || $to !== '') {
-        $rows = attendance_service()->historyForUser((int) $membreId, $from ?: null, $to ?: null);
+    // Une semaine explicite (lien « Imprimer » de la fiche) borne la période
+    // si from/to ne sont pas fournis - sinon historique complet.
+    if ($from === '' && $to === '' && $semaine !== '') {
+        $monday = monday_of_week_key($semaine);
+        $from = iso_date_of($monday);
+        $to = iso_date_of($monday->modify('+6 days'));
+        $periodLabel = format_week_range_label($semaine);
+    } elseif ($from !== '' || $to !== '') {
         $periodLabel = 'Du ' . ($from ?: '…') . ' au ' . ($to ?: '…');
     } else {
-        $weekKey = $semaine !== '' ? $semaine : current_week_key();
-        $rows = attendance_service()->weekForUser((int) $membreId, $weekKey);
-        $periodLabel = format_week_range_label($weekKey);
+        $periodLabel = 'Historique complet';
     }
+
+    // Filtres whitelistés avant le SQL.
+    $type = in_array($_GET['type'] ?? '', ['culte', 'evenement', 'bacenta', 'basonta', 'centre'], true)
+        ? (string) $_GET['type'] : null;
+    $statut = in_array($_GET['statut'] ?? '', ['present', 'absent', 'excuse'], true)
+        ? (string) $_GET['statut'] : null;
+
+    $rows = attendance_service()->memberActivityHistory((int) $membreId, [
+        'from'   => $from ?: null,
+        'to'     => $to ?: null,
+        'statut' => $statut,
+        'type'   => $type,
+    ]);
 
     echo view('pages/attendance_print', [
         'member'      => $member,
         'rows'        => $rows,
         'periodLabel' => $periodLabel,
+        'from'        => $from,
+        'to'          => $to,
+        'type'        => $type ?? '',
+        'statut'      => $statut ?? '',
         'printedAt'   => date('d/m/Y à H:i'),
     ]);
 }
 
-/* ================= IMPRESSION — SUIVI HEBDOMADAIRE D'UN BERGER ================= */
+/* ================= IMPRESSION - SUIVI HEBDOMADAIRE D'UN BERGER ================= */
 
 function render_suivi_print_page(): void
 {

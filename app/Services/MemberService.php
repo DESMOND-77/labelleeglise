@@ -42,7 +42,7 @@ class MemberService
             $data[$f] = trim((string) ($_POST[$f] ?? ''));
         }
         $data['date_naissance'] = trim((string) ($_POST['date_naissance'] ?? '')) ?: null;
-        // Rôles actifs uniquement (ROLE_LABELS — Config/constants.php) :
+        // Rôles actifs uniquement (ROLE_LABELS - Config/constants.php) :
         // 'responsable' n'est plus une valeur soumettable (voir migration).
         $data['role'] = array_key_exists($_POST['role'] ?? '', ROLE_LABELS) ? $_POST['role'] : 'membre';
         $data['bacenta_id'] = (int) ($_POST['bacenta_id'] ?? 0) ?: null;
@@ -89,7 +89,10 @@ class MemberService
         return '';
     }
 
-    /** Enregistre (upsert) une présence rapide : 'Présent' → ligne, sinon suppression. */
+    /**
+     * Enregistre (upsert) une présence rapide : 'Présent' → ligne, sinon suppression.
+     * @deprecated SP-4 - plus aucun appelant (le pointage passe par pointOccurrence). Conservé pour compat.
+     */
     public function saveQuickPresence(int $userId, string $type, string $value): void
     {
         $user = $this->users->find($userId);

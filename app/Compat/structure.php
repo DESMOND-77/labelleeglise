@@ -29,36 +29,36 @@ function save_centre(?int $id, string $nom): void
 /* ---------- Bacentas ---------- */
 
 function delete_bacenta(int $id): void { _repo(BacentaRepository::class)->delete($id); }
-function save_bacenta(?int $id, string $nom, ?int $centreId, ?int $respId): void
+function save_bacenta(?int $id, string $nom, ?int $centreId, ?int $respId, ?string $jours = null, ?string $debut = null, ?string $fin = null): void
 {
     if ($id) {
-        _repo(BacentaRepository::class)->update($id, $nom, $centreId, $respId);
+        _repo(BacentaRepository::class)->update($id, $nom, $centreId, $respId, $jours, $debut, $fin);
     } else {
-        _repo(BacentaRepository::class)->create($nom, $centreId, $respId);
+        _repo(BacentaRepository::class)->create($nom, $centreId, $respId, $jours, $debut, $fin);
     }
 }
 
 /* ---------- Cultes ---------- */
 
 function delete_culte(int $id): void { _repo(CulteRepository::class)->delete($id); }
-function save_culte(?int $id, string $nom, ?string $date, ?string $debut, ?string $fin, ?int $resp): void
+function save_culte(?int $id, string $nom, ?string $date, ?string $debut, ?string $fin, ?int $resp, ?string $jours = null): void
 {
     if ($id) {
-        _repo(CulteRepository::class)->update($id, $nom, $date, $debut, $fin, $resp);
+        _repo(CulteRepository::class)->update($id, $nom, $date, $debut, $fin, $resp, $jours);
     } else {
-        _repo(CulteRepository::class)->create($nom, $date, $debut, $fin, $resp);
+        _repo(CulteRepository::class)->create($nom, $date, $debut, $fin, $resp, $jours);
     }
 }
 
 /* ---------- Basontas ---------- */
 
 function delete_basonta(int $id): void { _repo(BasontaRepository::class)->delete($id); }
-function save_basonta(?int $id, string $nom, ?int $resp): void
+function save_basonta(?int $id, string $nom, ?int $resp, ?string $jours = null, ?string $debut = null, ?string $fin = null): void
 {
     if ($id) {
-        _repo(BasontaRepository::class)->update($id, $nom, $resp);
+        _repo(BasontaRepository::class)->update($id, $nom, $resp, $jours, $debut, $fin);
     } else {
-        _repo(BasontaRepository::class)->create($nom, $resp);
+        _repo(BasontaRepository::class)->create($nom, $resp, $jours, $debut, $fin);
     }
 }
 function basonta_add_member(int $basonta, int $membre): void { _repo(BasontaRepository::class)->addMember($basonta, $membre); }
@@ -72,7 +72,7 @@ function save_article_record(?int $id, array $fields): void { _repo(CMSRepositor
 function delete_article_record(int $id): ?array { return _repo(CMSRepository::class)->deleteCentreArticle($id); }
 
 /* ---------- Responsables ----------
- * Délègue à ResponsibilityService (table `responsibilities` — source de
+ * Délègue à ResponsibilityService (table `responsibilities` - source de
  * vérité) : la colonne responsable_id historique n'est plus qu'un reflet
  * synchronisé automatiquement (spec §41), jamais écrite directement ici.
  * Types acceptés : 'center' | 'bacenta' | 'cult' | 'basonta'

@@ -23,6 +23,11 @@ use App\Controllers\ActionsController;
 use App\Controllers\RegistrationController;
 use App\Controllers\AdminRegistrationController;
 use App\Controllers\NotificationController;
+use App\Controllers\PresenceController;
+use App\Controllers\CalendrierController;
+use App\Controllers\RapportController;
+use App\Controllers\ClasseController;
+use App\Controllers\BusController;
 
 /* ---------- Authentification (POST) ---------- */
 Router::post('login', AuthController::class, 'login');
@@ -53,6 +58,16 @@ Router::get('bergers', SectionController::class, 'index');
 Router::get('bergerFiche', BergerController::class, 'fiche');
 Router::get('suiviBergers', BergerController::class, 'suivi');
 
+Router::get('agenda', CalendrierController::class, 'agenda');
+Router::get('calendrier', CalendrierController::class, 'evenements');
+Router::get('anniversaires', CalendrierController::class, 'anniversaires');
+
+Router::get('rapports', RapportController::class, 'index');
+Router::get('rapport', RapportController::class, 'form');
+Router::get('classes', ClasseController::class, 'index');
+Router::get('classe', ClasseController::class, 'detail');
+Router::get('budgetBus', BusController::class, 'index');
+
 Router::get('finances', FinanceController::class, 'index');
 Router::get('parametres', SettingsController::class, 'index');
 Router::get('personProfile', ProfileController::class, 'index');
@@ -61,6 +76,7 @@ Router::get('personProfile', ProfileController::class, 'index');
 Router::get('profile', ProfileController::class, 'me');
 Router::get('attendancePrint', ProfileController::class, 'attendancePrint');
 Router::get('suiviPrint', ProfileController::class, 'suiviPrint');
+Router::get('presencePrint', PresenceController::class, 'matrixPrint');
 
 /* ---------- Inscription publique / vérification email (accès public) ---------- */
 Router::get('register', RegistrationController::class, 'form');

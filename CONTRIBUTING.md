@@ -1,4 +1,4 @@
-# CONTRIBUTING — La Belle Église
+# CONTRIBUTING - La Belle Église
 
 Merci de contribuer à ce projet ! Ce guide définit les conventions de code,
 l'architecture attendue et le workflow de contribution.

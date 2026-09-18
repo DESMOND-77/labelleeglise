@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Seeder — Données de démonstration du modèle complet.
+ * Seeder - Données de démonstration du modèle complet.
  * (adapté de l'ancien seed.php : comptes, membres, bacentas, basontas,
  * cultes, présences, offrandes, fiche berger, présentation CMS)
  */
@@ -103,7 +103,7 @@ function seed(): void
         'created_at' => $monthsAgo(0),
     ]);
     // Rôle actif 'berger' (remplace l'ancien rôle 'responsable', qui n'est
-    // plus qu'une valeur d'ENUM conservée pour rollback — voir migration
+    // plus qu'une valeur d'ENUM conservée pour rollback - voir migration
     // Database/Migrations/2024_01_01_000000_create_schema.php). La
     // responsabilité réelle sur le bacenta Sion est créée plus bas via la
     // table `responsibilities` (ROLE ≠ RESPONSABILITÉ).
@@ -162,7 +162,7 @@ function seed(): void
     $pdo->prepare('INSERT INTO bacentas (nom, responsable_id, centre_id) VALUES (?, ?, ?)')
         ->execute(['Sion', $respSionId, $centreIds['Mingara']]);
     $sionBacentaId = (int) $pdo->lastInsertId();
-    // Source de vérité (table `responsibilities`) — responsable_id ci-dessus
+    // Source de vérité (table `responsibilities`) - responsable_id ci-dessus
     // n'est qu'un reflet dénormalisé pour les lectures existantes.
     $pdo->prepare("INSERT INTO responsibilities (user_id, responsibility_type, target_type, target_id) VALUES (?, 'manager', 'bacenta', ?)")
         ->execute([$respSionId, $sionBacentaId]);
@@ -284,7 +284,7 @@ function seed(): void
             ->execute([$ericId, $year, $mi + 1, $montant]);
     }
     $pdo->prepare('INSERT INTO examens (user_id, nom, date_exam) VALUES (?, ?, ?)')
-        ->execute([$ericId, 'École des Leaders — Niveau 1', $monthsAgo(4)]);
+        ->execute([$ericId, 'École des Leaders - Niveau 1', $monthsAgo(4)]);
     $pdo->prepare('INSERT INTO veillees (user_id, date_veillee, present) VALUES (?, ?, 1)')
         ->execute([$ericId, $monthsAgo(1)]);
     $pdo->prepare('INSERT INTO veillees (user_id, date_veillee, present) VALUES (?, ?, 0)')
@@ -349,7 +349,7 @@ function seed(): void
         4, 1, 3, 7, 10,
     ]);
 
-    /* ---------- 10. Comptes de démonstration — nouveaux rôles (berger/ms/pasteur/reverant)
+    /* ---------- 10. Comptes de démonstration - nouveaux rôles (berger/ms/pasteur/reverant)
      * Voir prompts/REMANIEMENT…md. Chaque compte illustre le modèle
      * ROLE ≠ RESPONSABILITÉ ≠ PÉRIMÈTRE : le rôle détermine les capacités
      * générales, la ligne `responsibilities` détermine la structure gérée.

@@ -9,7 +9,7 @@ $copy = [
         'class' => 'success',
         'title' => 'Adresse email confirmée',
         'text'  => 'Votre nouvelle adresse email est maintenant active. Vous pouvez vous reconnecter avec cette '
-                 . 'nouvelle adresse — votre ancienne adresse ne fonctionne plus pour la connexion.',
+                 . 'nouvelle adresse - votre ancienne adresse ne fonctionne plus pour la connexion.',
     ],
     'expired' => [
         'icon'  => 'fa-solid fa-triangle-exclamation',
@@ -35,7 +35,7 @@ if ($copy === null) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Changement d'email — <?= h(APP_NAME) ?></title>
+  <title>Changement d'email - <?= h(APP_NAME) ?></title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96x96.png">
   <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml" sizes="any">
@@ -45,7 +45,7 @@ if ($copy === null) {
   <meta name="theme-color" content="#4F46E5" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
   <link rel="stylesheet" href="assets/css/app.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
 </head>
 
 <body>

@@ -19,7 +19,7 @@ $rows = [
     ['Dernière connexion', $lastLoginLabel],
 ];
 ?>
-<?= back_button('Retour', url('index.php', ['page' => 'recherche'])) ?>
+<?= back_button('Retour', $returnUrl) ?>
 <?= section_toolbar(h(full_name($member)), 'Fiche administrative') ?>
 
 <div class="profile-hero">
@@ -52,7 +52,7 @@ $rows = [
   </div>
 </div>
 
-<!-- Responsabilités — distinctes du rôle (spec §32-33) -->
+<!-- Responsabilités - distinctes du rôle (spec §32-33) -->
 <div class="dash-section-title"><h2><i class="fa-solid fa-id-card"></i> Responsabilités</h2><span>Indépendantes du rôle</span></div>
 <?php if ($responsibilities): ?>
   <div class="table-wrap"><table class="data-table"><thead><tr><th>Type</th><th>Structure</th></tr></thead><tbody>
@@ -64,7 +64,7 @@ $rows = [
   <?= empty_state('fa-inbox', 'Aucune responsabilité.') ?>
 <?php endif; ?>
 
-<!-- Présences — consultation par semaine, impression, export CSV (spec §21-27) -->
+<!-- Présences - consultation par semaine, impression, export CSV (spec §21-27) -->
 <div class="dash-section-title"><h2><i class="fa-solid fa-calendar-check"></i> Présences</h2><span><?= h($weekRangeLabel) ?></span></div>
 <div class="section-toolbar">
   <div class="week-nav" style="display:flex;gap:8px;align-items:center;">
@@ -98,7 +98,7 @@ $rows = [
 </div>
 
 <?php if ($hasWeeklyFollowup): ?>
-<!-- Suivi hebdomadaire du berger — champs réels SUIVI_FIELDS (spec §34-38), jamais inventés -->
+<!-- Suivi hebdomadaire du berger - champs réels SUIVI_FIELDS (spec §34-38), jamais inventés -->
 <div class="dash-section-title"><h2><i class="fa-solid fa-calendar-days"></i> Suivi hebdomadaire</h2><span><?= h($weekRangeLabel) ?></span></div>
 <div class="section-toolbar">
   <div class="sub">Consulter/imprimer le suivi hebdomadaire (mêmes champs que le module existant).</div>
@@ -107,15 +107,15 @@ $rows = [
     <a class="btn btn-outline btn-sm" target="_blank" href="<?= h(url('index.php', ['page' => 'suiviPrint', 'membre' => $member['id'], 'semaine' => $weekKey])) ?>"><i class="fa-solid fa-print"></i> Imprimer</a>
   </div>
 </div>
-<div class="table-wrap"><table class="data-table"><thead><tr><th>Champ</th><?php foreach ($weekDays as $d): ?><th><?= h($d) ?></th><?php endforeach; ?></tr></thead><tbody>
+<div class="table-wrap"><table class="data-table" data-no-paginate><thead><tr><th>Champ</th><?php foreach ($weekDays as $d): ?><th><?= h($d) ?></th><?php endforeach; ?></tr></thead><tbody>
   <?php foreach ($suiviFields as $f): ?>
     <tr>
       <td><?= h($f['label']) ?></td>
       <?php foreach ($weekDays as $d): ?>
         <?php if (!empty($f['sundayOnly']) && $d !== 'Dimanche'): ?>
-          <td>—</td>
+          <td>-</td>
         <?php else: ?>
-          <td><?= h($suiviWeek[$d][$f['key']] ?? '') ?: '—' ?></td>
+          <td><?= h($suiviWeek[$d][$f['key']] ?? '') ?: '-' ?></td>
         <?php endif; ?>
       <?php endforeach; ?>
     </tr>

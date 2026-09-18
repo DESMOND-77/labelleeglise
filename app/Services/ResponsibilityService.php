@@ -8,10 +8,10 @@ use App\Repositories\UserRepository;
 
 /**
  * Règles métier de la couche "responsabilité" (ROLE ≠ RESPONSABILITÉ ≠
- * PÉRIMÈTRE — voir prompts/REMANIEMENT…md).
+ * PÉRIMÈTRE - voir prompts/REMANIEMENT…md).
  *
  * Cibles supportées aujourd'hui : 'center' (table centres), 'bacenta'
- * (table bacentas), 'cult' (table cultes). Le modèle (table SQL polymorphe)
+ * (table bacentas), 'cult' (table cultes), 'classe' (table classes). Le modèle (table SQL polymorphe)
  * permet d'ajouter facilement de nouveaux target_type sans migration.
  */
 class ResponsibilityService
@@ -22,6 +22,7 @@ class ResponsibilityService
         'bacenta' => 'bacentas',
         'cult'    => 'cultes',
         'basonta' => 'basontas',
+        'classe'  => 'classes',
     ];
 
     private ResponsibilityRepository $repo;
@@ -38,6 +39,7 @@ class ResponsibilityService
     {
         return match ($targetType) {
             'center', 'bacenta', 'basonta' => CENTER_BACENTA_RESPONSIBILITY_ROLES,
+            'classe' => ['berger', 'ms', 'pasteur', 'reverant'],
             'cult' => CULT_RESPONSIBILITY_ROLES,
             default => [],
         };
@@ -111,7 +113,7 @@ class ResponsibilityService
      * Maintient bacentas.responsable_id / basontas.responsable_id /
      * cultes.responsable_id synchronisés avec la dernière responsabilité
      * affectée (colonne dénormalisée de confort pour les lectures/affichages
-     * existants — spec §41 : ne jamais supprimer brutalement une ancienne
+     * existants - spec §41 : ne jamais supprimer brutalement une ancienne
      * colonne). Les décisions d'autorisation, elles, ne lisent JAMAIS cette
      * colonne : uniquement la table `responsibilities`.
      */
@@ -214,7 +216,7 @@ class ResponsibilityService
      * Changement de rôle (spec §31) : révoque toute responsabilité devenue
      * incohérente avec le nouveau rôle. Choix documenté : auto-révocation +
      * journalisation (plutôt que blocage), pour ne jamais empêcher un admin
-     * de changer un rôle — voir docs/roles-and-permissions.md.
+     * de changer un rôle - voir docs/roles-and-permissions.md.
      *
      * @return array<string,int> nombre de responsabilités révoquées par target_type
      */

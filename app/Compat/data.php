@@ -102,8 +102,22 @@ function build_narrative(array $stats): array { return _repo(StatisticsService::
 function latest_culte(): ?array { return _repo(CulteRepository::class)->latest(); }
 function latest_basonta_of_user(int $userId): ?int { return _repo(BasontaRepository::class)->latestOfUser($userId); }
 function presence_status(array $user, string $type): string { return _repo(MemberService::class)->presenceStatus($user, $type); }
+/** @deprecated SP-4 - plus aucun appelant (le pointage passe par l'occurrence). Conservé pour compat. */
 function save_quick_presence(int $userId, string $type, string $value): void { _repo(MemberService::class)->saveQuickPresence($userId, $type, $value); }
 function point_culte_presence(int $culteId, string $date, array $userIds): void { _repo(\App\Services\AttendanceService::class)->pointCulte($culteId, $date, $userIds); }
+
+function save_unit_presence(string $unitType, int $unitId, string $date, array $rawStatuts, array $allowedUserIds): void
+{
+    _repo(\App\Services\AttendanceService::class)->pointOccurrence($unitType, $unitId, $date, $rawStatuts, $allowedUserIds);
+}
+function unit_presence_grid(string $unitType, int $unitId, string $date, array $members): array
+{
+    return _repo(\App\Services\AttendanceService::class)->occurrenceGrid($unitType, $unitId, $date, $members);
+}
+function unit_annual_matrix(string $unitType, int $unitId, int $year, array $members): array
+{
+    return _repo(\App\Services\AttendanceService::class)->annualMatrix($unitType, $unitId, $year, $members);
+}
 function member_presence_counts(array $user): array { return _repo(MemberService::class)->presenceCounts($user); }
 
 /* ---------- Visites & offrandes ---------- */
@@ -140,6 +154,22 @@ function save_presentation(string $accroche, string $histoire): void { _repo(CMS
 function get_equipe(): array { return _repo(CMSRepository::class)->equipe(); }
 function get_centres_articles(): array { return _repo(CMSRepository::class)->centresArticles(); }
 function get_centre_article(int $id): ?array { return _repo(CMSRepository::class)->centreArticle($id); }
+
+/* ---------- Calendriers ---------- */
+
+function calendrier_service(): \App\Services\CalendrierService { return _repo(\App\Services\CalendrierService::class); }
+
+/* ---------- Rapports du jour ---------- */
+
+function rapport_jour_service(): \App\Services\RapportJourService { return _repo(\App\Services\RapportJourService::class); }
+
+/* ---------- Classes / écoles ---------- */
+
+function classe_service(): \App\Services\ClasseService { return _repo(\App\Services\ClasseService::class); }
+
+/* ---------- Budget Bus du dimanche ---------- */
+
+function bus_budget_service(): \App\Services\BusBudgetService { return _repo(\App\Services\BusBudgetService::class); }
 
 /* ---------- CRUD users ---------- */
 

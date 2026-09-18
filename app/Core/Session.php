@@ -10,12 +10,31 @@ class Session
     /** Démarre la session si ce n'est pas déjà fait. */
     public static function start(?string $name = null): void
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            if ($name) {
-                session_name($name);
-            }
-            session_start();
+        if (session_status() !== PHP_SESSION_NONE) {
+            return;
         }
+
+        if (PHP_SAPI === 'cli' || headers_sent()) {
+            return;
+        }
+
+        $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https')
+            || (($_SERVER['HTTP_X_FORWARDED_SSL'] ?? '') === 'on');
+
+        session_set_cookie_params([
+            'lifetime' => 0,
+            'path' => '/',
+            'domain' => '',
+            'secure' => $secure,
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+
+        if ($name) {
+            session_name($name);
+        }
+        session_start();
     }
 
     public static function get(string $key, $default = null)

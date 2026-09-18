@@ -1,5 +1,5 @@
 <?php
-/* "Mon profil" — libre-service. Variables : $user, $psaved (bool), $perror
+/* "Mon profil" - libre-service. Variables : $user, $psaved (bool), $perror
  * (string code), $psection (string), $csrf. */
 $errorMessages = [
     'validation'      => 'Merci de corriger les champs signalés ci-dessous.',
@@ -71,9 +71,9 @@ $errorMsg = $perror !== '' ? ($errorMessages[$perror] ?? 'Une erreur est survenu
   </div>
 
   <div>
-    <!-- ===================== Sécurité — mot de passe ===================== -->
+    <!-- ===================== Sécurité - mot de passe ===================== -->
     <div class="form-card">
-      <h3 style="margin-top:0;"><i class="fa-solid fa-lock"></i> Sécurité — Mot de passe</h3>
+      <h3 style="margin-top:0;"><i class="fa-solid fa-lock"></i> Sécurité - Mot de passe</h3>
       <form method="post" action="index.php">
         <input type="hidden" name="action" value="change_password">
         <?= $csrf ?>
@@ -93,7 +93,7 @@ $errorMsg = $perror !== '' ? ($errorMessages[$perror] ?? 'Une erreur est survenu
       </form>
     </div>
 
-    <!-- ===================== Sécurité — adresse email ===================== -->
+    <!-- ===================== Sécurité - adresse email ===================== -->
     <div class="form-card" style="margin-top:24px;">
       <h3 style="margin-top:0;"><i class="fa-solid fa-envelope"></i> Adresse email</h3>
       <p class="sub">Adresse actuelle : <b><?= h($user['email'] ?? '') ?></b></p>

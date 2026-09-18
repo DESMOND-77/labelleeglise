@@ -66,7 +66,7 @@ return [
     // Comportement historique préservé (spec §21/§43 : "Leader : conserver
     // ses fonctionnalités actuelles"). Le leader gère SA bacenta
     // d'appartenance (users.bacenta_id), pas via le modèle de
-    // responsabilités — voir RbacService::scope() (kind = 'berger').
+    // responsabilités - voir RbacService::scope() (kind = 'berger').
     'leader' => [
         'view_church_information',
         'view_centers',

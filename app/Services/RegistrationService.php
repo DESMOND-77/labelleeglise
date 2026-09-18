@@ -14,8 +14,8 @@ use App\Repositories\UserRepository;
  *    la requête) ;
  *  - le mot de passe est haché avec password_hash() ;
  *  - le jeton de vérification est généré avec random_bytes() (jamais
- *    rand()/mt_rand()/time()) et stocké haché (sha256) en base — jamais en
- *    clair — avec une expiration de 24h ;
+ *    rand()/mt_rand()/time()) et stocké haché (sha256) en base - jamais en
+ *    clair - avec une expiration de 24h ;
  *  - une erreur d'envoi d'email ne fait jamais échouer la transaction
  *    utilisateur (elle est journalisée et un avertissement doux est renvoyé).
  */
@@ -153,7 +153,7 @@ class RegistrationService
 
         if (!$user) {
             // Jeton inconnu : soit invalide, soit déjà utilisé (le jeton est
-            // effacé après usage) — message générique, pas d'énumération.
+            // effacé après usage) - message générique, pas d'énumération.
             return ['status' => 'invalid', 'user' => null];
         }
 
@@ -265,7 +265,7 @@ class RegistrationService
             $this->mail->send(
                 $user['email'],
                 trim(($user['prenom'] ?? '') . ' ' . ($user['nom'] ?? '')),
-                'Votre inscription — La Belle Église',
+                'Votre inscription - La Belle Église',
                 '<p>Bonjour ' . htmlspecialchars($user['prenom'] ?? '', ENT_QUOTES, 'UTF-8') . ',</p>'
                 . '<p>Votre demande d\'inscription n\'a pas pu être validée par l\'administration de La Belle Église.</p>'
                 . '<p>Pour toute question, contactez l\'église.</p>'

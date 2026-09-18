@@ -8,7 +8,7 @@ use App\Core\Query;
  * Accès aux données de la table polymorphe `responsibilities`.
  *
  * user_id × responsibility_type × target_type × target_id.
- * `target_type` ∈ 'center' | 'bacenta' | 'cult' (extensible sans migration —
+ * `target_type` ∈ 'center' | 'bacenta' | 'cult' (extensible sans migration -
  * voir Database/Migrations/2024_01_01_000000_create_schema.php).
  */
 class ResponsibilityRepository

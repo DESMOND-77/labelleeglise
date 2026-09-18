@@ -1,6 +1,6 @@
 <?php /* Formulaire membre (table users).
            Variables : $title, $member, $section, $isAdmin, $bacentaOptions, $userOptions,
-                       $akwabaOptions, $presenceValues, $extraFields, $roles, $cancelUrl, $csrf, $hidden. */
+                       $akwabaOptions, $extraFields, $roles, $cancelUrl, $csrf, $hidden. */
 $member = $member ?? null;
 $isNew = !$member;
 ?>
@@ -29,7 +29,7 @@ $isNew = !$member;
       <div class="form-group">
         <label>Bacenta d'appartenance</label>
         <select name="bacenta_id">
-          <option value="">— Aucun —</option>
+          <option value="">- Aucun -</option>
           <?= $bacentaOptions ?>
         </select>
       </div>
@@ -54,29 +54,15 @@ $isNew = !$member;
       <div class="form-grid">
         <div class="form-group">
           <label>Invité par</label>
-          <select name="invite_par"><option value="">— Aucun —</option><?= $userOptions ?></select>
+          <select name="invite_par"><option value="">- Aucun -</option><?= $userOptions ?></select>
         </div>
         <div class="form-group">
           <label>Reçu par (Akwaba)</label>
-          <select name="recu_par"><option value="">— Aucun —</option><?= $akwabaOptions ?></select>
+          <select name="recu_par"><option value="">- Aucun -</option><?= $akwabaOptions ?></select>
         </div>
         <div class="form-group"><label>Date d'arrivée</label><input type="date" name="date_recu" value="<?= h($member['date_recu'] ?? '') ?>"></div>
       </div>
     <?php endif; ?>
-
-    <h3 class="form-section-title"><i class="fa-solid fa-hands"></i> Présence (dernier événement de chaque type)</h3>
-    <div class="form-grid">
-      <?php foreach (PRESENCE_FIELDS as $f): ?>
-        <div class="form-group">
-          <label><?= h(FIELD_LABELS[$f]) ?></label>
-          <select name="<?= h($f) ?>">
-            <option value="">—</option>
-            <option value="Présent" <?= ($presenceValues[$f] ?? '') === 'Présent' ? 'selected' : '' ?>>Présent</option>
-          </select>
-        </div>
-      <?php endforeach; ?>
-    </div>
-    <p class="form-hint">« Présent » enregistre la présence du membre à l'événement le plus récent de ce type (culte, basonta, centre, bacenta).</p>
 
     <div class="modal-error" style="<?= isset($_GET['error']) ? 'display:block;' : 'display:none;' ?>">Cet email est déjà utilisé.</div>
     <div class="modal-actions">

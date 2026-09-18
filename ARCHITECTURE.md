@@ -1,4 +1,4 @@
-# ARCHITECTURE — La Belle Église
+# ARCHITECTURE - La Belle Église
 
 Ce projet adopte une **architecture modulaire** inspirée de Laravel, sans framework.
 Il est structuré selon les principes **Clean Architecture**, **MVC/MVT**, **SOLID**,

@@ -1,0 +1,14 @@
+/* M4 - Calendriers (événements + anniversaires) */
+
+.cal-form {
+  margin-bottom: var(--space-6);
+}
+
+.cal-fiche p {
+  margin: var(--space-2) 0;
+}
+
+tr.anniv-current td {
+  background: var(--primary-soft);
+  font-weight: 600;
+}

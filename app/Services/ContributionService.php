@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Repositories\ContributionRepository;
 
 /**
- * Offrandes & dîmes — calculs et cumuls.
+ * Offrandes & dîmes - calculs et cumuls.
  */
 class ContributionService
 {

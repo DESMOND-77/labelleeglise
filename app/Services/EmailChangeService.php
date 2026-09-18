@@ -6,14 +6,14 @@ use App\Core\Logger;
 use App\Repositories\UserRepository;
 
 /**
- * Changement d'adresse email en libre-service — flux sécurisé (spec §12-13).
+ * Changement d'adresse email en libre-service - flux sécurisé (spec §12-13).
  *
  * Règle absolue : l'email n'est JAMAIS remplacé immédiatement. Le nouveau
  * jeton suit exactement le même schéma que RegistrationService : jeton brut
  * random_bytes(32) envoyé par email, hash sha256 stocké en base, expiration
  * 24h, usage unique. La déconnexion immédiate de la session en cours (au
  * moment de la DEMANDE, pas de la vérification) est de la responsabilité de
- * l'appelant (contrôleur) — cette classe ne connaît pas la session HTTP.
+ * l'appelant (contrôleur) - cette classe ne connaît pas la session HTTP.
  */
 class EmailChangeService
 {
@@ -59,7 +59,7 @@ class EmailChangeService
             $this->mail->sendEmailChangeVerification($user, $newEmail, $verifyUrl, self::TOKEN_TTL_HOURS);
         } catch (\Throwable $e) {
             // Ne jamais faire échouer la demande déjà enregistrée à cause d'un
-            // échec d'envoi — l'utilisateur pourra redemander un lien.
+            // échec d'envoi - l'utilisateur pourra redemander un lien.
             Logger::error('Erreur envoi email de vérification de changement d\'email', ['error' => $e->getMessage()]);
         }
 

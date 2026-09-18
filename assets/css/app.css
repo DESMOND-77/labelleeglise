@@ -1,11 +1,11 @@
 /* ============================================================
-   La Belle Église — Point d'entrée du design system
+   La Belle Église - Point d'entrée du design system
    ------------------------------------------------------------
    Architecture modulaire : chaque fichier couvre une responsabilité.
    L'ordre d'import est structuré (fondations → composants → responsive).
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('../vendor/fonts/inter.css');
 
 /* ---- Fondations ---- */
 @import url('variables.css');
@@ -27,6 +27,12 @@
 @import url('alerts.css');
 @import url('components.css');
 @import url('notifications.css');
+@import url('presences.css');
+@import url('calendrier.css');
+@import url('agenda.css');
+@import url('rapports.css');
+@import url('classes.css');
+@import url('bus.css');
 
 /* ---- Utilitaires & animations ---- */
 @import url('utilities.css');

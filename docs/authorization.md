@@ -18,7 +18,7 @@ délègue à `AuthorizationService` pour toute décision CRUD fine.
 
 Les wrappers globaux de `app/Auth/compat.php` (`current_user()`,
 `get_user_scope()`, `can_manage_entity()`, …) **n'ont pas changé de nom ni
-de signature** — utilisés par des dizaines de fichiers `app/Compat/*.php` et
+de signature** - utilisés par des dizaines de fichiers `app/Compat/*.php` et
 `Views/**`. Leur implémentation interne délègue désormais aux nouveaux
 services.
 
@@ -58,7 +58,7 @@ $auth->isAdmin($user);
 ## Règle non négociable (spec §29)
 
 ```php
-// INTERDIT — un rôle ne code jamais une structure :
+// INTERDIT - un rôle ne code jamais une structure :
 if ($user['role'] === 'responsable_centre') { ... }
 $user['role'] = 'berger_centre';
 
@@ -71,7 +71,7 @@ $auth->hasRole($user, 'berger') && $auth->isResponsibleForCenter($user, $centerI
 Aucun bouton masqué côté vue n'est considéré comme une protection. Toute
 action d'écriture (`ActionsController::postAction`) et toute suppression
 (`ActionsController::getAction`, dispatchée par `index.php` **avant** la
-vérification de session — voir front controller) revérifie explicitement :
+vérification de session - voir front controller) revérifie explicitement :
 
 ```
 current_user() existe
@@ -85,14 +85,14 @@ Exemple représentatif (`ActionsController::postAction`, case `point_culte`) :
 ```php
 $culte = (int) ($_POST['culte'] ?? 0);
 if (!$culte || !auth_can_manage_culte($culte)) {
-    $this->deny(); // redirige vers apropos — même convention que AdminMiddleware
+    $this->deny(); // redirige vers apropos - même convention que AdminMiddleware
 }
 ```
 
 ### IDOR (spec §40)
 
 `/index.php?page=centres&id=5` : un responsable du Centre 3 ne peut pas
-accéder au Centre 5 en changeant l'id dans l'URL — `render_centre_detail()`
+accéder au Centre 5 en changeant l'id dans l'URL - `render_centre_detail()`
 appelle `has_verified_access('centres', $centreId)`, qui route vers
 `AuthorizationService::canManageCenter()`, qui vérifie la ligne
 `responsibilities` réelle (jamais l'id soumis pris pour argent comptant).
@@ -102,11 +102,11 @@ l'id du membre, puis vérifie le périmètre sur cette valeur.
 
 ### Deux bugs critiques corrigés par ce remaniement
 
-1. **`save_suivi` (fiche hebdomadaire)** — `$membre` était lu directement
+1. **`save_suivi` (fiche hebdomadaire)** - `$membre` était lu directement
    depuis `$_POST` sans aucune vérification : n'importe quel compte
    authentifié pouvait écraser le `suivi_hebdo` d'un autre utilisateur.
    Corrigé : `$membre === current_user()['id']` obligatoire, sauf admin.
-2. **`save_responsable` / `assign_responsibility`** — aucune autorisation
+2. **`save_responsable` / `assign_responsibility`** - aucune autorisation
    au-delà du CSRF global : n'importe quel compte authentifié pouvait
    réaffecter le responsable d'un bacenta/basonta/culte. Corrigé :
    `auth_can_manage_responsibilities()` (admin uniquement) requis, en plus
@@ -118,7 +118,7 @@ l'id du membre, puis vérifie le périmètre sur cette valeur.
 Distinct de l'autorisation ci-dessus : c'est un écran de confidentialité
 préexistant (reconfirmer son propre mot de passe avant de consulter une
 bacenta/un culte/un basonta partagé sur un poste commun), pas une frontière
-de sécurité — n'importe quel compte authentifié peut lever ce verrou en
+de sécurité - n'importe quel compte authentifié peut lever ce verrou en
 reconfirmant SES PROPRES identifiants. La véritable frontière
 d'autorisation est toujours côté écriture (`ActionsController`), qui ne
 dépend jamais de cet écran. Voir la section "à surveiller" du rapport de

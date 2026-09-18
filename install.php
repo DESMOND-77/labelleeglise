@@ -1,6 +1,6 @@
 <?php
 /**
- * Installation — crée les tables + données de démonstration.
+ * Installation - crée les tables + données de démonstration.
  * -------------------------------------------------------------
  * Nouvelle architecture : délègue aux classes de migration/seeding
  * (Database\Migrations, Database\Seeders).

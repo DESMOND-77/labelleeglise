@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Spec maître — Intégration des 7 modules « La Belle Église »
+=======
+# Spec maître - Intégration des 7 modules « La Belle Église »
+>>>>>>> to-prod
 
 - **Date** : 2026-09-01
 - **Source** : `prompts/to-implement.md` (demande utilisateur + Q/R de cadrage)
@@ -19,15 +23,24 @@ Migration = fichier unique idempotent
 prod, `down()` + `install.php` = destructif réservé au dev).
 
 **Principe directeur de l'intégration** : *étendre sans casser*. Aucune URL, aucun
+<<<<<<< HEAD
 flux d'auth, aucun formulaire existant connu-fonctionnel n'est remplacé — on ajoute
+=======
+flux d'auth, aucun formulaire existant connu-fonctionnel n'est remplacé - on ajoute
+>>>>>>> to-prod
 à côté, comme l'a été la section « member-picker » de la page bacenta.
 
 ## 2. Vue d'ensemble des 7 modules
 
 | # | Module | Nature | Nouvelles tables |
 |---|--------|--------|------------------|
+<<<<<<< HEAD
 | M3 | Suivi Hebdo. des Bergers — champs prière / Mixlr / Ushers | Extension de constante | — |
 | M1 | Présences par occurrence (Bacentas / Basontas / Cultes) + matrice annuelle | Extension schéma + moteur | — (colonnes ajoutées) |
+=======
+| M3 | Suivi Hebdo. des Bergers - champs prière / Mixlr / Ushers | Extension de constante | - |
+| M1 | Présences par occurrence (Bacentas / Basontas / Cultes) + matrice annuelle | Extension schéma + moteur | - (colonnes ajoutées) |
+>>>>>>> to-prod
 | M4 | Calendrier événementiel + calendrier d'anniversaires | Nouveau | `evenements`, `anniversaires` |
 | M5 | Rapport du Jour des responsables de bacenta | Nouveau | `rapports_jour` |
 | M6 | Classes / Écoles post-culte + progression automatique | Nouveau | `classes`, `classe_inscrits` |
@@ -46,7 +59,11 @@ M3  →  M1  →  M4  →  (addendum M1 : pointage d'événement)  →  M5  → 
   d'`evenement` devient un rassemblement pointable (colonne `presences.evenement_id`).
 - **M5** : indépendant (`centres` + `responsibilities` suffisent).
 - **M6** : indépendant.
+<<<<<<< HEAD
 - **M2** : indépendant, le plus simple — peut être avancé si besoin d'un livrable rapide.
+=======
+- **M2** : indépendant, le plus simple - peut être avancé si besoin d'un livrable rapide.
+>>>>>>> to-prod
 
 Chaque module est livrable et vérifiable isolément (branche + plan dédiés).
 
@@ -54,7 +71,11 @@ Chaque module est livrable et vérifiable isolément (branche + plan dédiés).
 
 ## 4. Détail par module
 
+<<<<<<< HEAD
 ### M3 — Suivi Hebdo. des Bergers
+=======
+### M3 - Suivi Hebdo. des Bergers
+>>>>>>> to-prod
 
 **Besoin** : ajouter « Temps de prière », « Lien/Statut Mixlr », « Nombre d'Ushers »
 au tableau de suivi hebdomadaire ; corriger l'orthographe « ashers » → « ushers ».
@@ -67,6 +88,7 @@ au tableau de suivi hebdomadaire ; corriger l'orthographe « ashers » → « us
   (calcul du % de réalisation).
 - « Temps de prière quotidien » existe déjà (`priere`).
 - « ashers » : la seule occurrence réelle est `BASONTAS_DEFAULT` (`Config/constants.php:48`),
+<<<<<<< HEAD
   `['Chorale', 'Ashers', 'Film Start', ...]` — nom de basonta (ministère « ushers »).
 
 **Décisions** :
@@ -81,6 +103,22 @@ au tableau de suivi hebdomadaire ; corriger l'orthographe « ashers » → « us
    inoffensif si aucune ligne). Sinon les installations existantes gardent la
    faute (le seed ne rejoue pas sur une base déjà peuplée).
 4. Vérifier que `ReportService` (calcul du %) tolère les nouveaux champs — les
+=======
+  `['Chorale', 'Ashers', 'Film Start', ...]` - nom de basonta (ministère « ushers »).
+
+**Décisions** :
+1. Ajouter à `SUIVI_FIELDS` :
+   - `mixlr` - `type => 'text'`, label « Diffusion Mixlr (lien ou statut) »
+   - `ushers` - `type => 'number'`, label « Nombre d'Ushers »
+   - `themeSemaine` - `type => 'text'`, label « Thème de la semaine » (optionnel)
+   - `nomBerger` - `type => 'text'`, label « Berger concerné » (optionnel)
+2. `BASONTAS_DEFAULT` : `'Ashers'` → `'Ushers'`.
+3. Migration : bloc idempotent de **correction de donnée** -
+   `UPDATE basontas SET nom = 'Ushers' WHERE nom = 'Ashers'` (une seule fois ;
+   inoffensif si aucune ligne). Sinon les installations existantes gardent la
+   faute (le seed ne rejoue pas sur une base déjà peuplée).
+4. Vérifier que `ReportService` (calcul du %) tolère les nouveaux champs - les
+>>>>>>> to-prod
    champs optionnels ne doivent pas plomber le pourcentage (les compter comme
    les autres est acceptable ; à confirmer dans le plan M3).
 
@@ -91,7 +129,11 @@ au tableau de suivi hebdomadaire ; corriger l'orthographe « ashers » → « us
 
 ---
 
+<<<<<<< HEAD
 ### M1 — Présences par occurrence + matrice annuelle
+=======
+### M1 - Présences par occurrence + matrice annuelle
+>>>>>>> to-prod
 
 **Besoin** : pointer la présence (Présent / Absent / Excusé) des membres à chaque
 rassemblement de l'année, plus une vue de synthèse annuelle imprimable.
@@ -110,10 +152,17 @@ rassemblement de l'année, plus une vue de synthèse annuelle imprimable.
 - Bacenta → membres du bacenta (`users.bacenta_id`)
 - Basonta → membres du basonta (`users_basontas`)
 - Culte → **l'ensemble des membres** (même population que le pointage culte actuel :
+<<<<<<< HEAD
   `role IN ('membre','leader','assistant','pasteur','reverant')` — cf.
   `render_culte_detail` dans `app/Compat/sections.php`)
 
 **Permissions** : périmètre RBAC existant — `can_manage_entity('bacenta'|'cult'|'basonta', $id)`
+=======
+  `role IN ('membre','leader','assistant','pasteur','reverant')` - cf.
+  `render_culte_detail` dans `app/Compat/sections.php`)
+
+**Permissions** : périmètre RBAC existant - `can_manage_entity('bacenta'|'cult'|'basonta', $id)`
+>>>>>>> to-prod
 (admin + responsable réel de l'unité via `responsibilities`, avec héritage
 centre → bacenta). Aucun élargissement.
 
@@ -137,7 +186,11 @@ CREATE UNIQUE INDEX uniq_presence
 - `jours_semaine` : CSV de libellés de `WEEK_DAYS` (ex. `"Vendredi"`,
   `"Lundi,Mercredi"`). `cultes` a déjà `heure_debut` / `heure_fin`.
 - L'unique key : une seule des colonnes `culte_id/bacenta_id/basonta_id` est
+<<<<<<< HEAD
   non-NULL par ligne. En MySQL/MariaDB deux NULL ne collisionnent pas — c'est
+=======
+  non-NULL par ligne. En MySQL/MariaDB deux NULL ne collisionnent pas - c'est
+>>>>>>> to-prod
   voulu. Le service ne s'appuie pas sur `INSERT ... ON DUPLICATE` : il fait un
   **upsert transactionnel** (`DELETE` des présences de l'(unité, date) puis
   `INSERT` de la nouvelle map) dans un `Query::transaction()`.
@@ -154,7 +207,11 @@ CREATE UNIQUE INDEX uniq_presence
 - La config de récurrence (`jours_semaine`, `heure_debut`, `heure_fin`) est
   ajoutée aux **formulaires existants** `Views/pages/forms/{bacenta,culte,equipe}.php`
   concernés et gérée par les actions existantes `save_bacenta` / `save_culte` /
+<<<<<<< HEAD
   `save_basonta` — **pas de nouvelle action** pour la config.
+=======
+  `save_basonta` - **pas de nouvelle action** pour la config.
+>>>>>>> to-prod
 
 **Routes / navigation** : aucune nouvelle route (`?page=bacentas&id=X&tab=presences&date=YYYY-MM-DD`
 passe déjà par `SectionController::index` → `render_section_page`). Étendre le
@@ -162,7 +219,11 @@ dispatch `tab` dans `render_bacenta_detail` / `render_culte_detail` /
 `render_basonta_detail` (`app/Compat/sections.php`).
 
 **Actions POST** :
+<<<<<<< HEAD
 - `save_presence_occurrence` — champs : `unit_type` (`bacenta|cult|basonta`),
+=======
+- `save_presence_occurrence` - champs : `unit_type` (`bacenta|cult|basonta`),
+>>>>>>> to-prod
   `unit_id`, `date` (`Y-m-d`), `statut[user_id] => present|absent|excuse`.
   `check_csrf()` ; RBAC `can_manage_entity` ; revalidation serveur de chaque
   `user_id` (doit appartenir à l'unité) ; upsert transactionnel ; `redirect()`
@@ -175,7 +236,11 @@ dispatch `tab` dans `render_bacenta_detail` / `render_culte_detail` /
 - `assets/css/presences.css`
 
 > Note : la table `presences` existe déjà et `AttendanceService` /
+<<<<<<< HEAD
 > `AttendanceRepository` aussi — le plan M1 devra décider entre **étendre**
+=======
+> `AttendanceRepository` aussi - le plan M1 devra décider entre **étendre**
+>>>>>>> to-prod
 > l'existant et **ajouter** un service dédié. Préférence : réutiliser
 > `AttendanceRepository` si son périmètre s'y prête, sinon service dédié pour ne
 > pas alourdir un fichier déjà chargé.
@@ -187,11 +252,19 @@ Le plan M1 vérifie avec l'utilisateur si l'existant suffit ou s'il faut un cham
 
 **« Prénom » (Basontas)** : `users.prenom` existe déjà. Le plan M1 ajoute la
 **colonne d'affichage** « Prénom » dans le tableau des membres de basonta
+<<<<<<< HEAD
 (`members_table` / vue basonta) — pas de changement de schéma.
 
 ---
 
 ### M4 — Calendrier événementiel + calendrier d'anniversaires
+=======
+(`members_table` / vue basonta) - pas de changement de schéma.
+
+---
+
+### M4 - Calendrier événementiel + calendrier d'anniversaires
+>>>>>>> to-prod
 
 **Besoin** :
 - Événements : nom, date & heure début-fin, lieu, responsable. Exemples :
@@ -262,11 +335,19 @@ fiche événement.
   `calendrier => 'Calendrier événementiel'`, `anniversaires => 'Anniversaires'`.
 
 **Vues** :
+<<<<<<< HEAD
 - `Views/pages/calendrier.php` — liste chronologique / agenda (mois courant +
   à venir), formulaire d'ajout/édition d'événement (modale ou section).
 - `Views/pages/anniversaires.php` — table fusionnée (users avec `date_naissance`
   non NULL + lignes `anniversaires`), triée par mois/jour, mois courant
   surligné, colonne Âge (`annee` connue → calcul, sinon `—`), formulaire d'ajout
+=======
+- `Views/pages/calendrier.php` - liste chronologique / agenda (mois courant +
+  à venir), formulaire d'ajout/édition d'événement (modale ou section).
+- `Views/pages/anniversaires.php` - table fusionnée (users avec `date_naissance`
+  non NULL + lignes `anniversaires`), triée par mois/jour, mois courant
+  surligné, colonne Âge (`annee` connue → calcul, sinon `-`), formulaire d'ajout
+>>>>>>> to-prod
   d'entrée manuelle.
 
 **Actions POST** : `save_evenement`, `delete_evenement`, `save_anniversaire`,
@@ -274,24 +355,40 @@ fiche événement.
 propriétaire pour `delete_evenement`).
 
 **Nouveaux fichiers** : `CalendrierController`, `EvenementService`,
+<<<<<<< HEAD
 `AnniversaireService` (ou un `CalendrierService` unique — arbitrage dans le plan),
+=======
+`AnniversaireService` (ou un `CalendrierService` unique - arbitrage dans le plan),
+>>>>>>> to-prod
 `EvenementRepository`, `AnniversaireRepository`, 2 vues, `assets/css/calendrier.css`,
 helper RBAC.
 
 ---
 
+<<<<<<< HEAD
 ### M5 — Rapport du Jour des responsables de bacenta
+=======
+### M5 - Rapport du Jour des responsables de bacenta
+>>>>>>> to-prod
 
 **Besoin** : centraliser les remontées terrain par centre et par date.
 
 **Q/R de cadrage** :
 - Le menu déroulant « centre » = table **`centres`** (`centre_id` FK).
+<<<<<<< HEAD
 - Granularité : **1 rapport = (centre + date)** — contrainte `UNIQUE`.
+=======
+- Granularité : **1 rapport = (centre + date)** - contrainte `UNIQUE`.
+>>>>>>> to-prod
 - **Modifiable** après enregistrement par l'auteur et l'admin.
 - « Nom du responsable du centre » / « du bacenta » : **pré-remplis non
   modifiables**, dérivés automatiquement :
   - responsable du centre = manager du centre via `responsibilities`
+<<<<<<< HEAD
     (`target_type='centre'`, `responsibility_type='manager'`) — nom via `users`.
+=======
+    (`target_type='centre'`, `responsibility_type='manager'`) - nom via `users`.
+>>>>>>> to-prod
   - responsable du bacenta = l'auteur du rapport (il crée le rapport pour son
     bacenta). Si l'auteur gère plusieurs bacentas du centre, sélecteur limité à
     ceux-là ; le nom affiché reste dérivé, non éditable.
@@ -307,7 +404,11 @@ helper RBAC.
 | Responsables *(auto, lecture seule)* | responsable du centre, responsable du bacenta |
 | Équipe | noms des assistants (`textarea`) |
 | Assistance | nb présents, nb adultes, nb enfants, nb anciens, nb nouveaux (1ʳᵉ visite), nb nés de nouveau (`number`, ≥ 0) |
+<<<<<<< HEAD
 | Finances | offrande — montant total (`number`, ≥ 0) |
+=======
+| Finances | offrande - montant total (`number`, ≥ 0) |
+>>>>>>> to-prod
 | Enseignement | nom du livre enseigné (`text`), chapitre enseigné (`text`) |
 
 **Schéma** :
@@ -343,12 +444,21 @@ CREATE TABLE IF NOT EXISTS rapports_jour (
 ```
 
 Les colonnes `resp_*_nom` sont un **instantané** (le nom au moment du rapport),
+<<<<<<< HEAD
 rempli côté service à partir de `responsibilities` — jamais saisi par le client.
 
 **Routes / navigation** :
 - `Router::get('rapports', RapportController::class, 'index')` — liste filtrable
   (centre, mois) + accès « nouveau rapport ».
 - `Router::get('rapport', RapportController::class, 'show')` — formulaire
+=======
+rempli côté service à partir de `responsibilities` - jamais saisi par le client.
+
+**Routes / navigation** :
+- `Router::get('rapports', RapportController::class, 'index')` - liste filtrable
+  (centre, mois) + accès « nouveau rapport ».
+- `Router::get('rapport', RapportController::class, 'show')` - formulaire
+>>>>>>> to-prod
   création / édition (`?id=` ou `?centre=&date=`).
 - `SECTION_LABELS`/`ICONS`/`NAV_ORDER` : `rapports => 'Rapports du Jour'`.
 
@@ -364,7 +474,11 @@ Statistiques ultérieures : hors périmètre v1 (le stockage structuré les perm
 
 ---
 
+<<<<<<< HEAD
 ### M6 — Classes / Écoles post-culte
+=======
+### M6 - Classes / Écoles post-culte
+>>>>>>> to-prod
 
 **Besoin** : gérer les 7 cursus post-culte, formateur, inscrits, progression,
 examens, prochaine session. Ajout / suppression / édition de classes possibles.
@@ -432,7 +546,11 @@ CREATE TABLE IF NOT EXISTS classe_inscrits (
 `ordre` 1→7 si `classes` est vide. Constante `CLASSES_CURSUS` = liste ordonnée
 des 7 libellés (source du seed, réutilisable en UI).
 
+<<<<<<< HEAD
 **Progression automatique — règle précise** (dans `ClasseService`, en transaction) :
+=======
+**Progression automatique - règle précise** (dans `ClasseService`, en transaction) :
+>>>>>>> to-prod
 - Déclencheur : sauvegarde d'un `classe_inscrit` où `exam_oral = 'reussi'`
   ET `exam_ecrit = 'reussi'`.
 - Effet : `statut = 'termine'` sur l'inscription courante ; recherche de la
@@ -444,8 +562,13 @@ des 7 libellés (source du seed, réutilisable en UI).
   `non_passe` (action manuelle si nécessaire).
 
 **Routes / navigation** :
+<<<<<<< HEAD
 - `Router::get('classes', ClasseController::class, 'index')` — grille des classes.
 - `Router::get('classe', ClasseController::class, 'show')` — détail : formateur,
+=======
+- `Router::get('classes', ClasseController::class, 'index')` - grille des classes.
+- `Router::get('classe', ClasseController::class, 'show')` - détail : formateur,
+>>>>>>> to-prod
   `nb_modules`, prochaine session, liste des inscrits avec statut d'examens et
   modules validés.
 - `SECTION_LABELS`/`ICONS`/`NAV_ORDER` : `classes => 'Classes & Écoles'`.
@@ -466,11 +589,25 @@ Toutes gardées par `auth_can_manage_classes()` + `check_csrf()`.
 
 ---
 
+<<<<<<< HEAD
 ### M2 — Budget Bus du dimanche par centre
+=======
+### M2 - Budget Bus du dimanche par centre
+>>>>>>> to-prod
 
 **Besoin** : suivre les sommes retirées / collectées par centre pour le bus du
 dimanche, avec sous-totaux automatiques par centre et par mois.
 
+<<<<<<< HEAD
+=======
+**Livré** : table `bus_budget`, `BusController`/`BusBudgetService`/
+`BusBudgetRepository`, vue `Views/pages/budget_bus.php` (tableau annuel : lignes
+par centre, sous-total par mois, total centre, total général), `assets/css/bus.css`.
+Route `budgetBus`, actions `save_bus_budget` (POST) / `delete_bus_budget` (GET).
+Périmètre via `auth_can_manage_center()` + `auth_can_manage_any_centre()` (admin
+ou responsable réel du centre).
+
+>>>>>>> to-prod
 **Q/R de cadrage** :
 - « zone » = **centre** (table `centres`).
 - Colonnes : centre, date, somme retirée, observations.
@@ -496,7 +633,11 @@ CREATE TABLE IF NOT EXISTS bus_budget (
 ```
 
 **Routes / navigation** :
+<<<<<<< HEAD
 - `Router::get('budgetBus', BusController::class, 'index')` — tableau de saisie
+=======
+- `Router::get('budgetBus', BusController::class, 'index')` - tableau de saisie
+>>>>>>> to-prod
   (filtré au périmètre : centres gérés par l'utilisateur, ou tous si admin),
   lignes éditables, sous-totaux par centre et par mois (agrégation SQL
   `GROUP BY centre_id, DATE_FORMAT(date_retrait,'%Y-%m')`), total année.
@@ -524,7 +665,11 @@ CREATE TABLE IF NOT EXISTS bus_budget (
   `check_csrf()`, validation `Validator`/service, écriture Repository,
   `redirect()`. Suppressions → `getAction()` (cohérent avec l'existant).
 - **Schéma** : uniquement des blocs idempotents dans le fichier de migration
+<<<<<<< HEAD
   unique — `CREATE TABLE IF NOT EXISTS`, `ALTER` gardés par
+=======
+  unique - `CREATE TABLE IF NOT EXISTS`, `ALTER` gardés par
+>>>>>>> to-prod
   `column_exists()` / `index_exists()`. Étendre `down()` (ordre FK-safe) et
   `DatabaseSeeder.php` si des données de démo aident.
 - **RBAC** : nouveaux wrappers globaux dans `app/Auth/compat.php`
@@ -539,17 +684,28 @@ CREATE TABLE IF NOT EXISTS bus_budget (
 - **Ne jamais casser** : URLs existantes, auth, formulaire « ajouter un membre »
   de la page bacenta, pointage culte actuel. On ajoute des onglets / sections /
   pages à côté.
+<<<<<<< HEAD
 - `install.php` reste supprimable — aucun code runtime n'en dépend.
+=======
+- `install.php` reste supprimable - aucun code runtime n'en dépend.
+>>>>>>> to-prod
 
 ## 6. Vérification (pas de test runner)
 
 Il n'existe pas de PHPUnit dans ce dépôt. Pour **chaque module**, avant commit :
 
 1. `php -l` sur **chaque** fichier PHP modifié ou créé.
+<<<<<<< HEAD
 2. `php install.php` sur une base de dev (recrée schéma + données de démo) —
    confirme que les blocs de migration passent.
 3. Relancer `\Database\Migrations\up()` seul sur une base déjà peuplée (simulation
    prod) — confirme l'**idempotence** (aucune erreur, aucune perte).
+=======
+2. `php install.php` sur une base de dev (recrée schéma + données de démo) -
+   confirme que les blocs de migration passent.
+3. Relancer `\Database\Migrations\up()` seul sur une base déjà peuplée (simulation
+   prod) - confirme l'**idempotence** (aucune erreur, aucune perte).
+>>>>>>> to-prod
 4. Parcours manuel connecté :
    - **admin** : la nouvelle page apparaît au menu, CRUD complet fonctionne.
    - **berger / responsable concerné** : voit uniquement son périmètre ; une
@@ -565,7 +721,11 @@ Il n'existe pas de PHPUnit dans ce dépôt. Pour **chaque module**, avant commit
      sous-totaux corrects.
    - **M6** : passer les 2 examens à « reussi » → inscription auto dans la classe
      d'ordre suivant, sans doublon si on re-sauvegarde.
+<<<<<<< HEAD
    - **M4** : anniversaire sans année → âge « — » ; mois courant surligné.
+=======
+   - **M4** : anniversaire sans année → âge « - » ; mois courant surligné.
+>>>>>>> to-prod
    - **M2** : sous-totaux par centre et par mois exacts.
 
 ## 7. Risques / points ouverts (à trancher dans les plans de module)
@@ -581,7 +741,11 @@ Il n'existe pas de PHPUnit dans ce dépôt. Pour **chaque module**, avant commit
   souhaité en v1 ou v2 ?
 - **M5 responsable du bacenta** : comportement exact quand l'auteur gère
   plusieurs bacentas d'un même centre (sélecteur restreint retenu).
+<<<<<<< HEAD
 - **Menu** : 5 nouvelles entrées de navigation — vérifier l'encombrement de la
+=======
+- **Menu** : 5 nouvelles entrées de navigation - vérifier l'encombrement de la
+>>>>>>> to-prod
   sidebar ; éventuel regroupement (sous-menu « Suivi » / « Planification ») à
   discuter, non bloquant.
 

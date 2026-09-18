@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Compatibilité — sections (bacentas / centres / cultes / basontas / listes).
+ * Compatibilité - sections (bacentas / centres / cultes / basontas / listes).
  * Portage de l'ancien pages_sections.php.
  */
 
@@ -222,6 +222,83 @@ function render_basontas_grid(): void
 
 /* ================= DÉTAILS ================= */
 
+/**
+ * Onglet présences d'une unité : pointage d'une date (tab=presences) ou
+ * matrice annuelle (tab=presences_annuel). $unitType ∈ bacenta|cult|basonta,
+ * $pageKey ∈ bacentas|cultes|basontas.
+ */
+function render_unit_presence_tab(string $unitType, string $pageKey, array $unit, string $tab, array $members, string $tabRow = ''): void
+{
+    $unitId = (int) $unit['id'];
+    if (!can_manage_entity($unitType, $unitId)) {
+        redirect('index.php', ['page' => $pageKey, 'id' => $unitId]);
+    }
+    $joursHint = trim(str_replace(',', ', ', (string) ($unit['jours_semaine'] ?? '')));
+
+    if ($tab === 'presences_annuel') {
+        $year = (int) (nav('year') ?: date('Y'));
+        render_page($unit['nom'], $tabRow . view('pages/presence_matrix', [
+            'unit'     => $unit,
+            'pageKey'  => $pageKey,
+            'unitType' => $unitType,
+            'year'     => $year,
+            'matrix'   => unit_annual_matrix($unitType, $unitId, $year, $members),
+            'statuts'  => PRESENCE_STATUTS,
+            'printUrl' => url('index.php', ['page' => 'presencePrint', 'unit_type' => $unitType, 'unit_id' => $unitId, 'year' => $year]),
+            'occUrl'   => url('index.php', ['page' => $pageKey, 'id' => $unitId, 'tab' => 'presences']),
+        ]));
+        return;
+    }
+
+    $date = (string) (nav('date') ?: date('Y-m-d'));
+    render_page($unit['nom'], $tabRow . view('pages/presence_occurrence', [
+        'unitType'  => $unitType,
+        'unit'      => $unit,
+        'pageKey'   => $pageKey,
+        'date'      => $date,
+        'grid'      => unit_presence_grid($unitType, $unitId, $date, $members),
+        'summary'   => attendance_service()->occurrenceSummary($unitType, $unitId, $date, count($members)),
+        'statuts'   => PRESENCE_STATUTS,
+        'joursHint' => $joursHint,
+        'csrf'      => csrf_field(),
+        'matrixUrl' => url('index.php', ['page' => $pageKey, 'id' => $unitId, 'tab' => 'presences_annuel']),
+    ]));
+}
+
+/**
+ * Page autonome imprimable : matrice annuelle des présences d'une unité.
+ * ?page=presencePrint&unit_type=<bacenta|cult|basonta>&unit_id=<id>&year=<yyyy>
+ */
+function render_presence_matrix_print_page(): void
+{
+    if (!current_user()) {
+        redirect('index.php', ['page' => 'apropos']);
+    }
+    $unitType = (string) (nav('unit_type') ?? '');
+    $unitId = (int) (nav('unit_id') ?? 0);
+    if (!in_array($unitType, ['bacenta', 'cult', 'basonta'], true) || !$unitId || !can_manage_entity($unitType, $unitId)) {
+        redirect('index.php', ['page' => 'accueil']);
+    }
+    $year = (int) (nav('year') ?: date('Y'));
+
+    [$unit, $members] = match ($unitType) {
+        'bacenta' => [get_bacenta($unitId), get_members_of_bacenta($unitId)],
+        'basonta' => [get_basonta($unitId), get_members_of_basonta($unitId)],
+        'cult'    => [get_culte($unitId), Query::all("SELECT * FROM users WHERE role IN ('membre','leader','assistant','pasteur','reverant') ORDER BY prenom, nom")],
+    };
+    if (!$unit) {
+        redirect('index.php', ['page' => 'accueil']);
+    }
+
+    echo view('pages/presence_matrix_print', [
+        'unit'      => $unit,
+        'year'      => $year,
+        'matrix'    => unit_annual_matrix($unitType, $unitId, $year, $members),
+        'statuts'   => PRESENCE_STATUTS,
+        'printedAt' => date('d/m/Y à H:i'),
+    ]);
+}
+
 function render_bacenta_detail(int $bacentaId): void
 {
     $b = get_bacenta($bacentaId);
@@ -230,12 +307,18 @@ function render_bacenta_detail(int $bacentaId): void
     }
 
     $tab = nav('tab');
+    $tabs = [
+        'membres'   => ['label' => '<i class="fa-solid fa-users"></i> Membres', 'url' => url('index.php', ['page' => 'bacentas', 'id' => $bacentaId, 'tab' => 'membres'])],
+        'presences' => ['label' => '<i class="fa-solid fa-clipboard-check"></i> Présences', 'url' => url('index.php', ['page' => 'bacentas', 'id' => $bacentaId, 'tab' => 'presences'])],
+        'suivi'     => ['label' => '<i class="fa-solid fa-chart-column"></i> Suivi & Offrandes', 'url' => url('index.php', ['page' => 'bacentas', 'id' => $bacentaId, 'tab' => 'suivi'])],
+    ];
+    $tabRow = tab_row($tabs, in_array($tab, array_keys($tabs), true) ? $tab : 'membres');
     if ($tab === 'suivi') {
         if (!has_verified_access('bacentas', $bacentaId)) {
             render_gate('bacentas', $bacentaId, $b['nom']);
             return;
         }
-        $content = bacenta_suivi($b);
+        $content = $tabRow . bacenta_suivi($b);
         render_page($b['nom'], $content);
         return;
     }
@@ -245,14 +328,15 @@ function render_bacenta_detail(int $bacentaId): void
         return;
     }
 
-    $tabs = [
-        'membres' => ['label' => '<i class="fa-solid fa-users"></i> Membres', 'url' => url('index.php', ['page' => 'bacentas', 'id' => $bacentaId, 'tab' => 'membres'])],
-        'suivi'   => ['label' => '<i class="fa-solid fa-chart-column"></i> Suivi & Offrandes', 'url' => url('index.php', ['page' => 'bacentas', 'id' => $bacentaId, 'tab' => 'suivi'])],
-    ];
-    $content = tab_row($tabs, 'membres')
+    if ($tab === 'presences' || $tab === 'presences_annuel') {
+        render_unit_presence_tab('bacenta', 'bacentas', $b, $tab, get_members_of_bacenta($bacentaId), $tabRow);
+        return;
+    }
+
+    $content = $tabRow
              . members_table('bacentas', $bacentaId, $b['nom'], count(get_members_of_bacenta($bacentaId)));
 
-    // Section "Ajouter des membres" (membres actifs/vérifiés non affectés) —
+    // Section "Ajouter des membres" (membres actifs/vérifiés non affectés) -
     // affichée EN PLUS du formulaire d'ajout existant (members_table
     // ci-dessus), sans le remplacer. Réservée à l'admin ou au responsable
     // qui gère réellement ce bacenta (vérifié via RBAC, jamais un simple
@@ -316,7 +400,7 @@ function render_centre_detail(int $centreId): void
         redirect('index.php', ['page' => 'centres']);
     }
     // IDOR (spec §12/§40) : la section 'centres' peut être autorisée dans la
-    // navigation sans que CE centre précis le soit — vérification par id
+    // navigation sans que CE centre précis le soit - vérification par id
     // obligatoire, jamais seulement "la section est visible".
     if (!has_verified_access('centres', $centreId)) {
         render_gate('centres', $centreId, $c['nom']);
@@ -366,22 +450,14 @@ function render_culte_detail(int $culteId): void
         render_gate('cultes', $culteId, $c['nom']);
         return;
     }
-$presents = get_members_of_culte($culteId);
-    $isAdmin = current_user()['role'] === 'admin';
-    // Tous les membres candidats au pointage (chevauchement de la liste).
-    $candidates = Query::all("SELECT id, prenom, nom FROM users WHERE role IN ('membre','leader','assistant','pasteur','reverant') ORDER BY prenom, nom");
 
-    $date = $c['date_culte'] ? date('d/m/Y', strtotime($c['date_culte'])) : 'Date à définir';
-    $content = section_toolbar(h($c['nom']), 'Culte · ' . $date . ($c['resp_prenom'] ? ' · ' . h(trim($c['resp_prenom'] . ' ' . $c['resp_nom'])) : ''))
-        . view('pages/culte_detail', [
-            'culte'     => $c,
-            'presents'  => $presents,
-            'candidates'=> $candidates,
-            'isAdmin'   => $isAdmin,
-            'csrf'      => csrf_field(),
-            'defaultDate' => date('Y-m-d'),
-        ]);
-    render_page($c['nom'], $content);
+    // SP-3 : plus d'onglet « Pointage rapide ». Le culte est un simple type
+    // d'occurrence : sa fiche = pointage par occurrence (composant SP-2) +
+    // matrice annuelle (bouton du composant).
+    $culteMembers = Query::all("SELECT * FROM users WHERE role IN ('membre','leader','assistant','pasteur','reverant') ORDER BY prenom, nom");
+    $tab = nav('tab');
+    $tab = in_array($tab, ['presences', 'presences_annuel'], true) ? $tab : 'presences';
+    render_unit_presence_tab('cult', 'cultes', $c, $tab, $culteMembers);
 }
 
 function render_basonta_detail(int $basontaId): void
@@ -396,24 +472,35 @@ function render_basonta_detail(int $basontaId): void
     }
     $members = get_members_of_basonta($basontaId);
 
+    $tab = nav('tab');
+    $basontaTabs = [
+        'membres'   => ['label' => '<i class="fa-solid fa-users"></i> Membres', 'url' => url('index.php', ['page' => 'basontas', 'id' => $basontaId])],
+        'presences' => ['label' => '<i class="fa-solid fa-clipboard-check"></i> Présences', 'url' => url('index.php', ['page' => 'basontas', 'id' => $basontaId, 'tab' => 'presences'])],
+    ];
+    $tabRow = tab_row($basontaTabs, $tab === 'presences' || $tab === 'presences_annuel' ? 'presences' : 'membres');
+    if ($tab === 'presences' || $tab === 'presences_annuel') {
+        render_unit_presence_tab('basonta', 'basontas', $b, $tab, $members, $tabRow);
+        return;
+    }
+
     $candidates = _repo(MemberRepository::class)->candidatesForBasonta($basontaId);
 
     $rows = '';
     foreach ($members as $m) {
-        $rows .= '<tr><td>' . h(full_name($m)) . '</td><td>' . h($m['telephone'] ?? '') . '</td>'
-            . '<td>' . presence_badge(presence_status($m, 'presenceBasonta')) . '</td>'
+        $rows .= '<tr><td>' . h($m['nom'] ?? '') . '</td><td>' . h($m['prenom'] ?? '') . '</td><td>' . h($m['telephone'] ?? '') . '</td>'
             . '<td class="row-actions"><a class="icon-btn danger" title="Retirer" data-confirm="Retirer ce membre du basonta ?" href="' . h(url('index.php', ['page' => 'basontas', 'action' => 'basonta_remove_member', 'basonta' => $basontaId, 'membre' => $m['id']])) . '"><i class="fa-solid fa-trash"></i></a></td></tr>';
     }
     $rows = $rows ?: '<tr><td colspan="4">' . empty_state('fa-inbox', 'Aucun membre dans ce basonta.') . '</td></tr>';
 
-    $content = section_toolbar(h($b['nom']), count($members) . ' membre(s)')
+    $content = $tabRow
+        . section_toolbar(h($b['nom']), count($members) . ' membre(s)')
         . '<form class="inline-add-form" method="post" action="index.php">'
         . '<input type="hidden" name="action" value="basonta_add_member">' . csrf_field()
         . '<input type="hidden" name="basonta" value="' . h($basontaId) . '">'
-        . '<select name="membre" required><option value="">— Choisir un membre —</option>'
+        . '<select name="membre" required><option value="">- Choisir un membre -</option>'
         . implode('', array_map(fn($u) => '<option value="' . $u['id'] . '">' . h(full_name($u)) . '</option>', $candidates))
         . '</select><button type="submit" class="btn btn-primary btn-sm">+ Ajouter au basonta</button></form>'
-        . '<div class="table-wrap"><table class="data-table"><thead><tr><th>Nom</th><th>Téléphone</th><th>Présence Basonta</th><th>Actions</th></tr></thead><tbody>' . $rows . '</tbody></table></div>';
+        . '<div class="table-wrap"><table class="data-table"><thead><tr><th>Nom</th><th>Prénom</th><th>Téléphone</th><th>Actions</th></tr></thead><tbody>' . $rows . '</tbody></table></div>';
     render_page($b['nom'], $content);
 }
 
@@ -452,9 +539,7 @@ function display_columns(string $section): array
         $cols[] = 'recu_par';
         $cols[] = 'date_recu';
     }
-    foreach (PRESENCE_FIELDS as $p) {
-        $cols[] = $p;
-    }
+    // SP-4 : plus de colonnes présence dans les listes (trompeuses + N+1).
     return $cols;
 }
 
@@ -493,10 +578,6 @@ function members_table(string $section, ?int $entityId, string $label, int $coun
     foreach ($members as $m) {
         $cells = '';
         foreach ($cols as $f) {
-            if (in_array($f, PRESENCE_FIELDS, true)) {
-                $cells .= '<td>' . presence_badge(presence_status($m, $f)) . '</td>';
-                continue;
-            }
             switch ($f) {
                 case 'nom':
                 case 'prenom':
@@ -609,7 +690,7 @@ function render_member_form(string $section): void
     $bacentas = get_bacentas();
     $bacentaOptions = '';
     foreach ($bacentas as $b) {
-        $bacentaOptions .= '<option value="' . $b['id'] . '"' . ($member && (int) $member['bacenta_id'] === (int) $b['id'] ? ' selected' : '') . '>' . h($b['nom'] . ' — ' . ($b['centre_nom'] ?? '')) . '</option>';
+        $bacentaOptions .= '<option value="' . $b['id'] . '"' . ($member && (int) $member['bacenta_id'] === (int) $b['id'] ? ' selected' : '') . '>' . h($b['nom'] . ' - ' . ($b['centre_nom'] ?? '')) . '</option>';
     }
 
     $allUsers = Query::all('SELECT id, prenom, nom FROM users ORDER BY prenom, nom');
@@ -628,13 +709,6 @@ function render_member_form(string $section): void
         $akwabaOptions .= '<option value="' . $u['id'] . '"' . ($member && (int) $member['recu_par'] === (int) $u['id'] ? ' selected' : '') . '>' . h(full_name($u)) . '</option>';
     }
 
-    $presenceValues = [];
-    if ($member) {
-        foreach (PRESENCE_FIELDS as $f) {
-            $presenceValues[$f] = presence_status($member, $f);
-        }
-    }
-
     $content = view('pages/forms/member', [
         'title'      => $member ? 'Modifier le membre' : 'Ajouter un membre',
         'member'     => $member,
@@ -643,7 +717,6 @@ function render_member_form(string $section): void
         'bacentaOptions' => $bacentaOptions,
         'userOptions'=> $userOptions,
         'akwabaOptions' => $akwabaOptions,
-        'presenceValues' => $presenceValues,
         'extraFields'=> SECTION_EXTRA_FIELDS[$section] ?? [],
         'roles'      => ROLE_LABELS,
         'cancelUrl'  => url('index.php', ['page' => $section] + ($entityId ? ['id' => $entityId] : [])),
@@ -698,7 +771,7 @@ function render_culte_form(): void
 {
     $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
     $c = $id ? get_culte($id) : null;
-    // Le responsable de culte (pasteur/reverant uniquement — spec §24-25)
+    // Le responsable de culte (pasteur/reverant uniquement - spec §24-25)
     // n'est plus assignable ici : voir Paramètres → Accès & Responsables.
     $content = view('pages/forms/culte', [
         'culte'     => $c,
@@ -713,12 +786,10 @@ function render_basonta_form(): void
 {
     $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
     $b = $id ? get_basonta($id) : null;
-    $content = view('pages/forms/name', [
-        'title'     => $b ? 'Modifier le basonta' : 'Ajouter un basonta',
-        'action'    => 'save_basonta',
-        'name'      => $b['nom'] ?? '',
-        'extra'     => csrf_field() . ($id ? '<input type="hidden" name="id" value="' . $id . '">' : ''),
+    $content = view('pages/forms/basonta', [
+        'basonta'   => $b,
         'cancelUrl' => url('index.php', ['page' => 'basontas']),
+        'csrf'      => csrf_field(),
     ]);
     render_page($b ? 'Modifier le basonta' : 'Ajouter un basonta', $content);
 }

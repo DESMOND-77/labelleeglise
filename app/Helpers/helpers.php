@@ -59,7 +59,7 @@ function redirect_members_context(string $section, ?int $entityId = null): never
 function current_url_params(): array
 {
     $params = [];
-    foreach (['page', 'quartier', 'groupe', 'item', 'tab', 'membre', 'semaine', 'annee', 'param_tab',
+    foreach (['page', 'quartier', 'groupe', 'item', 'tab', 'membre', 'semaine', 'annee', 'param_tab', 'return',
               'centre', 'q', 'form', 'action', 'error'] as $k) {
         if (isset($_GET[$k]) && $_GET[$k] !== '') {
             $params[$k] = (string) $_GET[$k];
@@ -82,6 +82,7 @@ function nav(string $key, $default = null)
             'semaine'    => $_GET['semaine'] ?? null,
             'annee'      => isset($_GET['annee']) ? (int) $_GET['annee'] : null,
             'param_tab'  => $_GET['param_tab'] ?? 'comptes',
+            'return'     => $_GET['return'] ?? null,
             'q'          => $_GET['q'] ?? null,
             'form'       => $_GET['form'] ?? null,
             'gate'       => isset($_GET['gate']) ? (int) $_GET['gate'] : 0,

@@ -2,7 +2,7 @@
 /* Fiche détaillée d'une inscription. Variables : $registration, $csrf. */
 $r = $registration;
 $verified = (int) $r['email_verified'] === 1;
-$created = !empty($r['created_at']) ? date('d/m/Y à H:i', strtotime($r['created_at'])) : '—';
+$created = !empty($r['created_at']) ? date('d/m/Y à H:i', strtotime($r['created_at'])) : '-';
 $verifiedAt = !empty($r['email_verified_at']) ? date('d/m/Y à H:i', strtotime($r['email_verified_at'])) : null;
 ?>
 <?= back_button('Retour aux inscriptions', url('index.php', ['page' => 'admin_inscriptions'])) ?>
@@ -13,7 +13,7 @@ $verifiedAt = !empty($r['email_verified_at']) ? date('d/m/Y à H:i', strtotime($
     <div class="info-rows">
       <div class="info-row"><span>Nom complet</span><b><?= h(full_name($r)) ?></b></div>
       <div class="info-row"><span>Email</span><b><?= h($r['email']) ?></b></div>
-      <div class="info-row"><span>Téléphone</span><b><?= h($r['telephone'] ?? '—') ?></b></div>
+      <div class="info-row"><span>Téléphone</span><b><?= h($r['telephone'] ?? '-') ?></b></div>
       <div class="info-row"><span>Rôle</span><b><?= h(ROLE_LABELS[$r['role']] ?? $r['role']) ?></b></div>
       <div class="info-row"><span>Date d'inscription</span><b><?= h($created) ?></b></div>
       <div class="info-row">

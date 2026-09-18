@@ -1,4 +1,4 @@
-# La Belle Église — politique de divulgation responsable (RFC 9116)
+# La Belle Église - politique de divulgation responsable (RFC 9116)
 # TODO : remplacez Contact/Canonical par les vraies valeurs de production
 # avant mise en ligne, et mettez à jour Expires chaque année.
 

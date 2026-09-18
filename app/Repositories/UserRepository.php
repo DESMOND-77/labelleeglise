@@ -140,13 +140,13 @@ class UserRepository
         );
     }
 
-    /** Active le compte (validation administrative) — synchronise compte_actif. */
+    /** Active le compte (validation administrative) - synchronise compte_actif. */
     public function activateAccount(int $id): void
     {
         Query::run("UPDATE users SET account_status = 'active', compte_actif = 1 WHERE id = ?", [$id]);
     }
 
-    /** Désactive un compte — synchronise compte_actif. */
+    /** Désactive un compte - synchronise compte_actif. */
     public function disableAccount(int $id): void
     {
         Query::run("UPDATE users SET account_status = 'disabled', compte_actif = 0 WHERE id = ?", [$id]);

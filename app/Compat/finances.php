@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Compatibilité — page Finances & Offrandes.
+ * Compatibilité - page Finances & Offrandes.
  * Portage de l'ancien pages_finances.php.
  */
 
