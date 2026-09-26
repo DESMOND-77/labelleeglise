@@ -2,7 +2,7 @@
 /* Email - vérification d'adresse. Variables : $user, $verifyUrl, $expiresHours, $appName. */
 $prenom = h($user['prenom'] ?? '');
 $nom = h($user['nom'] ?? '');
-$appName = h($appName ?? 'La Belle Église');
+$appName = h($appName ?? 'La Belle Église Intenationale Franceville');
 $verifyUrl = h($verifyUrl);
 $expiresHours = (int) ($expiresHours ?? 24);
 ?>

@@ -1,7 +1,7 @@
 <?php
 /* Email - compte activé. Variables : $user, $loginUrl, $appName. */
 $prenom = h($user['prenom'] ?? '');
-$appName = h($appName ?? 'La Belle Église');
+$appName = h($appName ?? 'La Belle Église Intenationale Franceville');
 $loginUrl = h($loginUrl);
 ?>
 <!DOCTYPE html>

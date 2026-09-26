@@ -3,7 +3,7 @@
  * Variables : $user, $newEmail, $verifyUrl, $expiresHours, $appName. */
 $prenom = h($user['prenom'] ?? '');
 $nom = h($user['nom'] ?? '');
-$appName = h($appName ?? 'La Belle Église');
+$appName = h($appName ?? 'La Belle Église Intenationale Franceville');
 $newEmail = h($newEmail ?? '');
 $verifyUrl = h($verifyUrl);
 $expiresHours = (int) ($expiresHours ?? 24);

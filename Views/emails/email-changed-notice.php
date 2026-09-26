@@ -3,7 +3,7 @@
  * d'email confirmé. Purement informatif, aucun lien d'action.
  * Variables : $user, $oldEmail, $appName. */
 $prenom = h($user['prenom'] ?? '');
-$appName = h($appName ?? 'La Belle Église');
+$appName = h($appName ?? 'La Belle Église Intenationale Franceville');
 $oldEmail = h($oldEmail ?? '');
 ?>
 <!DOCTYPE html>

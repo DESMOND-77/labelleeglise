@@ -5,7 +5,7 @@ $prenom = h($user['prenom'] ?? '');
 $nom = h($user['nom'] ?? '');
 $email = h($user['email'] ?? '');
 $telephone = h($user['telephone'] ?? '-');
-$appName = h($appName ?? 'La Belle Église');
+$appName = h($appName ?? 'La Belle Église Intenationale Franceville');
 $reviewUrl = h($reviewUrl);
 $dateInscription = !empty($user['created_at']) ? date('d/m/Y à H:i', strtotime($user['created_at'])) : '-';
 $statutVerif = ((int) ($user['email_verified'] ?? 0) === 1) ? 'Email vérifié ✓' : 'Email non vérifié';
