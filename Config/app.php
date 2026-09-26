@@ -10,7 +10,8 @@
 declare(strict_types=1);
 
 return [
-    'name'          => env_value('APP_NAME', 'La Belle Église'),
+    'name'          => env_value('APP_NAME', 'La Belle Église Intenationale Franceville'),
+    'location'      => env_value('APP_LOCATION', 'Franceville'),
     'url'           => env_value('APP_URL', ''),            // vide = chemins relatifs
     'timezone'      => env_value('APP_TIMEZONE', 'Africa/Libreville'),
     'charset'       => 'UTF-8',

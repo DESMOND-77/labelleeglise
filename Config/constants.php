@@ -56,7 +56,7 @@ define('SECTION_LABELS', [
     'centres'            => 'Centres',
     'cultes'             => 'Cultes',
     'basontas'           => 'Basontas',
-    'nouveaux'           => 'Nouveaux membres',
+    // 'nouveaux'           => 'Nouveaux membres',
     'generale'           => 'Liste générale des membres',
     'bergers'            => 'Liste des bergers',
     'suiviBergers'       => 'Suivi Hebdo. des Bergers',
@@ -83,7 +83,7 @@ define('SECTION_ICONS', [
     'centres'            => '<i class="fa-solid fa-landmark"></i>',
     'cultes'             => '<i class="fa-solid fa-hands-praying"></i>',
     'basontas'           => '<i class="fa-solid fa-microphone"></i>',
-    'nouveaux'           => '<i class="fa-solid fa-star"></i>',
+    // 'nouveaux'           => '<i class="fa-solid fa-star"></i>',
     'generale'           => '<i class="fa-solid fa-clipboard-list"></i>',
     'bergers'            => '<i class="fa-solid fa-people-roof"></i>',
     'suiviBergers'       => '<i class="fa-solid fa-calendar-days"></i>',
@@ -120,7 +120,7 @@ define('NAV_ORDER', [
     'centres',
     'cultes',
     'basontas',
-    'nouveaux',
+    // 'nouveaux',
     'generale',
     'bergers',
     'suiviBergers',
@@ -195,13 +195,13 @@ define('CHART_POLES', [
     ['key' => 'centres',  'label' => 'Centres',                'color' => '#6366F1'],
     ['key' => 'cultes',   'label' => 'Cultes',                 'color' => '#2563EB'],
     ['key' => 'basontas', 'label' => 'Basontas',               'color' => '#22C55E'],
-    ['key' => 'nouveaux', 'label' => 'Nouveaux membres',       'color' => '#F59E0B'],
+    // ['key' => 'nouveaux', 'label' => 'Nouveaux membres',       'color' => '#F59E0B'],
     ['key' => 'generale', 'label' => 'Liste générale des membres', 'color' => '#EF4444'],
     ['key' => 'bergers',  'label' => 'Liste des bergers',      'color' => '#8B5CF6'],
 ]);
 
 define('SLIDES', [
-    ['gradient' => 'linear-gradient(135deg,#4F46E5,#6366F1)', 'title' => 'Bienvenue à la belle église', 'subtitle' => 'Ensemble, grandissons dans la foi et la communion fraternelle.'],
+    ['gradient' => 'linear-gradient(135deg,#4F46E5,#6366F1)', 'title' => 'Bienvenue à La Belle Église Intenationale Franceville', 'subtitle' => 'Ensemble, grandissons dans la foi et la communion fraternelle.'],
     ['gradient' => 'linear-gradient(135deg,#22C55E,#4F46E5)', 'title' => 'Une famille unie', 'subtitle' => 'Chaque bacenta, chaque centre, chaque basonta compte.'],
     ['gradient' => 'linear-gradient(135deg,#2563EB,#8B5CF6)', 'title' => 'Accueillons les nouveaux membres', 'subtitle' => 'Chaque visage est important à nos yeux.'],
 ]);
@@ -226,8 +226,7 @@ define('SUIVI_FIELDS', [
     ['key' => 'themeReverend',  'label' => 'Thème - Prédication du Révérend écoutée', 'type' => 'text'],
     ['key' => 'visites',        'label' => 'Personne(s) visitée(s) en semaine', 'type' => 'text'],
     ['key' => 'invitesDimanche', 'label' => 'Personne(s) invitée(s) pour dimanche', 'type' => 'text'],
-    ['key' => 'invitesApres',   'label' => 'Invité(s) après le culte / deep sea fishing', 'type' => 'text', 'sundayOnly' => true],
-    ['key' => 'mixlr',        'label' => 'Diffusion Mixlr (lien ou statut)', 'type' => 'text', 'sundayOnly' => true],
-    ['key' => 'ushers',       'label' => "Nombre d'ushers", 'type' => 'number', 'sundayOnly' => true],
-    ['key' => 'themeSemaine', 'label' => 'Thème de la semaine', 'type' => 'text', 'optional' => true],
+    ['key' => 'invitesApres',   'label' => 'Invité(s) après le culte / deep sea fishing', 'type' => 'text', 'sundayOnly' => false],
+    ['key' => 'mixlr',        'label' => 'Diffusion Mixlr (lien ou statut)', 'type' => 'text', 'sundayOnly' => false],
+    ['key' => 'joursjeune', 'label' => 'Jour(s) de jeune', 'type' => 'number', 'optional' => true], // themeSemaine remplacé par joursjeune (plus précis) dans le suivi hebdo. des bergers
 ]);
