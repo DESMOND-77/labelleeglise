@@ -324,11 +324,11 @@ function seed(): void
     /* ---------- 9. Présentation CMS ---------- */
     $pdo->prepare('INSERT INTO presentation (accroche, histoire) VALUES (?, ?)')->execute([
         'Une famille de foi au cœur de Franceville, tournée vers l\'excellence et le service.',
-        'Fondée avec la vision de bâtir une église vivante et accueillante, La Belle Église rassemble aujourd\'hui plusieurs centres, bacentas, basontas et cultes autour d\'un même objectif : faire grandir chacun dans la foi, la communion fraternelle et le service.',
+        'Fondée avec la vision de bâtir une église vivante et accueillante, La Belle Église Intenationale Franceville rassemble aujourd\'hui plusieurs centres, bacentas, basontas et cultes autour d\'un même objectif : faire grandir chacun dans la foi, la communion fraternelle et le service.',
     ]);
 
     $equipe = [
-        ['nom' => 'Rév. Jean-Pierre Moussavou', 'role' => 'Révérend Principal', 'categorie' => 'Révérend', 'bio' => 'À la tête de l\'église depuis sa fondation, il porte la vision spirituelle de La Belle Église.', 'emoji' => '🙏'],
+        ['nom' => 'Rév. Jean-Pierre Moussavou', 'role' => 'Révérend Principal', 'categorie' => 'Révérend', 'bio' => 'À la tête de l\'église depuis sa fondation, il porte la vision spirituelle de La Belle Église Intenationale Franceville.', 'emoji' => '🙏'],
         ['nom' => 'Pasteure Grace Ondo', 'role' => 'Pasteure', 'categorie' => 'Pasteur', 'bio' => 'En charge de l\'accompagnement pastoral et du suivi des bacentas.', 'emoji' => '✝️'],
         ['nom' => 'Steve Koumba', 'role' => 'Leader Akwaba', 'categorie' => 'Leader', 'bio' => 'Responsable de l\'accueil et de l\'intégration des nouveaux membres.', 'emoji' => '🌟'],
     ];
@@ -343,7 +343,7 @@ function seed(): void
         'Rassemblement de chrétiens communiant chaque mercredi dans la prière, l\'adoration et la parole de Dieu au campus universitaire. Jeunesse talentueuse, zélée et passionnée.',
         'Sauver les âmes et former les saints en vue de l\'œuvre du Seigneur (Éphésiens 4:11-12).',
         'Dirigé par un Pasteur étudiant, le Pasteur Joas NZIENGUI, accompagné de plusieurs bergers et leaders actifs.',
-        'Extension de La Belle Église Internationale Franceville, lancée par le Révérend Crowl MILAGUE.',
+        'Extension de La Belle Église Intenationale Franceville Internationale Franceville, lancée par le Révérend Crowl MILAGUE.',
         json_encode(['Devenir une église First Love', 'Rassembler 150 personnes cette année',
                      'Implanter 10 bacentas sur le campus et 10 en extérieur', 'Développer de méga basontas'], JSON_UNESCAPED_UNICODE),
         4, 1, 3, 7, 10,

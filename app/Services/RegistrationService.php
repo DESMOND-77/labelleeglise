@@ -265,9 +265,9 @@ class RegistrationService
             $this->mail->send(
                 $user['email'],
                 trim(($user['prenom'] ?? '') . ' ' . ($user['nom'] ?? '')),
-                'Votre inscription - La Belle Église',
+                'Votre inscription - La Belle Église Intenationale Franceville',
                 '<p>Bonjour ' . htmlspecialchars($user['prenom'] ?? '', ENT_QUOTES, 'UTF-8') . ',</p>'
-                . '<p>Votre demande d\'inscription n\'a pas pu être validée par l\'administration de La Belle Église.</p>'
+                . '<p>Votre demande d\'inscription n\'a pas pu être validée par l\'administration de La Belle Église Intenationale Franceville.</p>'
                 . '<p>Pour toute question, contactez l\'église.</p>'
             );
         } catch (\Throwable $e) {

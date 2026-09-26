@@ -1,7 +1,7 @@
 <?php /* À propos. Variables : $p, $isAdmin, $groups, $editHistoireUrl, $addTeamUrl. */ ?>
 <div class="about-hero">
   <div class="logo-badge"><i class="fa-solid fa-church"></i></div>
-  <h2>La Belle Église</h2>
+  <h2>La Belle Église Intenationale Franceville</h2>
   <p><?= h($p['accroche'] ?? '') ?></p>
 </div>
 

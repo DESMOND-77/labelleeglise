@@ -6,7 +6,7 @@
     <?= $extra ?>
     <div class="form-group">
       <label>Nom</label>
-      <input type="text" name="name" value="<?= h($name) ?>" required autofocus>
+      <input type="text" name="nom" value="<?= h($name) ?>" required autofocus>
     </div>
     <div class="modal-actions">
       <a class="btn btn-outline" href="<?= h($cancelUrl) ?>">Annuler</a>

@@ -40,12 +40,12 @@ class CMSRepository
         if ($id) {
             Query::run(
                 'UPDATE equipe SET nom_affichage = ?, role_affichage = ?, bio = ?, emoji = ?, categorie = ?, photo = COALESCE(?, photo) WHERE id = ?',
-                [$data['nom'], $data['role'], $data['bio'], $data['emoji'], $data['categorie'], $data['photo'], $id]
+                [$data['nom_affichage'], $data['role_affichage'], $data['bio'], $data['emoji'], $data['categorie'], $data['photo'], $id]
             );
         } else {
             Query::run(
                 'INSERT INTO equipe (nom_affichage, role_affichage, bio, emoji, categorie, photo) VALUES (?, ?, ?, ?, ?, ?)',
-                [$data['nom'], $data['role'], $data['bio'], $data['emoji'], $data['categorie'], $data['photo']]
+                [$data['nom_affichage'], $data['role_affichage'], $data['bio'], $data['emoji'], $data['categorie'], $data['photo']]
             );
         }
     }

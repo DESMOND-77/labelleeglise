@@ -15,7 +15,7 @@ $cls = ['present' => 'presence-cell-present', 'absent' => 'presence-cell-absent'
       <label>Année <input type="number" name="year" value="<?= (int) $year ?>" min="2000" max="2100" onchange="this.form.submit()"></label>
     </form>
     <a class="btn btn-outline" href="<?= h($occUrl) ?>"><i class="fa-solid fa-clipboard-check"></i> Pointer une date</a>
-    <a class="btn btn-primary" href="<?= h($printUrl) ?>" target="_blank" rel="noopener"><i class="fa-solid fa-print"></i> Imprimer</a>
+    <a class="btn btn-primary" href="<?= h($printUrl) ?>" target="_blank" rel="noopener" onclick="window.open(this.href, '_blank', 'noopener'); return false;"><i class="fa-solid fa-print"></i> Imprimer</a>
   </div>
 </div>
 

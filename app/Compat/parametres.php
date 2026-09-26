@@ -146,6 +146,7 @@ function parametres_acces(): string
     }
     $centerRows = $centerRows ?: '<tr><td colspan="3">' . empty_state('fa-inbox', 'Aucun centre.') . '</td></tr>';
 
+    // Bacentas
     $bacRows = '';
     foreach (get_bacentas() as $b) {
         $label = $b['nom'] . ($b['centre_nom'] ? ' - ' . $b['centre_nom'] : '');
@@ -153,23 +154,33 @@ function parametres_acces(): string
     }
     $bacRows = $bacRows ?: '<tr><td colspan="3">' . empty_state('fa-inbox', 'Aucun bacenta.') . '</td></tr>';
 
+    // Cultes
     $culRows = '';
     foreach (get_cultes() as $c) {
         $culRows .= responsibility_target_row_html('cult', (int) $c['id'], $c['nom']);
     }
     $culRows = $culRows ?: '<tr><td colspan="3">' . empty_state('fa-inbox', 'Aucun culte.') . '</td></tr>';
 
+    // Basontas
     $basRows = '';
     foreach (get_basontas() as $b) {
         $basRows .= responsibility_target_row_html('basonta', (int) $b['id'], $b['nom']);
     }
     $basRows = $basRows ?: '<tr><td colspan="3">' . empty_state('fa-inbox', 'Aucun basonta.') . '</td></tr>';
 
+    // Classes
     $classeRows = '';
     foreach (classe_service()->all() as $classe) {
         $classeRows .= responsibility_target_row_html('classe', (int) $classe['id'], (string) $classe['nom']);
     }
     $classeRows = $classeRows ?: '<tr><td colspan="3">' . empty_state('fa-inbox', 'Aucune classe.') . '</td></tr>';
+
+    // // Bus
+    // $busRows = '';
+    // foreach (bus_budget_service()->all() as $bugetBus) {
+    //     $busRows .= responsibility_target_row_html('classe', (int) $bugetBus['id'], (string) $bugetBus['nom']);
+    // }
+    // $busRows = $busRows ?: '<tr><td colspan="3">' . empty_state('fa-inbox', 'Aucun bus.') . '</td></tr>';
 
     $section = function (string $title, string $sub, string $rows) {
         return '<div class="dash-section-title"><h2>' . h($title) . '</h2><span>' . h($sub) . '</span></div>'
@@ -180,6 +191,7 @@ function parametres_acces(): string
         . $section('Responsables de bacentas', 'Éligibles : Berger, MS, Pasteur (hérite aussi du centre - voir périmètre)', $bacRows)
         . $section('Responsables de cultes', 'Éligibles : Pasteur, Révérend uniquement', $culRows)
         . $section('Responsables de basontas', 'Éligibles : Berger, MS, Pasteur', $basRows)
+        // . $section('Responsables de Budget Bus', 'Éligibles : Berger, MS, Pasteur, Révérend', $busRows)
         . $section('Responsables de classes', 'Éligibles : Berger, MS, Pasteur, Révérend', $classeRows);
 
     return section_toolbar('Accès & Responsables', 'Responsables des centres, bacentas, cultes et basontas') . $html;

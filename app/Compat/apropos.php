@@ -93,16 +93,15 @@ function render_centres_presentation_page(): void
     if ($form === 'article') {
         $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
         $c = $id ? get_centre_article($id) : null;
-        $centreOpts = '';
+        $centreOpts = '<option value="">----</option>';
         foreach (get_centres() as $ct) {
-            $centreOpts .= '<option value="' . $ct['id'] . '"'
-                . (($c && (int) $c['centre_id'] === (int) $ct['id']) || (!$c && !isset($ct)) ? ' selected' : '')
-                . '>' . h($ct['nom']) . '</option>';
+            $centreOpts .= '<option value="' . $ct['id'] . '">' . h($ct['nom']) . '</option>';
         }
         $content = view('pages/forms/article', [
             'article'    => $c,
             'isNew'      => !$c,
             'centreOpts' => $centreOpts,
+            'centres'=> get_centres(),
             'cancelUrl'  => url('index.php', ['page' => 'centresPresentation']),
             'csrf'       => csrf_field(),
         ]);
@@ -138,8 +137,10 @@ function render_centres_presentation_page(): void
         $intro = (string) ($c['intro'] ?? '');
         $sub = function_exists('mb_substr') ? mb_substr($intro, 0, 90) : substr($intro, 0, 90);
         $sub .= (function_exists('mb_strlen') ? mb_strlen($intro) : strlen($intro)) > 90 ? '…' : '';
+        $photoHtml = !empty($c['photo']) ? '<img src="' . h($c['photo']) . '" class="centre-resp-photo" alt="' . h($c['centre_nom']) . '">'
+    : '<div class="centre-resp-photo placeholder"><i class="fa-solid fa-school"></i></div>';
         $cards .= '<div class="unit-card" onclick="location.href=\'' . h(url('index.php', ['page' => 'centresPresentation', 'id' => $c['id']])) . '\'">'
-            . $actions . '<div class="icon-wrap"><i class="fa-solid fa-school"></i></div><h3>' . h($c['centre_nom']) . '</h3><p>' . h($sub) . '</p></div>';
+            . $actions . $photoHtml . '<h3>' . h($c['centre_nom']) . '</h3><p>' . h($sub) . '</p></div>';
     }
     $addCard = $isAdmin
         ? '<a class="unit-card add-card" href="' . h(url('index.php', ['page' => 'centresPresentation', 'form' => 'article'])) . '"><div class="plus">+</div> Ajouter un article</a>'

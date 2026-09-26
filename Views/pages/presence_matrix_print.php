@@ -42,7 +42,8 @@
       <tbody>
         <?php foreach ($matrix['rows'] as $row): ?>
           <tr><td><?= h(full_name($row['user'])) ?></td>
-            <?php foreach ($matrix['dates'] as $d): $s = $row['cells'][$d] ?? ''; ?>
+            <?php foreach ($matrix['dates'] as $d): ?>
+              <?php $s = $row['cells'][$d] ?? ''; ?>
               <td><?= $s ? h(mb_substr($statuts[$s], 0, 1)) : '-' ?></td>
             <?php endforeach; ?>
           </tr>

@@ -70,7 +70,8 @@ class RbacService
                 // Responsabilités réelles (table `responsibilities`), en plus
                 // du verrouillage historique sur la bacenta d'appartenance.
                 'responsible_center_ids'  => $this->responsibilities->centerIdsFor($userId),
-                'responsible_bacenta_ids' => $this->responsibilities->allAccessibleBacentaIds($userId),
+                'responsible_bacenta_ids' => $this->responsibilities->allAccessibleBacentaIds($userId) ,
+                'responsible_basonta_ids' => $this->responsibilities->basontaIdsFor($userId),
                 'responsible_cult_ids'    => $this->responsibilities->cultIdsFor($userId),
             ];
         }
@@ -102,9 +103,9 @@ class RbacService
             // fiche + suivi personnels toujours visibles pour ces rôles.
             $sections = ['apropos', 'centresPresentation', 'bergerFiche', 'suiviBergers'];
             // Bacenta d'appartenance (comportement historique préservé).
-            if ($scope['bacenta_id']) {
-                $sections[] = 'bacentas';
-            }
+            // if ($scope['bacenta_id']) {
+            //     $sections[] = 'bacentas';
+            // }
             // §17/§23 : responsabilité réelle (table `responsibilities`) →
             // accès aux sections de gestion correspondantes.
             if (!empty($scope['responsible_bacenta_ids']) && !in_array('bacentas', $sections, true)) {

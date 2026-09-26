@@ -92,7 +92,7 @@ class MailService
 
             $mail->setFrom(
                 (string) ($this->config['from_address'] ?? 'no-reply@labelleeglise.ga'),
-                (string) ($this->config['from_name'] ?? 'La Belle Église')
+                (string) ($this->config['from_name'] ?? 'La Belle Église Intenationale Franceville')
             );
             $mail->addAddress($toEmail, $toName);
             $mail->isHTML(true);
@@ -140,12 +140,12 @@ class MailService
             'user'          => $user,
             'verifyUrl'     => $verifyUrl,
             'expiresHours'  => $expiresHours,
-            'appName'       => defined('APP_NAME') ? APP_NAME : 'La Belle Église',
+            'appName'       => defined('APP_NAME') ? APP_NAME : 'La Belle Église Intenationale Franceville',
         ]);
         return $this->send(
             $user['email'],
             trim(($user['prenom'] ?? '') . ' ' . ($user['nom'] ?? '')),
-            'Vérifiez votre adresse email - La Belle Église',
+            'Vérifiez votre adresse email - La Belle Église Intenationale Franceville',
             $html
         );
     }
@@ -156,12 +156,12 @@ class MailService
             'admin'     => $admin,
             'user'      => $user,
             'reviewUrl' => $reviewUrl,
-            'appName'   => defined('APP_NAME') ? APP_NAME : 'La Belle Église',
+            'appName'   => defined('APP_NAME') ? APP_NAME : 'La Belle Église Intenationale Franceville',
         ]);
         return $this->send(
             $admin['email'],
             trim(($admin['prenom'] ?? '') . ' ' . ($admin['nom'] ?? '')),
-            'Nouvelle inscription à valider - La Belle Église',
+            'Nouvelle inscription à valider - La Belle Église Intenationale Franceville',
             $html
         );
     }
@@ -171,12 +171,12 @@ class MailService
         $html = View::render('emails/account-activated', [
             'user'     => $user,
             'loginUrl' => $loginUrl,
-            'appName'  => defined('APP_NAME') ? APP_NAME : 'La Belle Église',
+            'appName'  => defined('APP_NAME') ? APP_NAME : 'La Belle Église Intenationale Franceville',
         ]);
         return $this->send(
             $user['email'],
             trim(($user['prenom'] ?? '') . ' ' . ($user['nom'] ?? '')),
-            'Votre compte La Belle Église est activé',
+            'Votre compte La Belle Église Intenationale Franceville est activé',
             $html
         );
     }
@@ -189,12 +189,12 @@ class MailService
             'newEmail'     => $newEmail,
             'verifyUrl'    => $verifyUrl,
             'expiresHours' => $expiresHours,
-            'appName'      => defined('APP_NAME') ? APP_NAME : 'La Belle Église',
+            'appName'      => defined('APP_NAME') ? APP_NAME : 'La Belle Église Intenationale Franceville',
         ]);
         return $this->send(
             $newEmail,
             trim(($user['prenom'] ?? '') . ' ' . ($user['nom'] ?? '')),
-            'Confirmez votre nouvelle adresse email - La Belle Église',
+            'Confirmez votre nouvelle adresse email - La Belle Église Intenationale Franceville',
             $html
         );
     }
@@ -205,12 +205,12 @@ class MailService
         $html = View::render('emails/email-changed-notice', [
             'user'     => $user,
             'oldEmail' => $oldEmail,
-            'appName'  => defined('APP_NAME') ? APP_NAME : 'La Belle Église',
+            'appName'  => defined('APP_NAME') ? APP_NAME : 'La Belle Église Intenationale Franceville',
         ]);
         return $this->send(
             $oldEmail,
             trim(($user['prenom'] ?? '') . ' ' . ($user['nom'] ?? '')),
-            'Votre adresse email a été modifiée - La Belle Église',
+            'Votre adresse email a été modifiée - La Belle Église Intenationale Franceville',
             $html
         );
     }

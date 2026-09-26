@@ -19,21 +19,21 @@ $navLis = [];
 if ($scope && $scope['kind'] === 'berger') {
     $navLis[] = '<li><a class="nav-item' . ($page === 'bergerFiche' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'bergerFiche', 'membre' => $scope['user_id']])) . '"><span class="ico"><i class="fa-solid fa-clipboard-list"></i></span><span class="label">Ma fiche berger</span></a></li>';
     $navLis[] = '<li><a class="nav-item' . ($page === 'suiviBergers' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'suiviBergers', 'membre' => $scope['user_id']])) . '"><span class="ico"><i class="fa-solid fa-calendar-days"></i></span><span class="label">Mon suivi hebdomadaire</span></a></li>';
-    if ($scope['bacenta_id']) {
-        $grp = get_bacenta($scope['bacenta_id']);
-        $navLis[] = '<li><a class="nav-item' . ($page === 'bacentas' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'bacentas', 'id' => $scope['bacenta_id']])) . '"><span class="ico"><i class="fa-solid fa-church"></i></span><span class="label">Mon Bacenta - ' . h($grp['nom'] ?? '') . '</span></a></li>';
-    }
+
     // Responsabilités réelles (table `responsibilities`, spec §17) : liens
     // additifs vers les sections de gestion correspondantes, indépendants
     // du rôle lui-même (ROLE ≠ RESPONSABILITÉ).
     if (!empty($scope['responsible_center_ids'])) {
         $navLis[] = '<li><a class="nav-item' . ($page === 'centres' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'centres'])) . '"><span class="ico"><i class="fa-solid fa-landmark"></i></span><span class="label">Mes centres</span></a></li>';
     }
-    if (!empty($scope['responsible_bacenta_ids']) && !$scope['bacenta_id']) {
-        $navLis[] = '<li><a class="nav-item' . ($page === 'bacentas' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'bacentas'])) . '"><span class="ico"><i class="fa-solid fa-church"></i></span><span class="label">Mes bacentas</span></a></li>';
+    if (!empty($scope['responsible_bacenta_ids'])) {
+        $navLis[] = '<li><a class="nav-item' . ($page === 'bacentas' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'bacentas'])) . '"><span class="ico">' . SECTION_ICONS['bacentas'] . '</span><span class="label">Mes bacentas</span></a></li>';
+    }
+    if (!empty($scope['responsible_basonta_ids'])) {
+        $navLis[] = '<li><a class="nav-item' . ($page === 'basontas' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'basontas'])) . '"><span class="ico">' . SECTION_ICONS['basontas'] . '</span><span class="label">Mes basontas</span></a></li>';
     }
     if (!empty($scope['responsible_cult_ids'])) {
-        $navLis[] = '<li><a class="nav-item' . ($page === 'cultes' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'cultes'])) . '"><span class="ico"><i class="fa-solid fa-hands-praying"></i></span><span class="label">Mes cultes</span></a></li>';
+        $navLis[] = '<li><a class="nav-item' . ($page === 'cultes' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'cultes'])) . '"><span class="ico">' . SECTION_ICONS['cultes'] . '</span><span class="label">Mes cultes</span></a></li>';
     }
 } elseif ($scope && $scope['kind'] === 'responsable') {
     $target = scope_target();
@@ -174,10 +174,10 @@ if (in_array($page, ['bacentas', 'cultes', 'basontas'], true) && nav('id')) {
       <i class="fa-solid fa-chevron-left"></i>
     </button>
     <div class="brand">
-      <div class="brand-logo"><img src="/assets/images/logo.png" alt="La Belle Église Internationale Franceville"></div>
+      <div class="brand-logo"><img src="/assets/images/logo.png" alt="La Belle Église Intenationale Franceville Internationale Franceville"></div>
       <div class="brand-text">
         <strong><?= h(APP_NAME) ?></strong>
-        <span>Gestion des membres</span>
+        <span><?= h(APP_LOCATION) ?></span>
       </div>
     </div>
     <nav class="side-nav" aria-label="Navigation principale">

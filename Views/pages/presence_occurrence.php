@@ -1,11 +1,11 @@
 <?php /* Pointage de présence d'une occurrence (bacenta / basonta / culte).
-   Variables : $unitType, $unit, $pageKey, $date, $grid, $summary, $statuts, $joursHint, $csrf, $matrixUrl. */ ?>
+   Variables : $unitType, $unit, $pageKey, $date, $grid, $summary, $statuts, $joursHint, $csrf, $printUrl. */ ?>
 <div class="section-toolbar">
   <div>
     <h2><?= h($unit['nom']) ?></h2>
     <div class="sub">Pointage des présences - une date</div>
   </div>
-  <a class="btn btn-outline" href="<?= h($matrixUrl) ?>"><i class="fa-solid fa-table-cells"></i> Matrice annuelle</a>
+  <a class="btn btn-outline" href="<?= h($printUrl) ?>" target="_blank" rel="noopener" onclick="window.open(this.href, '_blank', 'noopener'); return false;"><i class="fa-solid fa-table-cells"></i> Matrice annuelle</a>
 </div>
 
 <?= view('pages/partials/attendance_pointage', [

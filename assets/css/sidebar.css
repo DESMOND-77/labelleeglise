@@ -44,6 +44,8 @@
 
 .brand-text {
   display: flex;
+  align-items: center;
+  gap: 2px;
   flex-direction: column;
   line-height: 1.25;
   white-space: nowrap;

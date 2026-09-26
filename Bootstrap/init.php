@@ -90,8 +90,9 @@ require_once APP_PATH . '/app/Compat/notifications.php';
 // 7. Session.
 \App\Core\Session::start($appConfig['session_name'] ?? null);
 
-// 7. Constantes publiques d'application (APP_NAME, APP_URL, UPLOAD_DIR…).
+// 7. Constantes publiques d'application (APP_NAME,APP_LOCATION, APP_URL, UPLOAD_DIR…).
 define('APP_NAME', $appConfig['name'] ?? 'La Belle Église');
+define('APP_LOCATION', $appConfig['location'] ?? 'Franceville');
 // APP_URL est concaténée telle quelle devant les chemins relatifs (url(),
 // redirect() : `APP_URL . 'index.php' . $query`) : on normalise donc pour
 // tolérer une valeur .env incomplète (ex. `192.168.1.102:3000` sans schéma,

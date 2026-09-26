@@ -1,5 +1,5 @@
 /* ========================================================
-   La Belle Église - app.js (léger)
+   La Belle Église Intenationale Franceville - app.js (léger)
    Graphiques Chart.js, carrousel, confirmations.
    ======================================================== */
 

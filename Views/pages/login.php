@@ -34,7 +34,7 @@ $errorMessage = $error ? ($errorMessages[$error] ?? $errorMessages['invalid']) :
     <form class="login-card" method="post" action="index.php" novalidate>
       <input type="hidden" name="action" value="login">
       <?= csrf_field() ?>
-      <div class="login-logo"><img src="/assets/images/logo.png" alt="La Belle Église Internationale Franceville"></div>
+      <div class="login-logo"><img src="/assets/images/logo.png" alt="La Belle Église Intenationale Franceville Internationale Franceville"></div>
       <h1><?= h(APP_NAME) ?></h1>
       <p class="login-sub">Plateforme de gestion des membres, bacentas, centres et finances</p>
 

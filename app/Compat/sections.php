@@ -262,6 +262,7 @@ function render_unit_presence_tab(string $unitType, string $pageKey, array $unit
         'joursHint' => $joursHint,
         'csrf'      => csrf_field(),
         'matrixUrl' => url('index.php', ['page' => $pageKey, 'id' => $unitId, 'tab' => 'presences_annuel']),
+        'printUrl'  => url('index.php', ['page' => 'presencePrint', 'unit_type' => $unitType, 'unit_id' => $unitId, 'year' => (int) substr($date, 0, 4)])
     ]));
 }
 
@@ -277,6 +278,7 @@ function render_presence_matrix_print_page(): void
     $unitType = (string) (nav('unit_type') ?? '');
     $unitId = (int) (nav('unit_id') ?? 0);
     if (!in_array($unitType, ['bacenta', 'cult', 'basonta'], true) || !$unitId || !can_manage_entity($unitType, $unitId)) {
+        echo('console.log("no access")');
         redirect('index.php', ['page' => 'accueil']);
     }
     $year = (int) (nav('year') ?: date('Y'));
@@ -296,6 +298,7 @@ function render_presence_matrix_print_page(): void
         'matrix'    => unit_annual_matrix($unitType, $unitId, $year, $members),
         'statuts'   => PRESENCE_STATUTS,
         'printedAt' => date('d/m/Y à H:i'),
+        'autoPrint' => nav('autoprint') === '1',
     ]);
 }
 
@@ -736,9 +739,6 @@ function render_bacenta_form(): void
     $centres = get_centres();
 
     $centreOpts = '';
-    foreach ($centres as $c) {
-        $centreOpts .= '<option value="' . $c['id'] . '"' . ($b && (int) $b['centre_id'] === (int) $c['id'] ? ' selected' : '') . '>' . h($c['nom']) . '</option>';
-    }
 
     // Le responsable n'est plus assignable depuis ce formulaire : c'est une
     // RESPONSABILITÉ (table `responsibilities`), gérée exclusivement depuis

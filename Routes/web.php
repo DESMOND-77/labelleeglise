@@ -51,7 +51,7 @@ Router::get('bacentas', SectionController::class, 'index');
 Router::get('centres', SectionController::class, 'index');
 Router::get('cultes', SectionController::class, 'index');
 Router::get('basontas', SectionController::class, 'index');
-Router::get('nouveaux', SectionController::class, 'index');
+// Router::get('nouveaux', SectionController::class, 'index');
 Router::get('generale', SectionController::class, 'index');
 Router::get('bergers', SectionController::class, 'index');
 
