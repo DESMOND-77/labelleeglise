@@ -1,7 +1,7 @@
 <<<<<<< HEAD
-# Spec maître — Intégration des 7 modules « La Belle Église »
+# Spec maître — Intégration des 7 modules « La Belle Église Intenationale Franceville »
 =======
-# Spec maître - Intégration des 7 modules « La Belle Église »
+# Spec maître - Intégration des 7 modules « La Belle Église Intenationale Franceville »
 >>>>>>> to-prod
 
 - **Date** : 2026-09-01

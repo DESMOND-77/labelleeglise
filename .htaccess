@@ -1,5 +1,5 @@
 # ============================================================
-# La Belle Église - sécurité Apache (racine du projet = racine web)
+# La Belle Église Intenationale Franceville - sécurité Apache (racine du projet = racine web)
 # ------------------------------------------------------------
 # Ce projet ne pointe pas la racine web vers un dossier public/
 # séparé (compatibilité hébergement mutualisé - voir ARCHITECTURE.md) :

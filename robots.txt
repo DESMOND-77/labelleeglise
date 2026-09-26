@@ -1,4 +1,4 @@
-# La Belle Église - robots.txt
+# La Belle Église Intenationale Franceville - robots.txt
 # ------------------------------------------------------------
 # IMPORTANT : la quasi-totalité des pages (?page=bacentas, ?page=finances,
 # ?page=parametres…) exige une session authentifiée (voir index.php) :
