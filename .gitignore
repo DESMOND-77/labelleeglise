@@ -8,6 +8,7 @@
 prompts/
 logs/
 graphify-out
+.vscode/
 
 # Scripts d'assertion jetables (vérification manuelle - jamais versionnés)
 tmp/

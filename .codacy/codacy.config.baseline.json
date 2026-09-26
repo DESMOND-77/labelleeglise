@@ -6,15 +6,17 @@
     "organization": "DESMOND-77",
     "repositoryId": "895083",
     "repositoryName": "labelleeglise",
-    "createdAt": "2026-09-18T13:35:36.707Z",
-    "updatedAt": "2026-09-18T13:35:36.707Z",
+    "createdAt": "2026-09-25T21:30:36.074Z",
+    "updatedAt": "2026-09-25T21:30:36.074Z",
     "languages": [
       "CSS",
       "Javascript",
       "JSON",
       "Markdown",
       "PHP",
-      "XML"
+      "Shell",
+      "XML",
+      "YAML"
     ]
   },
   "tools": [
@@ -503,6 +505,83 @@
             "showClassesComplexity": "true",
             "showMethodsComplexity": "true"
           }
+        }
+      ]
+    },
+    {
+      "toolId": "shellcheck",
+      "patterns": [
+        {
+          "patternId": "shellcheck_SC2156"
+        },
+        {
+          "patternId": "shellcheck_SC2092"
+        },
+        {
+          "patternId": "shellcheck_SC2115"
+        },
+        {
+          "patternId": "shellcheck_SC2035"
+        },
+        {
+          "patternId": "shellcheck_SC2086"
+        },
+        {
+          "patternId": "shellcheck_SC2025"
+        },
+        {
+          "patternId": "shellcheck_SC2148"
+        },
+        {
+          "patternId": "shellcheck_SC2029"
+        },
+        {
+          "patternId": "shellcheck_SC2016"
+        },
+        {
+          "patternId": "shellcheck_SC2001"
+        },
+        {
+          "patternId": "shellcheck_SC2024"
+        },
+        {
+          "patternId": "shellcheck_SC2028"
+        },
+        {
+          "patternId": "shellcheck_SC2004"
+        },
+        {
+          "patternId": "shellcheck_SC2002"
+        },
+        {
+          "patternId": "shellcheck_SC2026"
+        },
+        {
+          "patternId": "shellcheck_SC2033"
+        },
+        {
+          "patternId": "shellcheck_SC2015"
+        },
+        {
+          "patternId": "shellcheck_SC2034"
+        },
+        {
+          "patternId": "shellcheck_SC2020"
+        },
+        {
+          "patternId": "shellcheck_SC2027"
+        },
+        {
+          "patternId": "shellcheck_SC2036"
+        },
+        {
+          "patternId": "shellcheck_SC2003"
+        },
+        {
+          "patternId": "shellcheck_SC2031"
+        },
+        {
+          "patternId": "shellcheck_SC2022"
         }
       ]
     },
@@ -8068,5 +8147,8 @@
       ]
     }
   ],
-  "exclude": []
+  "exclude": [
+    "assets/vendor/fontawesome/css/all.min.css",
+    "assets/vendor/fonts/inter.css"
+  ]
 }

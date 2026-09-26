@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-"La Belle Église" - a server-side-rendered PHP church-management app. Custom
+"La Belle Église Intenationale Franceville" - a server-side-rendered PHP church-management app. Custom
 micro-framework inspired by Laravel/Clean Architecture, but **zero external
 dependencies**: no Composer, no CLI/artisan, no build step, no npm. Must remain
 deployable by copying the folder onto any PHP+MySQL/MariaDB shared host. Do not

@@ -1,7 +1,7 @@
 {
-  "name": "La Belle Église",
+  "name": "La Belle Église Intenationale Franceville",
   "short_name": "LBEGF",
-  "description": "Plateforme de gestion des membres, bacentas, centres et finances de La Belle Église.",
+  "description": "Plateforme de gestion des membres, bacentas, centres et finances de La Belle Église Intenationale Franceville.",
   "start_url": "/index.php",
   "display": "standalone",
   "background_color": "#ffffff",

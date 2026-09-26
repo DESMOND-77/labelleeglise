@@ -1,4 +1,4 @@
-# Refonte Architecturale - La Belle Église
+# Refonte Architecturale - La Belle Église Intenationale Franceville
 
 Objectif : transformer le projet en architecture modulaire (Laravel-inspired)
 100% compatible hébergement mutualisé (sans Composer, sans CLI, sans installation).

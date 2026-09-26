@@ -1,4 +1,4 @@
-# ⛪ La Belle Église - Application PHP modulaire
+# ⛪ La Belle Église Intenationale Franceville - Application PHP modulaire
 
 Application **PHP** (server-side rendering) de gestion d'église, construite sur un
 **modèle de données MySQL/MariaDB**. Ce projet a été réorganisé selon une
