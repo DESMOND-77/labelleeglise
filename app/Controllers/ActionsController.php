@@ -166,14 +166,14 @@ class ActionsController extends Controller
                 $this->redirect('index.php', ['page' => 'basontas']);
                 break;
 
-            case 'delete_membre':
+            case 'bacenta_remove_member':
                 $this->requireUser();
                 $id = (int) ($_GET['id'] ?? 0);
                 $section = (string) nav('page');
                 // IDOR (spec §12/§40) : remonte la chaîne membre → bacenta →
                 // centre côté serveur ; jamais de confiance dans l'id seul.
                 if ($id && auth_can_manage_member($id)) {
-                    delete_user($id);
+                    bacenta_remove_member($id);
                 }
                 redirect_members_context($section);
                 break;

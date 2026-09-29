@@ -96,7 +96,10 @@ class BacentaRepository
     {
         Query::run('UPDATE users SET bacenta_id = ? WHERE id = ?', [$bacentaId, $userId]);
     }
-
+    public function removeMember(int $userId): void
+    {
+    Query::run('UPDATE users SET bacenta_id = NULL WHERE id = ? ', [$userId]);
+    }
     /** Table basontas/cultes par type (responsable). */
     public function entityForResponsible(string $type, array $scope): array
     {

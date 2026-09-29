@@ -37,6 +37,7 @@ function save_bacenta(?int $id, string $nom, ?int $centreId, ?int $respId, ?stri
         _repo(BacentaRepository::class)->create($nom, $centreId, $respId, $jours, $debut, $fin);
     }
 }
+function bacenta_remove_member(int $id): void { _repo(BacentaRepository::class)->removeMember($id); }
 
 /* ---------- Cultes ---------- */
 
