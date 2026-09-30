@@ -87,9 +87,9 @@ class MemberRepository
         return Query::all(
             "SELECT id, prenom, nom FROM users
               WHERE id NOT IN (SELECT user_id FROM users_basontas WHERE basonta_id = ?)
-                AND role IN ('membre','leader','assistant','pasteur','reverant')
+                AND role IN (?,?,?,?,?,?)
               ORDER BY prenom, nom",
-            [$basontaId]
+            [$basontaId,'membre','leader','assistant','pasteur','reverant','berger']
         );
     }
 

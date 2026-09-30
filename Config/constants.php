@@ -37,7 +37,7 @@ define('ROLE_LABELS', [
  * - WEEKLY_FOLLOWUP_ROLES : rôles disposant de la permission
  *   `weekly_followup.manage_own` (admin inclus : accès global en lecture).
  */
-define('BERGER_ROLES', ['leader', 'pasteur', 'reverant', 'berger', 'ms']);
+define('BERGER_ROLES', ['pasteur', 'reverant', 'berger', 'ms']);
 define('CENTER_BACENTA_RESPONSIBILITY_ROLES', ['berger', 'ms', 'pasteur']);
 define('CULT_RESPONSIBILITY_ROLES', ['pasteur', 'reverant']);
 define('WEEKLY_FOLLOWUP_ROLES', ['admin', 'pasteur', 'reverant', 'berger', 'ms', 'leader']);

@@ -278,7 +278,6 @@ function render_presence_matrix_print_page(): void
     $unitType = (string) (nav('unit_type') ?? '');
     $unitId = (int) (nav('unit_id') ?? 0);
     if (!in_array($unitType, ['bacenta', 'cult', 'basonta'], true) || !$unitId || !can_manage_entity($unitType, $unitId)) {
-        echo('console.log("no access")');
         redirect('index.php', ['page' => 'accueil']);
     }
     $year = (int) (nav('year') ?: date('Y'));
@@ -286,7 +285,10 @@ function render_presence_matrix_print_page(): void
     [$unit, $members] = match ($unitType) {
         'bacenta' => [get_bacenta($unitId), get_members_of_bacenta($unitId)],
         'basonta' => [get_basonta($unitId), get_members_of_basonta($unitId)],
-        'cult'    => [get_culte($unitId), Query::all("SELECT * FROM users WHERE role IN ('membre','leader','assistant','pasteur','reverant') ORDER BY prenom, nom")],
+        'cult'    => [get_culte($unitId), Query::all(
+            'SELECT * FROM users WHERE role IN (?, ?, ?, ?, ?) ORDER BY prenom, nom',
+            ['membre', 'leader', 'assistant', 'pasteur', 'reverant']
+        )],
     };
     if (!$unit) {
         redirect('index.php', ['page' => 'accueil']);
@@ -457,7 +459,10 @@ function render_culte_detail(int $culteId): void
     // SP-3 : plus d'onglet « Pointage rapide ». Le culte est un simple type
     // d'occurrence : sa fiche = pointage par occurrence (composant SP-2) +
     // matrice annuelle (bouton du composant).
-    $culteMembers = Query::all("SELECT * FROM users WHERE role IN ('membre','leader','assistant','pasteur','reverant') ORDER BY prenom, nom");
+    $culteMembers = Query::all(
+        'SELECT * FROM users WHERE role IN (?, ?, ?, ?, ?) ORDER BY prenom, nom',
+        ['membre', 'leader', 'assistant', 'pasteur', 'reverant']
+    );
     $tab = nav('tab');
     $tab = in_array($tab, ['presences', 'presences_annuel'], true) ? $tab : 'presences';
     render_unit_presence_tab('cult', 'cultes', $c, $tab, $culteMembers);
@@ -615,14 +620,14 @@ function members_table(string $section, ?int $entityId, string $label, int $coun
         if ($entityId) {
             $formParams['id_ent'] = $entityId;
         }
-        $delParams = ['page' => $section, 'action' => 'delete_membre', 'id' => $m['id']];
+        $delParams = ['page' => $section, 'action' => 'bacenta_remove_member', 'id' => $m['id']];
         if ($entityId) {
             $delParams['id'] = $m['id'];
             $delParams['id_ent'] = $entityId;
         }
         $edit = '<a class="icon-btn" title="Modifier" href="' . h(url('index.php', $formParams)) . '"><i class="fa-solid fa-pen"></i></a>';
         $del = '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer ce membre ?" href="' . h(url('index.php', $delParams)) . '"><i class="fa-solid fa-trash"></i></a>';
-        $rows .= '<tr>' . $cells . '<td class="row-actions">' . $extra . $edit . $del . '</td></tr>';
+        $rows .= '<tr>' . $cells . '<td class="row-actions">' . $extra . $edit . ($section === 'bacentas' ? $del : '') . '</td></tr>';
     }
     if ($members === []) {
         $rows = '<tr><td colspan="' . (count($cols) + 1) . '">' . empty_state('fa-inbox', 'Aucun membre pour le moment.') . '</td></tr>';
@@ -739,7 +744,9 @@ function render_bacenta_form(): void
     $centres = get_centres();
 
     $centreOpts = '';
-
+        foreach ($centres as $c) {
+        $centreOpts .= '<option value="' . $c['id'] . '"' . ($b && (int) $b['centre_id'] === (int) $c['id'] ? ' selected' : '') . '>' . h($c['nom']) . '</option>';
+    }
     // Le responsable n'est plus assignable depuis ce formulaire : c'est une
     // RESPONSABILITÉ (table `responsibilities`), gérée exclusivement depuis
     // Paramètres → Accès & Responsables (ROLE ≠ RESPONSABILITÉ, spec §29).
