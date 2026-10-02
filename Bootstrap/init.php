@@ -93,6 +93,8 @@ require_once APP_PATH . '/app/Compat/notifications.php';
 // 7. Constantes publiques d'application (APP_NAME,APP_LOCATION, APP_URL, UPLOAD_DIR…).
 define('APP_NAME', $appConfig['name'] ?? 'La Belle Église');
 define('APP_LOCATION', $appConfig['location'] ?? 'Franceville');
+define('FONT_AWESOME_CSS', $appConfig['font_awesome_css'] ?? 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css');
+define('CHARTJS_JS', $appConfig['chartjs_js'] ?? 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.3.0/chart.umd.min.js');
 // APP_URL est concaténée telle quelle devant les chemins relatifs (url(),
 // redirect() : `APP_URL . 'index.php' . $query`) : on normalise donc pour
 // tolérer une valeur .env incomplète (ex. `192.168.1.102:3000` sans schéma,

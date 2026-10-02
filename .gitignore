@@ -13,3 +13,4 @@ graphify-out
 # Scripts d'assertion jetables (vérification manuelle - jamais versionnés)
 tmp/
 .claude/
+uploads/

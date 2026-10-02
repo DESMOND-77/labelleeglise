@@ -164,8 +164,8 @@ if (in_array($page, ['bacentas', 'cultes', 'basontas'], true) && nav('id')) {
 <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
 
 <link rel="stylesheet" href="assets/css/app.css">
-<link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
-<script src="assets/vendor/chartjs/chart.umd.min.js"></script>
+<link rel="stylesheet" href="<?= h(FONT_AWESOME_CSS) ?>">
+<script src="<? h(CHARTJS_JS) ?>"></script>
 </head>
 <body>
 <div class="app-shell" id="appShell">
