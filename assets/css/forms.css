@@ -238,7 +238,8 @@
 
 /* ---- Inputs dans les tableaux ---- */
 .data-table td input,
-.data-table td select {
+.data-table td select,
+.data-table td textarea {
   width: 100%;
   min-width: 90px;
   padding: 8px 10px;
@@ -251,7 +252,8 @@
 }
 
 .data-table td input:focus,
-.data-table td select:focus {
+.data-table td select:focus,
+.data-table td textarea:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }

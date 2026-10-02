@@ -50,6 +50,8 @@
                     <option value="Oui" <?= $val === 'Oui' ? 'selected' : '' ?>>Oui</option>
                     <option value="Non" <?= $val === 'Non' ? 'selected' : '' ?>>Non</option>
                   </select>
+                <?php elseif (($f['type'] ?? 'text') === 'textarea'): ?>
+                  <textarea name="suivi[<?= h($day) ?>][<?= h($f['key']) ?>]"><?= h($val) ?></textarea>
                 <?php else: ?>
                   <input type="<?= ($f['type'] ?? 'text') === 'number' ? 'number' : 'text' ?>"
                          <?= ($f['type'] ?? 'text') === 'number' ? 'min="0"' : '' ?>
