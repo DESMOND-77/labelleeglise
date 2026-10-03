@@ -165,7 +165,7 @@ if (in_array($page, ['bacentas', 'cultes', 'basontas'], true) && nav('id')) {
 
 <link rel="stylesheet" href="assets/css/app.css">
 <link rel="stylesheet" href="<?= h(FONT_AWESOME_CSS) ?>">
-<script src="<? h(CHARTJS_JS) ?>"></script>
+<script src="<?= h(CHART_JS) ?>"></script>
 </head>
 <body>
 <div class="app-shell" id="appShell">

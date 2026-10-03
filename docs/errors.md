@@ -285,3 +285,44 @@ retour vers la recherche globale. Le contexte d'origine n'est pas transporté.
 	chaque action métier concernée doit consommer ce nouveau périmètre.
 - Le solde Bus doit être défini comme recettes moins retraits, avec une règle
 	claire pour les montants historiques et les modifications.
+	
+	
+	
+	
+	Problème rencontré 
+
+1. On peut attribuer les basontas mais cela je figure pas chez la personne attribuée seulement chez l'administrateur 
+2. Dans les paramètres le budget des bus et le rapport du jour ne sont pas attribuables or ils doivent l'être 
+3. Au suivie hebdomadaire : a partir du 9 éléments : invités après le culte (on ne peut pas remplir cette partie) meme chose pour diffusion mixlr et nombre d'hushers
+4. Dans la fiche hebdomadaire enlevé :nombre d'ushers 
+5. Dans la fiche hebdomadaire remplacer : thème de semaine par jour de jeune 
+7. Changé le nom: la belle église Par *la belle église internationale Franceville*
+8. le bouton supprimer pour les membres de bacentas,basontas,basontas,etc... doit juste les enlever de ces derniers et non pas les supprimmer completement de la plateforme
+
+
+6. Est il possible de mettre des images en arrière plan des centres, bacentas, basontas, des culte ? 
+
+9. Est il possible de faire que les utilisateurs ne puissent pas modifier la présentation de l'église et la présentation des centres ? 
+10. Le mail du rev ne reçoit pas les notifications
+
+
+$photoHtml = !empty($c['photo']) ? '<img src="' . h($c['photo']) . '" class="centre-resp-photo" alt="' . h($c['centre_nom']) . '">'
+    : '<div class="centre-resp-photo placeholder"><i class="fa-solid fa-school"></i></div>';
+    
+
+1. Quand on enregistre un leader il est directement dirigé sur la liste des bergers
+3. Au niveau de la fiche hebdo ( a la fiche de jour de jeune mettre oui ou non )
+5. Et un berger ne peut pas être mis dans les basontas en tant qu'apparemment seul responsable or il doit également être appartenant
+
+
+1. Quand on enregistre un membres son adresse mail est dans inscrit. Et il reçoit un mail: lors de l'ajour manuel d'un utilisateur, l'email de verification ne doit pas etre envoyer
+2. Dans le formulaire de remplissage de la fiche hebdomadaire: 'Personne invité' mètre un systeme de formatage multi-ligne apres chaque ';' pour le listing( la saisir de plusieurs personne)
+
+3.a. Pour ceux *du premier culte* encore appelé *culte amane*: ce sont les gens qui résident et qui sont dans les bacentas de *lewai, Franceville 2 et quartier sables*. Qui doivent figurer uniquement au culte aman
+3.b. Pour ceux *du deuxième culte* encore appelé *culte tchalack*: ce sont les gens qui résident et qui sont dans les bacentas de *Mbaya et Mingara*. Qui doivent figurer uniquement au culte tchalack 
+3.c Et pour finir pour le *culte d'impact et le culte des leaders* tout le monde doit y figurer ceux de *mbaya,mingara, quartier sablé, Franceville 2,lewai*
+
+requisision du point 3: on doit pouvoir lors de la creation/modification d'un culte cocher le/les bacentas pour inclure automatiquement leurs membres au culte 
+
+4. presentement la creation d'un raport du jour de bacentas n'est pas enregistrer dans la base de donnees:
+il faut resoudre le probleme et permetre egalement le creation d'un rapport du jour pour les centres
