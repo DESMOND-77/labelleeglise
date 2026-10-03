@@ -392,7 +392,8 @@ class ActionsController extends Controller
                     $this->deny();
                 }
                 if ($nom !== '') {
-                    save_culte($id ?: null, $nom, $date, $debut, $fin, null, $this->scheduleDaysFromPost());
+                    $bacentaIds = array_values(array_unique(array_filter(array_map('intval', (array) ($_POST['bacenta_ids'] ?? [])), static fn($v) => $v > 0)));
+                    save_culte($id ?: null, $nom, $date, $debut, $fin, null, $this->scheduleDaysFromPost(), $bacentaIds);
                 }
                 $this->redirect('index.php', ['page' => 'cultes']);
                 break;
@@ -744,14 +745,18 @@ class ActionsController extends Controller
                         get_centres(),
                         static fn($c) => $isAdmin || auth_can_report_for_centre((int) $c['id'])
                     ));
-                    $existing = $svc->reportForCentreDate($centreId, $date);
+                    $scopeType = (string) ($_POST['scope_type'] ?? 'centre');
+                    $scopeType = in_array($scopeType, ['centre', 'bacenta'], true) ? $scopeType : 'centre';
+                    $postedBacentaId = (int) ($_POST['bacenta_id'] ?? 0) ?: null;
+                    $existing = $svc->reportForCentreDate($centreId, $date, $scopeType, $postedBacentaId);
                     render_page(SECTION_LABELS['rapports'], view('pages/rapport_form', [
                         'centres'  => $centres,
                         'centreId' => $centreId,
                         'date'     => $date,
                         'report'   => $existing,
                         'bacentas' => $svc->reportableBacentas($uid, $centreId, $isAdmin),
-                        'bacentaId' => (int) ($_POST['bacenta_id'] ?? 0) ?: null,
+                        'bacentaId' => $postedBacentaId,
+                        'scopeType' => $scopeType,
                         'fields'   => RAPPORT_JOUR_FIELDS,
                         'derived'  => $svc->derivedNames($centreId, (int) ($_POST['bacenta_id'] ?? 0) ?: null, $uid),
                         'canEdit'  => $existing === null || $isAdmin || (int) $existing['auteur_id'] === $uid,

@@ -7,13 +7,13 @@ namespace App\Repositories;
 use App\Core\Query;
 
 /**
- * Rapports du Jour (un par centre et par date).
+ * Rapports du Jour : un par cible (centre ou bacenta) et par date.
  */
 class RapportJourRepository
 {
     /** Colonnes métier écrites par upsert (dans l'ordre). */
     private const WRITABLE = [
-        'centre_id', 'date_rapport', 'auteur_id', 'bacenta_id',
+        'centre_id', 'date_rapport', 'auteur_id', 'scope_type', 'scope_id', 'bacenta_id',
         'resp_centre_nom', 'resp_bacenta_nom', 'assistants',
         'nb_presents', 'nb_adultes', 'nb_enfants', 'nb_anciens', 'nb_nouveaux', 'nb_nes_de_nouveau',
         'offrande', 'livre_enseigne', 'chapitre_enseigne',
@@ -24,18 +24,35 @@ class RapportJourRepository
         return Query::one('SELECT * FROM rapports_jour WHERE id = ?', [$id]);
     }
 
-    public function findByCentreDate(int $centreId, string $date): ?array
+    public function findByScope(string $scopeType, int $scopeId, string $date): ?array
     {
-        return Query::one('SELECT * FROM rapports_jour WHERE centre_id = ? AND date_rapport = ?', [$centreId, $date]);
+        return Query::one(
+            'SELECT * FROM rapports_jour WHERE scope_type = ? AND scope_id = ? AND date_rapport = ?',
+            [$scopeType, $scopeId, $date]
+        );
     }
 
-    /** INSERT si (centre_id, date_rapport) libre, sinon UPDATE (auteur_id/created_at préservés). */
+    public function findByCentreDate(int $centreId, string $date, ?string $scopeType = null, ?int $bacentaId = null): ?array
+    {
+        if ($scopeType === 'centre') {
+            return $this->findByScope('centre', $centreId, $date);
+        }
+        if ($scopeType === 'bacenta' && $bacentaId) {
+            return $this->findByScope('bacenta', $bacentaId, $date);
+        }
+        return Query::one(
+            "SELECT * FROM rapports_jour WHERE centre_id = ? AND date_rapport = ? ORDER BY scope_type = 'bacenta', id DESC LIMIT 1",
+            [$centreId, $date]
+        );
+    }
+
+    /** INSERT/UPDATE sur la cible logique (centre ou bacenta). */
     public function upsert(array $data): int
     {
-        $existing = $this->findByCentreDate((int) $data['centre_id'], (string) $data['date_rapport']);
+        $existing = $this->findByScope((string) $data['scope_type'], (int) $data['scope_id'], (string) $data['date_rapport']);
 
         if ($existing) {
-            $cols = array_values(array_diff(self::WRITABLE, ['centre_id', 'date_rapport', 'auteur_id']));
+            $cols = array_values(array_diff(self::WRITABLE, ['centre_id', 'date_rapport', 'auteur_id', 'scope_type', 'scope_id']));
             $set = implode(', ', array_map(static fn($c) => "$c = ?", $cols));
             $params = array_map(static fn($c) => $data[$c] ?? null, $cols);
             $params[] = (int) $existing['id'];
@@ -57,6 +74,7 @@ class RapportJourRepository
     public function list(?int $centreId, ?string $monthKey, ?array $centreIds = null): array
     {
         $sql = "SELECT r.*, c.nom AS centre_nom, ba.nom AS bacenta_nom,
+                       CASE WHEN r.scope_type = 'centre' THEN c.nom ELSE ba.nom END AS cible_nom,
                        au.prenom AS auteur_prenom, au.nom AS auteur_nom
                   FROM rapports_jour r
                   JOIN centres c   ON c.id = r.centre_id

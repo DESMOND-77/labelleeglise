@@ -23,16 +23,17 @@
 
 <div class="table-wrap">
   <table class="data-table">
-    <thead><tr><th>Date</th><th>Centre</th><th>Bacenta</th><th>Présents</th><th>Offrande</th><th>Auteur</th><th></th></tr></thead>
+    <thead><tr><th>Date</th><th>Centre</th><th>Portée</th><th>Cible</th><th>Présents</th><th>Offrande</th><th>Auteur</th><th></th></tr></thead>
     <tbody>
       <?php if (!$rows): ?>
-        <tr><td colspan="7"><?= empty_state('fa-file-lines', 'Aucun rapport pour ces filtres.') ?></td></tr>
+        <tr><td colspan="8"><?= empty_state('fa-file-lines', 'Aucun rapport pour ces filtres.') ?></td></tr>
       <?php else: ?>
         <?php foreach ($rows as $r): ?>
           <tr>
             <td><?= h(date('d/m/Y', strtotime((string) $r['date_rapport']))) ?></td>
             <td><?= h($r['centre_nom']) ?></td>
-            <td><?= h($r['bacenta_nom'] ?? '-') ?></td>
+            <td><?= h(($r['scope_type'] ?? 'bacenta') === 'centre' ? 'Centre' : 'Bacenta') ?></td>
+            <td><?= h($r['cible_nom'] ?? $r['bacenta_nom'] ?? $r['centre_nom'] ?? '-') ?></td>
             <td><?= (int) $r['nb_presents'] ?></td>
             <td><?= h(number_format((float) $r['offrande'], 0, ',', ' ')) ?></td>
             <td><?= h(trim(($r['auteur_prenom'] ?? '') . ' ' . ($r['auteur_nom'] ?? ''))) ?></td>

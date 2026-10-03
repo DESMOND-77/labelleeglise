@@ -25,18 +25,25 @@ $val = function (string $k, $default = '') use ($old, $report) {
   <label>Date
     <input type="date" name="date" value="<?= h($date) ?>" max="<?= h(date('Y-m-d')) ?>" onchange="this.form.submit()" <?= $report ? 'disabled' : '' ?>>
   </label>
+  <label>Type de rapport
+    <select name="type" onchange="this.form.submit()" <?= $report ? 'disabled' : '' ?>>
+      <option value="bacenta" <?= ($scopeType ?? 'bacenta') === 'bacenta' ? 'selected' : '' ?>>Rapport d’un bacenta</option>
+      <option value="centre" <?= ($scopeType ?? 'bacenta') === 'centre' ? 'selected' : '' ?>>Rapport du centre</option>
+    </select>
+  </label>
 </form>
 
 <?php if ($centreId === null): ?>
   <?= empty_state('fa-hand-pointer', 'Choisissez un centre et une date pour commencer.') ?>
 <?php elseif ($date > date('Y-m-d')): ?>
   <div class="alert alert-danger">La date du rapport ne peut pas être postérieure à aujourd’hui.</div>
-<?php elseif (!$bacentaId): ?>
+<?php elseif (($scopeType ?? 'bacenta') === 'bacenta' && !$bacentaId): ?>
   <div class="form-card">
     <form method="get" action="index.php">
       <input type="hidden" name="page" value="rapport">
       <input type="hidden" name="centre" value="<?= (int) $centreId ?>">
       <input type="hidden" name="date" value="<?= h($date) ?>">
+      <input type="hidden" name="type" value="bacenta">
       <div class="form-group">
         <label>Bacenta</label>
         <select name="bacenta" required>
@@ -57,16 +64,23 @@ $val = function (string $k, $default = '') use ($old, $report) {
     <?= $csrf ?>
     <input type="hidden" name="centre_id" value="<?= (int) $centreId ?>">
     <input type="hidden" name="date_rapport" value="<?= h($date) ?>">
+    <input type="hidden" name="scope_type" value="<?= h($scopeType ?? 'bacenta') ?>">
+    <input type="hidden" name="bacenta_id" value="<?= (int) ($bacentaId ?? 0) ?>">
 
     <div class="form-grid">
       <div class="form-group"><label>Centre</label><input type="text" value="<?= h($centres[array_search($centreId, array_column($centres, 'id'), true)]['nom'] ?? '') ?>" disabled></div>
       <div class="form-group"><label>Date</label><input type="text" value="<?= h(date('d/m/Y', strtotime($date))) ?>" disabled></div>
+      <div class="form-group"><label>Portée</label><input type="text" value="<?= h(($scopeType ?? 'bacenta') === 'centre' ? 'Centre' : 'Bacenta') ?>" disabled></div>
+      <?php if (($scopeType ?? 'bacenta') === 'bacenta'): ?>
+        <div class="form-group"><label>Bacenta</label><input type="text" value="<?= h((string) (array_values(array_filter($bacentas, static fn($b) => (int) $b['id'] === (int) $bacentaId))[0]['nom'] ?? $report['bacenta_nom'] ?? '')) ?>" disabled></div>
+      <?php endif; ?>
     </div>
 
     <div class="form-grid">
       <div class="form-group"><label>Responsable du centre</label><input type="text" value="<?= h($derived['resp_centre_nom'] ?? '') ?>" disabled></div>
-      
-      <div class="form-group"><label>Responsable du bacenta</label><input type="text" value="<?= h($derived['resp_bacenta_nom'] ?? '') ?>" disabled></div>
+      <?php if (($scopeType ?? 'bacenta') === 'bacenta'): ?>
+        <div class="form-group"><label>Responsable du bacenta</label><input type="text" value="<?= h($derived['resp_bacenta_nom'] ?? '') ?>" disabled></div>
+      <?php endif; ?>
     </div>
 
     <?php

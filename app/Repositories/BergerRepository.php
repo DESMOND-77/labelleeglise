@@ -28,6 +28,11 @@ class BergerRepository
         foreach ($data as $day => $fields) {
             foreach ($fields as $field => $value) {
                 $value = trim((string) $value);
+                if ($field === 'invitesDimanche') {
+                    $value = preg_replace('/\s*;\s*/u', "\n", $value) ?? $value;
+                    $value = preg_replace('/\n{2,}/', "\n", $value) ?? $value;
+                    $value = trim($value);
+                }
                 $exists = Query::value('SELECT id FROM suivi_hebdo WHERE user_id = ? AND semaine = ? AND jour = ? AND champ = ?',
                     [$userId, $weekKey, $day, $field]);
                 if ($exists) {

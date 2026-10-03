@@ -30,9 +30,12 @@ class RapportJourService
         return $this->repo->find($id);
     }
 
-    public function reportForCentreDate(int $centreId, string $date): ?array
+    public function reportForCentreDate(int $centreId, string $date, string $scopeType = 'centre', ?int $bacentaId = null): ?array
     {
-        return $this->repo->findByCentreDate($centreId, $date);
+        if ($scopeType === 'bacenta' && $bacentaId) {
+            return $this->repo->findByScope('bacenta', $bacentaId, $date);
+        }
+        return $this->repo->findByScope('centre', $centreId, $date);
     }
 
     /** @param ?array<int> $centreIds Périmètre autorisé (null = pas de restriction ; [] = rien). */
@@ -75,10 +78,10 @@ class RapportJourService
             if ($bacResp) {
                 $respBacentaNom = trim(($bacResp[0]['prenom'] ?? '') . ' ' . ($bacResp[0]['nom'] ?? ''));
             }
-        }
-        if ($respBacentaNom === '') {
-            $a = Query::one('SELECT prenom, nom FROM users WHERE id = ?', [$authorId]);
-            $respBacentaNom = $a ? trim(($a['prenom'] ?? '') . ' ' . ($a['nom'] ?? '')) : '';
+            if ($respBacentaNom === '') {
+                $a = Query::one('SELECT prenom, nom FROM users WHERE id = ?', [$authorId]);
+                $respBacentaNom = $a ? trim(($a['prenom'] ?? '') . ' ' . ($a['nom'] ?? '')) : '';
+            }
         }
 
         return ['resp_centre_nom' => $respCentreNom, 'resp_bacenta_nom' => $respBacentaNom];
@@ -105,14 +108,26 @@ class RapportJourService
             $errors['date_rapport'] = 'La date du rapport ne peut pas être postérieure à aujourd’hui.';
         }
 
+        $scopeType = (string) ($in['scope_type'] ?? '');
+        if (!in_array($scopeType, ['centre', 'bacenta'], true)) {
+            $scopeType = ((int) ($in['bacenta_id'] ?? 0) > 0) ? 'bacenta' : 'centre';
+        }
+
         $bacentaIdRaw = (int) ($in['bacenta_id'] ?? 0) ?: null;
-        if ($bacentaIdRaw === null) {
+        if ($scopeType === 'bacenta' && $bacentaIdRaw === null) {
             $errors['bacenta_id'] = 'Choisissez un bacenta avant de compléter le rapport.';
+        }
+        if ($scopeType === 'centre') {
+            $bacentaIdRaw = null;
         }
         if ($bacentaIdRaw !== null && $centreId > 0) {
             $allowed = array_column($this->reportableBacentas($userId, $centreId, $isAdmin), 'id');
             if (!in_array($bacentaIdRaw, $allowed, true)) {
                 $errors['bacenta_id'] = 'Ce bacenta ne fait pas partie de ceux que vous pouvez rapporter pour ce centre.';
+            }
+            $belongsToCentre = (int) (Query::value('SELECT COUNT(*) FROM bacentas WHERE id = ? AND centre_id = ?', [$bacentaIdRaw, $centreId]) ?? 0) > 0;
+            if (!$belongsToCentre) {
+                $errors['bacenta_id'] = 'Le bacenta sélectionné n’appartient pas à ce centre.';
             }
         }
 
@@ -151,7 +166,8 @@ class RapportJourService
         }
 
         // Contrôle d'édition : un rapport existant appartient à son auteur (ou admin).
-        $existing = $this->repo->findByCentreDate($centreId, $date);
+        $scopeId = $scopeType === 'bacenta' ? (int) $bacentaIdRaw : $centreId;
+        $existing = $this->repo->findByScope($scopeType, $scopeId, $date);
         if ($existing && !$isAdmin && (int) $existing['auteur_id'] !== $userId) {
             return [
                 'ok' => false,
@@ -166,14 +182,16 @@ class RapportJourService
             'centre_id'        => $centreId,
             'date_rapport'     => $date,
             'auteur_id'        => $existing ? (int) $existing['auteur_id'] : $userId,
+            'scope_type'       => $scopeType,
+            'scope_id'         => $scopeId,
             'bacenta_id'       => $bacentaIdRaw,
             'resp_centre_nom'  => $names['resp_centre_nom'],
             'resp_bacenta_nom' => $names['resp_bacenta_nom'],
         ]);
 
-        $id = Query::transaction(function () use ($data, $bacentaIdRaw): int {
+        $id = Query::transaction(function () use ($data, $scopeType, $scopeId): int {
             $id = $this->repo->upsert($data);
-            $this->contributions->saveReportOffering($id, (int) $bacentaIdRaw, (string) $data['date_rapport'], (float) $data['offrande']);
+            $this->contributions->saveReportOffering($id, $scopeType, $scopeId, (string) $data['date_rapport'], (float) $data['offrande']);
             return $id;
         });
         return ['ok' => true, 'errors' => [], 'id' => $id];

@@ -64,16 +64,19 @@ class RapportController extends Controller
         $date = $report
             ? (string) $report['date_rapport']
             : (trim((string) (Request::get('date') ?? '')) ?: date('Y-m-d'));
+        $scopeType = $report
+            ? (string) ($report['scope_type'] ?? ((int) ($report['bacenta_id'] ?? 0) > 0 ? 'bacenta' : 'centre'))
+            : (((string) (Request::get('type') ?? 'bacenta')) === 'centre' ? 'centre' : 'bacenta');
         $bacentaId = $report
-            ? (int) ($report['bacenta_id'] ?? 0)
-            : ((int) (Request::get('bacenta') ?? 0) ?: null);
+            ? ((string) ($report['scope_type'] ?? '') === 'bacenta' ? (int) ($report['bacenta_id'] ?? 0) : null)
+            : ($scopeType === 'bacenta' ? ((int) (Request::get('bacenta') ?? 0) ?: null) : null);
 
         if ($centreId !== null && !auth_can_report_for_centre($centreId)) {
             $this->redirect('index.php', ['page' => 'rapports']);
         }
         // Rapport existant non résolu par (?centre&?date) si l'id n'était pas fourni :
         if ($report === null && $centreId !== null) {
-            $report = $svc->reportForCentreDate($centreId, $date);
+            $report = $svc->reportForCentreDate($centreId, $date, $scopeType, $bacentaId);
         }
 
         $centres = array_values(array_filter(
@@ -95,6 +98,7 @@ class RapportController extends Controller
             'bacentas'  => $allowedBacentas,
             'fields'    => RAPPORT_JOUR_FIELDS,
             'bacentaId' => $bacentaId,
+            'scopeType' => $scopeType,
             'derived'   => $report
                 ? ['resp_centre_nom' => (string) ($report['resp_centre_nom'] ?? ''), 'resp_bacenta_nom' => (string) ($report['resp_bacenta_nom'] ?? '')]
                 : ($centreId !== null ? $svc->derivedNames($centreId, $bacentaId, $uid) : null),
