@@ -47,6 +47,7 @@ function get_basontas(): array { return _repo(BasontaRepository::class)->all(); 
 function get_basonta(int $id): ?array { return _repo(BasontaRepository::class)->find($id); }
 function get_cultes(): array { return _repo(CulteRepository::class)->all(); }
 function get_culte(int $id): ?array { return _repo(CulteRepository::class)->find($id); }
+function get_culte_bacentas(int $culteId): array { return _repo(CulteRepository::class)->bacentas($culteId); }
 
 /* ---------- Membres ---------- */
 
@@ -180,6 +181,16 @@ function insert_user_from_post(array $data, ?string $photo): int
 {
     $data['password'] = password_hash((string) ($_POST['password'] ?? ''), PASSWORD_DEFAULT);
     $data['photo_de_profil'] = $photo;
+    // Création manuelle par un administrateur/gestionnaire : le compte est
+    // directement actif et l'adresse email est considérée comme vérifiée.
+    // Le workflow d'inscription publique (RegistrationService) reste le seul
+    // workflow qui crée un compte en attente et envoie un email de vérification.
+    $data['email_verified'] = 1;
+    $data['email_verified_at'] = date('Y-m-d H:i:s');
+    $data['verification_token'] = null;
+    $data['verification_expires_at'] = null;
+    $data['account_status'] = 'active';
+    $data['compte_actif'] = 1;
     return insert_user($data);
 }
 function update_user_from_post(int $id, array $data, ?string $photo, ?string $newPassword): void

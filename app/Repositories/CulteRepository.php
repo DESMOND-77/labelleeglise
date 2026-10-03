@@ -31,16 +31,51 @@ class CulteRepository
     }
 
     /** $resp accepté pour compatibilité mais IGNORÉ - voir BacentaRepository::create(). */
-    public function create(string $nom, ?string $date, ?string $debut, ?string $fin, ?int $resp = null, ?string $jours = null): int
+    public function create(string $nom, ?string $date, ?string $debut, ?string $fin, ?int $resp = null, ?string $jours = null, array $bacentaIds = []): int
     {
-        return Query::run('INSERT INTO cultes (nom, date_culte, jours_semaine, heure_debut, heure_fin) VALUES (?, ?, ?, ?, ?)',
+        $id = Query::run('INSERT INTO cultes (nom, date_culte, jours_semaine, heure_debut, heure_fin) VALUES (?, ?, ?, ?, ?)',
             [$nom, $date, $jours, $debut, $fin]);
+        $this->syncBacentas($id, $bacentaIds);
+        return $id;
     }
 
-    public function update(int $id, string $nom, ?string $date, ?string $debut, ?string $fin, ?int $resp = null, ?string $jours = null): void
+    public function update(int $id, string $nom, ?string $date, ?string $debut, ?string $fin, ?int $resp = null, ?string $jours = null, array $bacentaIds = []): void
     {
         Query::run('UPDATE cultes SET nom = ?, date_culte = ?, jours_semaine = ?, heure_debut = ?, heure_fin = ? WHERE id = ?',
             [$nom, $date, $jours, $debut, $fin, $id]);
+        $this->syncBacentas($id, $bacentaIds);
+    }
+
+    /** Bacentas configurés pour ce culte. */
+    public function bacentas(int $culteId): array
+    {
+        return Query::all(
+            "SELECT b.id, b.nom, b.centre_id, c.nom AS centre_nom
+               FROM culte_bacentas cb
+               JOIN bacentas b ON b.id = cb.bacenta_id
+               LEFT JOIN centres c ON c.id = b.centre_id
+              WHERE cb.culte_id = ?
+              ORDER BY b.nom",
+            [$culteId]
+        );
+    }
+
+    /** Remplace la sélection des bacentas rattachés au culte. */
+    public function syncBacentas(int $culteId, array $bacentaIds): void
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', $bacentaIds), static fn($id) => $id > 0)));
+        if ($ids === []) {
+            Query::run('DELETE FROM culte_bacentas WHERE culte_id = ?', [$culteId]);
+            return;
+        }
+
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $rows = Query::all("SELECT id FROM bacentas WHERE id IN ($placeholders)", $ids);
+        $valid = array_map(static fn($row) => (int) $row['id'], $rows);
+        Query::run('DELETE FROM culte_bacentas WHERE culte_id = ?', [$culteId]);
+        foreach ($valid as $bacentaId) {
+            Query::run('INSERT INTO culte_bacentas (culte_id, bacenta_id) VALUES (?, ?)', [$culteId, $bacentaId]);
+        }
     }
 
     public function delete(int $id): void

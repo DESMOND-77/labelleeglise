@@ -42,12 +42,12 @@ function bacenta_remove_member(int $id): void { _repo(BacentaRepository::class)-
 /* ---------- Cultes ---------- */
 
 function delete_culte(int $id): void { _repo(CulteRepository::class)->delete($id); }
-function save_culte(?int $id, string $nom, ?string $date, ?string $debut, ?string $fin, ?int $resp, ?string $jours = null): void
+function save_culte(?int $id, string $nom, ?string $date, ?string $debut, ?string $fin, ?int $resp, ?string $jours = null, array $bacentaIds = []): void
 {
     if ($id) {
-        _repo(CulteRepository::class)->update($id, $nom, $date, $debut, $fin, $resp, $jours);
+        _repo(CulteRepository::class)->update($id, $nom, $date, $debut, $fin, $resp, $jours, $bacentaIds);
     } else {
-        _repo(CulteRepository::class)->create($nom, $date, $debut, $fin, $resp, $jours);
+        _repo(CulteRepository::class)->create($nom, $date, $debut, $fin, $resp, $jours, $bacentaIds);
     }
 }
 

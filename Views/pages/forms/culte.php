@@ -1,5 +1,7 @@
-<?php /* Formulaire culte. Variables : $culte, $cancelUrl, $csrf, $respUrl. */
+<?php /* Formulaire culte. Variables : $culte, $cancelUrl, $csrf, $respUrl, $bacentas. */
 $culte = $culte ?? null;
+$bacentas = $bacentas ?? [];
+$selectedBacentas = array_map(static fn($b) => (int) $b['id'], get_culte_bacentas((int) ($culte['id'] ?? 0)));
 ?>
 <?= section_toolbar(h($culte ? 'Modifier le culte' : 'Ajouter un culte')) ?>
 <div class="form-page">
@@ -22,6 +24,20 @@ $culte = $culte ?? null;
         <?php endforeach; ?>
       </div>
     </div>
+    <div class="form-group">
+      <label>Bacentas inclus dans ce culte</label>
+      <div class="checkbox-grid">
+        <?php foreach ($bacentas as $b): ?>
+          <?php $bid = (int) $b['id']; ?>
+          <label class="check-label">
+            <input type="checkbox" name="bacenta_ids[]" value="<?= $bid ?>" <?= in_array($bid, $selectedBacentas, true) ? 'checked' : '' ?>>
+            <?= h($b['nom']) ?><?php if (!empty($b['centre_nom'])): ?> <span class="form-hint">— <?= h($b['centre_nom']) ?></span><?php endif; ?>
+          </label>
+        <?php endforeach; ?>
+      </div>
+      <?php if (!$bacentas): ?><span class="form-hint">Aucun bacenta n’est encore disponible. Créez d’abord les bacentas concernés.</span><?php else: ?><span class="form-hint">Les membres des bacentas cochés seront automatiquement inclus dans ce culte.</span><?php endif; ?>
+    </div>
+
     <?php if (!empty($respUrl)): ?>
     <p class="form-hint">Responsable(s) - pasteur/révérend uniquement : gérez-les depuis <a href="<?= h($respUrl) ?>">Paramètres → Accès &amp; Responsables</a>.</p>
     <?php endif; ?>

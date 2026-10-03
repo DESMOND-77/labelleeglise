@@ -459,10 +459,7 @@ function render_culte_detail(int $culteId): void
     // SP-3 : plus d'onglet « Pointage rapide ». Le culte est un simple type
     // d'occurrence : sa fiche = pointage par occurrence (composant SP-2) +
     // matrice annuelle (bouton du composant).
-    $culteMembers = Query::all(
-        'SELECT * FROM users WHERE role IN (?, ?, ?, ?, ?) ORDER BY prenom, nom',
-        ['membre', 'leader', 'assistant', 'pasteur', 'reverant']
-    );
+    $culteMembers = get_members_of_culte($culteId);
     $tab = nav('tab');
     $tab = in_array($tab, ['presences', 'presences_annuel'], true) ? $tab : 'presences';
     render_unit_presence_tab('cult', 'cultes', $c, $tab, $culteMembers);
@@ -782,6 +779,7 @@ function render_culte_form(): void
     // n'est plus assignable ici : voir Paramètres → Accès & Responsables.
     $content = view('pages/forms/culte', [
         'culte'     => $c,
+        'bacentas'  => get_bacentas(),
         'cancelUrl' => url('index.php', ['page' => 'cultes']),
         'csrf'      => csrf_field(),
         'respUrl'   => url('index.php', ['page' => 'parametres', 'param_tab' => 'acces']),
