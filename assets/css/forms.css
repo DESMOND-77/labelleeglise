@@ -139,6 +139,17 @@
   padding: 2px 0;
 }
 
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 6px 18px;
+  padding: 10px 0;
+}
+
+.checkbox-grid .check-label {
+  min-height: 32px;
+}
+
 .presence-check-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));

@@ -47,7 +47,7 @@
               <?php if (!empty($f['sundayOnly']) && $d !== 'Dimanche'): ?>
                 <td>-</td>
               <?php else: ?>
-                <td><?= h($week[$d][$f['key']] ?? '') ?: '-' ?></td>
+                <td class="<?= !empty($f['semicolonList']) ? 'multiline-list' : '' ?>"><?= nl2br(h($week[$d][$f['key']] ?? '')) ?: '-' ?></td>
               <?php endif; ?>
             <?php endforeach; ?>
           </tr>

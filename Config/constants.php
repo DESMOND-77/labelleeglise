@@ -225,7 +225,7 @@ define('SUIVI_FIELDS', [
     ['key' => 'themeEveque',    'label' => 'Thème - Prédication de l\'Évêque écoutée', 'type' => 'text'],
     ['key' => 'themeReverend',  'label' => 'Thème - Prédication du Révérend écoutée', 'type' => 'text'],
     ['key' => 'visites',        'label' => 'Personne(s) visitée(s) en semaine', 'type' => 'text'],
-    ['key' => 'invitesDimanche', 'label' => 'Personne(s) invitée(s) pour dimanche', 'type' => 'text'],
+    ['key' => 'invitesDimanche', 'label' => 'Personne(s) invitée(s) pour dimanche', 'type' => 'textarea', 'semicolonList' => true],
     ['key' => 'invitesApres',   'label' => 'Invité(s) après le culte / deep sea fishing', 'type' => 'textarea', 'sundayOnly' => false],
     ['key' => 'mixlr',        'label' => 'Diffusion Mixlr (lien ou statut)', 'type' => 'text', 'sundayOnly' => false],
     ['key' => 'joursjeune', 'label' => 'Jour(s) de jeune', 'type' => 'select', 'optional' => true], // themeSemaine remplacé par joursjeune (plus précis) dans le suivi hebdo. des bergers

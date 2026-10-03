@@ -51,7 +51,10 @@
                     <option value="Non" <?= $val === 'Non' ? 'selected' : '' ?>>Non</option>
                   </select>
                 <?php elseif (($f['type'] ?? 'text') === 'textarea'): ?>
-                  <textarea name="suivi[<?= h($day) ?>][<?= h($f['key']) ?>]"><?= h($val) ?></textarea>
+                  <textarea class="<?= !empty($f['semicolonList']) ? 'semicolon-list-input' : '' ?>"
+                            name="suivi[<?= h($day) ?>][<?= h($f['key']) ?>]"
+                            placeholder="<?= !empty($f['semicolonList']) ? 'Nom 1; Nom 2; Nom 3' : '' ?>"><?= h($val) ?></textarea>
+                  <?php if (!empty($f['semicolonList'])): ?><small class="form-hint">Séparez les personnes par « ; » : chaque personne sera affichée sur une ligne.</small><?php endif; ?>
                 <?php else: ?>
                   <input type="<?= ($f['type'] ?? 'text') === 'number' ? 'number' : 'text' ?>"
                          <?= ($f['type'] ?? 'text') === 'number' ? 'min="0"' : '' ?>
@@ -72,3 +75,17 @@
 </form>
 
 <?= $adminStats ?>
+
+<script>
+document.addEventListener('input', function (event) {
+  const el = event.target;
+  if (!(el instanceof HTMLTextAreaElement) || !el.classList.contains('semicolon-list-input')) return;
+  if (!el.value.includes(';')) return;
+  const start = el.selectionStart;
+  const prefix = el.value.slice(0, start);
+  const normalized = el.value.replace(/\s*;\s*/g, '\n');
+  const normalizedPrefix = prefix.replace(/\s*;\s*/g, '\n');
+  el.value = normalized;
+  el.selectionStart = el.selectionEnd = Math.min(normalized.length, normalizedPrefix.length);
+});
+</script>
