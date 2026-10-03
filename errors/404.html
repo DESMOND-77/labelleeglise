@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#4F46E5">
+  <title>404 - Page introuvable | La Belle Église Internationale Franceville</title>
+  <link rel="stylesheet" href="error.css">
+</head>
+<body>
+  <main class="page">
+    <a class="brand" href="../" aria-label="Retour à l'accueil">
+      <img src="../assets/images/logo.png" alt="Logo La Belle Église Internationale Franceville">
+      <div>
+        <strong>La Belle Église Internationale</strong>
+        <span>Franceville</span>
+      </div>
+    </a>
+
+    <section class="card" role="main" aria-labelledby="page-title">
+      <div class="code" aria-label="Erreur 404">404</div>
+      <h1 id="page-title">Page introuvable</h1>
+      <p class="lead">La page que vous recherchez n'existe pas, a été déplacée ou l'adresse saisie est incorrecte.</p>
+
+      <div class="actions">
+        <a class="btn primary" href="../">Retour à l'accueil</a>
+        <a class="btn" href="javascript:location.reload()">Réessayer</a>
+      </div>
+
+      <p class="hint">Vérifiez l'adresse ou utilisez le bouton ci-dessous pour revenir à l'accueil.</p>
+    </section>
+
+    <div class="footer">&copy; <span id="year"></span> La Belle Église Internationale - Franceville</div>
+  </main>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

@@ -31,7 +31,7 @@ $selectedBacentas = array_map(static fn($b) => (int) $b['id'], get_culte_bacenta
           <?php $bid = (int) $b['id']; ?>
           <label class="check-label">
             <input type="checkbox" name="bacenta_ids[]" value="<?= $bid ?>" <?= in_array($bid, $selectedBacentas, true) ? 'checked' : '' ?>>
-            <?= h($b['nom']) ?><?php if (!empty($b['centre_nom'])): ?> <span class="form-hint">— <?= h($b['centre_nom']) ?></span><?php endif; ?>
+            <?= h($b['nom']) ?><?php if (!empty($b['centre_nom'])): ?> <span class="form-hint">- <?= h($b['centre_nom']) ?></span><?php endif; ?>
           </label>
         <?php endforeach; ?>
       </div>

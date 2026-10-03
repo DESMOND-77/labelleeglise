@@ -422,7 +422,7 @@ function up(): void
      * Le ministère des placiers s'écrit « ushers ». BASONTAS_DEFAULT corrige
      * les nouvelles installations (via le seeder) ; cette requête répare les
      * bases déjà en place. Idempotente : aucun effet si la ligne n'existe
-     * pas ou a déjà été renommée. `basontas.nom` n'est pas UNIQUE — aucune
+     * pas ou a déjà été renommée. `basontas.nom` n'est pas UNIQUE - aucune
      * collision de clé possible.
      */
     $pdo->exec("UPDATE basontas SET nom = 'Ushers' WHERE nom = 'Ashers'");
@@ -752,32 +752,9 @@ function index_exists(\PDO $pdo, string $table, string $index): bool
 function down(): void
 {
     $pdo = Database::connection();
-    $tables = [
-        'responsibilities',
-        'notifications',
-        'users_basontas',
-        'presences',
-        'evenements',
-        'anniversaires',
-        'rapports_jour',
-        'bus_budget',
-        'classe_inscrits',
-        'classes',
-        'offrandes',
-        'visites',
-        'suivi_hebdo',
-        'dimes',
-        'examens',
-        'veillees',
-        'cultes',
-        'basontas',
-        'bacentas',
-        'users',
-        'centres_presentation',
-        'equipe',
-        'presentation',
-        'centres'
-    ];
+    $tables = ['responsibilities', 'notifications', 'users_basontas', 'presences', 'evenements', 'anniversaires', 'rapports_jour', 'bus_budget', 'classe_inscrits', 'classes', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
+               'examens', 'veillees', 'cultes', 'basontas', 'bacentas', 'users',
+               'centres_presentation', 'equipe', 'presentation', 'centres'];
     $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
     foreach ($tables as $t) {
         $pdo->exec("DROP TABLE IF EXISTS `$t`");
