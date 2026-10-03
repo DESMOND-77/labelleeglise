@@ -20,7 +20,7 @@ function seed(): void
     $pdo = Database::connection();
 
     /* ---------- 0. Purge ---------- */
-    $tables = ['users_basontas', 'presences', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
+    $tables = ['users_basontas', 'culte_bacentas', 'presences', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
                'examens', 'veillees', 'cultes', 'basontas', 'bacentas', 'users',
                'centres_presentation', 'equipe', 'presentation', 'centres'];
     $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');

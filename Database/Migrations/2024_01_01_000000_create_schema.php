@@ -99,6 +99,16 @@ function up(): void
             CONSTRAINT fk_culte_responsable FOREIGN KEY (responsable_id) REFERENCES users(id) ON DELETE SET NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
+        "CREATE TABLE IF NOT EXISTS culte_bacentas (
+            culte_id INT NOT NULL,
+            bacenta_id INT NOT NULL,
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (culte_id, bacenta_id),
+            KEY idx_culte_bacentas_bacenta (bacenta_id),
+            CONSTRAINT fk_cb_culte FOREIGN KEY (culte_id) REFERENCES cultes(id) ON DELETE CASCADE,
+            CONSTRAINT fk_cb_bacenta FOREIGN KEY (bacenta_id) REFERENCES bacentas(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
         "CREATE TABLE IF NOT EXISTS presences (
             id INT NOT NULL AUTO_INCREMENT,
             user_id INT NOT NULL,
@@ -308,6 +318,20 @@ function up(): void
             AND account_status = 'pending'"
     );
 
+    /* Rattrapage des membres créés manuellement avec l'ancien flux.
+     * L'inscription publique crée toujours un verification_token ; un compte
+     * resté pending sans jeton provient donc de l'ancien CRUD manuel.
+     */
+    $pdo->exec("UPDATE users
+                   SET account_status = 'active',
+                       email_verified = 1,
+                       email_verified_at = COALESCE(email_verified_at, created_at, NOW()),
+                       verification_token = NULL,
+                       verification_expires_at = NULL,
+                       compte_actif = 1
+                 WHERE account_status = 'pending'
+                   AND verification_token IS NULL");
+
     /* ---- 7. Remaniement rôles / responsabilités ----
      * ROLE ≠ RESPONSABILITÉ ≠ PÉRIMÈTRE (voir prompts/REMANIEMENT…md).
      * 1) Étendre l'ENUM users.role avec 'berger' et 'ms' (idempotent :
@@ -398,17 +422,10 @@ function up(): void
      * Le ministère des placiers s'écrit « ushers ». BASONTAS_DEFAULT corrige
      * les nouvelles installations (via le seeder) ; cette requête répare les
      * bases déjà en place. Idempotente : aucun effet si la ligne n'existe
-<<<<<<< HEAD
      * pas ou a déjà été renommée. `basontas.nom` n'est pas UNIQUE — aucune
      * collision de clé possible.
      */
     $pdo->exec("UPDATE basontas SET nom = 'Ushers' WHERE nom = 'Ashers'");
-=======
-     * pas ou a déjà été renommée. `basontas.nom` n'est pas UNIQUE - aucune
-     * collision de clé possible.
-     */
-    $pdo->exec("UPDATE basontas SET nom = 'Ushers' WHERE nom = 'Ashers'");
-
     /* ---- 10. M1 - Présences par occurrence -------------------------------
      * a) Récurrence hebdomadaire des unités : jour(s) de la semaine (CSV de
      *    libellés WEEK_DAYS, ex. "Vendredi" ou "Lundi,Mercredi") + plage
@@ -539,6 +556,8 @@ function up(): void
             centre_id INT NOT NULL,
             date_rapport DATE NOT NULL,
             auteur_id INT NOT NULL,
+            scope_type ENUM('centre','bacenta') NOT NULL DEFAULT 'bacenta',
+            scope_id INT NOT NULL,
             bacenta_id INT NULL,
             resp_centre_nom  VARCHAR(150) NULL,
             resp_bacenta_nom VARCHAR(150) NULL,
@@ -555,8 +574,9 @@ function up(): void
             created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
-            UNIQUE KEY uniq_rapport (centre_id, date_rapport),
+            UNIQUE KEY uniq_rapport_scope (scope_type, scope_id, date_rapport),
             KEY idx_rapport_centre_date (centre_id, date_rapport),
+            KEY idx_rapport_scope (scope_type, scope_id, date_rapport),
             CONSTRAINT fk_rap_centre  FOREIGN KEY (centre_id)  REFERENCES centres(id)  ON DELETE CASCADE,
             CONSTRAINT fk_rap_auteur  FOREIGN KEY (auteur_id)  REFERENCES users(id)    ON DELETE CASCADE,
             CONSTRAINT fk_rap_bacenta FOREIGN KEY (bacenta_id) REFERENCES bacentas(id) ON DELETE SET NULL
@@ -569,6 +589,41 @@ function up(): void
     }
     if (!index_exists($pdo, 'offrandes', 'uniq_off_rapport')) {
         $pdo->exec('CREATE UNIQUE INDEX uniq_off_rapport ON offrandes (rapport_id)');
+    }
+
+    /* ---- M7 - Affectation des cultes aux bacentas + portée des rapports -
+     * Un culte référence explicitement les bacentas dont les membres doivent
+     * être inclus dans le pointage. Les rapports du jour sont, eux, identifiés
+     * par leur portée : un rapport de centre ou un rapport de bacenta.
+     */
+    $pdo->exec("CREATE TABLE IF NOT EXISTS culte_bacentas (
+        culte_id INT NOT NULL,
+        bacenta_id INT NOT NULL,
+        created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (culte_id, bacenta_id),
+        KEY idx_culte_bacentas_bacenta (bacenta_id),
+        CONSTRAINT fk_cb_culte FOREIGN KEY (culte_id) REFERENCES cultes(id) ON DELETE CASCADE,
+        CONSTRAINT fk_cb_bacenta FOREIGN KEY (bacenta_id) REFERENCES bacentas(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+    if (!column_exists($pdo, 'rapports_jour', 'scope_type')) {
+        $pdo->exec("ALTER TABLE rapports_jour ADD COLUMN scope_type ENUM('centre','bacenta') NOT NULL DEFAULT 'bacenta' AFTER auteur_id");
+    }
+    if (!column_exists($pdo, 'rapports_jour', 'scope_id')) {
+        $pdo->exec("ALTER TABLE rapports_jour ADD COLUMN scope_id INT NULL AFTER scope_type");
+        $pdo->exec("UPDATE rapports_jour SET scope_type = CASE WHEN bacenta_id IS NULL THEN 'centre' ELSE 'bacenta' END, scope_id = COALESCE(bacenta_id, centre_id)");
+        $pdo->exec("ALTER TABLE rapports_jour MODIFY COLUMN scope_id INT NOT NULL");
+    } else {
+        $pdo->exec("UPDATE rapports_jour SET scope_type = CASE WHEN bacenta_id IS NULL THEN 'centre' ELSE 'bacenta' END, scope_id = COALESCE(bacenta_id, centre_id) WHERE scope_id IS NULL OR scope_id <= 0");
+    }
+    if (index_exists($pdo, 'rapports_jour', 'uniq_rapport')) {
+        $pdo->exec('DROP INDEX uniq_rapport ON rapports_jour');
+    }
+    if (!index_exists($pdo, 'rapports_jour', 'uniq_rapport_scope')) {
+        $pdo->exec('CREATE UNIQUE INDEX uniq_rapport_scope ON rapports_jour (scope_type, scope_id, date_rapport)');
+    }
+    if (!index_exists($pdo, 'rapports_jour', 'idx_rapport_scope')) {
+        $pdo->exec('CREATE INDEX idx_rapport_scope ON rapports_jour (scope_type, scope_id, date_rapport)');
     }
 
     /* ---- 13. M6 - Classes / Écoles post-culte (discipleship) -----------
@@ -667,7 +722,6 @@ function up(): void
             CONSTRAINT fk_bus_creator FOREIGN KEY (created_by) REFERENCES users(id)   ON DELETE SET NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
     );
->>>>>>> to-prod
 }
 
 /** Vérifie si une colonne existe déjà (idempotence des ALTER TABLE). */
@@ -698,9 +752,32 @@ function index_exists(\PDO $pdo, string $table, string $index): bool
 function down(): void
 {
     $pdo = Database::connection();
-    $tables = ['responsibilities', 'notifications', 'users_basontas', 'presences', 'evenements', 'anniversaires', 'rapports_jour', 'bus_budget', 'classe_inscrits', 'classes', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
-               'examens', 'veillees', 'cultes', 'basontas', 'bacentas', 'users',
-               'centres_presentation', 'equipe', 'presentation', 'centres'];
+    $tables = [
+        'responsibilities',
+        'notifications',
+        'users_basontas',
+        'presences',
+        'evenements',
+        'anniversaires',
+        'rapports_jour',
+        'bus_budget',
+        'classe_inscrits',
+        'classes',
+        'offrandes',
+        'visites',
+        'suivi_hebdo',
+        'dimes',
+        'examens',
+        'veillees',
+        'cultes',
+        'basontas',
+        'bacentas',
+        'users',
+        'centres_presentation',
+        'equipe',
+        'presentation',
+        'centres'
+    ];
     $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
     foreach ($tables as $t) {
         $pdo->exec("DROP TABLE IF EXISTS `$t`");

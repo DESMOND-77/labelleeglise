@@ -35,9 +35,14 @@ class MemberRepository
 
     public function ofCulte(int $culteId): array
     {
+        // Population calculée depuis les bacentas configurés sur le culte.
+        // Les présences enregistrées ne déterminent pas la population à pointer.
         return Query::all(
-            "SELECT u.*, p.date_presence FROM users u JOIN presences p ON p.user_id = u.id
-              WHERE p.culte_id = ? ORDER BY u.prenom, u.nom",
+            "SELECT DISTINCT u.*
+               FROM users u
+               JOIN culte_bacentas cb ON cb.bacenta_id = u.bacenta_id
+              WHERE cb.culte_id = ?
+              ORDER BY u.prenom, u.nom",
             [$culteId]
         );
     }
