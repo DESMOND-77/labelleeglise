@@ -137,7 +137,7 @@ still show the login form at the same URL. `apropos` / `centresPresentation`
 301-redirect to the landing for non-admins (admins keep the management views).
 Only published data is exposed: `centres.publie`, `centre_horaires`,
 `site_settings` (migration block 15), edited by admins at `?page=site_public`.
-Nothing is seeded - empty data hides the section. Plan:
+Equipe (`equipe.publie`) and events (`evenements.publie`, `description`) are opt-in per row. Nothing is seeded - empty data hides the section. Plan:
 `docs/landing-page-implementation-plan.md`.
 
 ### Registration / verification / activation / bacenta-assignment subsystem

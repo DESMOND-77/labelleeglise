@@ -53,7 +53,7 @@ class PublicSiteService
                 'ville'       => $this->clean($c['ville'] ?? null),
                 'itineraire'  => $this->safeUrl((string) ($c['itineraire_url'] ?? '')),
                 'intro'       => $this->clean($c['intro'] ?? null),
-                'photo'       => $this->clean($c['photo'] ?? null),
+                'photo'       => $this->safePhoto($c['photo'] ?? null),
                 'horaires'    => $slots,
                 'contact'     => $own,
             ];
@@ -67,6 +67,8 @@ class PublicSiteService
         $histoire = trim((string) ($presentation['histoire'] ?? ''));
 
         return [
+            'equipe'     => $this->equipeGroups(),
+            'evenements' => $this->events(),
             'nom'      => ($settings['nom_affichage'] ?? '') !== '' ? $settings['nom_affichage'] : (defined('APP_NAME') ? APP_NAME : ''),
             'accroche' => $accroche,
             'histoire' => $histoire,
@@ -86,10 +88,19 @@ class PublicSiteService
      */
     public function jsonLd(array $landing, string $pageUrl): ?array
     {
-        if ($landing['centres'] === []) {
-            return null;
-        }
         $graph = [];
+        foreach ($landing['evenements'] as $e) {
+            if ($e['lieu'] === '') {
+                continue; // Event exige un lieu : on n'invente rien.
+            }
+            $graph[] = [
+                '@type'     => 'Event',
+                'name'      => $e['nom'],
+                'startDate' => $e['iso'],
+                'location'  => ['@type' => 'Place', 'name' => $e['lieu']],
+            ];
+        }
+
         foreach ($landing['centres'] as $c) {
             $node = [
                 '@type'   => 'Church',
@@ -109,7 +120,7 @@ class PublicSiteService
             }
             $graph[] = $node;
         }
-        return ['@context' => 'https://schema.org', '@graph' => $graph];
+        return $graph === [] ? null : ['@context' => 'https://schema.org', '@graph' => $graph];
     }
 
     /** @param array<string,mixed> $centre @param array<string,string> $globalContact */
@@ -118,6 +129,66 @@ class PublicSiteService
         return $centre['adresse'] !== ''
             && $centre['horaires'] !== []
             && ($centre['contact'] !== [] || $globalContact !== []);
+    }
+
+    private const TEAM_LABELS = ['Révérend' => 'Révérends', 'Pasteur' => 'Pasteurs', 'Berger' => 'Bergers', 'Leader' => 'Leaders', 'Autre' => 'Autres'];
+    private const MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+
+    /** @return list<array{label:string,members:list<array<string,string>>}> */
+    private function equipeGroups(): array
+    {
+        $by = [];
+        foreach ($this->repo->publishedEquipe() as $m) {
+            $cat = isset(self::TEAM_LABELS[$m['categorie'] ?? '']) ? $m['categorie'] : 'Autre';
+            $by[$cat][] = [
+                'nom'   => (string) $m['nom_affichage'],
+                'role'  => (string) $m['role_affichage'],
+                'bio'   => $this->clean($m['bio'] ?? null),
+                'photo' => $this->safePhoto($m['photo'] ?? null),
+            ];
+        }
+        $groups = [];
+        foreach (self::TEAM_LABELS as $cat => $label) {
+            if (!empty($by[$cat])) {
+                $groups[] = ['label' => $label, 'members' => $by[$cat]];
+            }
+        }
+        return $groups;
+    }
+
+    /** @return list<array<string,string>> */
+    private function events(): array
+    {
+        $out = [];
+        foreach ($this->repo->upcomingEvents(date('Y-m-d H:i:s')) as $e) {
+            $start = new \DateTimeImmutable((string) $e['date_debut']);
+            $out[] = [
+                'nom'         => (string) $e['nom'],
+                'quand'       => $this->formatEventWhen($start, !empty($e['date_fin']) ? new \DateTimeImmutable((string) $e['date_fin']) : null),
+                'iso'         => $start->format('c'),
+                'lieu'        => $this->clean($e['lieu'] ?? null),
+                'description' => $this->clean($e['description'] ?? null),
+            ];
+        }
+        return $out;
+    }
+
+    private function formatEventWhen(\DateTimeImmutable $s, ?\DateTimeImmutable $e): string
+    {
+        $date = static fn(\DateTimeImmutable $d): string => (int) $d->format('j') . ' ' . self::MONTHS[(int) $d->format('n') - 1] . ' ' . $d->format('Y');
+        $time = fn(\DateTimeImmutable $d): string => $this->formatTime($d->format('H:i'));
+        $out = $date($s) . ', ' . $time($s);
+        if ($e !== null && $e > $s) {
+            $out .= $e->format('Y-m-d') === $s->format('Y-m-d') ? ' – ' . $time($e) : ' → ' . $date($e) . ', ' . $time($e);
+        }
+        return $out;
+    }
+
+    /** Chemin d'image local sous uploads/ ou assets/ (jamais d'URL arbitraire). */
+    private function safePhoto(mixed $p): string
+    {
+        $p = trim((string) ($p ?? ''));
+        return preg_match('#^/?(uploads|assets)/[\w./-]+$#', $p) === 1 && !str_contains($p, '..') ? $p : '';
     }
 
     /** Liens tel:/mailto:/WhatsApp, uniquement pour les valeurs valides. @return array<string,array{label:string,href:string}> */
@@ -207,7 +278,12 @@ class PublicSiteService
         }
         unset($c);
 
-        return ['settings' => $this->repo->settings(), 'centres' => $centres];
+        return [
+            'settings'   => $this->repo->settings(),
+            'centres'    => $centres,
+            'equipe'     => $this->repo->equipeForAdmin(),
+            'evenements' => $this->repo->eventsForAdmin(date('Y-m-d H:i:s')),
+        ];
     }
 
     /** @param array<string,mixed> $post @return list<string> erreurs (vide = enregistré) */
@@ -246,6 +322,35 @@ class PublicSiteService
         }
 
         $this->repo->saveSettings($values);
+        return $errors;
+    }
+
+    /** @param array<string,mixed> $post */
+    public function saveEquipe(array $post): void
+    {
+        $this->repo->setEquipePublie((array) ($post['publie'] ?? []));
+    }
+
+    /** @param array<string,mixed> $post @return list<string> */
+    public function saveEvents(array $post): array
+    {
+        $errors = [];
+        $listed = array_map('intval', (array) ($post['ids'] ?? []));
+        $publie = array_map('intval', (array) ($post['publie'] ?? []));
+        $desc = (array) ($post['description'] ?? []);
+        foreach ($this->repo->eventsForAdmin(date('Y-m-d H:i:s')) as $e) {
+            $id = (int) $e['id'];
+            if (!in_array($id, $listed, true)) {
+                continue;
+            }
+            $d = mb_substr(trim((string) ($desc[$id] ?? '')), 0, 1000);
+            $want = in_array($id, $publie, true);
+            if ($want && $d === '' && trim((string) ($e['lieu'] ?? '')) === '') {
+                $errors[] = '« ' . $e['nom'] . ' » non publié : lieu ou description requis.';
+                $want = false;
+            }
+            $this->repo->saveEventPublic($id, $want, $d !== '' ? $d : null);
+        }
         return $errors;
     }
 

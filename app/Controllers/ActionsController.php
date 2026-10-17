@@ -1036,6 +1036,17 @@ class ActionsController extends Controller
                 $this->redirectSitePublic($errors);
                 break;
 
+            case 'save_equipe_public':
+                $this->requireAdmin();
+                public_site_service()->saveEquipe($_POST);
+                $this->redirectSitePublic([]);
+                break;
+
+            case 'save_events_public':
+                $this->requireAdmin();
+                $this->redirectSitePublic(public_site_service()->saveEvents($_POST));
+                break;
+
             case 'save_centre_public':
                 $this->requireAdmin();
                 $errors = public_site_service()->saveCentre((int) ($_POST['centre_id'] ?? 0), $_POST);

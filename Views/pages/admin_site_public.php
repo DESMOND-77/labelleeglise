@@ -54,3 +54,32 @@
     <button class="btn btn-primary" type="submit">Enregistrer ce centre</button>
   </form>
 <?php endforeach; ?>
+
+<form class="form-card" method="post" action="index.php">
+  <input type="hidden" name="action" value="save_equipe_public">
+  <?= $csrf ?>
+  <h3>Équipe pastorale affichée</h3>
+  <p class="sub">Cochez uniquement les personnes ayant autorisé la publication de leur nom, rôle, photo et présentation.</p>
+  <?php if (!$equipe): ?>
+    <p>Aucun membre d'équipe enregistré (voir « Gérer histoire et équipe »).</p>
+  <?php endif; ?>
+  <?php foreach ($equipe as $m): ?>
+    <label class="check-label"><input type="checkbox" name="publie[]" value="<?= (int) $m['id'] ?>"<?= !empty($m['publie']) ? ' checked' : '' ?>> <?= h($m['nom_affichage']) ?> - <?= h($m['role_affichage']) ?></label>
+  <?php endforeach; ?>
+  <button class="btn btn-primary" type="submit">Enregistrer l'équipe</button>
+</form>
+
+<form class="form-card" method="post" action="index.php">
+  <input type="hidden" name="action" value="save_events_public">
+  <?= $csrf ?>
+  <h3>Événements à venir affichés</h3>
+  <?php if (!$evenements): ?>
+    <p>Aucun événement à venir (créez-en dans le calendrier).</p>
+  <?php endif; ?>
+  <?php foreach ($evenements as $e): ?>
+    <input type="hidden" name="ids[]" value="<?= (int) $e['id'] ?>">
+    <label class="check-label"><input type="checkbox" name="publie[]" value="<?= (int) $e['id'] ?>"<?= !empty($e['publie']) ? ' checked' : '' ?>> <?= h($e['nom']) ?> - <?= h(substr((string) $e['date_debut'], 0, 16)) ?><?= $e['lieu'] ? ' - ' . h($e['lieu']) : '' ?></label>
+    <label>Description publique<textarea name="description[<?= (int) $e['id'] ?>]" rows="2" maxlength="1000"><?= h($e['description'] ?? '') ?></textarea></label>
+  <?php endforeach; ?>
+  <button class="btn btn-primary" type="submit">Enregistrer les événements</button>
+</form>

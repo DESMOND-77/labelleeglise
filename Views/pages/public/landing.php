@@ -2,12 +2,15 @@
 /* Landing publique. Variables : $nom, $accroche, $histoire, $centres, $contact, $socials, $direct.
    Chaque section n'apparaît que si ses données publiables existent. */
 $hasCentres = $centres !== [];
-$hasAbout   = $accroche !== '' || $histoire !== '';
+$hasEquipe  = $equipe !== [];
+$hasEvents  = $evenements !== [];
+$hasAbout   = $accroche !== '' || $histoire !== '' || $hasEquipe;
 $hasContact = $contact !== [] || $socials !== [];
 
 $nav = [['#accueil', 'Accueil']];
 if ($hasAbout)   { $nav[] = ['#a-propos', 'À propos']; }
 if ($hasCentres) { $nav[] = ['#horaires', 'Horaires']; $nav[] = ['#centres', 'Nos centres']; }
+if ($hasEvents)  { $nav[] = ['#evenements', 'Événements']; }
 if ($direct !== '') { $nav[] = ['#medias', 'Culte en ligne']; }
 if ($hasContact) { $nav[] = ['#contact', 'Contact']; }
 
@@ -85,6 +88,26 @@ $addr = static fn(array $c): string => implode(', ', array_filter([$c['adresse']
         <?php elseif ($accroche !== ''): ?>
           <div class="prose"><?= h($accroche) ?></div>
         <?php endif; ?>
+        <?php if ($hasEquipe): ?>
+          <h3 class="team-title">Notre équipe</h3>
+          <?php foreach ($equipe as $g): ?>
+            <h4><?= h($g['label']) ?></h4>
+            <ul class="team">
+              <?php foreach ($g['members'] as $m): ?>
+                <li class="team-member">
+                  <?php if ($m['photo'] !== ''): ?>
+                    <img src="<?= h($m['photo']) ?>" alt="<?= h($m['nom']) ?>" loading="lazy" width="72" height="72">
+                  <?php endif; ?>
+                  <div>
+                    <strong><?= h($m['nom']) ?></strong>
+                    <span class="muted"><?= h($m['role']) ?></span>
+                    <?php if ($m['bio'] !== ''): ?><p><?= h($m['bio']) ?></p><?php endif; ?>
+                  </div>
+                </li>
+              <?php endforeach; ?>
+            </ul>
+          <?php endforeach; ?>
+        <?php endif; ?>
       </div>
     </section>
   <?php endif; ?>
@@ -112,6 +135,24 @@ $addr = static fn(array $c): string => implode(', ', array_filter([$c['adresse']
                   <a class="btn" href="<?= h($link['href']) ?>"<?= $kind === 'whatsapp' ? ' target="_blank" rel="noopener noreferrer"' : '' ?>><?= h($kind === 'email' ? 'E-mail' : ($kind === 'whatsapp' ? 'WhatsApp' : 'Appeler')) ?><span class="sr-only"> (<?= h($c['nom']) ?>)</span></a>
                 <?php endforeach; ?>
               </p>
+            </article>
+          <?php endforeach; ?>
+        </div>
+      </div>
+    </section>
+  <?php endif; ?>
+
+  <?php if ($hasEvents): ?>
+    <section id="evenements" class="section" aria-labelledby="evenements-titre">
+      <div class="wrap">
+        <h2 id="evenements-titre">Événements à venir</h2>
+        <div class="grid">
+          <?php foreach ($evenements as $e): ?>
+            <article class="card">
+              <h3><?= h($e['nom']) ?></h3>
+              <p><time datetime="<?= h($e['iso']) ?>"><?= h($e['quand']) ?></time></p>
+              <?php if ($e['lieu'] !== ''): ?><p class="muted"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> <?= h($e['lieu']) ?></p><?php endif; ?>
+              <?php if ($e['description'] !== ''): ?><p><?= h($e['description']) ?></p><?php endif; ?>
             </article>
           <?php endforeach; ?>
         </div>

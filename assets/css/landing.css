@@ -80,3 +80,10 @@
 }
 html { scroll-behavior: smooth; scroll-padding-top: 72px; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* ---- Équipe ---- */
+.team-title { margin-top: var(--space-8); }
+.team { list-style: none; padding: 0; margin: 0 0 var(--space-4); display: grid; gap: var(--space-4); }
+.team-member { display: flex; gap: var(--space-3); align-items: flex-start; }
+.team-member img { width: 72px; height: 72px; object-fit: cover; border-radius: var(--radius-full); flex: none; }
+.team-member p { margin: var(--space-1) 0 0; }

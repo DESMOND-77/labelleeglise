@@ -77,6 +77,26 @@ class PublicSiteRepository
         return $out;
     }
 
+    /** Membres d'équipe publiés (aucun lien vers `users`). */
+    public function publishedEquipe(): array
+    {
+        return Query::all(
+            'SELECT id, nom_affichage, role_affichage, bio, photo, categorie FROM equipe WHERE publie = 1 ORDER BY id'
+        );
+    }
+
+    /** Événements publiés, non terminés à $now ('Y-m-d H:i:s'). */
+    public function upcomingEvents(string $now, int $limit = 12): array
+    {
+        return Query::all(
+            'SELECT id, nom, date_debut, date_fin, lieu, description
+               FROM evenements
+              WHERE publie = 1 AND COALESCE(date_fin, date_debut) >= ?
+              ORDER BY date_debut ASC LIMIT ' . max(1, $limit),
+            [$now]
+        );
+    }
+
     /* ---------- Administration (admin uniquement - garde côté contrôleur) ---------- */
 
     /** Tous les centres avec leurs champs publics (formulaire admin). */
@@ -86,6 +106,37 @@ class PublicSiteRepository
             'SELECT id, nom, adresse, quartier, ville, itineraire_url, telephone, whatsapp, email, publie
                FROM centres ORDER BY id'
         );
+    }
+
+    public function equipeForAdmin(): array
+    {
+        return Query::all('SELECT id, nom_affichage, role_affichage, categorie, publie FROM equipe ORDER BY id');
+    }
+
+    /** Publie exactement les membres listés, dépublie les autres. @param int[] $ids */
+    public function setEquipePublie(array $ids): void
+    {
+        Query::transaction(function () use ($ids): void {
+            Query::run('UPDATE equipe SET publie = 0');
+            foreach (array_unique(array_filter(array_map('intval', $ids), static fn(int $i) => $i > 0)) as $id) {
+                Query::run('UPDATE equipe SET publie = 1 WHERE id = ?', [$id]);
+            }
+        });
+    }
+
+    /** Événements à venir ou en cours (écran admin). */
+    public function eventsForAdmin(string $now): array
+    {
+        return Query::all(
+            'SELECT id, nom, date_debut, date_fin, lieu, description, publie FROM evenements
+              WHERE COALESCE(date_fin, date_debut) >= ? ORDER BY date_debut ASC',
+            [$now]
+        );
+    }
+
+    public function saveEventPublic(int $id, bool $publie, ?string $description): void
+    {
+        Query::run('UPDATE evenements SET publie = ?, description = ? WHERE id = ?', [$publie ? 1 : 0, $description, $id]);
     }
 
     public function centreExists(int $id): bool

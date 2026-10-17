@@ -762,6 +762,18 @@ function up(): void
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
     );
 
+    // Équipe et événements : exposés publiquement uniquement si `publie` = 1
+    // (0 par défaut - les lignes existantes ne deviennent jamais publiques seules).
+    if (!column_exists($pdo, 'equipe', 'publie')) {
+        $pdo->exec("ALTER TABLE equipe ADD COLUMN publie TINYINT(1) NOT NULL DEFAULT 0");
+    }
+    if (!column_exists($pdo, 'evenements', 'publie')) {
+        $pdo->exec("ALTER TABLE evenements ADD COLUMN publie TINYINT(1) NOT NULL DEFAULT 0");
+    }
+    if (!column_exists($pdo, 'evenements', 'description')) {
+        $pdo->exec("ALTER TABLE evenements ADD COLUMN description TEXT NULL");
+    }
+
     $pdo->exec(
         "CREATE TABLE IF NOT EXISTS site_settings (
             cle VARCHAR(60) NOT NULL,
