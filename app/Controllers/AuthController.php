@@ -26,7 +26,7 @@ class AuthController extends Controller
             $target = scope_target();
             $this->redirect('index.php', $target ?: ['page' => 'accueil']);
         }
-        $this->redirect('index.php', ['error' => $result['reason']]);
+        $this->redirect('index.php', ['page' => 'login', 'error' => $result['reason']]);
     }
 
     public function verifyAccess(): void

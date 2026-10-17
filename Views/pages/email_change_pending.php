@@ -30,7 +30,7 @@
         Ouvrez votre boîte de réception et cliquez sur le lien pour confirmer le changement.
       </p>
       <p class="register-hint">Tant que vous n'aurez pas cliqué sur ce lien, votre ancienne adresse email reste inchangée mais votre session reste déconnectée.</p>
-      <a class="btn btn-primary btn-block btn-lg" href="index.php">Retour à la connexion</a>
+      <a class="btn btn-primary btn-block btn-lg" href="index.php?page=login">Retour à la connexion</a>
     </div>
   </div>
 </body>

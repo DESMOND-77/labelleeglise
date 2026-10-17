@@ -722,6 +722,53 @@ function up(): void
             CONSTRAINT fk_bus_creator FOREIGN KEY (created_by) REFERENCES users(id)   ON DELETE SET NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
     );
+
+    /* ---- 15. Site public (landing page) -------------------------------
+     * Contenus publics administrables : champs publics des centres (adresse,
+     * contact, itinéraire, drapeau `publie` - 0 par défaut : un centre n'est
+     * jamais exposé tant qu'un admin ne l'a pas validé), horaires de culte
+     * par centre, et paramètres clé/valeur du site (identité, contacts,
+     * réseaux sociaux, lien de direct). Aucune donnée n'est semée : une
+     * valeur inconnue reste vide et n'est pas affichée.
+     */
+    $centreColumns = [
+        'adresse'        => "ALTER TABLE centres ADD COLUMN adresse VARCHAR(255) NULL",
+        'quartier'       => "ALTER TABLE centres ADD COLUMN quartier VARCHAR(100) NULL",
+        'ville'          => "ALTER TABLE centres ADD COLUMN ville VARCHAR(100) NULL",
+        'itineraire_url' => "ALTER TABLE centres ADD COLUMN itineraire_url VARCHAR(500) NULL",
+        'telephone'      => "ALTER TABLE centres ADD COLUMN telephone VARCHAR(30) NULL",
+        'whatsapp'       => "ALTER TABLE centres ADD COLUMN whatsapp VARCHAR(30) NULL",
+        'email'          => "ALTER TABLE centres ADD COLUMN email VARCHAR(150) NULL",
+        'publie'         => "ALTER TABLE centres ADD COLUMN publie TINYINT(1) NOT NULL DEFAULT 0",
+    ];
+    foreach ($centreColumns as $column => $alterSql) {
+        if (!column_exists($pdo, 'centres', $column)) {
+            $pdo->exec($alterSql);
+        }
+    }
+
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS centre_horaires (
+            id INT NOT NULL AUTO_INCREMENT,
+            centre_id INT NOT NULL,
+            libelle VARCHAR(100) NOT NULL,
+            jours VARCHAR(100) NOT NULL,
+            heure_debut TIME NOT NULL,
+            heure_fin TIME NULL,
+            ordre INT NOT NULL DEFAULT 0,
+            PRIMARY KEY (id),
+            KEY idx_horaire_centre (centre_id, ordre),
+            CONSTRAINT fk_horaire_centre FOREIGN KEY (centre_id) REFERENCES centres(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
+
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS site_settings (
+            cle VARCHAR(60) NOT NULL,
+            valeur TEXT NULL,
+            PRIMARY KEY (cle)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
 }
 
 /** Vérifie si une colonne existe déjà (idempotence des ALTER TABLE). */
@@ -752,7 +799,7 @@ function index_exists(\PDO $pdo, string $table, string $index): bool
 function down(): void
 {
     $pdo = Database::connection();
-    $tables = ['responsibilities', 'notifications', 'users_basontas', 'presences', 'evenements', 'anniversaires', 'rapports_jour', 'bus_budget', 'classe_inscrits', 'classes', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
+    $tables = ['site_settings', 'centre_horaires', 'responsibilities', 'notifications', 'users_basontas', 'presences', 'evenements', 'anniversaires', 'rapports_jour', 'bus_budget', 'classe_inscrits', 'classes', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
                'examens', 'veillees', 'cultes', 'basontas', 'bacentas', 'users',
                'centres_presentation', 'equipe', 'presentation', 'centres'];
     $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');

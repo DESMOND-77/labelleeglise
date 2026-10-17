@@ -126,6 +126,20 @@ cursus) are seeded *inside `up()`*, guarded by `SELECT COUNT(*) FROM t = 0` -
 only `\Database\Migrations\up()` (non-destructive); `install.php` calls `down()`
 first and wipes everything.
 
+### Public landing page (vitrine)
+
+`?page=eglise` (and bare `/` for an anonymous visitor) serves a public landing
+page via `PublicController` → `PublicSiteService` → `PublicSiteRepository`
+(standalone layout `Views/layouts/public.php`, `assets/css/landing.css`). Public
+pages are whitelisted in `$publicPages` in `index.php` - that list is the only
+auth bypass. Login moved to `?page=login`; protected pages visited anonymously
+still show the login form at the same URL. `apropos` / `centresPresentation`
+301-redirect to the landing for non-admins (admins keep the management views).
+Only published data is exposed: `centres.publie`, `centre_horaires`,
+`site_settings` (migration block 15), edited by admins at `?page=site_public`.
+Nothing is seeded - empty data hides the section. Plan:
+`docs/landing-page-implementation-plan.md`.
+
 ### Registration / verification / activation / bacenta-assignment subsystem
 
 A full workflow lives on top of the base `users` table (see README.md §7 for

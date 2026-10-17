@@ -244,7 +244,7 @@ class RegistrationService
         $this->users->activateAccount($userId);
         $user = $this->users->find($userId);
 
-        $loginUrl = $this->mail->buildUrl('index.php');
+        $loginUrl = $this->mail->buildUrl('index.php', ['page' => 'login']);
         try {
             $this->mail->sendAccountActivatedEmail($user, $loginUrl);
         } catch (\Throwable $e) {

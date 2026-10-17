@@ -71,6 +71,7 @@ define('SECTION_LABELS', [
     'bergerFiche'        => 'Fiche Berger',
     'personProfile'      => 'Fiche membre',
     'admin_inscriptions' => 'Inscriptions en attente',
+    'site_public'        => 'Site public',
     'admin_inscription'  => 'Demande d\'inscription',
     'notifications'      => 'Notifications',
 ]);
@@ -96,6 +97,7 @@ define('SECTION_ICONS', [
     'finances'           => '<i class="fa-solid fa-sack-dollar"></i>',
     'parametres'         => '<i class="fa-solid fa-gear"></i>',
     'admin_inscriptions' => '<i class="fa-solid fa-user-plus"></i>',
+    'site_public'        => '<i class="fa-solid fa-globe"></i>',
 ]);
 
 /* ---------- Inscription publique / statut de compte ---------- */

@@ -25,6 +25,13 @@ class ActionsController extends Controller
         $this->redirect('index.php', ['page' => 'apropos']);
     }
 
+    /** Retour vers l'écran « Site public » avec les éventuelles erreurs de validation. */
+    private function redirectSitePublic(array $errors): never
+    {
+        $_SESSION['site_public_errors'] = $errors;
+        $this->redirect('index.php', $errors ? ['page' => 'site_public'] : ['page' => 'site_public', 'saved' => 1]);
+    }
+
     private function requireAdmin(): array
     {
         $user = current_user();
@@ -1021,6 +1028,18 @@ class ActionsController extends Controller
                     'photo' => $photo,
                 ]);
                 $this->redirect('index.php', ['page' => 'apropos']);
+                break;
+
+            case 'save_site_settings':
+                $this->requireAdmin();
+                $errors = public_site_service()->saveSettings($_POST);
+                $this->redirectSitePublic($errors);
+                break;
+
+            case 'save_centre_public':
+                $this->requireAdmin();
+                $errors = public_site_service()->saveCentre((int) ($_POST['centre_id'] ?? 0), $_POST);
+                $this->redirectSitePublic($errors);
                 break;
 
             case 'save_article':
