@@ -137,8 +137,21 @@ still show the login form at the same URL. `apropos` / `centresPresentation`
 301-redirect to the landing for non-admins (admins keep the management views).
 Only published data is exposed: `centres.publie`, `centre_horaires`,
 `site_settings` (migration block 15), edited by admins at `?page=site_public`.
-Equipe (`equipe.publie`) and events (`evenements.publie`, `description`) are opt-in per row. Nothing is seeded - empty data hides the section. Plan:
-`docs/landing-page-implementation-plan.md`.
+Equipe (`equipe.publie`) and events (`evenements.publie`, `description`,
+`affiche`, `lien_inscription`) are opt-in per row. Nothing is seeded - empty
+data hides the section. The landing view is split into partials
+(`Views/pages/public/partials/`) and renders, when populated: hero (slogan,
+texte d'accueil, image via `hero_image`), horaires + contact rapide, à propos,
+centres (seuil : adresse + horaire + contact), vie de l'église (bacentas =
+prière / basontas = groupes et services, via `description_publique` + `publie`,
+migration block 16), événements, médias (`lien_direct`, prédication), FAQ
+(`faq_publique`, block 16), contact, engagement (`lien_don` + `don_usage`),
+footer complet. Pages légales publiques : `?page=mentions_legales` /
+`?page=confidentialite` (servies seulement si le texte est renseigné, sinon
+redirection vers la vitrine). Le CTA principal n'est affiché que s'il mène à
+une cible réelle (jamais un bouton décoratif). Plan V2 :
+`docs/landing-page-plan-v2-spec-unifiee.md` (supersède
+`docs/landing-page-implementation-plan.md`).
 
 ### Registration / verification / activation / bacenta-assignment subsystem
 

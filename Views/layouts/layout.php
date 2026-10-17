@@ -174,7 +174,7 @@ if (in_array($page, ['bacentas', 'cultes', 'basontas'], true) && nav('id')) {
       <i class="fa-solid fa-chevron-left"></i>
     </button>
     <div class="brand">
-      <div class="brand-logo"><img src="/assets/images/logo.png" alt="La Belle Église Intenationale Franceville Internationale Franceville"></div>
+      <div class="brand-logo"><img src="/assets/images/logo.png" alt="La Belle Église Intenationale Franceville"></div>
       <div class="brand-text">
         <strong><?= h(APP_NAME) ?></strong>
         <span><?= h(APP_LOCATION) ?></span>

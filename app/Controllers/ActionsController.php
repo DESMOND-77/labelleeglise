@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Core\Query;
 use App\Core\Request;
+use App\Core\Upload;
 use App\Repositories\CMSRepository;
 
 /**
@@ -219,6 +220,15 @@ class ActionsController extends Controller
                     delete_equipe_record($id);
                 }
                 $this->redirect('index.php', ['page' => 'apropos']);
+                break;
+
+            case 'delete_faq':
+                $this->requireAdmin();
+                $id = (int) ($_GET['id'] ?? 0);
+                if ($id) {
+                    public_site_service()->deleteFaq($id);
+                }
+                $this->redirect('index.php', ['page' => 'site_public']);
                 break;
 
             case 'delete_article':
@@ -1032,6 +1042,11 @@ class ActionsController extends Controller
 
             case 'save_site_settings':
                 $this->requireAdmin();
+                // Image de hero : nouvel upload ou valeur conservée.
+                $hero = Upload::photo('hero_image');
+                $_POST['hero_image'] = $hero !== null
+                    ? $hero
+                    : (string) ($_POST['hero_image_current'] ?? '');
                 $errors = public_site_service()->saveSettings($_POST);
                 $this->redirectSitePublic($errors);
                 break;
@@ -1044,7 +1059,26 @@ class ActionsController extends Controller
 
             case 'save_events_public':
                 $this->requireAdmin();
-                $this->redirectSitePublic(public_site_service()->saveEvents($_POST));
+                // Affiches d'événements : une par événement (index = id).
+                $affichePaths = [];
+                foreach (array_map('intval', (array) ($_POST['ids'] ?? [])) as $eventId) {
+                    $path = Upload::photoAt('affiche', $eventId);
+                    if ($path !== null) {
+                        $affichePaths[$eventId] = $path;
+                    }
+                }
+                $this->redirectSitePublic(public_site_service()->saveEvents($_POST, $affichePaths));
+                break;
+
+            case 'save_faq_public':
+                $this->requireAdmin();
+                $this->redirectSitePublic(public_site_service()->saveFaq($_POST));
+                break;
+
+            case 'save_ministries_public':
+                $this->requireAdmin();
+                public_site_service()->saveMinistries($_POST);
+                $this->redirectSitePublic([]);
                 break;
 
             case 'save_centre_public':

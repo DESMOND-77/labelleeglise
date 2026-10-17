@@ -781,6 +781,52 @@ function up(): void
             PRIMARY KEY (cle)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
     );
+
+    /* ---- 16. Landing publique v2 (spec unifiée 1.0) -------------
+     * Ajouts purement additifs pour les sections conditionnelles :
+     * FAQ publique, descriptions publiques des bacentas (prière) et
+     * basontas (groupes/services), responsable public d'un centre
+     * (texte libre - jamais un id `users`), affiche et lien
+     * d'inscription d'un événement public. Tout reste masqué tant
+     * qu'aucune donnée n'est publiée (`publie` = 0 par défaut).
+     */
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS faq_publique (
+            id INT NOT NULL AUTO_INCREMENT,
+            question VARCHAR(255) NOT NULL,
+            reponse TEXT NOT NULL,
+            ordre INT NOT NULL DEFAULT 0,
+            publie TINYINT(1) NOT NULL DEFAULT 0,
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
+
+    $ministryColumns = [
+        ['bacentas', 'description_publique', 'ALTER TABLE bacentas ADD COLUMN description_publique TEXT NULL'],
+        ['bacentas', 'publie', 'ALTER TABLE bacentas ADD COLUMN publie TINYINT(1) NOT NULL DEFAULT 0'],
+        ['basontas', 'description_publique', 'ALTER TABLE basontas ADD COLUMN description_publique TEXT NULL'],
+        ['basontas', 'publie', 'ALTER TABLE basontas ADD COLUMN publie TINYINT(1) NOT NULL DEFAULT 0'],
+    ];
+    foreach ($ministryColumns as [$table, $column, $alterSql]) {
+        if (!column_exists($pdo, $table, $column)) {
+            $pdo->exec($alterSql);
+        }
+    }
+
+    if (!column_exists($pdo, 'centres', 'responsable_public')) {
+        $pdo->exec('ALTER TABLE centres ADD COLUMN responsable_public VARCHAR(150) NULL');
+    }
+
+    $eventPublicColumns = [
+        'affiche'          => 'ALTER TABLE evenements ADD COLUMN affiche TEXT NULL',
+        'lien_inscription' => 'ALTER TABLE evenements ADD COLUMN lien_inscription VARCHAR(500) NULL',
+    ];
+    foreach ($eventPublicColumns as $column => $alterSql) {
+        if (!column_exists($pdo, 'evenements', $column)) {
+            $pdo->exec($alterSql);
+        }
+    }
 }
 
 /** Vérifie si une colonne existe déjà (idempotence des ALTER TABLE). */
@@ -811,7 +857,7 @@ function index_exists(\PDO $pdo, string $table, string $index): bool
 function down(): void
 {
     $pdo = Database::connection();
-    $tables = ['site_settings', 'centre_horaires', 'responsibilities', 'notifications', 'users_basontas', 'presences', 'evenements', 'anniversaires', 'rapports_jour', 'bus_budget', 'classe_inscrits', 'classes', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
+    $tables = ['faq_publique', 'site_settings', 'centre_horaires', 'responsibilities', 'notifications', 'users_basontas', 'presences', 'evenements', 'anniversaires', 'rapports_jour', 'bus_budget', 'classe_inscrits', 'classes', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
                'examens', 'veillees', 'cultes', 'basontas', 'bacentas', 'users',
                'centres_presentation', 'equipe', 'presentation', 'centres'];
     $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
