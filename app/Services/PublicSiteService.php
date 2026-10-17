@@ -54,6 +54,7 @@ class PublicSiteService
                 'itineraire'  => $this->safeUrl((string) ($c['itineraire_url'] ?? '')),
                 'intro'       => $this->clean($c['intro'] ?? null),
                 'photo'       => $this->safePhoto($c['photo'] ?? null),
+                'responsable' => $this->clean($c['responsable_public'] ?? null),
                 'horaires'    => $slots,
                 'contact'     => $own,
             ];
@@ -66,17 +67,127 @@ class PublicSiteService
         $accroche = trim((string) ($presentation['accroche'] ?? ''));
         $histoire = trim((string) ($presentation['histoire'] ?? ''));
 
+        $predication = [
+            'titre' => $this->clean($settings['predication_titre'] ?? null),
+            'date'  => $this->clean($settings['predication_date'] ?? null),
+            'url'   => $this->safeUrl((string) ($settings['predication_url'] ?? '')),
+        ];
+        // Une prédication n'est publiée que si son lien officiel est valide.
+        if ($predication['url'] === '') {
+            $predication = ['titre' => '', 'date' => '', 'url' => ''];
+        }
+
+        $ministries = $this->ministries();
+
         return [
             'equipe'     => $this->equipeGroups(),
             'evenements' => $this->events(),
             'nom'      => ($settings['nom_affichage'] ?? '') !== '' ? $settings['nom_affichage'] : (defined('APP_NAME') ? APP_NAME : ''),
             'accroche' => $accroche,
             'histoire' => $histoire,
+            'slogan'   => $this->clean($settings['slogan'] ?? null),
+            'accueil_texte' => $this->clean($settings['accueil_texte'] ?? null),
+            'hero_image'    => $this->safePhoto($settings['hero_image'] ?? null),
+            'hero_image_alt' => $this->clean($settings['hero_image_alt'] ?? null),
+            'adresse'  => $this->clean($settings['adresse'] ?? null),
             'centres'  => $centres,
             'contact'  => $contact,
             'socials'  => $this->socials($settings),
             'direct'   => $this->safeUrl($settings['lien_direct'] ?? ''),
+            'predication' => $predication,
+            'lien_don' => $this->safeUrl((string) ($settings['lien_don'] ?? '')),
+            'don_usage' => $this->clean($settings['don_usage'] ?? null),
+            'faq'      => $this->faq(),
+            'ministries' => $ministries,
+            'hasMinistries' => $ministries !== [],
+            'fuseau'   => $this->timezoneLabel(),
+            'has_mentions_legales' => $this->clean($settings['mentions_legales'] ?? null) !== '',
+            'has_confidentialite'  => $this->clean($settings['confidentialite'] ?? null) !== '',
         ];
+    }
+
+    /** @return list<array{question:string,reponse:string}> */
+    private function faq(): array
+    {
+        $out = [];
+        foreach ($this->repo->publishedFaq() as $f) {
+            $q = $this->clean($f['question'] ?? null);
+            $r = $this->clean($f['reponse'] ?? null);
+            if ($q === '' || $r === '') {
+                continue; // jamais de demi-entrée publiée
+            }
+            $out[] = ['question' => $q, 'reponse' => $r];
+        }
+        return $out;
+    }
+
+    /**
+     * Ministères publiés : bacentas (rassemblements de prière) et
+     * basontas (groupes/services). Jamais de liste de membres.
+     * @return array{bacentas:list<array<string,string>>,basontas:list<array<string,string>>}
+     */
+    private function ministries(): array
+    {
+        $out = ['bacentas' => [], 'basontas' => []];
+        foreach ($this->repo->publishedMinistries() as $type => $rows) {
+            foreach ($rows as $m) {
+                $description = $this->clean($m['description_publique'] ?? null);
+                if ($description === '') {
+                    continue; // un ministère sans description publique n'est pas publié
+                }
+                $out[$type][] = [
+                    'nom'         => (string) $m['nom'],
+                    'description' => $description,
+                    'horaires'    => $this->formatMinistrySchedule($m),
+                ];
+            }
+        }
+        if ($out['bacentas'] === [] && $out['basontas'] === []) {
+            return ['bacentas' => [], 'basontas' => []];
+        }
+        return $out;
+    }
+
+    /** Horaires internes d'un groupe, formatés pour le public ('' si absents). */
+    private function formatMinistrySchedule(array $m): string
+    {
+        $jours = trim((string) ($m['jours_semaine'] ?? ''));
+        if ($jours === '') {
+            return '';
+        }
+        $out = $jours;
+        $debut = (string) ($m['heure_debut'] ?? '');
+        $fin = (string) ($m['heure_fin'] ?? '');
+        if (preg_match('/^(\d{1,2}):(\d{2})/', $debut, $m1) === 1) {
+            $out .= ' · ' . (int) $m1[1] . 'h' . $m1[2];
+            if (preg_match('/^(\d{1,2}):(\d{2})/', $fin, $m2) === 1) {
+                $out .= ' – ' . (int) $m2[1] . 'h' . $m2[2];
+            }
+        }
+        return $out;
+    }
+
+    /** Fuseau horaire de l'application, dérivé de la configuration (jamais codé en dur). */
+    private function timezoneLabel(): string
+    {
+        $tzName = (string) date_default_timezone_get();
+        if ($tzName === '') {
+            return '';
+        }
+        try {
+            $tz = new \DateTimeZone($tzName);
+            $offset = (new \DateTimeImmutable('now', $tz))->getOffset();
+            $sign = $offset < 0 ? '-' : '+';
+            $abs = abs($offset);
+            $label = 'UTC' . $sign . (int) ($abs / 3600);
+            $minutes = (int) (($abs % 3600) / 60);
+            if ($minutes > 0) {
+                $label .= ':' . str_pad((string) $minutes, 2, '0', STR_PAD_LEFT);
+            }
+            return $label . ' (' . $tzName . ')';
+        } catch (\Exception $e) {
+            return '';
+        }
     }
 
     /**
@@ -89,16 +200,37 @@ class PublicSiteService
     public function jsonLd(array $landing, string $pageUrl): ?array
     {
         $graph = [];
+
+        // Nœud racine : l'église elle-même (organisation).
+        $root = ['@type' => 'Church', 'name' => $landing['nom']];
+        if ($pageUrl !== '') {
+            $root['url'] = $pageUrl;
+        }
+        if (($landing['contact']['telephone']['label'] ?? '') !== '') {
+            $root['telephone'] = $landing['contact']['telephone']['label'];
+        }
+        if (($landing['contact']['email']['label'] ?? '') !== '') {
+            $root['email'] = $landing['contact']['email']['label'];
+        }
+        if (($landing['adresse'] ?? '') !== '') {
+            $root['address'] = ['@type' => 'PostalAddress', 'streetAddress' => $landing['adresse']];
+        }
+        $graph[] = $root;
+
         foreach ($landing['evenements'] as $e) {
             if ($e['lieu'] === '') {
                 continue; // Event exige un lieu : on n'invente rien.
             }
-            $graph[] = [
+            $node = [
                 '@type'     => 'Event',
                 'name'      => $e['nom'],
                 'startDate' => $e['iso'],
                 'location'  => ['@type' => 'Place', 'name' => $e['lieu']],
             ];
+            if (($e['affiche'] ?? '') !== '') {
+                $node['image'] = $e['affiche'];
+            }
+            $graph[] = $node;
         }
 
         foreach ($landing['centres'] as $c) {
@@ -168,6 +300,8 @@ class PublicSiteService
                 'iso'         => $start->format('c'),
                 'lieu'        => $this->clean($e['lieu'] ?? null),
                 'description' => $this->clean($e['description'] ?? null),
+                'affiche'     => $this->safePhoto($e['affiche'] ?? null),
+                'lien_inscription' => $this->safeUrl((string) ($e['lien_inscription'] ?? '')),
             ];
         }
         return $out;
@@ -283,6 +417,8 @@ class PublicSiteService
             'centres'    => $centres,
             'equipe'     => $this->repo->equipeForAdmin(),
             'evenements' => $this->repo->eventsForAdmin(date('Y-m-d H:i:s')),
+            'faq'        => $this->repo->faqForAdmin(),
+            'ministries' => $this->repo->ministriesForAdmin(),
         ];
     }
 
@@ -292,6 +428,11 @@ class PublicSiteService
         $errors = [];
         $values = [];
         $values['nom_affichage'] = mb_substr(trim((string) ($post['nom_affichage'] ?? '')), 0, 150);
+        $values['slogan'] = mb_substr(trim((string) ($post['slogan'] ?? '')), 0, 200);
+        $values['accueil_texte'] = mb_substr(trim((string) ($post['accueil_texte'] ?? '')), 0, 500);
+        $values['adresse'] = mb_substr(trim((string) ($post['adresse'] ?? '')), 0, 255);
+        $values['hero_image'] = $this->safePhoto((string) ($post['hero_image'] ?? ''));
+        $values['hero_image_alt'] = mb_substr(trim((string) ($post['hero_image_alt'] ?? '')), 0, 200);
 
         $tel = trim((string) ($post['telephone'] ?? ''));
         $wa = trim((string) ($post['whatsapp'] ?? ''));
@@ -312,7 +453,7 @@ class PublicSiteService
         $values['whatsapp'] = $wa;
         $values['email'] = $mail;
 
-        foreach (['facebook' => 'Facebook', 'youtube' => 'YouTube', 'instagram' => 'Instagram', 'lien_direct' => 'Lien du direct'] as $k => $label) {
+        foreach (['facebook' => 'Facebook', 'youtube' => 'YouTube', 'instagram' => 'Instagram', 'lien_direct' => 'Lien du direct', 'predication_url' => 'Lien de la prédication', 'lien_don' => 'Lien de don'] as $k => $label) {
             $raw = trim((string) ($post[$k] ?? ''));
             if ($raw !== '' && $this->safeUrl($raw) === '') {
                 $errors[] = $label . ' : URL https valide requise.';
@@ -321,8 +462,25 @@ class PublicSiteService
             $values[$k] = $raw;
         }
 
+        $values['predication_titre'] = mb_substr(trim((string) ($post['predication_titre'] ?? '')), 0, 200);
+        $predicationDate = trim((string) ($post['predication_date'] ?? ''));
+        $values['predication_date'] = $this->validDate($predicationDate) ? $predicationDate : '';
+
+        $values['mentions_legales'] = trim((string) ($post['mentions_legales'] ?? ''));
+        $values['confidentialite'] = trim((string) ($post['confidentialite'] ?? ''));
+        $values['don_usage'] = mb_substr(trim((string) ($post['don_usage'] ?? '')), 0, 500);
+
         $this->repo->saveSettings($values);
         return $errors;
+    }
+
+    private function validDate(string $s): bool
+    {
+        if ($s === '' || preg_match('/^\d{4}-\d{2}-\d{2}$/', $s) !== 1) {
+            return false;
+        }
+        $d = \DateTime::createFromFormat('Y-m-d', $s);
+        return $d !== false && $d->format('Y-m-d') === $s;
     }
 
     /** @param array<string,mixed> $post */
@@ -331,27 +489,93 @@ class PublicSiteService
         $this->repo->setEquipePublie((array) ($post['publie'] ?? []));
     }
 
-    /** @param array<string,mixed> $post @return list<string> */
-    public function saveEvents(array $post): array
+    /**
+     * @param array<string,mixed> $post
+     * @param array<int,string|null> $affichePaths chemins résolus par le contrôleur [id => chemin|null]
+     * @return list<string>
+     */
+    public function saveEvents(array $post, array $affichePaths = []): array
     {
         $errors = [];
         $listed = array_map('intval', (array) ($post['ids'] ?? []));
         $publie = array_map('intval', (array) ($post['publie'] ?? []));
         $desc = (array) ($post['description'] ?? []);
+        $liens = (array) ($post['lien_inscription'] ?? []);
         foreach ($this->repo->eventsForAdmin(date('Y-m-d H:i:s')) as $e) {
             $id = (int) $e['id'];
             if (!in_array($id, $listed, true)) {
                 continue;
             }
             $d = mb_substr(trim((string) ($desc[$id] ?? '')), 0, 1000);
+            $lien = $this->safeUrl(trim((string) ($liens[$id] ?? '')));
+            if (trim((string) ($liens[$id] ?? '')) !== '' && $lien === '') {
+                $errors[] = '« ' . $e['nom'] . ' » : lien d\'inscription https invalide (ignoré).';
+            }
             $want = in_array($id, $publie, true);
             if ($want && $d === '' && trim((string) ($e['lieu'] ?? '')) === '') {
                 $errors[] = '« ' . $e['nom'] . ' » non publié : lieu ou description requis.';
                 $want = false;
             }
-            $this->repo->saveEventPublic($id, $want, $d !== '' ? $d : null);
+            $this->repo->saveEventPublic($id, $want, $d !== '' ? $d : null, $affichePaths[$id] ?? null, $lien);
         }
         return $errors;
+    }
+
+    /** Supprime une entrée de FAQ (appelé par ActionsController, admin vérifié). */
+    public function deleteFaq(int $id): void
+    {
+        $this->repo->deleteFaq($id);
+    }
+
+    /** @param array<string,mixed> $post @return list<string> */
+    public function saveFaq(array $post): array
+    {
+        $errors = [];
+        $rows = [];
+        $questions = (array) ($post['question'] ?? []);
+        $reponses = (array) ($post['reponse'] ?? []);
+        $publies = array_map('strval', (array) ($post['publie'] ?? []));
+        foreach ($questions as $key => $q) {
+            $key = (string) $key;
+            $question = mb_substr(trim((string) $q), 0, 255);
+            $reponse = mb_substr(trim((string) ($reponses[$key] ?? '')), 0, 5000);
+            if ($question === '' && $reponse === '') {
+                continue; // ligne vide ignorée
+            }
+            if ($question === '' || $reponse === '') {
+                $errors[] = 'FAQ : chaque entrée nécessite une question et une réponse.';
+                continue;
+            }
+            $publie = in_array($key, $publies, true);
+            if (str_starts_with($key, 'new')) {
+                $rows[] = ['question' => $question, 'reponse' => $reponse, 'publie' => $publie];
+                continue;
+            }
+            $id = (int) $key;
+            if ($id <= 0 || !$this->repo->faqExists($id)) {
+                $errors[] = 'FAQ introuvable.';
+                continue;
+            }
+            $rows[] = ['id' => $id, 'question' => $question, 'reponse' => $reponse, 'publie' => $publie];
+        }
+        if ($rows !== []) {
+            $this->repo->saveFaq($rows);
+        }
+        return $errors;
+    }
+
+    /** @param array<string,mixed> $post */
+    public function saveMinistries(array $post): void
+    {
+        foreach (['bacentas', 'basontas'] as $type) {
+            $ids = array_map('intval', (array) ($post[$type . '_publie'] ?? []));
+            $this->repo->setMinistryPublie($type, $ids);
+            $descriptions = [];
+            foreach ((array) ($post[$type . '_description'] ?? []) as $id => $desc) {
+                $descriptions[(int) $id] = ['description' => mb_substr(trim((string) $desc), 0, 2000)];
+            }
+            $this->repo->saveMinistryDescriptions($type, $descriptions);
+        }
     }
 
     /** @param array<string,mixed> $post @return list<string> */
@@ -394,6 +618,7 @@ class PublicSiteService
             'telephone'      => $tel ?: null,
             'whatsapp'       => $wa ?: null,
             'email'          => $mail ?: null,
+            'responsable_public' => mb_substr(trim((string) ($post['responsable_public'] ?? '')), 0, 150) ?: null,
             'publie'         => !empty($post['publie']),
         ];
 

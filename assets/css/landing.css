@@ -87,3 +87,47 @@ html { scroll-behavior: smooth; scroll-padding-top: 72px; }
 .team-member { display: flex; gap: var(--space-3); align-items: flex-start; }
 .team-member img { width: 72px; height: 72px; object-fit: cover; border-radius: var(--radius-full); flex: none; }
 .team-member p { margin: var(--space-1) 0 0; }
+
+/* ---- Hero avec support visuel (repli : dégradé) ---- */
+.hero-media { position: relative; isolation: isolate; }
+.hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+.hero-overlay { position: absolute; inset: 0; z-index: -1; background: linear-gradient(135deg, rgba(15, 23, 42, 0.82) 0%, rgba(79, 70, 229, 0.55) 100%); }
+.hero-inner { position: relative; }
+.hero-slogan { font-size: 1.25rem; font-weight: 600; margin: 0 0 var(--space-3); }
+
+/* ---- En-tête : CTA principal ---- */
+.btn-nav { padding: 0 var(--space-3); min-height: 40px; font-size: 0.9rem; }
+.site-nav ul { flex-wrap: wrap; }
+
+/* ---- Horaires : contact rapide ---- */
+.contact-rapide { display: flex; flex-wrap: wrap; gap: var(--space-3); margin: 0 0 var(--space-4); }
+.section-suite { margin-top: var(--space-4); }
+
+/* ---- Médias ---- */
+.media-card { padding: var(--space-5); }
+.media-direct { margin-top: var(--space-4); }
+
+/* ---- FAQ (accordéon natif) ---- */
+.faq-item { border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); margin-bottom: var(--space-3); }
+.faq-item summary { cursor: pointer; padding: var(--space-3) var(--space-4); font-weight: 600; list-style: none; display: flex; align-items: center; gap: var(--space-2); min-height: 44px; }
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::before { content: "+"; font-size: 1.2rem; line-height: 1; color: var(--primary); }
+.faq-item[open] summary::before { content: "–"; }
+.faq-item summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: var(--radius); }
+.faq-reponse { padding: 0 var(--space-4) var(--space-4); }
+
+/* ---- Engagement ---- */
+#engagement .card { margin-bottom: var(--space-4); }
+
+/* ---- Pied de page ---- */
+.footer-grid { display: grid; gap: var(--space-6); padding: var(--space-8) 0 var(--space-6); }
+.footer-brand .brand { color: #fff; margin-bottom: var(--space-3); }
+.footer-heading { font-weight: 700; margin: 0 0 var(--space-2); }
+.footer-col .contact-list a { color: inherit; opacity: 0.9; }
+.footer-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-3); padding: var(--space-4) 0; border-top: 1px solid rgba(255, 255, 255, 0.2); color: inherit; opacity: 0.9; }
+.footer-bottom .nav-login { color: inherit; }
+@media (min-width: 640px) { .footer-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 960px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr 1fr; } }
+
+/* ---- Pages légales ---- */
+.section-legal { padding: var(--space-10) 0; }

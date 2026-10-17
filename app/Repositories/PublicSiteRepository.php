@@ -17,6 +17,10 @@ class PublicSiteRepository
     public const SETTING_KEYS = [
         'nom_affichage', 'telephone', 'email', 'whatsapp',
         'facebook', 'youtube', 'instagram', 'lien_direct',
+        // Landing v2 (spec unifiée §4.2, §4.8, §4.11-4.13)
+        'slogan', 'accueil_texte', 'hero_image', 'hero_image_alt', 'adresse',
+        'predication_titre', 'predication_date', 'predication_url', 'lien_don', 'don_usage',
+        'mentions_legales', 'confidentialite',
     ];
 
     /** @return array<string,string> */
@@ -89,12 +93,37 @@ class PublicSiteRepository
     public function upcomingEvents(string $now, int $limit = 12): array
     {
         return Query::all(
-            'SELECT id, nom, date_debut, date_fin, lieu, description
+            'SELECT id, nom, date_debut, date_fin, lieu, description, affiche, lien_inscription
                FROM evenements
               WHERE publie = 1 AND COALESCE(date_fin, date_debut) >= ?
               ORDER BY date_debut ASC LIMIT ' . max(1, $limit),
             [$now]
         );
+    }
+
+    /** FAQ publique publiée, ordonnée. */
+    public function publishedFaq(): array
+    {
+        return Query::all(
+            'SELECT id, question, reponse FROM faq_publique WHERE publie = 1 ORDER BY ordre, id'
+        );
+    }
+
+    /** Ministères publiés : bacentas (prière) et basontas (groupes/services). */
+    public function publishedMinistries(): array
+    {
+        return [
+            'bacentas' => Query::all(
+                "SELECT id, nom, description_publique,
+                        jours_semaine, heure_debut, heure_fin
+                   FROM bacentas WHERE publie = 1 ORDER BY id"
+            ),
+            'basontas' => Query::all(
+                "SELECT id, nom, description_publique,
+                        jours_semaine, heure_debut, heure_fin
+                   FROM basontas WHERE publie = 1 ORDER BY id"
+            ),
+        ];
     }
 
     /* ---------- Administration (admin uniquement - garde côté contrôleur) ---------- */
@@ -103,7 +132,7 @@ class PublicSiteRepository
     public function allCentresForAdmin(): array
     {
         return Query::all(
-            'SELECT id, nom, adresse, quartier, ville, itineraire_url, telephone, whatsapp, email, publie
+            'SELECT id, nom, adresse, quartier, ville, itineraire_url, telephone, whatsapp, email, responsable_public, publie
                FROM centres ORDER BY id'
         );
     }
@@ -128,15 +157,97 @@ class PublicSiteRepository
     public function eventsForAdmin(string $now): array
     {
         return Query::all(
-            'SELECT id, nom, date_debut, date_fin, lieu, description, publie FROM evenements
+            'SELECT id, nom, date_debut, date_fin, lieu, description, affiche, lien_inscription, publie FROM evenements
               WHERE COALESCE(date_fin, date_debut) >= ? ORDER BY date_debut ASC',
             [$now]
         );
     }
 
-    public function saveEventPublic(int $id, bool $publie, ?string $description): void
+    public function saveEventPublic(int $id, bool $publie, ?string $description, ?string $affiche, ?string $lienInscription): void
     {
-        Query::run('UPDATE evenements SET publie = ?, description = ? WHERE id = ?', [$publie ? 1 : 0, $description, $id]);
+        Query::run(
+            'UPDATE evenements SET publie = ?, description = ?, affiche = COALESCE(?, affiche), lien_inscription = ? WHERE id = ?',
+            [$publie ? 1 : 0, $description, $affiche, $lienInscription ?: null, $id]
+        );
+    }
+
+    /* ---------- FAQ publique (admin) ---------- */
+
+    /** @return list<array{id:int,question:string,reponse:string,ordre:int,publie:int}> */
+    public function faqForAdmin(): array
+    {
+        return Query::all('SELECT id, question, reponse, ordre, publie FROM faq_publique ORDER BY ordre, id');
+    }
+
+    public function faqExists(int $id): bool
+    {
+        return (int) Query::value('SELECT COUNT(*) FROM faq_publique WHERE id = ?', [$id]) > 0;
+    }
+
+    /**
+     * Insère ou met à jour les entrées de FAQ (l'ordre suit $rows).
+     * @param list<array{id?:int,question:string,reponse:string,publie:bool}> $rows
+     */
+    public function saveFaq(array $rows): void
+    {
+        Query::transaction(function () use ($rows): void {
+            $ordre = 0;
+            foreach ($rows as $row) {
+                $ordre++;
+                if (!empty($row['id'])) {
+                    Query::run(
+                        'UPDATE faq_publique SET question = ?, reponse = ?, ordre = ?, publie = ? WHERE id = ?',
+                        [$row['question'], $row['reponse'], $ordre, $row['publie'] ? 1 : 0, (int) $row['id']]
+                    );
+                } else {
+                    Query::run(
+                        'INSERT INTO faq_publique (question, reponse, ordre, publie) VALUES (?, ?, ?, ?)',
+                        [$row['question'], $row['reponse'], $ordre, $row['publie'] ? 1 : 0]
+                    );
+                }
+            }
+        });
+    }
+
+    public function deleteFaq(int $id): void
+    {
+        Query::run('DELETE FROM faq_publique WHERE id = ?', [$id]);
+    }
+
+    /* ---------- Ministères publics (admin) ---------- */
+
+    /** @return array{bacentas:list<array<string,mixed>>,basontas:list<array<string,mixed>>} */
+    public function ministriesForAdmin(): array
+    {
+        return [
+            'bacentas' => Query::all('SELECT id, nom, description_publique, publie FROM bacentas ORDER BY id'),
+            'basontas' => Query::all('SELECT id, nom, description_publique, publie FROM basontas ORDER BY id'),
+        ];
+    }
+
+    /** Publie exactement les lignes listées, dépublie les autres. @param int[] $ids */
+    public function setMinistryPublie(string $table, array $ids): void
+    {
+        if (!in_array($table, ['bacentas', 'basontas'], true)) {
+            return;
+        }
+        Query::transaction(function () use ($table, $ids): void {
+            Query::run("UPDATE {$table} SET publie = 0");
+            foreach (array_values(array_unique(array_filter(array_map('intval', $ids), static fn(int $i) => $i > 0))) as $id) {
+                Query::run("UPDATE {$table} SET publie = 1 WHERE id = ?", [$id]);
+            }
+        });
+    }
+
+    /** @param array<int,array{description:string}> $descriptions [id => description] */
+    public function saveMinistryDescriptions(string $table, array $descriptions): void
+    {
+        if (!in_array($table, ['bacentas', 'basontas'], true)) {
+            return;
+        }
+        foreach ($descriptions as $id => $description) {
+            Query::run("UPDATE {$table} SET description_publique = ? WHERE id = ?", [$description, (int) $id]);
+        }
     }
 
     public function centreExists(int $id): bool
@@ -149,9 +260,9 @@ class PublicSiteRepository
     {
         Query::run(
             'UPDATE centres SET adresse = ?, quartier = ?, ville = ?, itineraire_url = ?,
-                    telephone = ?, whatsapp = ?, email = ?, publie = ? WHERE id = ?',
+                    telephone = ?, whatsapp = ?, email = ?, responsable_public = ?, publie = ? WHERE id = ?',
             [$f['adresse'], $f['quartier'], $f['ville'], $f['itineraire_url'],
-             $f['telephone'], $f['whatsapp'], $f['email'], $f['publie'] ? 1 : 0, $id]
+             $f['telephone'], $f['whatsapp'], $f['email'], $f['responsable_public'], $f['publie'] ? 1 : 0, $id]
         );
     }
 

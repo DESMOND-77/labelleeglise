@@ -20,6 +20,9 @@ $metaDescription = 'Découvrez ' . $brand . ' : horaires des cultes, centres et 
   <meta property="og:title" content="<?= h($title) ?>">
   <meta property="og:description" content="<?= h($metaDescription) ?>">
   <meta property="og:locale" content="fr_FR">
+<?php if (($ogImage ?? '') !== ''): ?>
+  <meta property="og:image" content="<?= h($ogImage) ?>">
+<?php endif; ?>
   <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96x96.png">
   <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml" sizes="any">
   <link rel="icon" href="assets/images/favicon.ico">

@@ -83,6 +83,8 @@ Router::get('presencePrint', PresenceController::class, 'matrixPrint');
 /* ---------- Site public (accès sans connexion) ---------- */
 Router::get('eglise', PublicController::class, 'index');
 Router::get('login', PublicController::class, 'login');
+Router::get('mentions_legales', PublicController::class, 'mentionsLegales');
+Router::get('confidentialite', PublicController::class, 'confidentialite');
 
 /* ---------- Administration du site public (admin uniquement) ---------- */
 Router::get('site_public', AdminSiteController::class, 'index');

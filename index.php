@@ -43,7 +43,7 @@ $page = $_GET['page'] ?? 'accueil';
 if (!isset($_GET['page']) && !isset($_GET['error']) && !current_user()) {
     $page = 'eglise';
 }
-$publicPages = ['eglise', 'login', 'register', 'verify_email', 'verify_email_change', 'email_change_pending'];
+$publicPages = ['eglise', 'login', 'register', 'verify_email', 'verify_email_change', 'email_change_pending', 'mentions_legales', 'confidentialite'];
 
 if (in_array($page, $publicPages, true)) {
     require_once __DIR__ . '/Routes/web.php';
