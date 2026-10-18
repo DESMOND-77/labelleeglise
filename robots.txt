@@ -36,4 +36,4 @@ Disallow: /Routes/
 Disallow: /Storage/
 Disallow: /Views/
 
-Sitemap: https://lbegf.rf.gd/sitemap.xml
+Sitemap: https://labelleeglise.com/sitemap.xml

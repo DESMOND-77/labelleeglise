@@ -3,7 +3,7 @@
    contenu indexable, aucun JavaScript requis). Variables : $faq. */ ?>
 <section id="visite" class="section" aria-labelledby="visite-titre">
   <div class="wrap narrow">
-    <h2 id="visite-titre">Première visite — questions fréquentes</h2>
+    <h2 id="visite-titre">Première visite - questions fréquentes</h2>
     <?php foreach ($faq as $f): ?>
       <details class="faq-item">
         <summary><?= h($f['question']) ?></summary>

@@ -1,4 +1,4 @@
-<?php /* Ministères et activités — bacentas (prière) / basontas (groupes et services).
+<?php /* Ministères et activités - bacentas (prière) / basontas (groupes et services).
    Variables : $ministries, $csrf. */ ?>
 <div class="page-header">
   <h2>Ministères et activités</h2>
@@ -10,7 +10,7 @@
   <?= $csrf ?>
 
   <fieldset class="form-group">
-    <legend>Bacentas — rassemblements de prière</legend>
+    <legend>Bacentas - rassemblements de prière</legend>
     <?php if (!$ministries['bacentas']): ?>
       <p class="sub">Aucun bacenta enregistré (section « Bacentas » de l'application).</p>
     <?php endif; ?>
@@ -28,7 +28,7 @@
   </fieldset>
 
   <fieldset class="form-group">
-    <legend>Basontas — groupes et services (chorale, pianistes, ushers…)</legend>
+    <legend>Basontas - groupes et services (chorale, pianistes, ushers…)</legend>
     <?php if (!$ministries['basontas']): ?>
       <p class="sub">Aucun basonta enregistré (section « Basontas » de l'application).</p>
     <?php endif; ?>

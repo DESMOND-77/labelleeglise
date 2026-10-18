@@ -1,7 +1,7 @@
 <?php /* Pages légales et confidentialité. Variables : $settings, $csrf. */ ?>
 <div class="page-header">
   <h2>Pages légales et confidentialité</h2>
-  <p class="sub">Textes fournis et validés par l'église — jamais rédigés automatiquement.</p>
+  <p class="sub">Textes fournis et validés par l'église - jamais rédigés automatiquement.</p>
 </div>
 
 <div class="alert alert-warning" role="note">

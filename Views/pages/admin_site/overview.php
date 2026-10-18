@@ -1,4 +1,4 @@
-<?php /* Vue d'ensemble — indicateurs calculés sur les données réelles.
+<?php /* Vue d'ensemble - indicateurs calculés sur les données réelles.
    Variables : $overview. */
 $ov = $overview;
 $missingIdentity = array_keys(array_filter($ov['identity'], static fn($v) => !$v));
@@ -35,7 +35,7 @@ if ($ov['faq']['total'] === 0) {
     $todo[] = ['label' => 'Aucune question de FAQ pour les visiteurs', 'href' => url('index.php', ['page' => 'site_public', 'tab' => 'faq'])];
 }
 if (!$ov['identity']['contact'] && $ov['centres']['total'] === 0) {
-    $todo[] = ['label' => 'Aucune coordonnée — la page publique resterait vide', 'href' => url('index.php', ['page' => 'site_public', 'tab' => 'identity'])];
+    $todo[] = ['label' => 'Aucune coordonnée - la page publique resterait vide', 'href' => url('index.php', ['page' => 'site_public', 'tab' => 'identity'])];
 }
 ?>
 <div class="page-header">

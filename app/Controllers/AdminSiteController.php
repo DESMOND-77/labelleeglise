@@ -16,7 +16,7 @@ use App\Middleware\AdminMiddleware;
 class AdminSiteController extends Controller
 {
     /** Rubriques de gestion (ordre d'affichage) + « centre »
-     * (fiche de modification, profondeur 1 — absente de la
+     * (fiche de modification, profondeur 1 - absente de la
      * navigation, rattachée visuellement à « Centres »). */
     private const TABS = ['overview', 'identity', 'centres', 'centre', 'team', 'events', 'media', 'faq', 'ministries', 'legal'];
 
@@ -87,6 +87,6 @@ class AdminSiteController extends Controller
         $content = view('pages/admin_site_shell', $data + [
             'content' => view($view, $data),
         ]);
-        render_page(SECTION_LABELS['site_public'] . ' — ' . self::TAB_LABELS[$tab], $content);
+        render_page(SECTION_LABELS['site_public'] . ' - ' . self::TAB_LABELS[$tab], $content);
     }
 }

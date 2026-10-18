@@ -16,7 +16,7 @@
           <?php if ($c['horaires'] !== []): ?>
             <ul class="slots">
               <?php foreach ($c['horaires'] as $s): ?>
-                <li><strong><?= h($s['libelle']) ?></strong> — <?= h($s['jours']) ?>, <?= h($s['debut']) ?><?= $s['fin'] !== '' ? ' – ' . h($s['fin']) : '' ?></li>
+                <li><strong><?= h($s['libelle']) ?></strong> - <?= h($s['jours']) ?>, <?= h($s['debut']) ?><?= $s['fin'] !== '' ? ' – ' . h($s['fin']) : '' ?></li>
               <?php endforeach; ?>
             </ul>
           <?php endif; ?>

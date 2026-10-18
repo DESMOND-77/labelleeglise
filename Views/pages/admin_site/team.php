@@ -1,4 +1,4 @@
-<?php /* Équipe pastorale — publication par personne, jamais par défaut.
+<?php /* Équipe pastorale - publication par personne, jamais par défaut.
    Variables : $equipe, $csrf. */ ?>
 <div class="page-header">
   <h2>Équipe pastorale</h2>
@@ -24,7 +24,7 @@
       <label class="check-label">
         <input type="checkbox" name="publie[]" value="<?= (int) $m['id'] ?>"<?= !empty($m['publie']) ? ' checked' : '' ?>>
         <span class="team-row-name"><?= h($m['nom_affichage']) ?></span>
-        <span class="muted"><?= h($m['role_affichage']) ?><?= $m['categorie'] !== 'Autre' ? ' — ' . h($m['categorie']) : '' ?></span>
+        <span class="muted"><?= h($m['role_affichage']) ?><?= $m['categorie'] !== 'Autre' ? ' - ' . h($m['categorie']) : '' ?></span>
       </label>
       <?php if (!empty($m['photo'] ?? '')): ?>
         <img class="preview-thumb" src="<?= h($m['photo']) ?>" alt="">

@@ -5,4 +5,4 @@
 Contact: mailto:admin@labelleeglise.ga
 Expires: 2027-08-11T00:00:00.000Z
 Preferred-Languages: fr, en
-Canonical: https://lbegf.rf.gd/.well-known/security.txt
+Canonical: https://labelleeglise.com/.well-known/security.txt

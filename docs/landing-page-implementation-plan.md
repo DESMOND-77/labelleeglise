@@ -1,6 +1,6 @@
-# Landing page publique — plan d'implémentation
+# Landing page publique - plan d'implémentation
 
-Date : 17 octobre 2026. Source : `prompts/Landing page publique de La Belle Église — spécification unifiée.md`.
+Date : 17 octobre 2026. Source : `prompts/Landing page publique de La Belle Église - spécification unifiée.md`.
 Statut : audit réalisé en lecture seule, aucun code modifié. Rubriques A à J (spec §9).
 
 ---
@@ -41,7 +41,7 @@ Statut : audit réalisé en lecture seule, aucun code modifié. Rubriques A à J
 
 **Risques relevés**
 - ~20 redirections codées en dur vers `page=apropos` (accès refusé, `ActionsController`, `Compat`, middlewares) ; `apropos` figure dans `allowedSections` de chaque rôle.
-- `sitemap.xml` et `robots.txt` pointent vers `https://lbegf.rf.gd` (ressemble à un hébergeur gratuit, pas Hostinger). **Domaine de production à confirmer.**
+- `sitemap.xml` et `robots.txt` pointent vers `https://labelleeglise.com/` (ressemble à un hébergeur gratuit, pas Hostinger). **Domaine de production à confirmer.**
 - `login.php` est `noindex`. `layout.php` porte `$publicLis` et `NAV_ORDER` avec `apropos` en première position (« exigence produit »).
 - `Views/pages/apropos.php` utilise du style inline : à ne pas reprendre.
 
@@ -107,7 +107,7 @@ Aucun endpoint JSON n'existe ni n'est nécessaire : rendu côté serveur.
 - `AboutController` : sans `form` ni `id`, redirection 301 vers `?page=eglise#a-propos` / `#centres`. Les `form=…` et `id=…` d'admin restent servis.
 - `ActionsController` : redirections après sauvegarde conservées ; nouvelles actions admin `save_site_settings` et `save_centre_public` (CSRF déjà appliqué en tête de `postAction()`).
 - `robots.txt`, `sitemap.xml` : ajouter la landing, retirer les mentions obsolètes.
-- Migration : bloc 14 idempotent — colonnes de `centres`, `site_settings`, `centre_horaires`, `evenements.publie` / `description`, `equipe.publie`. Rien n'est supprimé.
+- Migration : bloc 14 idempotent - colonnes de `centres`, `site_settings`, `centre_horaires`, `evenements.publie` / `description`, `equipe.publie`. Rien n'est supprimé.
 
 **Source par section (§7.1)**
 - À propos : `presentation` + `equipe` (publiée)
@@ -183,7 +183,7 @@ Aucun endpoint JSON n'existe ni n'est nécessaire : rendu côté serveur.
 
 - `?page=apropos` → 301 vers `?page=eglise#a-propos` ; `?page=centresPresentation` → `#centres`. Un ancien `?page=centresPresentation&id=N` va aussi vers `#centres` (aucune fiche détaillée créée). Formulaires et suppressions d'admin inchangés.
 - Aucune boucle possible : la landing est publique, donc les redirections d'accès refusé vers `apropos` aboutissent à une page accessible.
-- Alternative écartée : pages secondaires conservées — contredit « une seule destination » (critère 2).
+- Alternative écartée : pages secondaires conservées - contredit « une seule destination » (critère 2).
 - Retour arrière : un commit par phase ; migration additive (rien à annuler) ; il suffit de retirer la branche `/` et la redirection dans `AboutController`.
 - Aucune table, route ni contrôleur supprimé à cette étape.
 
@@ -256,7 +256,7 @@ Alourdissent : formulaire de contact avec anti-spam, carte intégrée, module de
 
 ## Décisions à valider avant le développement
 
-1. Domaine de production (`lbegf` dans la spec, `lbegf.rf.gd` dans le dépôt).
+1. Domaine de production (`lbegf` dans la spec, `labelleeglise.com` dans le dépôt).
 2. Route canonique : `/` anonyme, `?page=eglise`, `?page=login`.
 3. Destination de la déconnexion : landing ou connexion.
 4. Anciennes URL : redirection 301 (recommandée).

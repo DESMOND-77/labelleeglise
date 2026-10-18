@@ -3,7 +3,7 @@
 <div class="page-header">
   <h2>Centres</h2>
   <p class="sub">
-    <?= count($centres) ?> centre<?= count($centres) > 1 ? 's' : '' ?> configuré<?= count($centres) > 1 ? 's' : '' ?> —
+    <?= count($centres) ?> centre<?= count($centres) > 1 ? 's' : '' ?> configuré<?= count($centres) > 1 ? 's' : '' ?> -
     <?= count(array_filter($centres, static fn($c) => !empty($c['publie']))) ?> publié<?= count(array_filter($centres, static fn($c) => !empty($c['publie']))) > 1 ? 's' : '' ?>.
     <a class="btn btn-sm" href="<?= h(url('index.php', ['page' => 'centres'])) ?>">Créer un centre</a>
   </p>
@@ -39,7 +39,7 @@
         <tr data-name="<?= h(mb_lower($c['nom'] . ' ' . ($c['quartier'] ?? '') . ' ' . ($c['ville'] ?? '') . ' ' . ($c['adresse'] ?? ''))) ?>"
             data-publie="<?= !empty($c['publie']) ? '1' : '0' ?>" data-complete="<?= $complete ? '1' : '0' ?>">
           <td><a href="<?= h(url('index.php', ['page' => 'site_public', 'tab' => 'centre', 'id' => (int) $c['id']])) ?>"><?= h($c['nom']) ?></a></td>
-          <td><?= h(implode(', ', array_filter([$c['quartier'] ?? '', $c['ville'] ?? '', $c['adresse'] ?? '']))) ?: '<span class="muted">—</span>' ?></td>
+          <td><?= h(implode(', ', array_filter([$c['quartier'] ?? '', $c['ville'] ?? '', $c['adresse'] ?? '']))) ?: '<span class="muted">-</span>' ?></td>
           <td>
             <?php if (!empty($c['publie'])): ?>
               <span class="badge-status status-ok">Publié</span>

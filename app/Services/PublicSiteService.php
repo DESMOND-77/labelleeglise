@@ -752,7 +752,7 @@ class PublicSiteService
     /**
      * Horaires de culte : saisie structurée (lignes de champs
      * distincts) ou format texte hérité « Libellé | Jours | HH:MM
-     * | HH:MM ». Même validation, même stockage — le contrat de
+     * | HH:MM ». Même validation, même stockage - le contrat de
      * données du backend est préservé.
      * @param array<string,mixed> $post
      * @return array{0:array<int,array<string,mixed>>,1:list<string>}

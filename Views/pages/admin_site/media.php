@@ -1,4 +1,4 @@
-<?php /* Médias et prédications — liens vers les plateformes officielles uniquement.
+<?php /* Médias et prédications - liens vers les plateformes officielles uniquement.
    Variables : $settings, $csrf. */ ?>
 <div class="page-header">
   <h2>Médias et prédications</h2>
@@ -24,7 +24,7 @@
       <label>Titre<input type="text" name="predication_titre" maxlength="200" value="<?= h($settings['predication_titre'] ?? '') ?>"></label>
       <label>Date de la prédication<input type="date" name="predication_date" value="<?= h($settings['predication_date'] ?? '') ?>"></label>
     </div>
-    <label>Lien de la prédication (https — plateforme officielle)
+    <label>Lien de la prédication (https - plateforme officielle)
       <input type="url" name="predication_url" value="<?= h($settings['predication_url'] ?? '') ?>" placeholder="https://www.youtube.com/…">
     </label>
     <p class="sub">La carte « Dernière prédication » n'apparaît que si le lien est valide.</p>

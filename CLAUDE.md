@@ -137,13 +137,13 @@ still show the login form at the same URL. `apropos` / `centresPresentation`
 301-redirect to the landing for non-admins (admins keep the management views).
 Only published data is exposed: `centres.publie`, `centre_horaires`,
 `site_settings` (migration block 15), edited by admins at
-`?page=site_public` — a tabbed back-office
+`?page=site_public` - a tabbed back-office
 (`AdminSiteController`, `&tab=overview|identity|centres|centre|
 team|events|media|faq|ministries|legal`; centre detail via `&id=`,
 depth 1) with real dashboard stats (`PublicSiteService::
 adminOverview()`), a centralised centres list (search + filters)
 and a guided per-schedule editor (`parseHorairesInput()` accepts
-structured rows OR the legacy `Libellé | Jours | HH:MM` text —
+structured rows OR the legacy `Libellé | Jours | HH:MM` text -
 same storage). Views: `Views/pages/admin_site_shell.php` +
 `Views/pages/admin_site/*.php`; assets: `assets/css/admin_site.css`,
 `assets/js/admin_site.js` (loaded only on this page). Writes go

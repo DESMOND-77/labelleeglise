@@ -1,4 +1,4 @@
-<?php /* Dons, bénévolat et engagement — uniquement avec une
+<?php /* Dons, bénévolat et engagement - uniquement avec une
    destination réelle et vérifiée. Variables : $lien_don,
    $don_usage, $hasContact. */ ?>
 <section id="engagement" class="section section-alt" aria-labelledby="engagement-titre">

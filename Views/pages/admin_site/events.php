@@ -1,4 +1,4 @@
-<?php /* Événements à venir — publication par événement.
+<?php /* Événements à venir - publication par événement.
    Variables : $evenements, $csrf. */ ?>
 <div class="page-header">
   <h2>Événements à venir</h2>
@@ -20,7 +20,7 @@
       <fieldset class="form-group form-card-inner">
         <legend>
           <?= h($e['nom']) ?>
-          <span class="muted"> — <?= h(substr((string) $e['date_debut'], 0, 16)) ?><?= $e['lieu'] ? ' · ' . h($e['lieu']) : '' ?></span>
+          <span class="muted"> - <?= h(substr((string) $e['date_debut'], 0, 16)) ?><?= $e['lieu'] ? ' · ' . h($e['lieu']) : '' ?></span>
         </legend>
         <input type="hidden" name="ids[]" value="<?= (int) $e['id'] ?>">
         <label class="check-label">
@@ -31,7 +31,7 @@
           <textarea name="description[<?= (int) $e['id'] ?>]" rows="2" maxlength="1000" placeholder="Une à deux phrases pour les visiteurs"><?= h($e['description'] ?? '') ?></textarea>
         </label>
         <div class="field-grid">
-          <label>Affiche (jpg, png, webp ou gif — 4 Mo max)
+          <label>Affiche (jpg, png, webp ou gif - 4 Mo max)
             <input type="file" name="affiche[<?= (int) $e['id'] ?>]" accept="image/*">
           </label>
           <label>Lien d'inscription (https, si un mécanisme existe)

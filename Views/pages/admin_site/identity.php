@@ -25,7 +25,7 @@
       <input type="text" name="adresse" maxlength="255" value="<?= h($settings['adresse'] ?? '') ?>">
     </label>
     <div class="field-row">
-      <label>Image d'accueil (hero) — jpg, png, webp ou gif, 4 Mo max
+      <label>Image d'accueil (hero) - jpg, png, webp ou gif, 4 Mo max
         <input type="file" name="hero_image" accept="image/*">
       </label>
       <div class="field-note">
@@ -33,7 +33,7 @@
           <img class="preview-thumb" src="<?= h($settings['hero_image']) ?>" alt="Image d'accueil actuelle">
           <p>Image actuelle (conservée si aucun nouveau fichier n'est choisi).</p>
         <?php else: ?>
-          <p>Aucune image — le dégradé de marque est utilisé.</p>
+          <p>Aucune image - le dégradé de marque est utilisé.</p>
         <?php endif; ?>
         <img class="preview-thumb" id="hero-preview" alt="" hidden>
       </div>

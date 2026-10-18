@@ -19,7 +19,7 @@
           <h3><?= h($c['nom']) ?></h3>
           <ul class="slots">
             <?php foreach ($c['horaires'] as $s): ?>
-              <li><strong><?= h($s['libelle']) ?></strong> — <?= h($s['jours']) ?>, <?= h($s['debut']) ?><?= $s['fin'] !== '' ? ' – ' . h($s['fin']) : '' ?></li>
+              <li><strong><?= h($s['libelle']) ?></strong> - <?= h($s['jours']) ?>, <?= h($s['debut']) ?><?= $s['fin'] !== '' ? ' – ' . h($s['fin']) : '' ?></li>
             <?php endforeach; ?>
           </ul>
           <p class="muted"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> <?= h($addr($c)) ?></p>

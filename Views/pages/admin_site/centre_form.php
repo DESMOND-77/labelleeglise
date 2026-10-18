@@ -1,5 +1,5 @@
 <?php /* Fiche de modification d'un centre. Variables : $centre, $centreId, $csrf.
-   Horaires en saisie guidée (libellé, jours, début, fin) — même validation
+   Horaires en saisie guidée (libellé, jours, début, fin) - même validation
    et même stockage que le format texte hérité (contrac préservé). */
 $days = WEEK_DAYS;
 $existing = $centre['horaires_rows'] ?? [];
@@ -20,7 +20,7 @@ $checkedDays = static function (array|string $jours): array {
     <?php if (!empty($centre['publie'])): ?>
       <span class="badge-status status-ok">Publié sur le site public</span>
     <?php else: ?>
-      <span class="badge-status status-draft">Brouillon — non affiché publiquement</span>
+      <span class="badge-status status-draft">Brouillon - non affiché publiquement</span>
     <?php endif; ?>
   </p>
 </div>
@@ -40,7 +40,7 @@ $checkedDays = static function (array|string $jours): array {
   </fieldset>
 
   <fieldset class="form-group">
-    <legend>Contacts du centre (facultatifs — le contact général sert de repli)</legend>
+    <legend>Contacts du centre (facultatifs - le contact général sert de repli)</legend>
     <div class="field-grid">
       <label>Téléphone<input type="tel" name="telephone" maxlength="30" value="<?= h($centre['telephone'] ?? '') ?>"></label>
       <label>WhatsApp (indicatif international)<input type="tel" name="whatsapp" maxlength="30" value="<?= h($centre['whatsapp'] ?? '') ?>"></label>
@@ -50,7 +50,7 @@ $checkedDays = static function (array|string $jours): array {
 
   <fieldset class="form-group">
     <legend>Informations publiques</legend>
-    <label>Responsable affiché (texte public — seulement si destiné au public)
+    <label>Responsable affiché (texte public - seulement si destiné au public)
       <input type="text" name="responsable_public" maxlength="150" value="<?= h($centre['responsable_public'] ?? '') ?>">
     </label>
     <label>Lien d'itinéraire (Google Maps ou autre carte, https)
@@ -66,15 +66,15 @@ $checkedDays = static function (array|string $jours): array {
       <div class="horaire-row">
         <input type="text" name="horaire_libelle[<?= (int) $i ?>]" maxlength="100"
                value="<?= h($slot['libelle'] ?? '') ?>" placeholder="Libellé (ex. Culte du dimanche)"
-               aria-label="Horaire <?= (int) $i + 1 ?> — libellé">
-        <div class="horaire-jours" role="group" aria-label="Horaire <?= (int) $i + 1 ?> — jours">
+               aria-label="Horaire <?= (int) $i + 1 ?> - libellé">
+        <div class="horaire-jours" role="group" aria-label="Horaire <?= (int) $i + 1 ?> - jours">
           <?php $sel = $checkedDays($slot['jours'] ?? ''); ?>
           <?php foreach ($days as $d): ?>
             <label class="check-label check-inline"><input type="checkbox" name="horaire_jours[<?= (int) $i ?>][]" value="<?= h($d) ?>"<?= in_array($d, $sel, true) ? ' checked' : '' ?>> <?= h($d) ?></label>
           <?php endforeach; ?>
         </div>
-        <input type="time" name="horaire_debut[<?= (int) $i ?>]" value="<?= h(substr((string) ($slot['heure_debut'] ?? ''), 0, 5)) ?>" aria-label="Horaire <?= (int) $i + 1 ?> — heure de début">
-        <input type="time" name="horaire_fin[<?= (int) $i ?>]" value="<?= h(substr((string) ($slot['heure_fin'] ?? ''), 0, 5)) ?>" aria-label="Horaire <?= (int) $i + 1 ?> — heure de fin (facultatif)">
+        <input type="time" name="horaire_debut[<?= (int) $i ?>]" value="<?= h(substr((string) ($slot['heure_debut'] ?? ''), 0, 5)) ?>" aria-label="Horaire <?= (int) $i + 1 ?> - heure de début">
+        <input type="time" name="horaire_fin[<?= (int) $i ?>]" value="<?= h(substr((string) ($slot['heure_fin'] ?? ''), 0, 5)) ?>" aria-label="Horaire <?= (int) $i + 1 ?> - heure de fin (facultatif)">
       </div>
     <?php endforeach; ?>
     <p class="sub">Exemple de jours : « Dimanche » ou « Lundi,Mercredi ».</p>
@@ -85,7 +85,7 @@ $checkedDays = static function (array|string $jours): array {
     <label class="check-label"><input type="checkbox" name="publie" value="1"<?= !empty($centre['publie']) ? ' checked' : '' ?>> Publier ce centre sur le site public</label>
     <?php if (!$centre['completion']['complete']): ?>
       <p class="alert alert-warning" role="alert">
-        Centre non publiable tant que : <?= h(implode(', ', $centre['completion']['missing'])) ?> — complétez ces informations.
+        Centre non publiable tant que : <?= h(implode(', ', $centre['completion']['missing'])) ?> - complétez ces informations.
       </p>
     <?php endif; ?>
   </fieldset>

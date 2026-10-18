@@ -1,7 +1,7 @@
-<?php /* FAQ « Première visite » — liste dynamique (ajout illimité).
+<?php /* FAQ « Première visite » - liste dynamique (ajout illimité).
    Variables : $faq, $csrf. */ ?>
 <div class="page-header">
-  <h2>FAQ — première visite</h2>
+  <h2>FAQ - première visite</h2>
   <p class="sub">tenue, durée du culte, accueil des enfants, stationnement, accessibilité, langues, déroulement. L'ordre du formulaire est l'ordre d'affichage.</p>
 </div>
 
@@ -10,7 +10,7 @@
   <?= $csrf ?>
 
   <?php if (!$faq): ?>
-    <p class="sub">Aucune question enregistrée — ajoutez-en ci-dessous.</p>
+    <p class="sub">Aucune question enregistrée - ajoutez-en ci-dessous.</p>
   <?php endif; ?>
 
   <div id="faq-list">
