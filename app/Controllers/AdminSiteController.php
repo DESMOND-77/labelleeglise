@@ -83,8 +83,8 @@ class AdminSiteController extends Controller
             $data['overview'] = $service->adminOverview();
         }
 
+        $data['csrf'] = csrf_field();
         $content = view('pages/admin_site_shell', $data + [
-            'csrf' => csrf_field(),
             'content' => view($view, $data),
         ]);
         render_page(SECTION_LABELS['site_public'] . ' — ' . self::TAB_LABELS[$tab], $content);
