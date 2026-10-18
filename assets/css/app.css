@@ -33,6 +33,7 @@
 @import url('rapports.css');
 @import url('classes.css');
 @import url('bus.css');
+@import url('admin_site.css');
 
 /* ---- Utilitaires & animations ---- */
 @import url('utilities.css');

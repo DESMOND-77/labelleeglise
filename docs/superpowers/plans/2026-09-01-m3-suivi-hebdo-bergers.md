@@ -1,13 +1,13 @@
 <<<<<<< HEAD
-# M3 — Suivi Hebdo. des Bergers : champs Mixlr / Ushers / Thème + correction « Ashers » — Implementation Plan
+# M3 - Suivi Hebdo. des Bergers : champs Mixlr / Ushers / Thème + correction « Ashers » - Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Ajouter au tableau de suivi hebdomadaire des bergers trois colonnes — diffusion Mixlr, nombre d'ushers, thème de la semaine — et corriger l'orthographe du ministère « Ashers » → « Ushers ».
+**Goal:** Ajouter au tableau de suivi hebdomadaire des bergers trois colonnes - diffusion Mixlr, nombre d'ushers, thème de la semaine - et corriger l'orthographe du ministère « Ashers » → « Ushers ».
 
 **Architecture:** Le tableau de suivi est entièrement piloté par la constante `SUIVI_FIELDS` (`Config/constants.php`) : les vues (`suivi_week.php`, `suivi_print.php`, `my_profile.php`) itèrent dessus pour rendre les champs, et la persistance (`BergerRepository::saveSuiviWeek`) enregistre sans liste blanche tout `champ` reçu. Ajouter des entrées à la constante suffit donc de bout en bout. Seul `ReportService::weekCompletion` (calcul du % de réalisation) doit être ajusté pour ne pas faire chuter les pourcentages historiques à cause des nouveaux champs. La correction « Ashers » touche `BASONTAS_DEFAULT` (nouvelles installations via le seeder) plus un `UPDATE` idempotent dans la migration (bases déjà en place).
 
-**Tech Stack:** PHP 8 SSR, micro-framework maison, zéro dépendance. MySQL/MariaDB via PDO (`App\Core\Query`). Pas de PHPUnit — vérification = `php -l` + assertions `php -r` + parcours manuel.
+**Tech Stack:** PHP 8 SSR, micro-framework maison, zéro dépendance. MySQL/MariaDB via PDO (`App\Core\Query`). Pas de PHPUnit - vérification = `php -l` + assertions `php -r` + parcours manuel.
 =======
 # M3 - Suivi Hebdo. des Bergers : champs Mixlr / Ushers / Thème + correction « Ashers » - Implementation Plan
 
@@ -31,7 +31,7 @@
 - CSS modulaire sous `assets/css/`, variables de `variables.css`, aucun style/script inline dans les vues. (Aucun CSS nécessaire pour M3.)
 - Ne jamais casser une URL, l'auth, ni un formulaire existant. On étend `SUIVI_FIELDS`, on ne réordonne pas les entrées existantes.
 <<<<<<< HEAD
-- `install.php` reste supprimable — aucun code runtime n'en dépend.
+- `install.php` reste supprimable - aucun code runtime n'en dépend.
 =======
 - `install.php` reste supprimable - aucun code runtime n'en dépend.
 >>>>>>> to-prod
@@ -41,7 +41,7 @@
 
 1. **`mixlr` et `ushers` sont marqués `sundayOnly`** : la diffusion Mixlr et le comptage des ushers concernent le culte du dimanche. Cela limite aussi leur impact sur le dénominateur du % (comptés le dimanche uniquement).
 <<<<<<< HEAD
-2. **`themeSemaine` est marqué `optional`** : nouveau flag ajouté à `SUIVI_FIELDS` + `ReportService::weekCompletion`. Un champ `optional` n'entre ni au numérateur ni au dénominateur du calcul de réalisation — les semaines déjà saisies gardent leur pourcentage.
+2. **`themeSemaine` est marqué `optional`** : nouveau flag ajouté à `SUIVI_FIELDS` + `ReportService::weekCompletion`. Un champ `optional` n'entre ni au numérateur ni au dénominateur du calcul de réalisation - les semaines déjà saisies gardent leur pourcentage.
 =======
 2. **`themeSemaine` est marqué `optional`** : nouveau flag ajouté à `SUIVI_FIELDS` + `ReportService::weekCompletion`. Un champ `optional` n'entre ni au numérateur ni au dénominateur du calcul de réalisation - les semaines déjà saisies gardent leur pourcentage.
 >>>>>>> to-prod
@@ -54,7 +54,7 @@
 | `Config/constants.php` | Définit `SUIVI_FIELDS` (colonnes du tableau de suivi) et `BASONTAS_DEFAULT` (noms de basontas semés) | Modifier : +3 entrées `SUIVI_FIELDS` ; `'Ashers'` → `'Ushers'` dans `BASONTAS_DEFAULT` |
 | `app/Services/ReportService.php` | Calcul du % de réalisation d'une semaine / année de suivi | Modifier : `weekCompletion()` ignore les champs `optional` |
 <<<<<<< HEAD
-| `Database/Migrations/2024_01_01_000000_create_schema.php` | Migration idempotente unique | Modifier : nouveau bloc « 9 » — `UPDATE basontas SET nom = 'Ushers' WHERE nom = 'Ashers'` |
+| `Database/Migrations/2024_01_01_000000_create_schema.php` | Migration idempotente unique | Modifier : nouveau bloc « 9 » - `UPDATE basontas SET nom = 'Ushers' WHERE nom = 'Ashers'` |
 =======
 | `Database/Migrations/2024_01_01_000000_create_schema.php` | Migration idempotente unique | Modifier : nouveau bloc « 9 » - `UPDATE basontas SET nom = 'Ushers' WHERE nom = 'Ashers'` |
 >>>>>>> to-prod
@@ -75,8 +75,8 @@ Aucune vue, aucun contrôleur, aucun repository, aucun CSS à toucher.
 - Produces :
   - `SUIVI_FIELDS` contient trois nouvelles entrées, clés `mixlr`, `ushers`, `themeSemaine`.
 <<<<<<< HEAD
-  - Nouveau flag conventionnel dans une entrée `SUIVI_FIELDS` : `'optional' => true` — signifie « rendu dans le formulaire mais exclu du calcul de réalisation ».
-  - `App\Services\ReportService::weekCompletion(array $week): int` — signature inchangée ; ignore désormais toute entrée `SUIVI_FIELDS` où `!empty($f['optional'])`.
+  - Nouveau flag conventionnel dans une entrée `SUIVI_FIELDS` : `'optional' => true` - signifie « rendu dans le formulaire mais exclu du calcul de réalisation ».
+  - `App\Services\ReportService::weekCompletion(array $week): int` - signature inchangée ; ignore désormais toute entrée `SUIVI_FIELDS` où `!empty($f['optional'])`.
 =======
   - Nouveau flag conventionnel dans une entrée `SUIVI_FIELDS` : `'optional' => true` - signifie « rendu dans le formulaire mais exclu du calcul de réalisation ».
   - `App\Services\ReportService::weekCompletion(array $week): int` - signature inchangée ; ignore désormais toute entrée `SUIVI_FIELDS` où `!empty($f['optional'])`.
@@ -113,7 +113,7 @@ echo "OK constante\n";
 ```
 
 <<<<<<< HEAD
-> Note : adapter le chemin `require` au chemin absolu réel du projet si le lancement se fait ailleurs — `Config/constants.php` n'a aucune dépendance (que des `define()`), il se charge seul.
+> Note : adapter le chemin `require` au chemin absolu réel du projet si le lancement se fait ailleurs - `Config/constants.php` n'a aucune dépendance (que des `define()`), il se charge seul.
 =======
 > Note : adapter le chemin `require` au chemin absolu réel du projet si le lancement se fait ailleurs - `Config/constants.php` n'a aucune dépendance (que des `define()`), il se charge seul.
 >>>>>>> to-prod
@@ -122,7 +122,7 @@ echo "OK constante\n";
 
 Run: `php -d zend.assertions=1 -d assert.exception=1 "$CLAUDE_JOB_DIR/tmp/m3_fields_check.php"`
 <<<<<<< HEAD
-Expected: FAIL — `AssertionError: mixlr manquant`
+Expected: FAIL - `AssertionError: mixlr manquant`
 =======
 Expected: FAIL - `AssertionError: mixlr manquant`
 >>>>>>> to-prod
@@ -143,7 +143,7 @@ Ne pas modifier ni réordonner les entrées existantes.
 
 Run: `php -d zend.assertions=1 -d assert.exception=1 "$CLAUDE_JOB_DIR/tmp/m3_fields_check.php"`
 <<<<<<< HEAD
-Expected: PASS — `OK constante`
+Expected: PASS - `OK constante`
 =======
 Expected: PASS - `OK constante`
 >>>>>>> to-prod
@@ -181,7 +181,7 @@ foreach (WEEK_DAYS as $day) {
 $svc = new App\Services\ReportService(new App\Repositories\BergerRepository());
 $pct = $svc->weekCompletion($week);
 <<<<<<< HEAD
-assert($pct === 100, "attendu 100, obtenu {$pct} — les champs optionnels comptent encore dans le dénominateur");
+assert($pct === 100, "attendu 100, obtenu {$pct} - les champs optionnels comptent encore dans le dénominateur");
 =======
 assert($pct === 100, "attendu 100, obtenu {$pct} - les champs optionnels comptent encore dans le dénominateur");
 >>>>>>> to-prod
@@ -192,7 +192,7 @@ echo "OK completion = {$pct}\n";
 
 Run: `php -d zend.assertions=1 -d assert.exception=1 "$CLAUDE_JOB_DIR/tmp/m3_completion_check.php"`
 <<<<<<< HEAD
-Expected: FAIL — `AssertionError: attendu 100, obtenu 97` (ou valeur < 100 : `themeSemaine` gonfle encore le dénominateur)
+Expected: FAIL - `AssertionError: attendu 100, obtenu 97` (ou valeur < 100 : `themeSemaine` gonfle encore le dénominateur)
 =======
 Expected: FAIL - `AssertionError: attendu 100, obtenu 97` (ou valeur < 100 : `themeSemaine` gonfle encore le dénominateur)
 >>>>>>> to-prod
@@ -228,7 +228,7 @@ Ne pas toucher `isFieldFilled`, `yearCompletion`, `weeklySeries`.
 
 Run: `php -d zend.assertions=1 -d assert.exception=1 "$CLAUDE_JOB_DIR/tmp/m3_completion_check.php"`
 <<<<<<< HEAD
-Expected: PASS — `OK completion = 100`
+Expected: PASS - `OK completion = 100`
 =======
 Expected: PASS - `OK completion = 100`
 >>>>>>> to-prod
@@ -249,8 +249,8 @@ Dans un navigateur :
 2. Ouvrir `http://127.0.0.1:8000/index.php?page=suiviBergers&membre=1` (ou un id de berger existant).
 3. Vérifier :
 <<<<<<< HEAD
-   - Nouvelle colonne **« Diffusion Mixlr (lien ou statut) »** : cellule éditable uniquement sur la ligne **Dimanche**, `—` les autres jours.
-   - Nouvelle colonne **« Nombre d'ushers »** : champ `number`, Dimanche uniquement, `—` ailleurs.
+   - Nouvelle colonne **« Diffusion Mixlr (lien ou statut) »** : cellule éditable uniquement sur la ligne **Dimanche**, `-` les autres jours.
+   - Nouvelle colonne **« Nombre d'ushers »** : champ `number`, Dimanche uniquement, `-` ailleurs.
 =======
    - Nouvelle colonne **« Diffusion Mixlr (lien ou statut) »** : cellule éditable uniquement sur la ligne **Dimanche**, `-` les autres jours.
    - Nouvelle colonne **« Nombre d'ushers »** : champ `number`, Dimanche uniquement, `-` ailleurs.
@@ -313,7 +313,7 @@ echo "OK basonta\n";
 
 Run: `php -d zend.assertions=1 -d assert.exception=1 "$CLAUDE_JOB_DIR/tmp/m3_basonta_check.php"`
 <<<<<<< HEAD
-Expected: FAIL — `AssertionError: BASONTAS_DEFAULT contient encore 'Ashers'`
+Expected: FAIL - `AssertionError: BASONTAS_DEFAULT contient encore 'Ashers'`
 =======
 Expected: FAIL - `AssertionError: BASONTAS_DEFAULT contient encore 'Ashers'`
 >>>>>>> to-prod
@@ -336,7 +336,7 @@ define('BASONTAS_DEFAULT', ['Chorale', 'Ushers', 'Film Start', 'Perfect Sound', 
 
 Run: `php -d zend.assertions=1 -d assert.exception=1 "$CLAUDE_JOB_DIR/tmp/m3_basonta_check.php"`
 <<<<<<< HEAD
-Expected: PASS — `OK basonta`
+Expected: PASS - `OK basonta`
 =======
 Expected: PASS - `OK basonta`
 >>>>>>> to-prod
@@ -352,7 +352,7 @@ Dans `Database/Migrations/2024_01_01_000000_create_schema.php`, fonction `up()`,
      * les nouvelles installations (via le seeder) ; cette requête répare les
      * bases déjà en place. Idempotente : aucun effet si la ligne n'existe
 <<<<<<< HEAD
-     * pas ou a déjà été renommée. `basontas.nom` n'est pas UNIQUE — aucune
+     * pas ou a déjà été renommée. `basontas.nom` n'est pas UNIQUE - aucune
 =======
      * pas ou a déjà été renommée. `basontas.nom` n'est pas UNIQUE - aucune
 >>>>>>> to-prod
@@ -423,8 +423,8 @@ EOF
 | Ajouter `ushers` (number) à `SUIVI_FIELDS` | Task 1, Step 3 |
 | Ajouter `themeSemaine` (text, optionnel) | Task 1, Step 3 |
 <<<<<<< HEAD
-| `nomBerger` (optionnel) | Abandonné — justifié §« Décisions de cadrage » n°3 (redondant avec l'en-tête de `suivi_week.php`) |
-| « Temps de prière » déjà présent (`priere`) — ne rien faire | Aucune tâche nécessaire (constaté dans le spec) |
+| `nomBerger` (optionnel) | Abandonné - justifié §« Décisions de cadrage » n°3 (redondant avec l'en-tête de `suivi_week.php`) |
+| « Temps de prière » déjà présent (`priere`) - ne rien faire | Aucune tâche nécessaire (constaté dans le spec) |
 =======
 | `nomBerger` (optionnel) | Abandonné - justifié §« Décisions de cadrage » n°3 (redondant avec l'en-tête de `suivi_week.php`) |
 | « Temps de prière » déjà présent (`priere`) - ne rien faire | Aucune tâche nécessaire (constaté dans le spec) |
@@ -434,7 +434,7 @@ EOF
 | Décision §7 : intégration des nouveaux champs au % de `ReportService` | Task 1, Steps 5-8 (`optional` exclu du calcul ; `sundayOnly` limite l'impact des deux autres) |
 | Aucun changement de schéma de table | Respecté (seul un `UPDATE` de données est ajouté) |
 <<<<<<< HEAD
-| Aucune vue à modifier (constant-driven) | Respecté — vérifié en Task 1 Step 10 |
+| Aucune vue à modifier (constant-driven) | Respecté - vérifié en Task 1 Step 10 |
 =======
 | Aucune vue à modifier (constant-driven) | Respecté - vérifié en Task 1 Step 10 |
 >>>>>>> to-prod
@@ -450,7 +450,7 @@ Aucun trou.
 ## Execution Handoff
 
 <<<<<<< HEAD
-Deux tâches, séquentielles (Task 2 ne dépend pas de Task 1 mais touche le même fichier `Config/constants.php` — les faire dans l'ordre). Chaque tâche se termine par un livrable testable et un commit.
+Deux tâches, séquentielles (Task 2 ne dépend pas de Task 1 mais touche le même fichier `Config/constants.php` - les faire dans l'ordre). Chaque tâche se termine par un livrable testable et un commit.
 =======
 Deux tâches, séquentielles (Task 2 ne dépend pas de Task 1 mais touche le même fichier `Config/constants.php` - les faire dans l'ordre). Chaque tâche se termine par un livrable testable et un commit.
 >>>>>>> to-prod

@@ -5,15 +5,14 @@
   À maintenir manuellement (pas de génération dynamique - voir
   ARCHITECTURE.md : aucune dépendance, aucun build).
 
-  Seules deux URLs sont réellement accessibles sans compte aujourd'hui
-  (voir index.php) : l'écran de connexion et l'inscription publique. Si
-  les pages de présentation (?page=apropos, ?page=centresPresentation)
-  sont un jour rendues publiques, ajoutez-les ici.
+  La vitrine publique (?page=eglise) remplace les anciennes pages de
+  présentation (?page=apropos, ?page=centresPresentation), désormais
+  redirigées (301) vers elle. Domaine à confirmer avant mise en production.
 -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://lbegf.rf.gd/index.php</loc>
-    <changefreq>monthly</changefreq>
+    <loc>https://lbegf.rf.gd/index.php?page=eglise</loc>
+    <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>

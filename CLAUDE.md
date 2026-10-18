@@ -126,6 +126,47 @@ cursus) are seeded *inside `up()`*, guarded by `SELECT COUNT(*) FROM t = 0` -
 only `\Database\Migrations\up()` (non-destructive); `install.php` calls `down()`
 first and wipes everything.
 
+### Public landing page (vitrine)
+
+`?page=eglise` (and bare `/` for an anonymous visitor) serves a public landing
+page via `PublicController` → `PublicSiteService` → `PublicSiteRepository`
+(standalone layout `Views/layouts/public.php`, `assets/css/landing.css`). Public
+pages are whitelisted in `$publicPages` in `index.php` - that list is the only
+auth bypass. Login moved to `?page=login`; protected pages visited anonymously
+still show the login form at the same URL. `apropos` / `centresPresentation`
+301-redirect to the landing for non-admins (admins keep the management views).
+Only published data is exposed: `centres.publie`, `centre_horaires`,
+`site_settings` (migration block 15), edited by admins at
+`?page=site_public` — a tabbed back-office
+(`AdminSiteController`, `&tab=overview|identity|centres|centre|
+team|events|media|faq|ministries|legal`; centre detail via `&id=`,
+depth 1) with real dashboard stats (`PublicSiteService::
+adminOverview()`), a centralised centres list (search + filters)
+and a guided per-schedule editor (`parseHorairesInput()` accepts
+structured rows OR the legacy `Libellé | Jours | HH:MM` text —
+same storage). Views: `Views/pages/admin_site_shell.php` +
+`Views/pages/admin_site/*.php`; assets: `assets/css/admin_site.css`,
+`assets/js/admin_site.js` (loaded only on this page). Writes go
+through the existing admin-only actions in `ActionsController`
+(`save_site_settings`, `save_centre_public`, `save_equipe_public`,
+`save_events_public`, `save_faq_public`, `save_ministries_public`,
+`delete_faq`). Equipe (`equipe.publie`) and events
+(`evenements.publie`, `description`, `affiche`, `lien_inscription`)
+are opt-in per row. Nothing is seeded - empty data hides the
+section. The landing view is split into partials
+(`Views/pages/public/partials/`) and renders, when populated: hero (slogan,
+texte d'accueil, image via `hero_image`), horaires + contact rapide, à propos,
+centres (seuil : adresse + horaire + contact), vie de l'église (bacentas =
+prière / basontas = groupes et services, via `description_publique` + `publie`,
+migration block 16), événements, médias (`lien_direct`, prédication), FAQ
+(`faq_publique`, block 16), contact, engagement (`lien_don` + `don_usage`),
+footer complet. Pages légales publiques : `?page=mentions_legales` /
+`?page=confidentialite` (servies seulement si le texte est renseigné, sinon
+redirection vers la vitrine). Le CTA principal n'est affiché que s'il mène à
+une cible réelle (jamais un bouton décoratif). Plan V2 :
+`docs/landing-page-plan-v2-spec-unifiee.md` (supersède
+`docs/landing-page-implementation-plan.md`).
+
 ### Registration / verification / activation / bacenta-assignment subsystem
 
 A full workflow lives on top of the base `users` table (see README.md §7 for

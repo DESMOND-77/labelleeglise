@@ -37,13 +37,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 /* ---------- Pages publiques (accessibles sans connexion) ---------- */
 $page = $_GET['page'] ?? 'accueil';
-$publicPages = ['register', 'verify_email', 'verify_email_change', 'email_change_pending'];
+// `/` sans paramètre : vitrine publique pour un visiteur non connecté (un
+// utilisateur connecté garde le tableau de bord). Un ancien `?error=` sans
+// `page` (échec de connexion) reste routé vers l'écran de connexion.
+if (!isset($_GET['page']) && !isset($_GET['error']) && !current_user()) {
+    $page = 'eglise';
+}
+$publicPages = ['eglise', 'login', 'register', 'verify_email', 'verify_email_change', 'email_change_pending', 'mentions_legales', 'confidentialite'];
 
 if (in_array($page, $publicPages, true)) {
     require_once __DIR__ . '/Routes/web.php';
     if (Router::dispatch('GET', $page)) {
         exit;
     }
+}
+
+/* ---------- Anciennes pages de présentation : redirection 301 pour les anonymes ---------- */
+if (!current_user() && in_array($page, ['apropos', 'centresPresentation'], true)) {
+    $anchor = $page === 'apropos' ? 'a-propos' : 'centres';
+    header('Location: ' . url('index.php', ['page' => 'eglise']) . '#' . $anchor, true, 301);
+    exit;
 }
 
 /* ---------- Authentification ---------- */

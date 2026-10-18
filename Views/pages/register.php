@@ -36,7 +36,7 @@ $v = static fn(string $k) => h($old[$k] ?? '');
         <p class="login-sub">Un email de vérification vient de vous être envoyé. Ouvrez votre boîte de réception
           et cliquez sur le lien pour confirmer votre adresse email.</p>
         <p class="register-hint">Vous n'avez rien reçu ? Vérifiez vos indésirables, ou réessayez dans quelques minutes.</p>
-        <a class="btn btn-primary btn-block btn-lg" href="index.php">Retour à la connexion</a>
+        <a class="btn btn-primary btn-block btn-lg" href="index.php?page=login">Retour à la connexion</a>
       </div>
     <?php else: ?>
       <form class="login-card register-card" method="post" action="index.php" novalidate>
@@ -101,7 +101,7 @@ $v = static fn(string $k) => h($old[$k] ?? '');
         <button type="submit" class="btn btn-primary btn-block btn-lg">Créer mon compte</button>
 
         <div class="login-hint register-back">
-          <span>Déjà inscrit ? <a href="index.php">Se connecter</a></span>
+          <span>Déjà inscrit ? <a href="index.php?page=login">Se connecter</a></span>
         </div>
       </form>
     <?php endif; ?>

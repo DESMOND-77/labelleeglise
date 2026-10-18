@@ -64,7 +64,7 @@ if ($copy === null) {
       <div class="result-icon <?= h($copy['class']) ?>"><i class="<?= h($copy['icon']) ?>"></i></div>
       <h1><?= h($copy['title']) ?></h1>
       <p class="login-sub"><?= $copy['text'] ?></p>
-      <a class="btn btn-primary btn-block btn-lg" href="index.php">Retour à la connexion</a>
+      <a class="btn btn-primary btn-block btn-lg" href="index.php?page=login">Retour à la connexion</a>
     </div>
   </div>
 </body>

@@ -11,8 +11,7 @@ $isAdmin = $user && $user['role'] === 'admin';
 
 /* ---------- Liens du menu ---------- */
 $publicLis = [
-    '<li><a class="nav-item' . ($page === 'apropos' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'apropos'])) . '"><span class="ico">' . SECTION_ICONS['apropos'] . '</span><span class="label">' . h(SECTION_LABELS['apropos']) . '</span></a></li>',
-    '<li><a class="nav-item' . ($page === 'centresPresentation' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'centresPresentation'])) . '"><span class="ico">' . SECTION_ICONS['centresPresentation'] . '</span><span class="label">' . h(SECTION_LABELS['centresPresentation']) . '</span></a></li>',
+    '<li><a class="nav-item' . ($page === 'eglise' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'eglise'])) . '"><span class="ico">' . SECTION_ICONS['apropos'] . '</span><span class="label">Notre église</span></a></li>',
 ];
 
 $navLis = [];
@@ -87,6 +86,7 @@ if ($isAdmin) {
     $navLis[] = '<li><a class="nav-item' . ($page === 'admin_inscriptions' || $page === 'admin_inscription' ? ' active' : '')
         . '" href="' . h(url('index.php', ['page' => 'admin_inscriptions'])) . '"><span class="ico">' . SECTION_ICONS['admin_inscriptions']
         . '</span><span class="label">Inscriptions</span>' . $badge . '</a></li>';
+    $navLis[] = '<li><a class="nav-item' . ($page === 'site_public' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'site_public'])) . '"><span class="ico">' . SECTION_ICONS['site_public'] . '</span><span class="label">' . h(SECTION_LABELS['site_public']) . '</span></a></li>';
 }
 
 /* ---------- Notifications (dropdown topbar) ---------- */
@@ -174,7 +174,7 @@ if (in_array($page, ['bacentas', 'cultes', 'basontas'], true) && nav('id')) {
       <i class="fa-solid fa-chevron-left"></i>
     </button>
     <div class="brand">
-      <div class="brand-logo"><img src="/assets/images/logo.png" alt="La Belle Église Intenationale Franceville Internationale Franceville"></div>
+      <div class="brand-logo"><img src="/assets/images/logo.png" alt="La Belle Église Intenationale Franceville"></div>
       <div class="brand-text">
         <strong><?= h(APP_NAME) ?></strong>
         <span><?= h(APP_LOCATION) ?></span>
@@ -240,7 +240,7 @@ if (in_array($page, ['bacentas', 'cultes', 'basontas'], true) && nav('id')) {
               <span><?= h(ROLE_LABELS[$user['role']] ?? $user['role']) ?></span>
             </div>
             <a class="profile-menu-item" href="<?= h(url('index.php', ['page' => 'profile'])) ?>"><i class="fa-solid fa-user-pen"></i> Mon profil</a>
-            <a class="profile-menu-item" href="<?= h(url('index.php', ['page' => 'apropos'])) ?>"><i class="fa-solid fa-circle-info"></i> À propos</a>
+            <a class="profile-menu-item" href="<?= h(url('index.php', ['page' => 'eglise'])) ?>"><i class="fa-solid fa-circle-info"></i> Notre église</a>
             <a class="profile-menu-item danger" href="<?= h(url('index.php', ['action' => 'logout'])) ?>"><i class="fa-solid fa-arrow-right-from-bracket"></i> Déconnexion</a>
           </div>
         </div>
@@ -260,6 +260,7 @@ if (in_array($page, ['bacentas', 'cultes', 'basontas'], true) && nav('id')) {
 <script src="assets/js/app.js"></script>
 <script src="assets/js/attendance.js" defer></script>
 <script src="assets/js/table-paginate.js" defer></script>
+<?php if (($page ?? '') === 'site_public'): ?><script src="assets/js/admin_site.js" defer></script><?php endif; ?>
 <?php if (($page ?? '') === 'agenda'): ?><script src="assets/js/agenda.js" defer></script><?php endif; ?>
 </body>
 </html>

@@ -36,6 +36,11 @@ function _repo(string $class): object
     return $instances[$class];
 }
 
+function public_site_service(): \App\Services\PublicSiteService
+{
+    return _repo(\App\Services\PublicSiteService::class);
+}
+
 /* ---------- Structure ---------- */
 
 function get_centres(): array { return _repo(CentreRepository::class)->all(); }

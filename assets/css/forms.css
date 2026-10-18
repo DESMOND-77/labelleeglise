@@ -276,3 +276,7 @@
   font-size: 13px;
   margin-top: var(--space-1);
 }
+
+/* ---- Sous-blocs d'un formulaire (ex. « Site public ») ---- */
+.form-card-inner { border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-3) var(--space-4); margin: 0 0 var(--space-3); }
+.form-card-inner legend { font-weight: 600; padding: 0 var(--space-1); }

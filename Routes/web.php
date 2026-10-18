@@ -28,6 +28,8 @@ use App\Controllers\CalendrierController;
 use App\Controllers\RapportController;
 use App\Controllers\ClasseController;
 use App\Controllers\BusController;
+use App\Controllers\PublicController;
+use App\Controllers\AdminSiteController;
 
 /* ---------- Authentification (POST) ---------- */
 Router::post('login', AuthController::class, 'login');
@@ -77,6 +79,15 @@ Router::get('profile', ProfileController::class, 'me');
 Router::get('attendancePrint', ProfileController::class, 'attendancePrint');
 Router::get('suiviPrint', ProfileController::class, 'suiviPrint');
 Router::get('presencePrint', PresenceController::class, 'matrixPrint');
+
+/* ---------- Site public (accès sans connexion) ---------- */
+Router::get('eglise', PublicController::class, 'index');
+Router::get('login', PublicController::class, 'login');
+Router::get('mentions_legales', PublicController::class, 'mentionsLegales');
+Router::get('confidentialite', PublicController::class, 'confidentialite');
+
+/* ---------- Administration du site public (admin uniquement) ---------- */
+Router::get('site_public', AdminSiteController::class, 'index');
 
 /* ---------- Inscription publique / vérification email (accès public) ---------- */
 Router::get('register', RegistrationController::class, 'form');
