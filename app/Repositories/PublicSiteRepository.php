@@ -137,6 +137,21 @@ class PublicSiteRepository
         );
     }
 
+    /** Un centre avec ses champs publics et ses horaires structurés (fiche admin). */
+    public function centreForAdmin(int $id): ?array
+    {
+        $row = Query::one(
+            'SELECT id, nom, adresse, quartier, ville, itineraire_url, telephone, whatsapp, email, responsable_public, publie
+               FROM centres WHERE id = ?',
+            [$id]
+        );
+        if (!$row) {
+            return null;
+        }
+        $row['horaires_rows'] = $this->horairesByCentre([$id])[$id] ?? [];
+        return $row;
+    }
+
     public function equipeForAdmin(): array
     {
         return Query::all('SELECT id, nom_affichage, role_affichage, categorie, publie FROM equipe ORDER BY id');
