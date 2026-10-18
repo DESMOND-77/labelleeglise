@@ -36,7 +36,7 @@
     <tbody>
       <?php foreach ($centres as $c): ?>
         <?php $complete = $c['completion']['complete']; ?>
-        <tr data-name="<?= h(mb_strtolower($c['nom'] . ' ' . ($c['quartier'] ?? '') . ' ' . ($c['ville'] ?? '') . ' ' . ($c['adresse'] ?? ''))) ?>"
+        <tr data-name="<?= h(mb_lower($c['nom'] . ' ' . ($c['quartier'] ?? '') . ' ' . ($c['ville'] ?? '') . ' ' . ($c['adresse'] ?? ''))) ?>"
             data-publie="<?= !empty($c['publie']) ? '1' : '0' ?>" data-complete="<?= $complete ? '1' : '0' ?>">
           <td><a href="<?= h(url('index.php', ['page' => 'site_public', 'tab' => 'centre', 'id' => (int) $c['id']])) ?>"><?= h($c['nom']) ?></a></td>
           <td><?= h(implode(', ', array_filter([$c['quartier'] ?? '', $c['ville'] ?? '', $c['adresse'] ?? '']))) ?: '<span class="muted">—</span>' ?></td>
@@ -67,7 +67,7 @@
 
   <div class="card-list-mobile" data-centres-cards>
     <?php foreach ($centres as $c): ?>
-      <article class="mini-card" data-name="<?= h(mb_strtolower($c['nom'] . ' ' . ($c['quartier'] ?? '') . ' ' . ($c['ville'] ?? '') . ' ' . ($c['adresse'] ?? ''))) ?>"
+      <article class="mini-card" data-name="<?= h(mb_lower($c['nom'] . ' ' . ($c['quartier'] ?? '') . ' ' . ($c['ville'] ?? '') . ' ' . ($c['adresse'] ?? ''))) ?>"
                data-publie="<?= !empty($c['publie']) ? '1' : '0' ?>" data-complete="<?= $c['completion']['complete'] ? '1' : '0' ?>">
         <div class="mini-card-head">
           <strong><a href="<?= h(url('index.php', ['page' => 'site_public', 'tab' => 'centre', 'id' => (int) $c['id']])) ?>"><?= h($c['nom']) ?></a></strong>

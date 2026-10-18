@@ -5,26 +5,26 @@
   'use strict';
 
   /* ---- Recherche et filtre de la liste des centres ---- */
-  var search = document.getElementById('centres-search');
-  var filter = document.getElementById('centres-filter');
-  var count = document.getElementById('centres-count');
-  var empty = document.getElementById('centres-empty');
+  const search = document.getElementById('centres-search');
+  const filter = document.getElementById('centres-filter');
+  const count = document.getElementById('centres-count');
+  const empty = document.getElementById('centres-empty');
 
   function applyFilters() {
-    var q = (search && search.value || '').trim().toLowerCase();
-    var mode = filter ? filter.value : 'all';
-    var rows = document.querySelectorAll('[data-centres-table] tbody tr, [data-centres-cards] .mini-card');
-    var visible = 0;
+    const q = (search && search.value || '').trim().toLowerCase();
+    const mode = filter ? filter.value : 'all';
+    const rows = document.querySelectorAll('[data-centres-table] tbody tr, [data-centres-cards] .mini-card');
+    let visible = 0;
     rows.forEach(function (row) {
-      var name = (row.getAttribute('data-name') || '').toLowerCase();
-      var publie = row.getAttribute('data-publie') === '1';
-      var complete = row.getAttribute('data-complete') === '1';
-      var okQ = q === '' || name.indexOf(q) !== -1;
-      var okMode = mode === 'all'
+      const name = (row.getAttribute('data-name') || '').toLowerCase();
+      const publie = row.getAttribute('data-publie') === '1';
+      const complete = row.getAttribute('data-complete') === '1';
+      const okQ = q === '' || name.indexOf(q) !== -1;
+      const okMode = mode === 'all'
         || (mode === 'publie' && publie)
         || (mode === 'brouillon' && !publie)
         || (mode === 'incomplet' && !complete);
-      var show = okQ && okMode;
+      const show = okQ && okMode;
       row.style.display = show ? '' : 'none';
       if (show) { visible++; }
     });
@@ -38,36 +38,49 @@
   if (filter) { filter.addEventListener('change', applyFilters); }
 
   /* ---- FAQ : ajout dynamique de questions ---- */
-  var faqAdd = document.getElementById('faq-add');
-  var faqList = document.getElementById('faq-list');
-  var faqTemplate = document.getElementById('faq-row-template');
-  var faqCounter = 0;
-  if (faqAdd && faqList && faqTemplate) {
+  const faqAdd = document.getElementById('faq-add');
+  const faqList = document.getElementById('faq-list');
+  const faqTemplate = document.getElementById('faq-row-template');
+  let faqCounter = 0;
+  if (faqAdd && faqList && faqTemplate && faqTemplate.content) {
     faqAdd.addEventListener('click', function () {
       faqCounter++;
-      var clone = faqTemplate.content.firstElementChild;
-      if (!clone) { return; }
-      var idx = document.querySelectorAll('.faq-item-admin').length + 1;
-      clone.querySelector('legend').innerHTML = 'Nouvelle question <span class="faq-index">(' + idx + ')</span>';
+      const templateEl = faqTemplate.content.firstElementChild;
+      if (!templateEl) { return; }
+      const clone = templateEl.cloneNode(true);
+      const idx = document.querySelectorAll('.faq-item-admin').length + 1;
+      const legend = clone.querySelector('legend');
+      if (legend) {
+        legend.textContent = '';
+        legend.appendChild(document.createTextNode('Nouvelle question '));
+        const span = document.createElement('span');
+        span.className = 'faq-index';
+        span.textContent = '(' + idx + ')';
+        legend.appendChild(span);
+      }
       // Nom unique pour le checkbox de publication (sinon « nouvelle »).
-      var box = clone.querySelector('input[type="checkbox"]');
+      const box = clone.querySelector('input[type="checkbox"]');
       if (box) { box.value = 'new' + faqCounter; }
-      var inputs = clone.querySelectorAll('input[type="text"], textarea');
-      inputs.forEach(function (el) { el.name = el.name.replace('[]', '[new' + faqCounter + ']'); });
+      const inputs = clone.querySelectorAll('input[type="text"], textarea');
+      inputs.forEach(function (el) {
+        if (el.name) {
+          el.name = el.name.replace('[]', '[new' + faqCounter + ']');
+        }
+      });
       faqList.appendChild(clone);
-      var first = clone.querySelector('input[type="text"]');
+      const first = clone.querySelector('input[type="text"]');
       if (first) { first.focus(); }
     });
   }
 
   /* ---- Aperçu de l'image d'accueil ---- */
-  var heroInput = document.querySelector('input[name="hero_image"]');
-  var heroPreview = document.getElementById('hero-preview');
+  const heroInput = document.querySelector('input[name="hero_image"]');
+  const heroPreview = document.getElementById('hero-preview');
   if (heroInput && heroPreview) {
     heroInput.addEventListener('change', function () {
-      var file = heroInput.files && heroInput.files[0];
+      const file = heroInput.files && heroInput.files[0];
       if (!file) { heroPreview.hidden = true; return; }
-      var reader = new FileReader();
+      const reader = new FileReader();
       reader.onload = function () {
         heroPreview.src = reader.result;
         heroPreview.hidden = false;
@@ -86,7 +99,7 @@
     });
   });
   window.addEventListener('beforeunload', function (e) {
-    var dirty = document.querySelector('form[data-track-dirty][data-dirty="1"]');
+    const dirty = document.querySelector('form[data-track-dirty][data-dirty="1"]');
     if (dirty) {
       e.preventDefault();
       e.returnValue = '';
@@ -94,9 +107,13 @@
   });
 
   /* ---- Retour du focus après sauvegarde (accessibilité) ---- */
-  var status = document.getElementById('save-status');
+  const status = document.getElementById('save-status');
   if (status) {
     status.setAttribute('tabindex', '-1');
-    status.focus({ preventScroll: true });
+    try {
+      status.focus({ preventScroll: true });
+    } catch (_err) {
+      status.focus();
+    }
   }
 })();

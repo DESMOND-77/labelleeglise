@@ -2,7 +2,8 @@
    Horaires en saisie guidée (libellé, jours, début, fin) — même validation
    et même stockage que le format texte hérité (contrac préservé). */
 $days = WEEK_DAYS;
-$rows = $centre['horaires_rows'] ?: [null, null];
+$existing = $centre['horaires_rows'] ?? [];
+$rows = $existing !== [] ? array_merge($existing, [null]) : [null, null];
 /** Jours cochés d'une ligne (CSV en base). */
 $checkedDays = static function (array|string $jours): array {
     if (is_array($jours)) {
