@@ -163,7 +163,15 @@ if (in_array($page, ['bacentas', 'cultes', 'basontas'], true) && nav('id')) {
 <meta name="theme-color" content="#4F46E5" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
 
-<link rel="stylesheet" href="assets/css/app.css">
+<?php
+// Cache-busting : l'hébergeur/le navigateur gardent app.css (et ses @import) en cache.
+$cssVersion = 0;
+foreach (glob(__DIR__ . '/../../assets/css/*.css') ?: [] as $cssFile) {
+    $cssVersion = max($cssVersion, (int) @filemtime($cssFile));
+}
+?>
+<link rel="stylesheet" href="assets/css/app.css?v=<?= $cssVersion ?>">
+<?php if (($page ?? '') === 'site_public'): ?><link rel="stylesheet" href="assets/css/admin_site.css?v=<?= $cssVersion ?>"><?php endif; ?>
 <link rel="stylesheet" href="<?= h(FONT_AWESOME_CSS) ?>">
 <script src="<?= h(CHART_JS) ?>"></script>
 </head>
