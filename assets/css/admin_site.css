@@ -1,0 +1,132 @@
+/* ============================================================
+   Back-office « Site public » — design tokens de variables.css
+   ============================================================ */
+
+.sub { color: var(--text-soft); font-size: 0.9rem; }
+
+/* ---- Layout : navigation latérale + contenu ---- */
+.admin-site { display: grid; gap: var(--space-6); }
+.admin-site-nav ul { display: flex; flex-wrap: wrap; gap: var(--space-2); list-style: none; margin: 0; padding: 0; }
+.admin-nav-item {
+  display: flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-2) var(--space-3); min-height: 44px;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--card); color: var(--text); text-decoration: none;
+  font-weight: 500;
+}
+.admin-nav-item:hover { border-color: var(--primary); color: var(--primary); }
+.admin-nav-item.active { background: var(--primary-soft); border-color: var(--primary); color: var(--primary); font-weight: 600; }
+
+@media (min-width: 900px) {
+  .admin-site { grid-template-columns: 240px 1fr; align-items: start; }
+  .admin-site-nav { position: sticky; top: calc(var(--topbar-h, 64px) + var(--space-4)); }
+  .admin-site-nav ul { flex-direction: column; flex-wrap: nowrap; }
+  .admin-nav-item { justify-content: flex-start; }
+}
+
+/* ---- En-tête de rubrique ---- */
+.page-header { margin-bottom: var(--space-5); }
+.page-header h2 { margin: 0 0 var(--space-1); font-size: 1.4rem; }
+.page-header .sub { margin: 0; }
+
+/* ---- Tableau de bord ---- */
+.stat-grid { display: grid; gap: var(--space-4); grid-template-columns: repeat(2, 1fr); margin-bottom: var(--space-6); }
+@media (min-width: 700px) { .stat-grid { grid-template-columns: repeat(4, 1fr); } }
+.stat-card-admin {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5); display: grid; gap: var(--space-1);
+}
+.stat-num { font-size: 1.9rem; font-weight: 700; line-height: 1.1; }
+.stat-denom { font-size: 1rem; color: var(--text-muted); font-weight: 500; }
+.stat-lbl { color: var(--text-soft); font-size: 0.9rem; }
+
+.admin-cols { display: grid; gap: var(--space-4); }
+@media (min-width: 900px) { .admin-cols { grid-template-columns: 1fr 1fr; } }
+
+.todo-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.todo-list a { display: flex; gap: var(--space-2); align-items: baseline; padding: var(--space-2) 0; text-decoration: none; }
+.todo-list a::before { content: "→"; color: var(--primary); }
+
+.kv-list { list-style: none; margin: 0 0 var(--space-3); padding: 0; display: grid; gap: var(--space-2); }
+.kv-list li { display: flex; justify-content: space-between; gap: var(--space-3); }
+
+/* ---- Barre d'outils de liste ---- */
+.list-toolbar { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; margin-bottom: var(--space-4); }
+.list-toolbar input[type="search"] { flex: 1 1 240px; }
+.list-count { margin: 0; color: var(--text-soft); }
+
+/* ---- Badges d'état ---- */
+.badge-status {
+  display: inline-block; padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 600;
+  border: 1px solid transparent; white-space: nowrap;
+}
+.status-ok { background: var(--success-soft); color: #15803d; border-color: #BBF7D0; }
+.status-draft { background: var(--bg); color: var(--text-soft); border-color: var(--border-strong); }
+.status-warn { background: var(--warning-soft); color: #92400e; border-color: #FDE68A; }
+
+/* ---- Tableaux ---- */
+.admin-table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.admin-table th, .admin-table td { padding: var(--space-3); text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+.admin-table th { background: var(--bg); font-size: 0.85rem; color: var(--text-soft); }
+.admin-table tr:last-child td { border-bottom: none; }
+.actions-cell { white-space: nowrap; }
+.actions-cell .btn + .btn { margin-left: var(--space-2); }
+
+/* Liste mobile (affiche en dessous de 700 px, cache le tableau) */
+.card-list-mobile { display: grid; gap: var(--space-3); }
+.mini-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-4); display: grid; gap: var(--space-2); }
+.mini-card-head { display: flex; justify-content: space-between; align-items: center; gap: var(--space-3); }
+.mini-card-missing { color: #92400e; margin: 0; }
+.mini-card-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.mini-card-actions .btn + .btn { margin-left: 0; }
+
+@media (min-width: 700px) {
+  .card-list-mobile { display: none; }
+}
+@media (max-width: 699px) {
+  .admin-table { display: none; }
+}
+
+/* ---- Formulaires ---- */
+.form-group { border: none; border-top: 1px solid var(--border); margin: 0; padding: var(--space-4) 0 0; }
+.form-group legend { font-weight: 600; padding: 0 var(--space-1); margin-bottom: var(--space-3); }
+.form-card-inner { border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-3) var(--space-4); margin: 0 0 var(--space-3); background: var(--bg); }
+.form-card-inner legend { font-weight: 600; padding: 0 var(--space-1); }
+.field-grid { display: grid; gap: var(--space-3); }
+@media (min-width: 700px) { .field-grid { grid-template-columns: repeat(2, 1fr); } }
+.field-row { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: flex-start; }
+.field-note { color: var(--text-soft); font-size: 0.9rem; max-width: 280px; }
+.req { color: var(--danger); }
+.form-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-5); }
+.form-actions .btn + .btn { margin-left: 0; }
+
+.preview-thumb { max-width: 220px; max-height: 120px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--border); }
+
+/* ---- Saisie guidée des horaires ---- */
+.horaire-row {
+  display: grid; gap: var(--space-3); padding: var(--space-3);
+  border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: var(--space-3);
+  background: var(--card);
+}
+.horaire-row input[type="text"], .horaire-row input[type="time"] { width: 100%; }
+@media (min-width: 900px) {
+  .horaire-row { grid-template-columns: 1fr 2fr 110px 110px; align-items: end; }
+}
+.horaire-jours { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-3); }
+.check-inline { display: inline-flex; align-items: center; gap: var(--space-1); min-height: auto; }
+
+/* ---- Équipe et ministères ---- */
+.team-row, .ministry-row { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; padding: var(--space-3) 0; border-bottom: 1px solid var(--border); }
+.team-row-name { font-weight: 600; }
+.ministry-row { flex-direction: column; align-items: stretch; }
+.ministry-desc { width: 100%; }
+
+/* ---- FAQ ---- */
+.faq-item-admin { position: relative; }
+.faq-item-admin .icon-btn { position: absolute; top: var(--space-3); right: var(--space-3); }
+
+/* ---- Accessibilité ---- */
+@media (prefers-reduced-motion: reduce) {
+  .admin-site * { animation: none !important; transition: none !important; }
+}

@@ -402,6 +402,7 @@ class PublicSiteService
     {
         $centres = $this->repo->allCentresForAdmin();
         $horaires = $this->repo->horairesByCentre(array_map(static fn($c) => (int) $c['id'], $centres));
+        $global = $this->contactLinks($centres ? $this->repo->settings() : []);
         foreach ($centres as &$c) {
             $lines = [];
             foreach ($horaires[(int) $c['id']] ?? [] as $h) {
@@ -409,6 +410,8 @@ class PublicSiteService
                     . ($h['heure_fin'] ? ' | ' . substr((string) $h['heure_fin'], 0, 5) : '');
             }
             $c['horaires_text'] = implode("\n", $lines);
+            $c['horaires_rows'] = array_values($horaires[(int) $c['id']] ?? []);
+            $c['completion'] = $this->centreCompletion($c, $global);
         }
         unset($c);
 
@@ -419,6 +422,115 @@ class PublicSiteService
             'evenements' => $this->repo->eventsForAdmin(date('Y-m-d H:i:s')),
             'faq'        => $this->repo->faqForAdmin(),
             'ministries' => $this->repo->ministriesForAdmin(),
+        ];
+    }
+
+    /** Un centre avec ses horaires structurés (fiche de modification). */
+    public function centreForAdmin(int $id): ?array
+    {
+        $row = $this->repo->centreForAdmin($id);
+        if ($row === null) {
+            return null;
+        }
+        $row['horaires_text'] = '';
+        foreach ($row['horaires_rows'] as $h) {
+            $row['horaires_text'] .= ($row['horaires_text'] === '' ? '' : "\n")
+                . $h['libelle'] . ' | ' . $h['jours'] . ' | ' . substr((string) $h['heure_debut'], 0, 5)
+                . ($h['heure_fin'] ? ' | ' . substr((string) $h['heure_fin'], 0, 5) : '');
+        }
+        $row['completion'] = $this->centreCompletion(
+            $row,
+            $this->contactLinks($this->repo->settings())
+        );
+        return $row;
+    }
+
+    /**
+     * Complétude d'un centre selon la règle métier de publication
+     * (seuil : adresse + au moins un horaire + un moyen de contact).
+     * @param array<string,mixed> $centre (avec horaires_rows)
+     * @return array{complete:bool,missing:list<string>}
+     */
+    public function centreCompletion(array $centre, array $globalContact): array
+    {
+        $missing = [];
+        if (trim((string) ($centre['adresse'] ?? '')) === '') {
+            $missing[] = 'adresse';
+        }
+        if (($centre['horaires_rows'] ?? []) === []) {
+            $missing[] = 'horaires';
+        }
+        $own = ((string) ($centre['telephone'] ?? '')) !== ''
+            || ((string) ($centre['whatsapp'] ?? '')) !== ''
+            || ((string) ($centre['email'] ?? '')) !== '';
+        if (!$own && $globalContact === []) {
+            $missing[] = 'contact';
+        }
+        return ['complete' => $missing === [], 'missing' => $missing];
+    }
+
+    /** Statistiques réelles du tableau de bord (aucune valeur fictive). */
+    public function adminOverview(): array
+    {
+        $settings = $this->repo->settings();
+        $global = $this->contactLinks($settings);
+
+        $centres = $this->repo->allCentresForAdmin();
+        $horaires = $this->repo->horairesByCentre(array_map(static fn($c) => (int) $c['id'], $centres));
+        $centresList = [];
+        $publies = 0;
+        $incomplets = [];
+        foreach ($centres as $c) {
+            $rows = array_values($horaires[(int) $c['id']] ?? []);
+            $c['horaires_rows'] = $rows;
+            $completion = $this->centreCompletion($c, $global);
+            $centresList[] = [
+                'id' => (int) $c['id'], 'nom' => (string) $c['nom'],
+                'ville' => (string) ($c['ville'] ?? ''), 'publie' => (int) $c['publie'] === 1,
+                'complete' => $completion['complete'], 'missing' => $completion['missing'],
+            ];
+            if ((int) $c['publie'] === 1) {
+                $publies++;
+            } elseif (!$completion['complete']) {
+                $incomplets[] = (string) $c['nom'];
+            }
+        }
+
+        $equipe = $this->repo->equipeForAdmin();
+        $equipePublies = count(array_filter($equipe, static fn($m) => (int) $m['publie'] === 1));
+
+        $events = $this->repo->eventsForAdmin(date('Y-m-d H:i:s'));
+        $eventsPublies = count(array_filter($events, static fn($e) => (int) $e['publie'] === 1));
+
+        $faq = $this->repo->faqForAdmin();
+        $faqPublies = count(array_filter($faq, static fn($f) => (int) $f['publie'] === 1));
+
+        $ministries = $this->repo->ministriesForAdmin();
+        $ministryCounts = [];
+        foreach ($ministries as $type => $rows) {
+            $ministryCounts[$type] = [
+                'total' => count($rows),
+                'publies' => count(array_filter($rows, static fn($m) => (int) $m['publie'] === 1)),
+            ];
+        }
+
+        $identity = [
+            'nom_affichage' => (string) ($settings['nom_affichage'] ?? '') !== '',
+            'slogan' => (string) ($settings['slogan'] ?? '') !== '',
+            'accueil_texte' => (string) ($settings['accueil_texte'] ?? '') !== '',
+            'adresse' => (string) ($settings['adresse'] ?? '') !== '',
+            'contact' => $global !== [],
+            'hero_image' => (string) ($settings['hero_image'] ?? '') !== '',
+        ];
+
+        return [
+            'centres' => ['total' => count($centres), 'publies' => $publies, 'list' => $centresList, 'noms_incomplets' => $incomplets],
+            'equipe' => ['total' => count($equipe), 'publies' => $equipePublies],
+            'evenements' => ['total' => count($events), 'publies' => $eventsPublies],
+            'faq' => ['total' => count($faq), 'publies' => $faqPublies],
+            'ministries' => $ministryCounts,
+            'identity' => $identity,
+            'identity_complete' => !in_array(false, $identity, true),
         ];
     }
 
@@ -607,7 +719,7 @@ class PublicSiteService
             $itin = '';
         }
 
-        [$rows, $lineErrors] = $this->parseHoraires((string) ($post['horaires'] ?? ''));
+        [$rows, $lineErrors] = $this->parseHorairesInput($post);
         $errors = array_merge($errors, $lineErrors);
 
         $fields = [
@@ -635,6 +747,52 @@ class PublicSiteService
         $this->repo->saveCentrePublic($id, $fields);
         $this->repo->replaceHoraires($id, $rows);
         return $errors;
+    }
+
+    /**
+     * Horaires de culte : saisie structurée (lignes de champs
+     * distincts) ou format texte hérité « Libellé | Jours | HH:MM
+     * | HH:MM ». Même validation, même stockage — le contrat de
+     * données du backend est préservé.
+     * @param array<string,mixed> $post
+     * @return array{0:array<int,array<string,mixed>>,1:list<string>}
+     */
+    public function parseHorairesInput(array $post): array
+    {
+        $libelles = (array) ($post['horaire_libelle'] ?? []);
+        $jours = (array) ($post['horaire_jours'] ?? []);
+        $debuts = (array) ($post['horaire_debut'] ?? []);
+        $fins = (array) ($post['horaire_fin'] ?? []);
+        if ($libelles === [] && $jours === [] && $debuts === [] && $fins === []) {
+            return $this->parseHoraires((string) ($post['horaires'] ?? ''));
+        }
+        $rows = [];
+        $errors = [];
+        foreach ($libelles as $i => $lib) {
+            $i = (int) $i;
+            $lib = mb_substr(trim((string) $lib), 0, 100);
+            $jr = $jours[$i] ?? [];
+            $jr = is_array($jr) ? implode(',', array_values(array_filter(array_map('trim', array_map('strval', $jr)), static fn($d) => $d !== ''))) : trim((string) $jr);
+            $jr = mb_substr($jr, 0, 100);
+            $d = trim((string) ($debuts[$i] ?? ''));
+            $f = trim((string) ($fins[$i] ?? ''));
+            if ($lib === '' && $jr === '' && $d === '' && $f === '') {
+                continue; // ligne vide ignorée
+            }
+            $ok = $lib !== '' && $jr !== '' && preg_match('/^([01]?\d|2[0-3]):[0-5]\d$/', $d) === 1
+                && ($f === '' || preg_match('/^([01]?\d|2[0-3]):[0-5]\d$/', $f) === 1);
+            if (!$ok) {
+                $errors[] = 'Horaire ligne ' . ($i + 1) . ' ignoré (libellé, jours et heure de début requis ; HH:MM).';
+                continue;
+            }
+            $rows[] = [
+                'libelle'     => $lib,
+                'jours'       => $jr,
+                'heure_debut' => $d . ':00',
+                'heure_fin'   => $f !== '' ? $f . ':00' : null,
+            ];
+        }
+        return [$rows, $errors];
     }
 
     /**

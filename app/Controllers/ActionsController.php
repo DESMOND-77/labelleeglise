@@ -27,10 +27,11 @@ class ActionsController extends Controller
     }
 
     /** Retour vers l'écran « Site public » avec les éventuelles erreurs de validation. */
-    private function redirectSitePublic(array $errors): never
+    private function redirectSitePublic(array $errors, array $extra = []): never
     {
         $_SESSION['site_public_errors'] = $errors;
-        $this->redirect('index.php', $errors ? ['page' => 'site_public'] : ['page' => 'site_public', 'saved' => 1]);
+        $params = array_merge(['page' => 'site_public'], $extra);
+        $this->redirect('index.php', $errors ? $params : array_merge($params, ['saved' => 1]));
     }
 
     private function requireAdmin(): array
@@ -228,7 +229,7 @@ class ActionsController extends Controller
                 if ($id) {
                     public_site_service()->deleteFaq($id);
                 }
-                $this->redirect('index.php', ['page' => 'site_public']);
+                $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'faq']);
                 break;
 
             case 'delete_article':
@@ -1048,13 +1049,18 @@ class ActionsController extends Controller
                     ? $hero
                     : (string) ($_POST['hero_image_current'] ?? '');
                 $errors = public_site_service()->saveSettings($_POST);
-                $this->redirectSitePublic($errors);
+                // Retour sur la rubrique d'origine (identité, médias ou légales).
+                $returnTab = (string) ($_POST['return_tab'] ?? 'identity');
+                if (!in_array($returnTab, ['identity', 'media', 'legal'], true)) {
+                    $returnTab = 'identity';
+                }
+                $this->redirectSitePublic($errors, ['tab' => $returnTab]);
                 break;
 
             case 'save_equipe_public':
                 $this->requireAdmin();
                 public_site_service()->saveEquipe($_POST);
-                $this->redirectSitePublic([]);
+                $this->redirectSitePublic([], ['tab' => 'team']);
                 break;
 
             case 'save_events_public':
@@ -1067,24 +1073,25 @@ class ActionsController extends Controller
                         $affichePaths[$eventId] = $path;
                     }
                 }
-                $this->redirectSitePublic(public_site_service()->saveEvents($_POST, $affichePaths));
+                $this->redirectSitePublic(public_site_service()->saveEvents($_POST, $affichePaths), ['tab' => 'events']);
                 break;
 
             case 'save_faq_public':
                 $this->requireAdmin();
-                $this->redirectSitePublic(public_site_service()->saveFaq($_POST));
+                $this->redirectSitePublic(public_site_service()->saveFaq($_POST), ['tab' => 'faq']);
                 break;
 
             case 'save_ministries_public':
                 $this->requireAdmin();
                 public_site_service()->saveMinistries($_POST);
-                $this->redirectSitePublic([]);
+                $this->redirectSitePublic([], ['tab' => 'ministries']);
                 break;
 
             case 'save_centre_public':
                 $this->requireAdmin();
-                $errors = public_site_service()->saveCentre((int) ($_POST['centre_id'] ?? 0), $_POST);
-                $this->redirectSitePublic($errors);
+                $centreId = (int) ($_POST['centre_id'] ?? 0);
+                $errors = public_site_service()->saveCentre($centreId, $_POST);
+                $this->redirectSitePublic($errors, ['tab' => 'centre', 'id' => $centreId]);
                 break;
 
             case 'save_article':
