@@ -44,11 +44,13 @@ if (!function_exists('load_env')) {
                 $value = substr($value, 1, -1);
             }
 
-            if ($key === '' || getenv($key) !== false) {
+            if ($key === '' || getenv($key) !== false || isset($_ENV[$key])) {
                 continue; // ne jamais écraser une variable d'environnement réelle.
             }
 
-            putenv("$key=$value");
+            if (function_exists('putenv')) {
+                @putenv("$key=$value");
+            }
             $_ENV[$key] = $value;
             $_SERVER[$key] = $value;
         }
@@ -60,6 +62,10 @@ if (!function_exists('env_value')) {
     function env_value(string $key, $default = null)
     {
         $value = getenv($key);
+        if ($value === false) {
+            // putenv() peut être désactivé (disable_functions) : repli sur $_ENV.
+            $value = $_ENV[$key] ?? false;
+        }
         if ($value === false || $value === '') {
             return $default;
         }
@@ -76,8 +82,8 @@ if (!function_exists('env_bool')) {
      */
     function env_bool(string $key, bool $default = false): bool
     {
-        $value = getenv($key);
-        if ($value === false || $value === '') {
+        $value = env_value($key);
+        if ($value === null) {
             return $default;
         }
         return !in_array(strtolower(trim((string) $value)), ['false', '0', 'no', 'off', ''], true);
