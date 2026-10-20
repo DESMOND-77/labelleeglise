@@ -1,7 +1,7 @@
 <?php /* Horaires et informations pratiques. Variables : $centres, $contact, $fuseau, $addr (fn). */ ?>
 <section id="horaires" class="section" aria-labelledby="horaires-titre">
   <div class="wrap">
-    <h2 id="horaires-titre">Horaires des cultes</h2>
+    <header class="section-head"><h2 id="horaires-titre">Horaires des cultes</h2></header>
     <?php if ($fuseau !== ''): ?>
       <p class="muted">Tous les horaires sont indiqués au fuseau horaire <?= h($fuseau) ?>.</p>
     <?php endif; ?>
@@ -13,13 +13,13 @@
         <?php endforeach; ?>
       </p>
     <?php endif; ?>
-    <div class="grid">
+    <div class="tile-grid">
       <?php foreach ($centres as $c): ?>
-        <article class="card">
+        <article class="tile">
           <h3><?= h($c['nom']) ?></h3>
           <ul class="slots">
             <?php foreach ($c['horaires'] as $s): ?>
-              <li><strong><?= h($s['libelle']) ?></strong> - <?= h($s['jours']) ?>, <?= h($s['debut']) ?><?= $s['fin'] !== '' ? ' – ' . h($s['fin']) : '' ?></li>
+              <li><strong><?= h($s['libelle']) ?></strong><span><?= h($s['jours']) ?>, <?= h($s['debut']) ?><?= $s['fin'] !== '' ? ' – ' . h($s['fin']) : '' ?></span></li>
             <?php endforeach; ?>
           </ul>
           <p class="muted"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> <?= h($addr($c)) ?></p>

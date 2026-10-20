@@ -4,12 +4,12 @@
    confondus. Aucune liste de membres n'est exposée. */ ?>
 <section id="vie-eglise" class="section section-alt" aria-labelledby="vie-titre">
   <div class="wrap">
-    <h2 id="vie-titre">Vie de l'église</h2>
+    <header class="section-head"><h2 id="vie-titre">Vie de l'église</h2></header>
     <?php if ($ministries['bacentas'] !== []): ?>
-      <h3>Bacentas - rassemblements de prière</h3>
-      <div class="grid">
+      <h3 class="group-title">Bacentas - rassemblements de prière</h3>
+      <div class="tile-grid">
         <?php foreach ($ministries['bacentas'] as $m): ?>
-          <article class="card">
+          <article class="tile">
             <h4><?= h($m['nom']) ?></h4>
             <p><?= nl2br(h($m['description'])) ?></p>
             <?php if ($m['horaires'] !== ''): ?>
@@ -20,10 +20,10 @@
       </div>
     <?php endif; ?>
     <?php if ($ministries['basontas'] !== []): ?>
-      <h3>Basontas - groupes et services</h3>
-      <div class="grid">
+      <h3 class="group-title">Basontas - groupes et services</h3>
+      <div class="tile-grid">
         <?php foreach ($ministries['basontas'] as $m): ?>
-          <article class="card">
+          <article class="tile">
             <h4><?= h($m['nom']) ?></h4>
             <p><?= nl2br(h($m['description'])) ?></p>
             <?php if ($m['horaires'] !== ''): ?>

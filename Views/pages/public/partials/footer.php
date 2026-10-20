@@ -1,6 +1,7 @@
 <?php /* Pied de page. Variables : $nom, $adresse, $contact,
    $socials, $nav, $centres, $has_mentions_legales, $has_confidentialite. */
 $socialLabels = ['facebook' => 'Facebook', 'youtube' => 'YouTube', 'instagram' => 'Instagram'];
+$socialIcons = ['facebook' => 'fa-brands fa-facebook-f', 'youtube' => 'fa-brands fa-youtube', 'instagram' => 'fa-brands fa-instagram'];
 ?>
 <footer class="site-footer">
   <div class="wrap footer-grid">
@@ -20,9 +21,9 @@ $socialLabels = ['facebook' => 'Facebook', 'youtube' => 'YouTube', 'instagram' =
         </ul>
       <?php endif; ?>
       <?php if ($socials !== []): ?>
-        <ul class="contact-list">
+        <ul class="social-row">
           <?php foreach ($socials as $net => $href): ?>
-            <li><a href="<?= h($href) ?>" target="_blank" rel="noopener noreferrer"><?= h($socialLabels[$net]) ?><span class="sr-only"> (nouvel onglet)</span></a></li>
+            <li><a class="social-btn" href="<?= h($href) ?>" target="_blank" rel="noopener noreferrer" aria-label="<?= h($socialLabels[$net]) ?>"><i class="<?= h($socialIcons[$net]) ?>" aria-hidden="true"></i><span class="sr-only"> (nouvel onglet)</span></a></li>
           <?php endforeach; ?>
         </ul>
       <?php endif; ?>

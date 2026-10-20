@@ -2,7 +2,7 @@
    officielles uniquement (aucun streaming intégré). Variables :
    $predication, $direct. */ ?>
 <section id="medias" class="section section-alt" aria-labelledby="medias-titre">
-  <div class="wrap narrow">
+  <div class="wrap">
     <h2 id="medias-titre">Prédications et culte en ligne</h2>
     <?php if ($predication['url'] !== ''): ?>
       <article class="card media-card">

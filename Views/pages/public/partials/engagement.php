@@ -2,7 +2,7 @@
    destination réelle et vérifiée. Variables : $lien_don,
    $don_usage, $hasContact. */ ?>
 <section id="engagement" class="section section-alt" aria-labelledby="engagement-titre">
-  <div class="wrap narrow">
+  <div class="wrap">
     <h2 id="engagement-titre">S'engager</h2>
     <article class="card">
       <h3>Faire un don</h3>

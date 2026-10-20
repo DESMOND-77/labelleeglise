@@ -3,7 +3,7 @@ $socialIcons = ['facebook' => 'fa-brands fa-facebook', 'youtube' => 'fa-brands f
 $socialLabels = ['facebook' => 'Facebook', 'youtube' => 'YouTube', 'instagram' => 'Instagram'];
 ?>
 <section id="contact" class="section" aria-labelledby="contact-titre">
-  <div class="wrap narrow">
+  <div class="wrap">
     <h2 id="contact-titre">Nous contacter</h2>
     <?php if ($adresse !== ''): ?>
       <p><i class="fa-solid fa-location-dot" aria-hidden="true"></i> <?= h($adresse) ?></p>
