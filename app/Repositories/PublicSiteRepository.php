@@ -254,7 +254,7 @@ class PublicSiteRepository
         });
     }
 
-    /** @param array<int,array{description:string}> $descriptions [id => description] */
+    /** @param array<int,string> $descriptions [id => description] */
     public function saveMinistryDescriptions(string $table, array $descriptions): void
     {
         if (!in_array($table, ['bacentas', 'basontas'], true)) {

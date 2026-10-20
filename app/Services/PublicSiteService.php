@@ -684,7 +684,7 @@ class PublicSiteService
             $this->repo->setMinistryPublie($type, $ids);
             $descriptions = [];
             foreach ((array) ($post[$type . '_description'] ?? []) as $id => $desc) {
-                $descriptions[(int) $id] = ['description' => mb_substr(trim((string) $desc), 0, 2000)];
+                $descriptions[(int) $id] = mb_substr(trim((string) $desc), 0, 2000);
             }
             $this->repo->saveMinistryDescriptions($type, $descriptions);
         }
