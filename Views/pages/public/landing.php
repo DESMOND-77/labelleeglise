@@ -41,7 +41,7 @@ echo view('pages/public/partials/header', [
 <?php
 echo view('pages/public/partials/hero', [
     'nom' => $nom, 'slogan' => $slogan, 'welcome' => $welcome,
-    'hero_image' => $hero_image,
+    'hero_image' => $hero_image, 'hero_slides' => $hero_slides,
     'hero_image_alt' => $hero_image_alt, 'ctaHref' => $ctaHref,
     'ctaLabel' => 'Planifier ma visite', 'hasCentres' => $hasCentres,
 ]);

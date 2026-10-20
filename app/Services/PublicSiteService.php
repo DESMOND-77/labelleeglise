@@ -89,6 +89,7 @@ class PublicSiteService
             'accueil_texte' => $this->clean($settings['accueil_texte'] ?? null),
             'hero_image'    => $this->safePhoto($settings['hero_image'] ?? null),
             'hero_image_alt' => $this->clean($settings['hero_image_alt'] ?? null),
+            'hero_slides'   => $this->heroSlides(),
             'adresse'  => $this->clean($settings['adresse'] ?? null),
             'centres'  => $centres,
             'contact'  => $contact,
@@ -316,6 +317,33 @@ class PublicSiteService
             $out .= $e->format('Y-m-d') === $s->format('Y-m-d') ? ' – ' . $time($e) : ' → ' . $date($e) . ', ' . $time($e);
         }
         return $out;
+    }
+
+    /**
+     * Médias du carrousel d'accueil : fichiers assets/carousel/<N>.<ext>,
+     * triés par numéro croissant (le nom définit l'ordre de passage).
+     * @return list<array{src:string,type:'image'|'video'}>
+     */
+    private function heroSlides(): array
+    {
+        $dir = BASE_PATH . '/assets/carousel';
+        $files = is_dir($dir) ? scandir($dir) : false;
+        if ($files === false) {
+            return [];
+        }
+        $found = [];
+        foreach ($files as $file) {
+            if (preg_match('/^(\d+)\.(jpe?g|png|webp|avif|gif|mp4|webm)$/i', $file, $m) !== 1) {
+                continue;
+            }
+            $found[] = [
+                'n'    => (int) $m[1],
+                'src'  => 'assets/carousel/' . $file,
+                'type' => in_array(strtolower($m[2]), ['mp4', 'webm'], true) ? 'video' : 'image',
+            ];
+        }
+        usort($found, static fn(array $a, array $b): int => $a['n'] <=> $b['n']);
+        return array_map(static fn(array $f): array => ['src' => $f['src'], 'type' => $f['type']], $found);
     }
 
     /** Chemin d'image local sous uploads/ ou assets/ (jamais d'URL arbitraire). */
