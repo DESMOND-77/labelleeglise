@@ -2,7 +2,7 @@
 <header class="site-header">
   <div class="wrap header-row">
     <a class="brand" href="#accueil">
-      <img src="assets/images/logo.png" alt="" width="40" height="40">
+      <img src="<?= h(asset('assets/images/logo.png')) ?>" alt="" width="40" height="40">
       <span><?= h($nom) ?></span>
     </a>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">

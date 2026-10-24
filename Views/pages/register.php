@@ -15,11 +15,11 @@ $v = static fn(string $k) => h($old[$k] ?? '');
   <meta name="description" content="Créez votre compte sur la plateforme de gestion de <?= h(APP_NAME) ?>. Votre inscription sera vérifiée par email puis validée par un administrateur.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="<?= h(url('index.php', ['page' => 'register'])) ?>">
-  <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96x96.png">
-  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml" sizes="any">
-  <link rel="icon" href="assets/images/favicon.ico">
-  <link rel="apple-touch-icon" href="assets/images/apple-touch-icon.png">
-  <link rel="manifest" href="assets/images/site.webmanifest">
+  <link rel="icon" type="image/png" sizes="96x96" href="<?= h(asset('assets/images/favicon-96x96.png')) ?>">
+  <link rel="icon" href="<?= h(asset('assets/images/favicon.svg')) ?>" type="image/svg+xml" sizes="any">
+  <link rel="icon" href="<?= h(asset('assets/images/favicon.ico')) ?>">
+  <link rel="apple-touch-icon" href="<?= h(asset('assets/images/apple-touch-icon.png')) ?>">
+  <link rel="manifest" href="<?= h(asset('assets/images/site.webmanifest')) ?>">
   <meta name="theme-color" content="#4F46E5" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
   <link rel="stylesheet" href="assets/css/app.css">
@@ -30,7 +30,7 @@ $v = static fn(string $k) => h($old[$k] ?? '');
   <div class="login-screen" id="loginScreen">
     <?php if ($sent): ?>
       <div class="login-card register-result-card">
-        <div class="login-logo"><img src="/assets/images/logo.png" alt="<?= h(APP_NAME) ?>"></div>
+        <div class="login-logo"><img src="<?= h(asset('assets/images/logo.png')) ?>" alt="<?= h(APP_NAME) ?>"></div>
         <div class="result-icon success"><i class="fa-solid fa-envelope-circle-check"></i></div>
         <h1>Inscription réussie</h1>
         <p class="login-sub">Un email de vérification vient de vous être envoyé. Ouvrez votre boîte de réception
@@ -42,7 +42,7 @@ $v = static fn(string $k) => h($old[$k] ?? '');
       <form class="login-card register-card" method="post" action="index.php" novalidate>
         <input type="hidden" name="action" value="register">
         <?= csrf_field() ?>
-        <div class="login-logo"><img src="/assets/images/logo.png" alt="<?= h(APP_NAME) ?>"></div>
+        <div class="login-logo"><img src="<?= h(asset('assets/images/logo.png')) ?>" alt="<?= h(APP_NAME) ?>"></div>
         <h1>Créer un compte</h1>
         <p class="login-sub">Rejoignez <?= h(APP_NAME) ?> - votre inscription sera vérifiée par email puis validée par un administrateur.</p>
 
