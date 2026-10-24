@@ -15,7 +15,7 @@
   overflow-y: auto;
   background:
     linear-gradient(rgba(15, 23, 42, 0.72), rgba(15, 23, 42, 0.82)),
-    url('/assets/images/pasteur-bg.jpg') center / cover no-repeat;
+    url('../images/pasteur-bg.jpg') center / cover no-repeat;
 }
 
 .login-screen::before {
