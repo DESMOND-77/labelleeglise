@@ -85,6 +85,7 @@ const RESPONSIBILITY_TARGET_LABELS = [
     'cult'    => ['singular' => 'culte',   'label' => 'Culte'],
     'basonta' => ['singular' => 'basonta', 'label' => 'Basonta'],
     'classe'  => ['singular' => 'classe',  'label' => 'Classe'],
+    'nouveaux_membres' => ['singular' => 'onglet', 'label' => 'Nouveaux membres'],
 ];
 
 /** Libellé "Prénom Nom (Rôle)" pour une ligne de responsabilité affichée. */
@@ -175,6 +176,9 @@ function parametres_acces(): string
     }
     $classeRows = $classeRows ?: '<tr><td colspan="3">' . empty_state('fa-inbox', 'Aucune classe.') . '</td></tr>';
 
+    // Onglet "Nouveaux membres" - cible singleton (section entière, pas une liste de structures).
+    $nouveauxMembresRows = responsibility_target_row_html('nouveaux_membres', 1, 'Nouveaux membre');
+
     // // Bus
     // $busRows = '';
     // foreach (bus_budget_service()->all() as $bugetBus) {
@@ -192,7 +196,8 @@ function parametres_acces(): string
         . $section('Responsables de cultes', 'Éligibles : Pasteur, Révérend uniquement', $culRows)
         . $section('Responsables de basontas', 'Éligibles : Berger, MS, Pasteur', $basRows)
         // . $section('Responsables de Budget Bus', 'Éligibles : Berger, MS, Pasteur, Révérend', $busRows)
-        . $section('Responsables de classes', 'Éligibles : Berger, MS, Pasteur, Révérend', $classeRows);
+        . $section('Responsables de classes', 'Éligibles : Berger, MS, Pasteur, Révérend', $classeRows)
+        . $section('Nouveaux membres', 'Éligibles : Berger, MS, Pasteur, Révérend - accès réservé aux personnes désignées ici', $nouveauxMembresRows);
 
     return section_toolbar('Accès & Responsables', 'Responsables des centres, bacentas, cultes et basontas') . $html;
 }
@@ -215,6 +220,7 @@ function user_responsibilities_panel(array $user): string
             'cult'    => Query::value('SELECT nom FROM cultes WHERE id = ?', [$row['target_id']]),
             'basonta' => Query::value('SELECT nom FROM basontas WHERE id = ?', [$row['target_id']]),
             'classe'  => Query::value('SELECT nom FROM classes WHERE id = ?', [$row['target_id']]),
+            'nouveaux_membres' => 'Nouveaux membre',
             default   => '#' . $row['target_id'],
         };
         $typeLabel = RESPONSIBILITY_TARGET_LABELS[$targetType]['label'] ?? $targetType;
@@ -235,6 +241,8 @@ function user_responsibilities_panel(array $user): string
     }
     if (in_array($user['role'], ['berger', 'ms', 'pasteur', 'reverant'], true)) {
         $addForms .= user_responsibility_add_form($userId, 'classe', classe_service()->all(), 'nom');
+        // Cible singleton : une seule "structure" possible (l'onglet entier).
+        $addForms .= user_responsibility_add_form($userId, 'nouveaux_membres', [['id' => 1, 'nom' => 'Nouveaux membre']], 'nom');
     }
     if (in_array($user['role'], CULT_RESPONSIBILITY_ROLES, true)) {
         $addForms .= user_responsibility_add_form($userId, 'cult', get_cultes(), 'nom');

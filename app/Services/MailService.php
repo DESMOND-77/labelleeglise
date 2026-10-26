@@ -181,6 +181,27 @@ class MailService
         );
     }
 
+    /**
+     * Notifie un admin (email) qu'un nouveau rapport journalier vient d'être
+     * enregistré. $context : auteurNom, roleLabel, centreNom, bacentaNom,
+     * dateRapport, enregistreLe - jamais de données sensibles (mot de passe…).
+     */
+    public function sendDailyReportAdminNotification(array $admin, array $context, string $reviewUrl): bool
+    {
+        $html = View::render('emails/daily-report-admin', [
+            'admin'     => $admin,
+            'context'   => $context,
+            'reviewUrl' => $reviewUrl,
+            'appName'   => defined('APP_NAME') ? APP_NAME : 'La Belle Église Intenationale Franceville',
+        ]);
+        return $this->send(
+            $admin['email'],
+            trim(($admin['prenom'] ?? '') . ' ' . ($admin['nom'] ?? '')),
+            'Nouveau rapport journalier enregistré - La Belle Église Intenationale Franceville',
+            $html
+        );
+    }
+
     /** Envoyé à la NOUVELLE adresse lors d'une demande de changement d'email (spec §12-13). */
     public function sendEmailChangeVerification(array $user, string $newEmail, string $verifyUrl, int $expiresHours = 24): bool
     {
