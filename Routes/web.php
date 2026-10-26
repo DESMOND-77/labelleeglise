@@ -30,6 +30,7 @@ use App\Controllers\ClasseController;
 use App\Controllers\BusController;
 use App\Controllers\PublicController;
 use App\Controllers\AdminSiteController;
+use App\Controllers\NouveauMembreController;
 
 /* ---------- Authentification (POST) ---------- */
 Router::post('login', AuthController::class, 'login');
@@ -66,6 +67,8 @@ Router::get('anniversaires', CalendrierController::class, 'anniversaires');
 
 Router::get('rapports', RapportController::class, 'index');
 Router::get('rapport', RapportController::class, 'form');
+Router::get('nouveaux_membres', NouveauMembreController::class, 'index');
+Router::get('nouveau_membre', NouveauMembreController::class, 'dossier');
 Router::get('classes', ClasseController::class, 'index');
 Router::get('classe', ClasseController::class, 'detail');
 Router::get('budgetBus', BusController::class, 'index');

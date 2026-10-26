@@ -78,6 +78,12 @@ if ($user && !$isAdmin && auth_can_manage_any_centre()) {
     $navLis[] = '<li><a class="nav-item' . ($page === 'budgetBus' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'budgetBus'])) . '"><span class="ico">' . SECTION_ICONS['budgetBus'] . '</span><span class="label">' . h(SECTION_LABELS['budgetBus']) . '</span></a></li>';
 }
 
+// Nouveaux membres : lien pour berger/MS/pasteur/révérend non-admin
+// (l'admin l'a déjà via la boucle NAV_ORDER).
+if ($user && !$isAdmin && auth_can_manage_nouveaux_membres()) {
+    $navLis[] = '<li><a class="nav-item' . ($page === 'nouveaux_membres' || $page === 'nouveau_membre' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'nouveaux_membres'])) . '"><span class="ico">' . SECTION_ICONS['nouveaux_membres'] . '</span><span class="label">' . h(SECTION_LABELS['nouveaux_membres']) . '</span></a></li>';
+}
+
 /* ---------- Inscriptions en attente (admin) ---------- */
 $pendingRegistrationsCount = 0;
 if ($isAdmin) {
