@@ -53,9 +53,12 @@ class PublicSiteRepository
         return Query::all(
             "SELECT c.id, c.nom, c.adresse, c.quartier, c.ville, c.itineraire_url,
                     c.telephone, c.whatsapp, c.email,
-                    (SELECT cp.intro FROM centres_presentation cp WHERE cp.centre_id = c.id ORDER BY cp.id LIMIT 1) AS intro,
-                    (SELECT cp.photo FROM centres_presentation cp WHERE cp.centre_id = c.id ORDER BY cp.id LIMIT 1) AS photo
+                    cp.intro, cp.photo, cp.vision, cp.direction, cp.origine, cp.objectifs,
+                    cp.situation_annees, cp.situation_pasteurs, cp.situation_bergers,
+                    cp.situation_leaders, cp.situation_bacentas
                FROM centres c
+          LEFT JOIN centres_presentation cp
+                 ON cp.id = (SELECT MIN(x.id) FROM centres_presentation x WHERE x.centre_id = c.id)
               WHERE c.publie = 1
               ORDER BY c.id"
         );

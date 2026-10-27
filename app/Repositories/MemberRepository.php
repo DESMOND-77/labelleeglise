@@ -47,19 +47,6 @@ class MemberRepository
         );
     }
 
-    public function nouveaux(?string $filter = null): array
-    {
-        $sql = "SELECT * FROM users WHERE (recu_par IS NOT NULL OR date_recu IS NOT NULL OR invite_par IS NOT NULL)";
-        $params = [];
-        if ($filter !== null && $filter !== '') {
-            $sql .= " AND (LOWER(CONCAT(prenom, ' ', nom)) LIKE ? OR LOWER(CONCAT(nom, ' ', prenom)) LIKE ? OR LOWER(quartier) LIKE ?)";
-            $f = '%' . mb_strtolower($filter) . '%';
-            $params = [$f, $f, $f];
-        }
-        $sql .= " ORDER BY date_recu DESC, prenom, nom";
-        return Query::all($sql, $params);
-    }
-
     public function generale(?string $filter = null): array
     {
         // Exclut les personnes encore en suivi "nouveaux membres" (statut <> 'integre').

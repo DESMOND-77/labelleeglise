@@ -238,7 +238,10 @@ class ActionsController extends Controller
                 if ($id) {
                     delete_article_record($id);
                 }
-                $this->redirect('index.php', ['page' => 'centresPresentation']);
+                $centreId = (int) ($_GET['centre'] ?? 0);
+                $this->redirect('index.php', $centreId
+                    ? ['page' => 'centres', 'form' => 'centre', 'id' => $centreId]
+                    : ['page' => 'centres']);
                 break;
 
             case 'basonta_remove_member':
@@ -505,12 +508,9 @@ class ActionsController extends Controller
                         $this->deny();
                     }
                 } else {
-                    $createAuthorized = $user['role'] === 'admin'
-                        || ($section === 'bacentas' && $entityId && auth_can_manage_bacenta($entityId))
-                        || ($section === 'centres' && $entityId && auth_can_manage_center($entityId));
-                    if (!$createAuthorized) {
-                        $this->deny();
-                    }
+                    // Création réservée à l'onglet « Nouveaux membres » (save_nouveau_membre) :
+                    // un membre n'entre dans la liste générale qu'après 3 dimanches.
+                    $this->redirect('index.php', ['page' => 'nouveau_membre', 'form' => 1]);
                 }
 
                 $data = user_data_from_post($id ?: null);
@@ -561,6 +561,31 @@ class ActionsController extends Controller
             case 'save_user': {
                 $this->requireAdmin();
                 $id = (int) ($_POST['id'] ?? 0);
+
+                if (!$id) {
+                    // Création de compte : uniquement à partir d'un membre existant sans compte.
+                    $membreId = (int) ($_POST['membre_id'] ?? 0);
+                    $email = mb_strtolower(trim((string) ($_POST['email'] ?? '')));
+                    $password = (string) ($_POST['password'] ?? '');
+                    $role = (string) ($_POST['role'] ?? 'membre');
+                    $users = _repo(\App\Repositories\UserRepository::class);
+                    if (!$membreId || !$users->hasNoAccount($membreId) || $password === ''
+                        || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                        $this->redirect('index.php', ['page' => 'parametres', 'form' => 'user', 'error' => 2]);
+                    }
+                    if (email_taken($email)) {
+                        $this->redirect('index.php', ['page' => 'parametres', 'form' => 'user', 'error' => 1]);
+                    }
+                    $users->grantAccount(
+                        $membreId,
+                        $email,
+                        password_hash($password, PASSWORD_DEFAULT),
+                        array_key_exists($role, ROLE_LABELS) ? $role : 'membre',
+                        isset($_POST['compte_actif']) ? 1 : 0
+                    );
+                    $this->redirect('index.php', ['page' => 'parametres', 'param_tab' => 'comptes']);
+                }
+
                 $data = user_data_from_post($id ?: null);
                 // Le rôle soumis doit être un rôle actif réellement
                 // sélectionnable (jamais 'responsable', jamais une valeur
@@ -1199,7 +1224,7 @@ class ActionsController extends Controller
                 $id = (int) ($_POST['id'] ?? 0);
                 $centreId = (int) ($_POST['centre_id'] ?? 0);
                 if (!$centreId) {
-                    $this->redirect('index.php', ['page' => 'centresPresentation']);
+                    $this->redirect('index.php', ['page' => 'centres']);
                 }
                 $photo = handle_photo_upload('photo');
                 $objectifs = json_encode(
@@ -1221,7 +1246,7 @@ class ActionsController extends Controller
                     'photo' => $photo,
                 ];
                 save_article_record($id ?: null, $fields);
-                $this->redirect('index.php', ['page' => 'centresPresentation']);
+                $this->redirect('index.php', ['page' => 'centres', 'form' => 'centre', 'id' => $centreId]);
                 break;
 
             /* ---------- Administration des inscriptions ---------- */

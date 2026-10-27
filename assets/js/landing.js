@@ -82,3 +82,31 @@
   window.addEventListener('scroll', update, { passive: true });
   update();
 })();
+
+/* Vitrine publique : modal de présentation d'un centre (<dialog> natif : Échap, focus, rôle gérés par le navigateur). */
+(function () {
+  'use strict';
+  var triggers = document.querySelectorAll('[data-centre-modal]');
+  if (!triggers.length || typeof HTMLDialogElement === 'undefined') { return; }
+
+  function openFor(btn) {
+    var dlg = document.getElementById(btn.getAttribute('data-centre-modal'));
+    if (dlg && !dlg.open) { dlg.showModal(); }
+  }
+
+  // Toute la carte est cliquable (sauf ses liens/boutons : itinéraire, contact).
+  document.querySelectorAll('.place.has-article').forEach(function (card) {
+    var btn = card.querySelector('[data-centre-modal]');
+    card.addEventListener('click', function (e) {
+      if (e.target.closest('a')) { return; }
+      openFor(btn);
+    });
+  });
+
+  document.querySelectorAll('dialog.centre-modal').forEach(function (dlg) {
+    dlg.addEventListener('click', function (e) {
+      // Clic sur le fond (hors carte) ou sur la croix : fermeture.
+      if (e.target === dlg || (e.target.closest && e.target.closest('[data-centre-modal-close]'))) { dlg.close(); }
+    });
+  });
+})();
