@@ -32,7 +32,7 @@
               <td><?= h(DIMANCHES_LABELS[$i]) ?></td>
               <td><input type="text" name="visites[<?= $i ?>][nom_visite]" value="<?= h($v['nom_visite']) ?>" placeholder="Nom du visiteur"></td>
               <td><input type="date" name="visites[<?= $i ?>][date_visite]" value="<?= h($v['date_visite']) ?>"></td>
-              <td><input type="text" name="visites[<?= $i ?>][observations]" value="<?= h($v['observations']) ?>" placeholder="Observation"></td>
+              <td><textarea type="textarea" name="visites[<?= $i ?>][observations]" value="<?= h($v['observations']) ?>" placeholder="Observation" ></textarea></td>
             </tr>
           <?php endforeach; ?>
         </tbody>

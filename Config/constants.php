@@ -239,7 +239,7 @@ define('SUIVI_FIELDS', [
     ['key' => 'livre',          'label' => 'Livre lu', 'type' => 'text'],
     ['key' => 'themeEveque',    'label' => 'Thème - Prédication de l\'Évêque écoutée', 'type' => 'text'],
     ['key' => 'themeReverend',  'label' => 'Thème - Prédication du Révérend écoutée', 'type' => 'text'],
-    ['key' => 'visites',        'label' => 'Personne(s) visitée(s) en semaine', 'type' => 'text'],
+    ['key' => 'visites',        'label' => 'Personne(s) visitée(s) en semaine', 'type' => 'textarea', 'semicolonList' => true],
     ['key' => 'invitesDimanche', 'label' => 'Personne(s) invitée(s) pour dimanche', 'type' => 'textarea', 'semicolonList' => true],
     ['key' => 'invitesApres',   'label' => 'Invité(s) après le culte / deep sea fishing', 'type' => 'textarea', 'sundayOnly' => false],
     ['key' => 'mixlr',        'label' => 'Diffusion Mixlr (lien ou statut)', 'type' => 'text', 'sundayOnly' => false],
