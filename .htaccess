@@ -59,6 +59,8 @@ ServerSignature Off
 
   # Forcer HTTPS en production (Hostinger / Apache). Si le site est servi via
   # un proxy inverse, la variable X-Forwarded-Proto sert de garde-fou.
+  # Le développement local (WAMP, php -S) reste en HTTP.
+  RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)(:[0-9]+)?$ [NC]
   RewriteCond %{HTTPS} !=on
   RewriteCond %{HTTP:X-Forwarded-Proto} !https
   RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301,NE]
