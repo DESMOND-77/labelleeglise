@@ -18,11 +18,11 @@ $errorMessage = $error ? ($errorMessages[$error] ?? $errorMessages['invalid']) :
   <title>Connexion - <?= h(APP_NAME) ?></title>
   <!-- Écran de connexion : utilitaire, jamais indexé. -->
   <meta name="robots" content="noindex, nofollow">
-  <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96x96.png">
-  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml" sizes="any">
-  <link rel="icon" href="assets/images/favicon.ico">
-  <link rel="apple-touch-icon" href="assets/images/apple-touch-icon.png">
-  <link rel="manifest" href="assets/images/site.webmanifest">
+  <link rel="icon" type="image/png" sizes="96x96" href="<?= h(asset('assets/images/favicon-96x96.png')) ?>">
+  <link rel="icon" href="<?= h(asset('assets/images/favicon.svg')) ?>" type="image/svg+xml" sizes="any">
+  <link rel="icon" href="<?= h(asset('assets/images/favicon.ico')) ?>">
+  <link rel="apple-touch-icon" href="<?= h(asset('assets/images/apple-touch-icon.png')) ?>">
+  <link rel="manifest" href="<?= h(asset('assets/images/site.webmanifest')) ?>">
   <meta name="theme-color" content="#4F46E5" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
   <link rel="stylesheet" href="assets/css/app.css">
@@ -34,7 +34,7 @@ $errorMessage = $error ? ($errorMessages[$error] ?? $errorMessages['invalid']) :
     <form class="login-card" method="post" action="index.php" novalidate>
       <input type="hidden" name="action" value="login">
       <?= csrf_field() ?>
-      <div class="login-logo"><img src="/assets/images/logo.png" alt="La Belle Église Intenationale Franceville Internationale Franceville"></div>
+      <div class="login-logo"><img src="<?= h(asset('assets/images/logo.png')) ?>" alt="La Belle Église Intenationale Franceville Internationale Franceville"></div>
       <h1><?= h(APP_NAME) ?></h1>
       <p class="login-sub">Plateforme de gestion des membres, bacentas, centres et finances</p>
 

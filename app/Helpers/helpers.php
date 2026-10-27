@@ -33,6 +33,12 @@ function url(string $path = '', array $params = []): string
     return APP_URL . $path . $query;
 }
 
+/** URL absolue d'un fichier statique (images, etc.), préfixée par APP_URL. */
+function asset(string $path): string
+{
+    return APP_URL . ltrim($path, '/');
+}
+
 function redirect(string $path = '', array $params = []): never
 {
     header('Location: ' . url($path, $params));

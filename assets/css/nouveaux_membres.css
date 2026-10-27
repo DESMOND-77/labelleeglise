@@ -1,0 +1,25 @@
+/* ============================================================
+   Nouveaux membres - compléments ponctuels (le reste réutilise
+   .table-wrap/.data-table/.badge/.form-card/.profile-* existants)
+   ============================================================ */
+
+.form-inline {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.form-inline .form-group {
+  margin-bottom: 0;
+}
+
+.row-date-input {
+  width: 128px;
+  padding: 4px 8px;
+  font-size: 12.5px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: inherit;
+}

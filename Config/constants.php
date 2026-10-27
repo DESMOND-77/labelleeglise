@@ -57,6 +57,7 @@ define('SECTION_LABELS', [
     'cultes'             => 'Cultes',
     'basontas'           => 'Basontas',
     // 'nouveaux'           => 'Nouveaux membres',
+    'nouveaux_membres'   => 'Nouveaux membres',
     'generale'           => 'Liste générale des membres',
     'bergers'            => 'Liste des bergers',
     'suiviBergers'       => 'Suivi Hebdo. des Bergers',
@@ -85,6 +86,7 @@ define('SECTION_ICONS', [
     'cultes'             => '<i class="fa-solid fa-hands-praying"></i>',
     'basontas'           => '<i class="fa-solid fa-microphone"></i>',
     // 'nouveaux'           => '<i class="fa-solid fa-star"></i>',
+    'nouveaux_membres'   => '<i class="fa-solid fa-user-plus"></i>',
     'generale'           => '<i class="fa-solid fa-clipboard-list"></i>',
     'bergers'            => '<i class="fa-solid fa-people-roof"></i>',
     'suiviBergers'       => '<i class="fa-solid fa-calendar-days"></i>',
@@ -111,6 +113,16 @@ define('ACCOUNT_STATUS_LABELS', [
 define('NOTIFICATION_TYPE_ICONS', [
     'new_registration' => '<i class="fa-solid fa-user-plus"></i>',
     'account_activated' => '<i class="fa-solid fa-circle-check"></i>',
+    'rapport_jour' => '<i class="fa-solid fa-file-lines"></i>',
+]);
+
+/* ---------- Nouveaux membres (suivi pré-intégration) ---------- */
+
+define('NOUVEAU_MEMBRE_STATUT_LABELS', [
+    'nouveau'          => 'Nouveau',
+    'en_suivi'         => 'En suivi',
+    'pret_integration' => 'Prêt pour intégration',
+    'integre'          => 'Intégré',
 ]);
 
 // "apropos" doit rester en toute première position du menu (exigence produit).
@@ -123,6 +135,7 @@ define('NAV_ORDER', [
     'cultes',
     'basontas',
     // 'nouveaux',
+    'nouveaux_membres',
     'generale',
     'bergers',
     'suiviBergers',

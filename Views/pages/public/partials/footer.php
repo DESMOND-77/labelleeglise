@@ -7,7 +7,7 @@ $socialIcons = ['facebook' => 'fa-brands fa-facebook-f', 'youtube' => 'fa-brands
   <div class="wrap footer-grid">
     <div class="footer-brand">
       <a class="brand brand-footer" href="#accueil">
-        <img src="assets/images/logo.png" alt="" width="40" height="40">
+        <img src="<?= h(asset('assets/images/logo.png')) ?>" alt="" width="40" height="40">
         <span><?= h($nom) ?></span>
       </a>
       <?php if ($adresse !== ''): ?>
