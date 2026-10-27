@@ -97,6 +97,21 @@ class NouveauMembreRepository
         return Query::all($sql, $params);
     }
 
+    /** Suivis non intégrés, éventuellement restreints à des user_id. */
+    public function pendingByUserIds(?array $userIds = null): array
+    {
+        $sql = "SELECT id, user_id FROM nouveaux_membres WHERE statut <> 'integre'";
+        $params = [];
+        if ($userIds !== null) {
+            if ($userIds === []) {
+                return [];
+            }
+            $sql .= ' AND user_id IN (' . implode(',', array_fill(0, count($userIds), '?')) . ')';
+            $params = array_map('intval', $userIds);
+        }
+        return Query::all($sql, $params);
+    }
+
     public function updateResponsable(int $id, ?int $responsableId): void
     {
         Query::run('UPDATE nouveaux_membres SET responsable_id = ? WHERE id = ?', [$responsableId, $id]);
@@ -107,7 +122,7 @@ class NouveauMembreRepository
         Query::run('UPDATE nouveaux_membres SET statut = ? WHERE id = ?', [$statut, $id]);
     }
 
-    public function integrate(int $id, int $actorId): void
+    public function integrate(int $id, ?int $actorId): void
     {
         Query::run(
             "UPDATE nouveaux_membres SET statut = 'integre', date_integration = NOW(), integre_par = ? WHERE id = ?",

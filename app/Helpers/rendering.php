@@ -81,6 +81,19 @@ function total_chip(string $label, string $value): string
     return '<div class="total-chip"><span>' . h($label) . '</span><b>' . $value . '</b></div>';
 }
 
+/** Bouton « Paramètres » d'une carte d'entité : point d'entrée unique de sa configuration. */
+function settings_button(string $url): string
+{
+    return '<div class="card-actions"><a class="icon-btn" title="Paramètres" aria-label="Paramètres" href="' . h($url) . '"><i class="fa-solid fa-gear"></i></a></div>';
+}
+
+/** Bloc « Zone de danger » d'une page de paramètres : suppression de l'entité (admin uniquement). */
+function danger_zone(string $text, string $deleteUrl, string $confirm, string $label): string
+{
+    return '<div class="form-page"><div class="form-card danger-zone"><h3>Zone de danger</h3><p class="form-hint">' . h($text) . '</p>'
+        . '<a class="btn btn-danger" data-confirm="' . h($confirm) . '" href="' . h($deleteUrl) . '"><i class="fa-solid fa-trash"></i> ' . h($label) . '</a></div></div>';
+}
+
 function add_button(string $label, array $params): string
 {
     return '<a class="btn btn-primary" href="' . h(url('index.php', $params)) . '">+ ' . h($label) . '</a>';

@@ -54,6 +54,7 @@ class PublicSiteService
                 'itineraire'  => $this->safeUrl((string) ($c['itineraire_url'] ?? '')),
                 'intro'       => $this->clean($c['intro'] ?? null),
                 'photo'       => $this->safePhoto($c['photo'] ?? null),
+                'article'     => $this->centreArticle($c),
                 'responsable' => $this->clean($c['responsable_public'] ?? null),
                 'horaires'    => $slots,
                 'contact'     => $own,
@@ -257,6 +258,37 @@ class PublicSiteService
     }
 
     /** @param array<string,mixed> $centre @param array<string,string> $globalContact */
+    /**
+     * Article de présentation d'un centre (modal de la vitrine), ou null si
+     * aucun contenu n'est renseigné - la carte n'est alors pas cliquable.
+     * @return array<string,mixed>|null
+     */
+    private function centreArticle(array $c): ?array
+    {
+        $objectifs = json_decode((string) ($c['objectifs'] ?? ''), true);
+        $objectifs = is_array($objectifs)
+            ? array_values(array_filter(array_map(fn($o) => $this->clean(is_scalar($o) ? $o : ''), $objectifs), static fn($o) => $o !== ''))
+            : [];
+        $article = [
+            'intro'     => $this->clean($c['intro'] ?? null),
+            'vision'    => $this->clean($c['vision'] ?? null),
+            'direction' => $this->clean($c['direction'] ?? null),
+            'origine'   => $this->clean($c['origine'] ?? null),
+            'objectifs' => $objectifs,
+            'stats'     => [
+                'ans d\'existence' => (int) ($c['situation_annees'] ?? 0),
+                'pasteur(s)'       => (int) ($c['situation_pasteurs'] ?? 0),
+                'bergers'          => (int) ($c['situation_bergers'] ?? 0),
+                'leaders'          => (int) ($c['situation_leaders'] ?? 0),
+                'bacentas'         => (int) ($c['situation_bacentas'] ?? 0),
+            ],
+        ];
+        $article['stats'] = array_filter($article['stats'], static fn($n) => $n > 0);
+        $hasContent = $article['intro'] !== '' || $article['vision'] !== '' || $article['direction'] !== ''
+            || $article['origine'] !== '' || $objectifs !== [];
+        return $hasContent ? $article : null;
+    }
+
     private function meetsThreshold(array $centre, array $globalContact): bool
     {
         return $centre['adresse'] !== ''

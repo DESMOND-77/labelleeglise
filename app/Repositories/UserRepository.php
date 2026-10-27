@@ -30,6 +30,34 @@ class UserRepository
         return Query::all('SELECT id, prenom, nom FROM users ORDER BY prenom, nom');
     }
 
+    /** Domaine des emails-jetons des membres enregistrés sans compte de connexion. */
+    public const PROSPECT_DOMAIN = 'prospects.local';
+
+    /** Membres sans compte de connexion (email-jeton généré à l'enregistrement). */
+    public function withoutAccount(): array
+    {
+        return Query::all(
+            "SELECT id, nom, prenom, telephone, quartier FROM users WHERE email LIKE ? ORDER BY prenom, nom",
+            ['%@' . self::PROSPECT_DOMAIN]
+        );
+    }
+
+    public function hasNoAccount(int $id): bool
+    {
+        return (bool) Query::value('SELECT COUNT(*) FROM users WHERE id = ? AND email LIKE ?', [$id, '%@' . self::PROSPECT_DOMAIN]);
+    }
+
+    /** Transforme un membre existant en utilisateur connectable (email, mot de passe, rôle). */
+    public function grantAccount(int $id, string $email, string $hashedPassword, string $role, int $actif): void
+    {
+        Query::run(
+            "UPDATE users SET email = ?, password = ?, role = ?, compte_actif = ?, account_status = ?,
+                    email_verified = 1, email_verified_at = NOW(), verification_token = NULL, verification_expires_at = NULL
+              WHERE id = ?",
+            [$email, $hashedPassword, $role, $actif, $actif ? 'active' : 'disabled', $id]
+        );
+    }
+
     public function insert(array $data): int
     {
         $cols = array_keys($data);
@@ -73,11 +101,6 @@ class UserRepository
     {
         $list = implode(',', array_map(fn($r) => Database::connection()->quote($r), $roles));
         return (int) Query::value("SELECT COUNT(*) FROM users WHERE role IN ($list)");
-    }
-
-    public function countNew(): int
-    {
-        return (int) Query::value('SELECT COUNT(*) FROM users WHERE recu_par IS NOT NULL OR date_recu IS NOT NULL OR invite_par IS NOT NULL');
     }
 
     public function countAll(): int

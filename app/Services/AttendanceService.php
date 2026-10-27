@@ -146,6 +146,10 @@ class AttendanceService
         \App\Core\Query::transaction(function () use ($unitType, $unitId, $date, $clean) {
             $this->attendance->pointOccurrence($unitType, $unitId, $date, $clean);
         });
+        if ($unitType === 'cult') {
+            // Un nouveau membre arrivé à 3 dimanches rejoint la liste générale.
+            (new NouveauMembreService())->syncIntegration(array_keys($clean));
+        }
     }
 
     /**

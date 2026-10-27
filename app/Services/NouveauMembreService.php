@@ -181,6 +181,31 @@ class NouveauMembreService
         return array_merge(['ok' => true], $result);
     }
 
+    /**
+     * Bascule vers la liste générale tout nouveau membre ayant au moins 3
+     * présences à des dates distinctes d'un culte du dimanche, quelle que soit
+     * la voie de pointage (pointeur dédié ou pointage de culte générique).
+     * $userIds = null pour balayer tous les suivis en cours.
+     */
+    public function syncIntegration(?array $userIds = null, ?int $actorId = null): int
+    {
+        $sundayCulteIds = $this->cultes->sundayCulteIds();
+        if ($sundayCulteIds === []) {
+            return 0;
+        }
+        $done = 0;
+        foreach ($this->repo->pendingByUserIds($userIds) as $nm) {
+            $count = $this->attendance->countDistinctPresentDatesForCultes((int) $nm['user_id'], $sundayCulteIds);
+            if ($count >= 3) {
+                $this->repo->integrate((int) $nm['id'], $actorId);
+                $done++;
+            } else {
+                $this->repo->updateStatut((int) $nm['id'], $count === 0 ? 'nouveau' : 'en_suivi');
+            }
+        }
+        return $done;
+    }
+
     public function hasSundayCulte(): bool
     {
         return $this->cultes->sundayCulteIds() !== [];

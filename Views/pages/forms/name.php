@@ -1,4 +1,4 @@
-<?php /* Formulaire de nom (quartier / groupe / item). Variables : $title, $action, $name, $extra, $cancelUrl. */ ?>
+<?php /* Formulaire de nom (quartier / groupe / item). Variables : $title, $action, $nom, $extra, $cancelUrl. */ ?>
 <?= section_toolbar(h($title)) ?>
 <div class="form-page">
   <form method="post" action="index.php" class="form-card">
@@ -6,7 +6,7 @@
     <?= $extra ?>
     <div class="form-group">
       <label>Nom</label>
-      <input type="text" name="nom" value="<?= h($name) ?>" required autofocus>
+      <input type="text" name="nom" value="<?= h($nom) ?>" required autofocus>
     </div>
     <div class="modal-actions">
       <a class="btn btn-outline" href="<?= h($cancelUrl) ?>">Annuler</a>

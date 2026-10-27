@@ -19,7 +19,8 @@ class AboutController extends Controller
     public function centresPresentation(): void
     {
         $this->legacyRedirect('centres');
-        render_centres_presentation_page();
+        // Les articles se configurent désormais dans Paramètres du centre.
+        $this->redirect('index.php', ['page' => 'centres']);
     }
 
     private function legacyRedirect(string $anchor): void

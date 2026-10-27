@@ -216,3 +216,26 @@ html { scroll-behavior: smooth; scroll-padding-top: 72px; }
   .event-featured .event-body { flex: 1; align-self: center; }
 }
 @media (min-width: 1500px) { .team { grid-template-columns: repeat(6, 1fr); } }
+
+/* Centres : carte cliquable + modal de présentation (article du centre) */
+.place { position: relative; }
+.place.has-article { cursor: pointer; }
+.place-open { all: unset; cursor: pointer; }
+.place-open:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+
+.centre-modal { border: 0; padding: 0; border-radius: var(--radius-lg); background: var(--card); color: inherit; width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 32px); box-shadow: var(--shadow-lg); }
+.centre-modal::backdrop { background: rgba(7, 11, 20, 0.6); }
+.centre-modal-card { position: relative; overflow-y: auto; max-height: calc(100vh - 32px); }
+.centre-modal-close { position: absolute; top: var(--space-3); right: var(--space-3); z-index: 1; width: 36px; height: 36px; border: 0; border-radius: var(--radius-full); background: rgba(7, 11, 20, 0.6); color: #fff; cursor: pointer; font-size: 1rem; }
+.centre-modal-close:hover { background: rgba(7, 11, 20, 0.85); }
+.centre-modal-photo { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.centre-modal-body { padding: var(--space-5); }
+.centre-modal-body h3 { margin: 0 0 var(--space-3); font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; }
+.centre-modal-body h4 { margin: var(--space-5) 0 var(--space-2); font-size: 1rem; font-weight: 700; color: var(--primary); }
+.centre-modal-body p { margin: 0 0 var(--space-3); line-height: 1.6; }
+.centre-modal-intro { font-size: 1.05rem; }
+.centre-modal-stats { list-style: none; margin: var(--space-4) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.centre-modal-stats li { display: flex; flex-direction: column; align-items: center; min-width: 88px; padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius); }
+.centre-modal-stats strong { font-size: 1.4rem; font-weight: 800; color: var(--primary); }
+.centre-modal-stats span { font-size: 0.8rem; opacity: 0.75; }
+.centre-modal-list { margin: 0; padding-left: 1.2rem; line-height: 1.6; }

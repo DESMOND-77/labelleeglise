@@ -62,7 +62,6 @@ function get_members_of_bacenta(int $bacentaId): array { return _repo(MemberRepo
 function get_members_of_centre(int $centreId): array { return _repo(MemberRepository::class)->ofCentre($centreId); }
 function get_members_of_basonta(int $basontaId): array { return _repo(MemberRepository::class)->ofBasonta($basontaId); }
 function get_members_of_culte(int $culteId): array { return _repo(MemberRepository::class)->ofCulte($culteId); }
-function get_nouveaux_members(?string $filter = null): array { return _repo(MemberRepository::class)->nouveaux($filter); }
 function get_generale_members(?string $filter = null): array { return _repo(MemberRepository::class)->generale($filter); }
 function get_berger_members(?string $filter = null): array { return _repo(MemberRepository::class)->bergers($filter); }
 function get_users(): array { return _repo(UserRepository::class)->all(); }
@@ -87,8 +86,6 @@ function get_members_context(string $section, ?int $id = null): array
             $b = $id ? get_basonta($id) : null;
             return $b ? ['members' => get_members_of_basonta($id), 'label' => $b['nom'], 'entity' => $b, 'entityId' => $id]
                       : ['members' => [], 'label' => '', 'entity' => null, 'entityId' => null];
-        case 'nouveaux':
-            return ['members' => get_nouveaux_members(), 'label' => 'Nouveaux membres', 'entity' => null, 'entityId' => null];
         case 'bergers':
             return ['members' => get_berger_members(), 'label' => 'Liste des bergers', 'entity' => null, 'entityId' => null];
         default:

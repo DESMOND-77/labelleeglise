@@ -30,8 +30,9 @@ function render_parametres_page(): void
             $bacentaOptions .= '<option value="' . $b['id'] . '"' . ($user && (int) $user['bacenta_id'] === (int) $b['id'] ? ' selected' : '') . '>' . h($b['nom']) . '</option>';
         }
         $content = view('pages/forms/user', [
-            'title'     => $user ? "Modifier l'utilisateur" : 'Ajouter un utilisateur',
+            'title'     => $user ? "Modifier l'utilisateur" : 'Créer un compte pour un membre',
             'user'      => $user,
+            'membres'   => $user ? [] : _repo(\App\Repositories\UserRepository::class)->withoutAccount(),
             'bacentaOptions' => $bacentaOptions,
             'roles'     => ROLE_LABELS,
             'cancelUrl' => url('index.php', ['page' => 'parametres', 'param_tab' => 'comptes']),
@@ -72,7 +73,7 @@ function parametres_comptes(): string
     $rows = $rows ?: '<tr><td colspan="5">' . empty_state('fa-inbox', 'Aucun utilisateur.') . '</td></tr>';
 
     return section_toolbar('Comptes application', 'Gérer les comptes (connexion par email)',
-             add_button('Ajouter un utilisateur', ['page' => 'parametres', 'form' => 'user']))
+             add_button('Créer un compte pour un membre', ['page' => 'parametres', 'form' => 'user']))
          . '<div class="table-wrap"><table class="data-table"><thead><tr><th>Nom</th><th>Email</th><th>Rôle</th><th>Actif</th><th>Actions</th></tr></thead>'
          . '<tbody>' . $rows . '</tbody></table></div>';
 }

@@ -22,6 +22,7 @@ class NouveauMembreController extends Controller
             $this->redirect('index.php', ['page' => 'accueil']);
         }
         $isAdmin = ($user['role'] ?? '') === 'admin';
+        nouveau_membre_service()->syncIntegration(null, (int) $user['id']);
 
         // ?pointage=1 : pointeur de présence (liste à cocher), comme le
         // pointage bacenta/culte mais pour la population des nouveaux

@@ -34,13 +34,11 @@ function page_content(): void
             render_apropos_page();
             break;
         case 'centresPresentation':
-            render_centres_presentation_page();
-            break;
+            redirect('index.php', ['page' => 'centres']);
         case 'bacentas':
         case 'centres':
         case 'cultes':
         case 'basontas':
-        case 'nouveaux':
         case 'generale':
         case 'bergers':
             render_section_page($page);

@@ -56,7 +56,6 @@ define('SECTION_LABELS', [
     'centres'            => 'Centres',
     'cultes'             => 'Cultes',
     'basontas'           => 'Basontas',
-    // 'nouveaux'           => 'Nouveaux membres',
     'nouveaux_membres'   => 'Nouveaux membres',
     'generale'           => 'Liste générale des membres',
     'bergers'            => 'Liste des bergers',
@@ -85,7 +84,6 @@ define('SECTION_ICONS', [
     'centres'            => '<i class="fa-solid fa-landmark"></i>',
     'cultes'             => '<i class="fa-solid fa-hands-praying"></i>',
     'basontas'           => '<i class="fa-solid fa-microphone"></i>',
-    // 'nouveaux'           => '<i class="fa-solid fa-star"></i>',
     'nouveaux_membres'   => '<i class="fa-solid fa-user-plus"></i>',
     'generale'           => '<i class="fa-solid fa-clipboard-list"></i>',
     'bergers'            => '<i class="fa-solid fa-people-roof"></i>',
@@ -134,7 +132,6 @@ define('NAV_ORDER', [
     'centres',
     'cultes',
     'basontas',
-    // 'nouveaux',
     'nouveaux_membres',
     'generale',
     'bergers',
@@ -201,7 +198,6 @@ define('CLASSES_CURSUS', [
 define('EXAM_STATUTS', ['non_passe' => 'Non passé', 'reussi' => 'Réussi', 'echoue' => 'Échoué']);
 
 define('SECTION_EXTRA_FIELDS', [
-    'nouveaux' => ['invite_par', 'recu_par', 'date_recu'],
     'generale' => ['invite_par', 'recu_par', 'date_recu'],
 ]);
 
@@ -210,7 +206,6 @@ define('CHART_POLES', [
     ['key' => 'centres',  'label' => 'Centres',                'color' => '#6366F1'],
     ['key' => 'cultes',   'label' => 'Cultes',                 'color' => '#2563EB'],
     ['key' => 'basontas', 'label' => 'Basontas',               'color' => '#22C55E'],
-    // ['key' => 'nouveaux', 'label' => 'Nouveaux membres',       'color' => '#F59E0B'],
     ['key' => 'generale', 'label' => 'Liste générale des membres', 'color' => '#EF4444'],
     ['key' => 'bergers',  'label' => 'Liste des bergers',      'color' => '#8B5CF6'],
 ]);

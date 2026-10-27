@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Core\Logger;
+use App\Repositories\NouveauMembreRepository;
 use App\Repositories\UserRepository;
 
 /**
@@ -118,6 +119,9 @@ class RegistrationService
         $expiresAt = $this->expiryTimestamp();
 
         $userId = $this->users->createRegistration($fields, $hashedPassword, $hashedToken, $expiresAt);
+        // Comme un ajout manuel : la personne entre dans « Nouveaux membres » et
+        // ne rejoint la liste générale qu'après 3 dimanches.
+        (new NouveauMembreRepository())->create($userId, ['statut' => 'nouveau']);
 
         $user = $this->users->find($userId);
         $verifyUrl = $this->mail->buildUrl('index.php', ['page' => 'verify_email', 'token' => $rawToken]);
