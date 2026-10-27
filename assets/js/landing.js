@@ -1,112 +1,158 @@
-/* Vitrine publique : menu mobile accessible (aria-expanded, Échap, retour du focus). */
+/* Vitrine publique — interactions légères (aucune dépendance).
+   1. Marqueur `js` posé immédiatement (dégradation sans JS).
+   2. Menu mobile accessible (aria-expanded, Échap, retour du focus).
+   3. En-tête densifié après défilement.
+   4. Carrousel d'accueil (images 6 s, vidéos jusqu'à la fin).
+   5. Révélation au défilement (IntersectionObserver ; visible sans JS
+      ni animation si prefers-reduced-motion).
+   6. Modale de présentation d'un centre (<dialog> natif). */
 (function () {
   'use strict';
-  var toggle = document.querySelector('.nav-toggle');
-  var nav = document.getElementById('site-nav');
-  if (!toggle || !nav) { return; }
 
   document.documentElement.classList.add('js');
 
-  function setOpen(open) {
-    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-    nav.classList.toggle('open', open);
-  }
+  var reduceMotion = window.matchMedia
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  toggle.addEventListener('click', function () {
-    setOpen(toggle.getAttribute('aria-expanded') !== 'true');
-  });
+  /* ---- 2. Menu mobile ---- */
+  (function menu() {
+    var toggle = document.querySelector('.lp-nav-toggle');
+    var nav = document.getElementById('site-nav');
+    if (!toggle || !nav) { return; }
 
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
-      setOpen(false);
-      toggle.focus();
+    function setOpen(open) {
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      toggle.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
+      nav.classList.toggle('open', open);
     }
-  });
 
-  nav.addEventListener('click', function (e) {
-    if (e.target.closest('a')) { setOpen(false); }
-  });
-})();
+    toggle.addEventListener('click', function () {
+      setOpen(toggle.getAttribute('aria-expanded') !== 'true');
+    });
 
-/* Vitrine publique : carrousel d'accueil (images : 6 s ; vidéos : jusqu'à la fin). */
-(function () {
-  'use strict';
-  var root = document.querySelector('[data-hero-carousel]');
-  if (!root) { return; }
-  var slides = root.querySelectorAll('.hero-slide');
-  if (slides.length < 2) {
-    if (slides[0] && slides[0].tagName === 'VIDEO') { slides[0].loop = true; slides[0].play().catch(function () {}); }
-    return;
-  }
-  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var DELAY = 4500;
-  var current = 0;
-  var timer = null;
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
 
-  function show(i) {
-    var prev = slides[current];
-    prev.classList.remove('is-active');
-    if (prev.tagName === 'VIDEO') { prev.pause(); }
-    current = i;
-    var el = slides[current];
-    el.classList.add('is-active');
-    if (el.tagName === 'VIDEO') { el.currentTime = 0; }
+    nav.addEventListener('click', function (e) {
+      if (e.target.closest('a')) { setOpen(false); }
+    });
+
+    window.addEventListener('resize', function () {
+      if (window.innerWidth > 1024) { setOpen(false); }
+    });
+  }());
+
+  /* ---- 3. En-tête après défilement ---- */
+  (function header() {
+    var header = document.querySelector('.site-header');
+    if (!header) { return; }
+    var ticking = false;
+    function update() {
+      header.classList.toggle('is-scrolled', window.scrollY > 8);
+      ticking = false;
+    }
+    window.addEventListener('scroll', function () {
+      if (!ticking) {
+        ticking = true;
+        window.requestAnimationFrame(update);
+      }
+    }, { passive: true });
+    update();
+  }());
+
+  /* ---- 4. Carrousel d'accueil ---- */
+  (function carousel() {
+    var root = document.querySelector('[data-hero-carousel]');
+    if (!root) { return; }
+    var slides = root.querySelectorAll('.lp-hero-slide');
+    if (!slides.length) { return; }
+    if (slides.length < 2) {
+      if (slides[0].tagName === 'VIDEO') {
+        slides[0].loop = true;
+        slides[0].play().catch(function () {});
+      }
+      return;
+    }
+    if (reduceMotion) { return; }
+
+    var DELAY = 6000;
+    var current = 0;
+    var timer = null;
+
+    function schedule() {
+      clearTimeout(timer);
+      var el = slides[current];
+      if (el.tagName === 'VIDEO') {
+        el.onended = next;
+        el.onerror = next;
+        el.play().catch(function () { timer = setTimeout(next, DELAY); });
+      } else {
+        timer = setTimeout(next, DELAY);
+      }
+    }
+
+    function next() {
+      var prev = slides[current];
+      prev.classList.remove('is-active');
+      if (prev.tagName === 'VIDEO') { prev.pause(); }
+      current = (current + 1) % slides.length;
+      var el = slides[current];
+      el.classList.add('is-active');
+      if (el.tagName === 'VIDEO') { el.currentTime = 0; }
+      schedule();
+    }
+
     schedule();
-  }
+  }());
 
-  function next() { show((current + 1) % slides.length); }
-
-  function schedule() {
-    clearTimeout(timer);
-    var el = slides[current];
-    if (el.tagName === 'VIDEO') {
-      el.onended = next;
-      el.onerror = next;
-      el.play().catch(function () { timer = setTimeout(next, DELAY); });
-    } else {
-      timer = setTimeout(next, DELAY);
+  /* ---- 5. Révélation au défilement ---- */
+  (function reveal() {
+    var targets = document.querySelectorAll('[data-reveal]');
+    if (!targets.length || reduceMotion || typeof IntersectionObserver === 'undefined') {
+      return;
     }
-  }
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-revealed');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
 
-  if (reduced) { return; }
-  schedule();
-})();
+    Array.prototype.forEach.call(targets, function (el) { observer.observe(el); });
+  }());
 
-/* Vitrine publique : en-tête transparent au-dessus du hero visuel, plein après défilement. */
-(function () {
-  'use strict';
-  var header = document.querySelector('.site-header');
-  if (!header || !document.querySelector('.hero-media')) { return; }
-  header.classList.add('over-hero');
-  function update() { header.classList.toggle('is-scrolled', window.scrollY > 40); }
-  window.addEventListener('scroll', update, { passive: true });
-  update();
-})();
+  /* ---- 6. Modale de centre ---- */
+  (function centreModal() {
+    var triggers = document.querySelectorAll('[data-centre-modal]');
+    if (!triggers.length || typeof HTMLDialogElement === 'undefined') { return; }
 
-/* Vitrine publique : modal de présentation d'un centre (<dialog> natif : Échap, focus, rôle gérés par le navigateur). */
-(function () {
-  'use strict';
-  var triggers = document.querySelectorAll('[data-centre-modal]');
-  if (!triggers.length || typeof HTMLDialogElement === 'undefined') { return; }
+    function openFor(btn) {
+      var dlg = document.getElementById(btn.getAttribute('data-centre-modal'));
+      if (dlg && !dlg.open) { dlg.showModal(); }
+    }
 
-  function openFor(btn) {
-    var dlg = document.getElementById(btn.getAttribute('data-centre-modal'));
-    if (dlg && !dlg.open) { dlg.showModal(); }
-  }
-
-  // Toute la carte est cliquable (sauf ses liens/boutons : itinéraire, contact).
-  document.querySelectorAll('.place.has-article').forEach(function (card) {
-    var btn = card.querySelector('[data-centre-modal]');
-    card.addEventListener('click', function (e) {
-      if (e.target.closest('a')) { return; }
-      openFor(btn);
+    // Toute la carte est cliquable (sauf ses liens : itinéraire, contact).
+    document.querySelectorAll('.lp-place.has-article').forEach(function (card) {
+      var btn = card.querySelector('[data-centre-modal]');
+      card.addEventListener('click', function (e) {
+        if (e.target.closest('a')) { return; }
+        openFor(btn);
+      });
     });
-  });
 
-  document.querySelectorAll('dialog.centre-modal').forEach(function (dlg) {
-    dlg.addEventListener('click', function (e) {
-      // Clic sur le fond (hors carte) ou sur la croix : fermeture.
-      if (e.target === dlg || (e.target.closest && e.target.closest('[data-centre-modal-close]'))) { dlg.close(); }
+    document.querySelectorAll('dialog.centre-modal').forEach(function (dlg) {
+      dlg.addEventListener('click', function (e) {
+        // Clic sur le fond (hors carte) ou sur la croix : fermeture.
+        if (e.target === dlg || (e.target.closest && e.target.closest('[data-centre-modal-close]'))) {
+          dlg.close();
+        }
+      });
     });
-  });
-})();
+  }());
+}());

@@ -27,10 +27,13 @@ $metaDescription = 'Découvrez ' . $brand . ' : horaires des cultes, centres et 
   <link rel="icon" href="<?= h(asset('assets/images/favicon.svg')) ?>" type="image/svg+xml" sizes="any">
   <link rel="icon" href="<?= h(asset('assets/images/favicon.ico')) ?>">
   <link rel="apple-touch-icon" href="<?= h(asset('assets/images/apple-touch-icon.png')) ?>">
+  <meta name="theme-color" content="#0b1020">
   <link rel="stylesheet" href="assets/vendor/fonts/inter.css">
+  <link rel="stylesheet" href="assets/vendor/fonts/landing-fonts.css">
   <link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
   <link rel="stylesheet" href="assets/css/variables.css">
   <link rel="stylesheet" href="assets/css/landing.css">
+  <link rel="stylesheet" href="assets/css/landing-sections.css">
 <?php if ($jsonLd): ?>
   <script type="application/ld+json"><?= json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP) ?></script>
 <?php endif; ?>
