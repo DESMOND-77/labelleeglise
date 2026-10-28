@@ -25,6 +25,10 @@ $selectedBacentas = array_map(static fn($b) => (int) $b['id'], get_culte_bacenta
       </div>
     </div>
     <div class="form-group">
+      <label class="check-label"><input type="checkbox" name="is_culte_dimanche" value="1" <?= !empty($culte['is_culte_dimanche']) ? 'checked' : '' ?>> Culte du dimanche</label>
+      <span class="form-hint">Les présences à ce culte comptent pour le suivi des nouveaux membres (3 présences requises avant intégration).</span>
+    </div>
+    <div class="form-group">
       <label>Bacentas inclus dans ce culte</label>
       <div class="checkbox-grid">
         <?php foreach ($bacentas as $b): ?>

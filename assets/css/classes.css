@@ -14,5 +14,5 @@
 
 .classe-inscrits .badge.present {
   background: var(--success-soft);
-  color: var(--success);
+  color: var(--success-text);
 }

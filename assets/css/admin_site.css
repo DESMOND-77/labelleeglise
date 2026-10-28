@@ -61,7 +61,7 @@
   border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 600;
   border: 1px solid transparent; white-space: nowrap;
 }
-.status-ok { background: var(--success-soft); color: var(--success); border-color: rgba(34, 197, 94, 0.25); }
+.status-ok { background: var(--success-soft); color: var(--success-text); border-color: rgba(34, 197, 94, 0.25); }
 .status-draft { background: var(--bg); color: var(--text-soft); border-color: var(--border-strong); }
 .status-warn { background: var(--warning-soft); color: #B45309; border-color: rgba(245, 158, 11, 0.3); }
 
@@ -88,8 +88,13 @@
   .admin-table { display: none; }
 }
 
+/* ---- Titre de rubrique (même police que les titres de page) ---- */
+.admin-site .page-header h2 { font-size: 28px; line-height: 1.1; }
+
 /* ---- Formulaires ---- */
-.form-group { border: none; border-top: 1px solid var(--border); margin: 0; padding: var(--space-4) 0 0; }
+/* Réservé aux <fieldset> de l'éditeur (:where garde la spécificité d'origine) ; sans cela la règle
+   s'appliquait à TOUS les .form-group de l'application (trait parasite, marges écrasées). */
+:where(fieldset).form-group { border: none; border-top: 1px solid var(--border); margin: 0; padding: var(--space-4) 0 0; }
 .form-group legend { font-weight: 600; padding: 0 var(--space-1); margin-bottom: var(--space-3); }
 .form-card-inner { border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-3) var(--space-4); margin: 0 0 var(--space-3); background: var(--bg); }
 .form-card-inner legend { font-weight: 600; padding: 0 var(--space-1); }
@@ -97,7 +102,7 @@
 @media (min-width: 700px) { .field-grid { grid-template-columns: repeat(2, 1fr); } }
 .field-row { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: flex-start; }
 .field-note { color: var(--text-soft); font-size: 0.9rem; max-width: 280px; }
-.req { color: var(--danger); }
+.req { color: var(--danger-text); }
 .form-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-5); }
 .form-actions .btn + .btn { margin-left: 0; }
 

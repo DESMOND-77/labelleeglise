@@ -14,7 +14,7 @@
 .modal-error {
   display: none;
   background: var(--danger-soft);
-  color: var(--danger);
+  color: var(--danger-text);
   border: 1px solid rgba(239, 68, 68, 0.25);
   border-radius: var(--radius);
   padding: 10px 14px;
@@ -87,5 +87,5 @@
 
 .gate-state {
   background: var(--primary-soft);
-  border-color: rgba(79, 70, 229, 0.2);
+  border-color: color-mix(in srgb, var(--primary) 20%, transparent);
 }

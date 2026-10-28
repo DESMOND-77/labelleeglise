@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Core\Logger;
 use App\Core\Query;
+use App\Repositories\BacentaRepository;
+use App\Repositories\CentreRepository;
 use App\Repositories\RapportJourRepository;
 use App\Repositories\ResponsibilityRepository;
 use App\Repositories\ContributionRepository;
+use App\Repositories\UserRepository;
 
 /**
  * Rapport du Jour : validation, instantané des responsables, upsert.
@@ -17,12 +21,30 @@ class RapportJourService
     private RapportJourRepository $repo;
     private ResponsibilityRepository $resp;
     private ContributionRepository $contributions;
+    private UserRepository $users;
+    private CentreRepository $centres;
+    private BacentaRepository $bacentas;
+    private NotificationService $notifications;
+    private MailService $mail;
 
-    public function __construct(?RapportJourRepository $repo = null, ?ResponsibilityRepository $resp = null, ?ContributionRepository $contributions = null)
-    {
+    public function __construct(
+        ?RapportJourRepository $repo = null,
+        ?ResponsibilityRepository $resp = null,
+        ?ContributionRepository $contributions = null,
+        ?UserRepository $users = null,
+        ?CentreRepository $centres = null,
+        ?BacentaRepository $bacentas = null,
+        ?NotificationService $notifications = null,
+        ?MailService $mail = null
+    ) {
         $this->repo = $repo ?? new RapportJourRepository();
         $this->resp = $resp ?? new ResponsibilityRepository();
         $this->contributions = $contributions ?? new ContributionRepository();
+        $this->users = $users ?? new UserRepository();
+        $this->centres = $centres ?? new CentreRepository();
+        $this->bacentas = $bacentas ?? new BacentaRepository();
+        $this->notifications = $notifications ?? new NotificationService();
+        $this->mail = $mail ?? new MailService();
     }
 
     public function report(int $id): ?array
@@ -194,6 +216,63 @@ class RapportJourService
             $this->contributions->saveReportOffering($id, $scopeType, $scopeId, (string) $data['date_rapport'], (float) $data['offrande']);
             return $id;
         });
+
+        // Notification admin uniquement à la création (jamais sur une simple
+        // modification du même rapport) - $existing est résolu AVANT l'upsert
+        // ci-dessus, donc null signifie "ce rapport n'existait pas encore".
+        // Évite nativement les doublons sur double-clic/rafraîchissement :
+        // un second POST sur la même (scope_type, scope_id, date_rapport)
+        // retrouve $existing non-null et n'entre jamais dans ce bloc.
+        if ($existing === null) {
+            $this->notifyAdminsOfNewReport($id, $userId, $centreId, $bacentaIdRaw, $date);
+        }
+
         return ['ok' => true, 'errors' => [], 'id' => $id];
+    }
+
+    /** Notifie chaque admin (in-app + email) qu'un nouveau rapport journalier vient d'être enregistré. */
+    private function notifyAdminsOfNewReport(int $reportId, int $authorId, int $centreId, ?int $bacentaId, string $dateRapport): void
+    {
+        $author = $this->users->find($authorId);
+        $centre = $this->centres->find($centreId);
+        $bacenta = $bacentaId ? $this->bacentas->find($bacentaId) : null;
+
+        $authorName = $author ? trim(($author['prenom'] ?? '') . ' ' . ($author['nom'] ?? '')) : 'Un utilisateur';
+        $roleLabel = $author ? (ROLE_LABELS[$author['role']] ?? $author['role']) : '';
+        $centreNom = $centre['nom'] ?? '';
+        $cibleNom = $bacenta['nom'] ?? $centreNom;
+        $dateLabel = date('d/m/Y', strtotime($dateRapport));
+        $link = 'index.php?page=rapport&id=' . $reportId;
+
+        $title = 'Nouveau rapport journalier enregistré';
+        $message = sprintf(
+            '%s (%s) a enregistré le rapport du %s pour %s.',
+            $authorName,
+            $roleLabel,
+            $dateLabel,
+            $cibleNom
+        );
+
+        $admins = $this->notifications->notifyAdmins('rapport_jour', $title, $message, $link);
+
+        if (!$author) {
+            return;
+        }
+        $reviewUrl = $this->mail->buildUrl('index.php', ['page' => 'rapport', 'id' => $reportId]);
+        $context = [
+            'auteurNom' => $authorName,
+            'roleLabel' => $roleLabel,
+            'centreNom' => $centreNom,
+            'bacentaNom' => $bacenta['nom'] ?? null,
+            'dateRapport' => $dateRapport,
+            'enregistreLe' => date('Y-m-d H:i:s'),
+        ];
+        foreach ($admins as $admin) {
+            try {
+                $this->mail->sendDailyReportAdminNotification($admin, $context, $reviewUrl);
+            } catch (\Throwable $e) {
+                Logger::error('Erreur notification email admin (rapport journalier)', ['admin_id' => $admin['id'], 'error' => $e->getMessage()]);
+            }
+        }
     }
 }

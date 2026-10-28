@@ -71,7 +71,7 @@ $rows = [
     <a class="btn btn-outline btn-sm" href="<?= h(url('index.php', ['page' => 'personProfile', 'membre' => $member['id'], 'semaine' => $prevWeekKey])) ?>"><i class="fa-solid fa-chevron-left"></i> Semaine préc.</a>
     <a class="btn btn-outline btn-sm" href="<?= h(url('index.php', ['page' => 'personProfile', 'membre' => $member['id'], 'semaine' => $nextWeekKey])) ?>">Semaine suiv. <i class="fa-solid fa-chevron-right"></i></a>
   </div>
-  <div style="display:flex;gap:8px;">
+  <div class="toolbar-actions">
     <a class="btn btn-outline btn-sm" target="_blank" href="<?= h(url('index.php', ['page' => 'attendancePrint', 'membre' => $member['id'], 'semaine' => $weekKey])) ?>"><i class="fa-solid fa-print"></i> Imprimer</a>
     <a class="btn btn-outline btn-sm" href="<?= h(url('index.php', ['action' => 'export_attendance', 'membre' => $member['id']])) ?>"><i class="fa-solid fa-file-csv"></i> Exporter CSV</a>
   </div>
@@ -102,7 +102,7 @@ $rows = [
 <div class="dash-section-title"><h2><i class="fa-solid fa-calendar-days"></i> Suivi hebdomadaire</h2><span><?= h($weekRangeLabel) ?></span></div>
 <div class="section-toolbar">
   <div class="sub">Consulter/imprimer le suivi hebdomadaire (mêmes champs que le module existant).</div>
-  <div style="display:flex;gap:8px;">
+  <div class="toolbar-actions">
     <a class="btn btn-outline btn-sm" href="<?= h(url('index.php', ['page' => 'suiviBergers', 'membre' => $member['id'], 'semaine' => $weekKey])) ?>"><i class="fa-solid fa-pen"></i> Ouvrir le suivi</a>
     <a class="btn btn-outline btn-sm" target="_blank" href="<?= h(url('index.php', ['page' => 'suiviPrint', 'membre' => $member['id'], 'semaine' => $weekKey])) ?>"><i class="fa-solid fa-print"></i> Imprimer</a>
   </div>

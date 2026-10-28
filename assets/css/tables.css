@@ -55,9 +55,16 @@
 /* ---- Actions de ligne ---- */
 .row-actions {
   white-space: nowrap;
-  display: flex;
-  gap: 5px;
-  justify-content: flex-end;
+  text-align: right;
+}
+
+/* Pas de display:flex sur un <td> : la cellule perdrait la bordure de ligne. */
+.row-actions > * {
+  vertical-align: middle;
+}
+
+.row-actions > * + * {
+  margin-left: 5px;
 }
 
 /* ---- Badges ---- */
@@ -75,13 +82,13 @@
 .badge.present,
 .badge.success {
   background: var(--success-soft);
-  color: var(--success);
+  color: var(--success-text);
 }
 
 .badge.absent,
 .badge.danger {
   background: var(--danger-soft);
-  color: var(--danger);
+  color: var(--danger-text);
 }
 
 .badge.neutral {
@@ -91,7 +98,7 @@
 
 .badge.warning {
   background: var(--warning-soft);
-  color: var(--warning);
+  color: var(--warning-text);
 }
 
 /* ---- Total chip ---- */
@@ -104,7 +111,7 @@
 
 .total-chip {
   background: var(--primary-soft);
-  border: 1px solid rgba(79, 70, 229, 0.15);
+  border: 1px solid color-mix(in srgb, var(--primary) 15%, transparent);
   border-radius: var(--radius);
   padding: 10px 16px;
   display: flex;
@@ -131,7 +138,7 @@
 .week-range-label {
   display: inline-block;
   background: var(--primary-soft);
-  border: 1px solid rgba(79, 70, 229, 0.15);
+  border: 1px solid color-mix(in srgb, var(--primary) 15%, transparent);
   color: var(--primary);
   border-radius: var(--radius);
   padding: 9px 14px;
@@ -169,7 +176,7 @@
 }
 
 .completion-chip b {
-  color: var(--success);
+  color: var(--success-text);
   font-size: 16px;
 }
 

@@ -158,4 +158,13 @@
   .data-table {
     min-width: 600px;
   }
+
+  /* L'état vide d'un tableau (cellule colspan) reste à la largeur visible du
+     conteneur défilant au lieu de s'étendre sur les 600 px du tableau. */
+  .data-table td > .empty-state {
+    position: sticky;
+    left: 0;
+    box-sizing: border-box;
+    width: calc(100vw - 2 * var(--space-4) - 2px - 28px);
+  }
 }

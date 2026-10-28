@@ -3,23 +3,30 @@
    ============================================================ */
 
 :root {
-  /* ---- Couleurs primaires ---- */
-  --primary: #4F46E5;
-  --primary-hover: #4338CA;
-  --primary-soft: #EEF2FF;
-  --secondary: #6366F1;
-  --accent: #2563EB;
+  /* ---- Identité : encre, crème, laiton (même marque que la vitrine) ----
+     --primary = encre (fonds sombres, icônes, texte d'accent, contours) ;
+     --accent  = laiton (action principale, repère actif) ;
+     --accent-ink = laiton foncé, seul laiton utilisable comme TEXTE ou
+     contour de focus sur fond clair (>= 4,5:1 sur blanc et sur la crème). */
+  --primary: #141A2E;
+  --primary-hover: #1E2438;
+  --primary-soft: #F2ECE0;
+  --secondary: #1E2438;
+  --accent: #C9A84C;
+  --accent-light: #E8C97A;
+  --accent-ink: #7C5F1F;
+  --ring: rgba(201, 168, 76, 0.38);
 
   /* ---- Surfaces ---- */
-  --bg: #F8FAFC;
+  --bg: #FAF6EE;
   --card: #FFFFFF;
-  --border: #E5E7EB;
-  --border-strong: #D1D5DB;
+  --border: #E7E0D1;
+  --border-strong: #D6CDB8;
 
   /* ---- Texte ---- */
-  --text: #111827;
-  --text-soft: #6B7280;
-  --text-muted: #9CA3AF;
+  --text: #1A1F33;
+  --text-soft: #4B5563;
+  --text-muted: #5B6472;
 
   /* ---- État ---- */
   --success: #22C55E;
@@ -28,17 +35,24 @@
   --danger-soft: #FDEBEB;
   --warning: #F59E0B;
   --warning-soft: #FEF3E2;
+  /* Variantes pour du TEXTE (>= 4,5:1 sur blanc et sur les fonds -soft) ;
+     les couleurs ci-dessus restent pour fonds, bordures et graphiques. */
+  --success-text: #15803D;
+  --danger-text: #B91C1C;
+  --warning-text: #92400E;
 
   /* ---- Sidebar ---- */
-  --sidebar-bg: #0F172A;
-  --sidebar-bg-2: #111827;
-  --sidebar-text: #94A3B8;
-  --sidebar-text-active: #FFFFFF;
-  --sidebar-hover: rgba(255, 255, 255, 0.06);
+  --sidebar-bg: #0B1020;
+  --sidebar-bg-2: #141A2E;
+  --sidebar-text: #B9BDCB;
+  --sidebar-text-active: #F4F1EA;
+  --sidebar-hover: rgba(244, 241, 234, 0.07);
+  --sidebar-active-bg: rgba(201, 168, 76, 0.16);
 
   /* ---- Typographie ---- */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+  --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
                'Helvetica Neue', Arial, sans-serif;
+  --font-display: 'Cormorant Garamond', 'Times New Roman', Georgia, serif;
 
   /* ---- Échelle d'espacement ---- */
   --space-1: 4px;
@@ -65,7 +79,7 @@
   --shadow-md: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.05);
   --shadow-lg: 0 20px 25px -5px rgba(15, 23, 42, 0.10), 0 8px 10px -6px rgba(15, 23, 42, 0.05);
   --shadow-xl: 0 25px 50px -12px rgba(15, 23, 42, 0.18);
-  --shadow-primary: 0 4px 14px rgba(79, 70, 229, 0.28);
+  --shadow-primary: 0 4px 14px rgba(201, 168, 76, 0.32);
 
   /* ---- Animations ---- */
   --ease: cubic-bezier(0.4, 0, 0.2, 1);

@@ -45,6 +45,34 @@ class BergerRepository
         }
     }
 
+    /** Observation de l'administration pour UNE fiche (user_id + semaine), ou null si aucune. */
+    public function suiviObservation(int $userId, string $weekKey): ?array
+    {
+        return Query::one(
+            "SELECT o.*, CONCAT(u.prenom, ' ', u.nom) AS updated_by_name
+               FROM suivi_hebdo_observations o
+               LEFT JOIN users u ON u.id = o.updated_by
+              WHERE o.user_id = ? AND o.semaine = ?",
+            [$userId, $weekKey]
+        );
+    }
+
+    public function saveSuiviObservation(int $userId, string $weekKey, string $observation, int $updatedBy): void
+    {
+        $exists = Query::value('SELECT id FROM suivi_hebdo_observations WHERE user_id = ? AND semaine = ?', [$userId, $weekKey]);
+        if ($exists) {
+            Query::run(
+                'UPDATE suivi_hebdo_observations SET observation = ?, updated_by = ? WHERE id = ?',
+                [$observation, $updatedBy, (int) $exists]
+            );
+        } else {
+            Query::run(
+                'INSERT INTO suivi_hebdo_observations (user_id, semaine, observation, updated_by) VALUES (?, ?, ?, ?)',
+                [$userId, $weekKey, $observation, $updatedBy]
+            );
+        }
+    }
+
     public function weeksOfYear(int $userId, int $year): array
     {
         return Query::all('SELECT DISTINCT semaine FROM suivi_hebdo WHERE user_id = ? AND semaine LIKE ? ORDER BY semaine', [$userId, $year . '-W%']);

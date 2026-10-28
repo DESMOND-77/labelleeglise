@@ -9,8 +9,19 @@ $responsibilitiesPanel = $responsibilitiesPanel ?? '';
     <?= $csrf ?>
     <?php if ($user): ?><input type="hidden" name="id" value="<?= h($user['id']) ?>"><?php endif; ?>
     <div class="form-grid">
+      <?php if ($user): ?>
       <div class="form-group"><label>Prénom</label><input type="text" name="prenom" value="<?= h($user['prenom'] ?? '') ?>" required></div>
       <div class="form-group"><label>Nom</label><input type="text" name="nom" value="<?= h($user['nom'] ?? '') ?>" required></div>
+      <?php else: ?>
+      <div class="form-group"><label>Membre</label>
+        <select name="membre_id" required>
+          <option value="">- Choisir un membre existant -</option>
+          <?php foreach (($membres ?? []) as $m): ?>
+            <option value="<?= h($m['id']) ?>"><?= h(trim($m['prenom'] . ' ' . $m['nom'])) ?><?= !empty($m['telephone']) ? ' (' . h($m['telephone']) . ')' : '' ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+      <?php endif; ?>
       <div class="form-group"><label>Email (identifiant de connexion)</label><input type="email" name="email" value="<?= h($user['email'] ?? '') ?>" required></div>
       <div class="form-group"><label>Mot de passe</label>
         <input type="text" name="password" value="" placeholder="<?= $user ? 'Laisser vide pour conserver l\'actuel' : 'Mot de passe' ?>" <?= $user ? '' : 'required' ?>>
@@ -24,10 +35,12 @@ $responsibilitiesPanel = $responsibilitiesPanel ?? '';
           <?php endforeach; ?>
         </select>
       </div>
+      <?php if ($user): ?>
       <div class="form-group">
         <label>Bacenta d'appartenance</label>
         <select name="bacenta_id"><?= $bacentaOptions ?></select>
       </div>
+      <?php endif; ?>
       <div class="form-group" style="justify-content:flex-end;">
         <label class="check-label">
           <input type="checkbox" name="compte_actif" value="1" <?= ($user && (int) $user['compte_actif'] === 1) || !$user ? 'checked' : '' ?>>
@@ -35,7 +48,7 @@ $responsibilitiesPanel = $responsibilitiesPanel ?? '';
         </label>
       </div>
     </div>
-    <div class="modal-error" style="<?= isset($_GET['error']) ? 'display:block;' : 'display:none;' ?>">Cet email est déjà utilisé.</div>
+    <div class="modal-error" style="<?= isset($_GET['error']) ? 'display:block;' : 'display:none;' ?>"><?= (int) ($_GET['error'] ?? 0) === 2 ? 'Choisissez un membre sans compte et renseignez un email valide et un mot de passe.' : 'Cet email est déjà utilisé.' ?></div>
     <div class="modal-actions">
       <a class="btn btn-outline" href="<?= h($cancelUrl) ?>">Annuler</a>
       <button type="submit" class="btn btn-primary">Enregistrer</button>

@@ -14,8 +14,8 @@
   padding: var(--space-6);
   overflow-y: auto;
   background:
-    linear-gradient(rgba(15, 23, 42, 0.72), rgba(15, 23, 42, 0.82)),
-    url('/assets/images/pasteur-bg.jpg') center / cover no-repeat;
+    linear-gradient(color-mix(in srgb, var(--sidebar-bg) 74%, transparent), color-mix(in srgb, var(--sidebar-bg) 86%, transparent)),
+    url('../images/pasteur-bg.jpg') center / cover no-repeat;
 }
 
 .login-screen::before {
@@ -23,8 +23,8 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(1000px 500px at 10% -10%, rgba(79, 70, 229, 0.35), transparent),
-    radial-gradient(800px 400px at 110% 110%, rgba(99, 102, 241, 0.25), transparent);
+    radial-gradient(1000px 500px at 10% -10%, var(--sidebar-active-bg), transparent),
+    radial-gradient(800px 400px at 110% 110%, var(--sidebar-active-bg), transparent);
   pointer-events: none;
 }
 
@@ -96,7 +96,7 @@
 .floating-field input:focus {
   border-color: var(--primary);
   background: #fff;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+  box-shadow: 0 0 0 3px var(--ring);
 }
 
 .floating-field label {
@@ -110,6 +110,11 @@
   transition: all var(--dur) var(--ease);
   background: transparent;
   padding: 0 2px;
+  /* Ne passe pas sous l'icône « afficher le mot de passe » */
+  max-width: calc(100% - 56px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .floating-field input:focus + label,

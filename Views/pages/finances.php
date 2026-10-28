@@ -1,8 +1,8 @@
 <?php /* Finances. Variables : $year, $monthKey, $monthLabel, $bacentasTotal, $centresTotal, $globalTotal, $bacentasRows, $centresRows. */ ?>
 <div class="stats-grid">
-  <?= stat_card('Total Bacentas (' . $year . ')', format_fcfa($bacentasTotal), '#6C63FF') ?>
-  <?= stat_card('Total Centres (' . $year . ')', format_fcfa($centresTotal), '#8B85FF') ?>
-  <?= stat_card('Cumul global (' . $year . ')', format_fcfa($globalTotal), '#4CAF8E') ?>
+  <?= stat_card('Total Bacentas (' . $year . ')', format_fcfa($bacentasTotal), '#2B3A67') ?>
+  <?= stat_card('Total Centres (' . $year . ')', format_fcfa($centresTotal), '#C9A84C') ?>
+  <?= stat_card('Cumul global (' . $year . ')', format_fcfa($globalTotal), '#2F7F79') ?>
 </div>
 
 <div class="dash-section-title"><h2>Bacentas - Offrandes des vendredis</h2><span>Mois en cours : <?= h($monthLabel) ?></span></div>

@@ -47,29 +47,20 @@ class MemberRepository
         );
     }
 
-    public function nouveaux(?string $filter = null): array
-    {
-        $sql = "SELECT * FROM users WHERE (recu_par IS NOT NULL OR date_recu IS NOT NULL OR invite_par IS NOT NULL)";
-        $params = [];
-        if ($filter !== null && $filter !== '') {
-            $sql .= " AND (LOWER(CONCAT(prenom, ' ', nom)) LIKE ? OR LOWER(CONCAT(nom, ' ', prenom)) LIKE ? OR LOWER(quartier) LIKE ?)";
-            $f = '%' . mb_strtolower($filter) . '%';
-            $params = [$f, $f, $f];
-        }
-        $sql .= " ORDER BY date_recu DESC, prenom, nom";
-        return Query::all($sql, $params);
-    }
-
     public function generale(?string $filter = null): array
     {
-        $sql = 'SELECT * FROM users WHERE 1 = 1';
+        // Exclut les personnes encore en suivi "nouveaux membres" (statut <> 'integre').
+        // Les membres déjà existants (aucune ligne nouveaux_membres) sont inchangés.
+        $sql = "SELECT u.* FROM users u
+                LEFT JOIN nouveaux_membres nm ON nm.user_id = u.id AND nm.statut <> 'integre'
+                WHERE nm.id IS NULL";
         $params = [];
         if ($filter !== null && $filter !== '') {
-            $sql .= " AND (LOWER(CONCAT(prenom, ' ', nom)) LIKE ? OR LOWER(CONCAT(nom, ' ', prenom)) LIKE ? OR LOWER(quartier) LIKE ?)";
+            $sql .= " AND (LOWER(CONCAT(u.prenom, ' ', u.nom)) LIKE ? OR LOWER(CONCAT(u.nom, ' ', u.prenom)) LIKE ? OR LOWER(u.quartier) LIKE ?)";
             $f = '%' . mb_strtolower($filter) . '%';
             $params = [$f, $f, $f];
         }
-        $sql .= ' ORDER BY prenom, nom';
+        $sql .= ' ORDER BY u.prenom, u.nom';
         return Query::all($sql, $params);
     }
 

@@ -131,6 +131,7 @@ $charts = null;
         'adminStats' => $adminStats,
         'csrf'       => csrf_field(),
         'isAdmin'    => $isAdmin,
+        'observation'=> get_suivi_observation($memberId, $weekKey),
     ]);
 
 render_page('Suivi Hebdomadaire des Bergers', $content, $charts);

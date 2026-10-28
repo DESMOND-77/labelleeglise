@@ -9,8 +9,9 @@
   justify-content: space-between;
   gap: var(--space-4);
   flex-wrap: wrap;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  color: #fff;
+  background: linear-gradient(135deg, var(--sidebar-bg), var(--sidebar-bg-2));
+  border-bottom: 3px solid var(--accent);
+  color: var(--sidebar-text-active);
   border-radius: var(--radius-lg);
   padding: var(--space-6) var(--space-8);
   margin-bottom: var(--space-6);
@@ -23,14 +24,14 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(800px 250px at 100% 0%, rgba(255, 255, 255, 0.14), transparent);
+  background: radial-gradient(800px 250px at 100% 0%, var(--sidebar-active-bg), transparent);
   pointer-events: none;
 }
 
 .welcome-banner h2 {
-  color: #fff;
-  font-size: 20px;
-  letter-spacing: -0.02em;
+  color: var(--sidebar-text-active);
+  font-size: 30px;
+  line-height: 1.1;
 }
 
 .welcome-banner p {
@@ -92,7 +93,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(1200px 400px at 50% -10%, rgba(255, 255, 255, 0.12), transparent);
+  background: radial-gradient(1200px 400px at 50% -10%, var(--sidebar-active-bg), transparent);
   pointer-events: none;
 }
 
@@ -304,8 +305,8 @@
   font-weight: 600;
 }
 
-.trend-pill.up { background: var(--success-soft); color: var(--success); }
-.trend-pill.down { background: var(--danger-soft); color: var(--danger); }
+.trend-pill.up { background: var(--success-soft); color: var(--success-text); }
+.trend-pill.down { background: var(--danger-soft); color: var(--danger-text); }
 .trend-pill.flat { background: var(--primary-soft); color: var(--primary); }
 
 /* ---- Carte narrative ---- */

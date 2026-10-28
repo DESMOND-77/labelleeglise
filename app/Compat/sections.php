@@ -39,6 +39,10 @@ function render_section_page(string $section): void
                 render_centre_form();
                 return;
             }
+            if ($form === 'article') {
+                render_centre_article_form();
+                return;
+            }
             if (!nav('id')) {
                 render_centres_grid();
             } else {
@@ -70,9 +74,6 @@ function render_section_page(string $section): void
             }
             return;
 
-        case 'nouveaux':
-            render_member_list_page('nouveaux');
-            return;
         case 'generale':
             render_member_list_page('generale');
             return;
@@ -88,13 +89,7 @@ function render_section_page(string $section): void
 
 function bacenta_card_html(array $b, bool $canEdit): string
 {
-    $actions = '';
-    if ($canEdit) {
-        $actions = '<div class="card-actions">'
-            . '<a class="icon-btn" title="Modifier" href="' . h(url('index.php', ['page' => 'bacentas', 'form' => 'bacenta', 'id' => $b['id']])) . '"><i class="fa-solid fa-pen"></i></a>'
-            . '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer ce bacenta et tous ses membres ?" href="' . h(url('index.php', ['page' => 'bacentas', 'action' => 'delete_bacenta', 'id' => $b['id']])) . '"><i class="fa-solid fa-trash"></i></a>'
-            . '</div>';
-    }
+    $actions = $canEdit ? settings_button(url('index.php', ['page' => 'bacentas', 'form' => 'bacenta', 'id' => $b['id']])) : '';
     $sub = ($b['centre_nom'] ?? '') . ($b['centre_nom'] ? ' · ' : '') . (int) $b['nb_membres'] . ' membre(s)';
     return '<div class="unit-card" onclick="location.href=\'' . h(url('index.php', ['page' => 'bacentas', 'id' => $b['id']])) . '\'">'
         . $actions
@@ -141,12 +136,7 @@ function render_centres_grid(): void
     $cards = '';
     foreach ($centres as $c) {
         $canEdit = $isAdmin || auth_can_manage_center((int) $c['id']);
-        $actions = $canEdit
-            ? '<div class="card-actions">'
-            . '<a class="icon-btn" title="Modifier" href="' . h(url('index.php', ['page' => 'centres', 'form' => 'centre', 'id' => $c['id']])) . '"><i class="fa-solid fa-pen"></i></a>'
-            . ($isAdmin ? '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer ce centre et toutes ses données ?" href="' . h(url('index.php', ['page' => 'centres', 'action' => 'delete_centre', 'id' => $c['id']])) . '"><i class="fa-solid fa-trash"></i></a>' : '')
-            . '</div>'
-            : '';
+        $actions = $canEdit ? settings_button(url('index.php', ['page' => 'centres', 'form' => 'centre', 'id' => $c['id']])) : '';
         $sub = (int) $c['nb_bacentas'] . ' bacenta(s)';
         $cards .= '<div class="unit-card" onclick="location.href=\'' . h(url('index.php', ['page' => 'centres', 'id' => $c['id']])) . '\'">'
             . $actions . '<div class="icon-wrap"><i class="fa-solid fa-landmark"></i></div><h3>' . h($c['nom']) . '</h3><p>' . h($sub) . '</p></div>';
@@ -172,12 +162,7 @@ function render_cultes_grid(): void
     $cards = '';
     foreach ($cultes as $c) {
         $canEdit = $isAdmin || auth_can_manage_culte((int) $c['id']);
-        $actions = $canEdit
-            ? '<div class="card-actions">'
-            . '<a class="icon-btn" title="Modifier" href="' . h(url('index.php', ['page' => 'cultes', 'form' => 'culte', 'id' => $c['id']])) . '"><i class="fa-solid fa-pen"></i></a>'
-            . ($isAdmin ? '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer ce culte ?" href="' . h(url('index.php', ['page' => 'cultes', 'action' => 'delete_culte', 'id' => $c['id']])) . '"><i class="fa-solid fa-trash"></i></a>' : '')
-            . '</div>'
-            : '';
+        $actions = $canEdit ? settings_button(url('index.php', ['page' => 'cultes', 'form' => 'culte', 'id' => $c['id']])) : '';
         $date = $c['date_culte'] ? date('d/m/Y', strtotime($c['date_culte'])) : 'Date à définir';
         $sub = $date . ' · ' . (int) $c['nb_presents'] . ' présent(s)';
         $cards .= '<div class="unit-card" onclick="location.href=\'' . h(url('index.php', ['page' => 'cultes', 'id' => $c['id']])) . '\'">'
@@ -202,12 +187,7 @@ function render_basontas_grid(): void
     $cards = '';
     foreach ($basontas as $b) {
         $canEdit = $isAdmin || auth_can_manage_basonta((int) $b['id']);
-        $actions = $canEdit
-            ? '<div class="card-actions">'
-            . '<a class="icon-btn" title="Modifier" href="' . h(url('index.php', ['page' => 'basontas', 'form' => 'basonta', 'id' => $b['id']])) . '"><i class="fa-solid fa-pen"></i></a>'
-            . ($isAdmin ? '<a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer ce basonta ?" href="' . h(url('index.php', ['page' => 'basontas', 'action' => 'delete_basonta', 'id' => $b['id']])) . '"><i class="fa-solid fa-trash"></i></a>' : '')
-            . '</div>'
-            : '';
+        $actions = $canEdit ? settings_button(url('index.php', ['page' => 'basontas', 'form' => 'basonta', 'id' => $b['id']])) : '';
         $cards .= '<div class="unit-card" onclick="location.href=\'' . h(url('index.php', ['page' => 'basontas', 'id' => $b['id']])) . '\'">'
             . $actions . '<div class="icon-wrap"><i class="fa-solid fa-microphone"></i></div><h3>' . h($b['nom']) . '</h3><p>' . (int) $b['nb_membres'] . ' membre(s)</p></div>';
     }
@@ -520,9 +500,6 @@ function render_member_list_page(string $section): void
 
     $filter = trim((string) nav('q'));
     switch ($section) {
-        case 'nouveaux':
-            $members = get_nouveaux_members($filter);
-            break;
         case 'bergers':
             $members = get_berger_members($filter);
             break;
@@ -539,7 +516,7 @@ function render_member_list_page(string $section): void
 function display_columns(string $section): array
 {
     $cols = ['nom', 'prenom', 'telephone', 'quartier', 'bacenta'];
-    if (in_array($section, ['nouveaux', 'generale'], true)) {
+    if (in_array($section, ['generale'], true)) {
         $cols[] = 'invite_par';
         $cols[] = 'recu_par';
         $cols[] = 'date_recu';
@@ -630,23 +607,18 @@ function members_table(string $section, ?int $entityId, string $label, int $coun
         $rows = '<tr><td colspan="' . (count($cols) + 1) . '">' . empty_state('fa-inbox', 'Aucun membre pour le moment.') . '</td></tr>';
     }
 
-    $addParams = ['page' => $section, 'form' => 'membre'];
-    if ($entityId) {
-        $addParams['id_ent'] = $entityId;
-    }
-
     $filterBox = '';
-    if (in_array($section, ['nouveaux', 'generale', 'bergers'], true)) {
+    if (in_array($section, ['generale', 'bergers'], true)) {
         $filterBox = '<form method="get" action="index.php" class="filter-row">'
             . '<input type="hidden" name="page" value="' . h($section) . '">'
-            . '<input type="search" class="search-input" name="q" placeholder="Filtrer (nom, quartier)…" value="' . h($filter ?? '') . '">'
+            . '<input type="search" class="search-input" name="q" aria-label="Filtrer la liste" placeholder="Filtrer (nom, quartier)…" value="' . h($filter ?? '') . '">'
             . '<button class="btn btn-outline btn-sm" type="submit">Filtrer</button>'
             . ($filter ? '<a class="btn btn-outline btn-sm" href="' . h(url('index.php', ['page' => $section])) . '">Effacer</a>' : '')
             . '</form>';
     }
 
     return $filterBox . '<div class="section-toolbar"><div><h2>' . h($label) . '</h2><div class="sub">' . $count . ' membre(s)</div></div>'
-        . '<a class="btn btn-primary" href="' . h(url('index.php', $addParams)) . '">+ Ajouter un membre</a></div>'
+        . '</div>'
         . '<div class="table-wrap"><table class="data-table"><thead><tr>' . $headers . '</tr></thead><tbody>' . $rows . '</tbody></table></div>';
 }
 
@@ -689,7 +661,11 @@ function render_gate(string $section, ?int $id, string $title): void
 function render_member_form(string $section): void
 {
     $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
-    $member = $id ? get_user($id) : null;
+    if (!$id) {
+        // Les membres ne se créent plus que depuis l'onglet « Nouveaux membres ».
+        redirect('index.php', ['page' => 'nouveau_membre', 'form' => 1]);
+    }
+    $member = get_user($id);
     $entityId = nav('id_ent');
 
     $bacentas = get_bacentas();
@@ -754,7 +730,12 @@ function render_bacenta_form(): void
         'csrf'      => csrf_field(),
         'respUrl'   => url('index.php', ['page' => 'parametres', 'param_tab' => 'acces']),
     ]);
-    render_page($b ? 'Modifier le bacenta' : 'Ajouter un bacenta', $content);
+    if ($b && current_user()['role'] === 'admin') {
+        $content .= danger_zone('Supprimer ce bacenta supprime aussi tous ses membres.',
+            url('index.php', ['page' => 'bacentas', 'action' => 'delete_bacenta', 'id' => $b['id']]),
+            'Supprimer ce bacenta et tous ses membres ?', 'Supprimer le bacenta');
+    }
+    render_page($b ? 'Paramètres du bacenta' : 'Ajouter un bacenta', $content);
 }
 
 function render_centre_form(): void
@@ -762,13 +743,61 @@ function render_centre_form(): void
     $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
     $c = $id ? get_centre($id) : null;
     $content = view('pages/forms/name', [
-        'title'     => $c ? 'Modifier le centre' : 'Ajouter un centre',
+        'title'     => $c ? 'Paramètres du centre' : 'Ajouter un centre',
         'action'    => 'save_centre',
-        'name'      => $c['nom'] ?? '',
+        'nom'       => $c['nom'] ?? '',
         'extra'     => csrf_field() . ($id ? '<input type="hidden" name="id" value="' . $id . '">' : ''),
         'cancelUrl' => url('index.php', ['page' => 'centres']),
     ]);
-    render_page($c ? 'Modifier le centre' : 'Ajouter un centre', $content);
+    if ($c && current_user()['role'] === 'admin') {
+        $content .= centre_article_panel($c);
+        $content .= danger_zone('Supprimer ce centre supprime aussi toutes ses données.',
+            url('index.php', ['page' => 'centres', 'action' => 'delete_centre', 'id' => $c['id']]),
+            'Supprimer ce centre et toutes ses données ?', 'Supprimer le centre');
+    }
+    render_page($c ? 'Paramètres du centre' : 'Ajouter un centre', $content);
+}
+
+/** Panneau « Article de présentation » (paramètres d'un centre) : affiché sur le modal de la vitrine. */
+function centre_article_panel(array $centre): string
+{
+    $article = _repo(\App\Repositories\CMSRepository::class)->centreArticleByCentre((int) $centre['id']);
+    $editUrl = url('index.php', ['page' => 'centres', 'form' => 'article', 'id' => $centre['id']]);
+    $html = '<div class="form-page"><div class="form-card"><h3>Article de présentation</h3>'
+        . '<p class="form-hint">Texte affiché dans la fenêtre qui s\'ouvre quand un visiteur clique sur ce centre depuis le site public.</p>';
+    if ($article) {
+        $intro = (string) ($article['intro'] ?? '');
+        $html .= $intro !== '' ? '<p>' . h(mb_strlen($intro) > 160 ? mb_substr($intro, 0, 160) . '…' : $intro) . '</p>' : '';
+        $html .= '<div class="modal-actions"><a class="btn btn-outline" data-confirm="Supprimer l\'article de ce centre ?" href="'
+            . h(url('index.php', ['page' => 'centres', 'action' => 'delete_article', 'id' => $article['id'], 'centre' => $centre['id']]))
+            . '"><i class="fa-solid fa-trash"></i> Supprimer l\'article</a>'
+            . '<a class="btn btn-primary" href="' . h($editUrl) . '"><i class="fa-solid fa-pen"></i> Modifier l\'article</a></div>';
+    } else {
+        $html .= '<div class="modal-actions"><a class="btn btn-primary" href="' . h($editUrl) . '">+ Rédiger l\'article</a></div>';
+    }
+    return $html . '</div></div>';
+}
+
+function render_centre_article_form(): void
+{
+    if (current_user()['role'] !== 'admin') {
+        redirect('index.php', ['page' => 'centres']);
+    }
+    $centreId = (int) (nav('id') ?? 0);
+    $centre = $centreId ? get_centre($centreId) : null;
+    if (!$centre) {
+        redirect('index.php', ['page' => 'centres']);
+    }
+    $article = _repo(\App\Repositories\CMSRepository::class)->centreArticleByCentre($centreId);
+    $content = view('pages/forms/article', [
+        'article'    => $article,
+        'isNew'      => !$article,
+        'centreOpts' => '<option value="' . $centreId . '" selected>' . h($centre['nom']) . '</option>',
+        'centres'    => [$centre],
+        'cancelUrl'  => url('index.php', ['page' => 'centres', 'form' => 'centre', 'id' => $centreId]),
+        'csrf'       => csrf_field(),
+    ]);
+    render_page($article ? 'Modifier l\'article' : 'Rédiger l\'article', $content);
 }
 
 function render_culte_form(): void
@@ -784,7 +813,12 @@ function render_culte_form(): void
         'csrf'      => csrf_field(),
         'respUrl'   => url('index.php', ['page' => 'parametres', 'param_tab' => 'acces']),
     ]);
-    render_page($c ? 'Modifier le culte' : 'Ajouter un culte', $content);
+    if ($c && current_user()['role'] === 'admin') {
+        $content .= danger_zone('La suppression du culte est définitive.',
+            url('index.php', ['page' => 'cultes', 'action' => 'delete_culte', 'id' => $c['id']]),
+            'Supprimer ce culte ?', 'Supprimer le culte');
+    }
+    render_page($c ? 'Paramètres du culte' : 'Ajouter un culte', $content);
 }
 
 function render_basonta_form(): void
@@ -796,5 +830,10 @@ function render_basonta_form(): void
         'cancelUrl' => url('index.php', ['page' => 'basontas']),
         'csrf'      => csrf_field(),
     ]);
-    render_page($b ? 'Modifier le basonta' : 'Ajouter un basonta', $content);
+    if ($b && current_user()['role'] === 'admin') {
+        $content .= danger_zone('La suppression du basonta est définitive.',
+            url('index.php', ['page' => 'basontas', 'action' => 'delete_basonta', 'id' => $b['id']]),
+            'Supprimer ce basonta ?', 'Supprimer le basonta');
+    }
+    render_page($b ? 'Paramètres du basonta' : 'Ajouter un basonta', $content);
 }

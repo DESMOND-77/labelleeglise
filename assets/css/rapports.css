@@ -9,6 +9,14 @@
   margin-bottom: var(--space-5);
 }
 
+.rapport-filters input:not([type="hidden"]),
+.rapport-filters select,
+.rapport-picker input:not([type="hidden"]),
+.rapport-picker select,
+.bus-filters select {
+  min-height: 40px;
+}
+
 .rapport-filters label,
 .rapport-picker label {
   display: flex;

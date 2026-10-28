@@ -6,7 +6,7 @@
     <input type="hidden" name="page" value="recherche">
     <div class="search-box">
       <i class="fa-solid fa-magnifying-glass"></i>
-      <input type="search" name="q" placeholder="Rechercher un membre par nom, prénom, quartier…" value="<?= h($q) ?>" autofocus>
+      <input type="search" name="q" aria-label="Rechercher un membre" placeholder="Rechercher un membre par nom, prénom, quartier…" value="<?= h($q) ?>" autofocus>
       <?php if ($q !== ''): ?>
         <a class="search-clear" href="<?= h(url('index.php', ['page' => 'recherche'])) ?>" title="Effacer"><i class="fa-solid fa-xmark"></i></a>
       <?php endif; ?>

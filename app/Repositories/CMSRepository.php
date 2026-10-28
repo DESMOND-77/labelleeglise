@@ -74,9 +74,19 @@ class CMSRepository
         );
     }
 
+    /** Article d'un centre (le premier s'il y en a plusieurs). */
+    public function centreArticleByCentre(int $centreId): ?array
+    {
+        return Query::one('SELECT * FROM centres_presentation WHERE centre_id = ? ORDER BY id LIMIT 1', [$centreId]);
+    }
+
     public function saveCentreArticle(?int $id, array $fields): void
     {
         if ($id) {
+            // Pas de nouvelle photo envoyée : on conserve l'existante.
+            if (($fields['photo'] ?? null) === null) {
+                unset($fields['photo']);
+            }
             $sets = implode(', ', array_map(fn($k) => "$k = ?", array_keys($fields)));
             $params = array_values($fields);
             $params[] = $id;

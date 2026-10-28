@@ -31,6 +31,19 @@
   margin-bottom: 0;
 }
 
+/* Rangées de champs et titre de formulaire : même rythme que les .form-group */
+.form-grid {
+  margin-bottom: var(--space-4);
+}
+
+.form-grid:last-child {
+  margin-bottom: 0;
+}
+
+.form-card > h3 {
+  margin-bottom: var(--space-4);
+}
+
 .form-group label,
 .field label,
 .field > span {
@@ -48,6 +61,11 @@
 .inline-add-form input,
 .inline-add-form select,
 .inline-resp-form select,
+.rapport-filters input:not([type="hidden"]),
+.rapport-filters select,
+.rapport-picker input:not([type="hidden"]),
+.rapport-picker select,
+.bus-filters select,
 .search-input {
   padding: 10px 12px;
   border: 1px solid var(--border);
@@ -76,10 +94,15 @@
 .inline-add-form input:focus,
 .inline-add-form select:focus,
 .inline-resp-form select:focus,
+.rapport-filters input:focus,
+.rapport-filters select:focus,
+.rapport-picker input:focus,
+.rapport-picker select:focus,
+.bus-filters select:focus,
 .search-input:focus {
   border-color: var(--primary);
   background: #fff;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+  box-shadow: 0 0 0 3px var(--ring);
 }
 
 .form-group textarea {
@@ -89,7 +112,10 @@
 
 .form-group select,
 .inline-add-form select,
-.inline-resp-form select {
+.inline-resp-form select,
+.rapport-filters select,
+.rapport-picker select,
+.bus-filters select {
   cursor: pointer;
   appearance: auto;
 }
@@ -227,6 +253,10 @@
   gap: 8px;
 }
 
+.form-card > h3.form-section-title:first-of-type {
+  margin-top: 0;
+}
+
 .form-hint {
   font-size: 12.5px;
   color: var(--text-soft);
@@ -266,13 +296,13 @@
 .data-table td select:focus,
 .data-table td textarea:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  box-shadow: 0 0 0 3px var(--ring);
 }
 
 /* Message d'erreur de champ */
 .form-error {
   display: block;
-  color: var(--danger);
+  color: var(--danger-text);
   font-size: 13px;
   margin-top: var(--space-1);
 }
@@ -280,3 +310,7 @@
 /* ---- Sous-blocs d'un formulaire (ex. « Site public ») ---- */
 .form-card-inner { border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-3) var(--space-4); margin: 0 0 var(--space-3); }
 .form-card-inner legend { font-weight: 600; padding: 0 var(--space-1); }
+
+/* Paramètres d'une entité : zone de danger (suppression) */
+.danger-zone { border: 1px solid var(--danger); background: var(--danger-soft); }
+.danger-zone h3 { margin: 0 0 var(--space-2); color: var(--danger-text); }

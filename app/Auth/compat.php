@@ -230,6 +230,24 @@ function auth_can_manage_any_centre(): bool
     return false;
 }
 
+/**
+ * Nouveaux membres : admin, ou une personne précisément désignée via
+ * Paramètres → Accès & Responsables (responsabilité 'nouveaux_membres',
+ * cible singleton - voir ResponsibilityService::isResponsibleForNouveauxMembres()).
+ * Volontairement PAS ouvert à tout un rôle (berger/ms/...) par défaut.
+ */
+function auth_can_manage_nouveaux_membres(): bool
+{
+    $u = current_user();
+    if (!$u) {
+        return false;
+    }
+    if (($u['role'] ?? '') === 'admin') {
+        return true;
+    }
+    return responsibility_service()->isResponsibleForNouveauxMembres((int) $u['id']);
+}
+
 function start_session(): void
 {
     \App\Core\Session::start(APP_NAME ? 'LBEGF_SESSID' : 'LBEGF_SESSID');

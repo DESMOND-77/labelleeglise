@@ -62,7 +62,6 @@ function get_members_of_bacenta(int $bacentaId): array { return _repo(MemberRepo
 function get_members_of_centre(int $centreId): array { return _repo(MemberRepository::class)->ofCentre($centreId); }
 function get_members_of_basonta(int $basontaId): array { return _repo(MemberRepository::class)->ofBasonta($basontaId); }
 function get_members_of_culte(int $culteId): array { return _repo(MemberRepository::class)->ofCulte($culteId); }
-function get_nouveaux_members(?string $filter = null): array { return _repo(MemberRepository::class)->nouveaux($filter); }
 function get_generale_members(?string $filter = null): array { return _repo(MemberRepository::class)->generale($filter); }
 function get_berger_members(?string $filter = null): array { return _repo(MemberRepository::class)->bergers($filter); }
 function get_users(): array { return _repo(UserRepository::class)->all(); }
@@ -87,8 +86,6 @@ function get_members_context(string $section, ?int $id = null): array
             $b = $id ? get_basonta($id) : null;
             return $b ? ['members' => get_members_of_basonta($id), 'label' => $b['nom'], 'entity' => $b, 'entityId' => $id]
                       : ['members' => [], 'label' => '', 'entity' => null, 'entityId' => null];
-        case 'nouveaux':
-            return ['members' => get_nouveaux_members(), 'label' => 'Nouveaux membres', 'entity' => null, 'entityId' => null];
         case 'bergers':
             return ['members' => get_berger_members(), 'label' => 'Liste des bergers', 'entity' => null, 'entityId' => null];
         default:
@@ -149,6 +146,8 @@ function add_veillee(int $userId, string $date, bool $present): void { _repo(Ber
 function delete_veillee(int $userId, int $veilleeId): void { _repo(BergerRepository::class)->deleteVeillee($userId, $veilleeId); }
 function get_suivi_week(int $userId, string $weekKey): array { return _repo(BergerRepository::class)->suiviWeek($userId, $weekKey); }
 function save_suivi_week(int $userId, string $weekKey, array $data): void { _repo(BergerRepository::class)->saveSuiviWeek($userId, $weekKey, $data); }
+function get_suivi_observation(int $userId, string $weekKey): ?array { return _repo(BergerRepository::class)->suiviObservation($userId, $weekKey); }
+function save_suivi_observation(int $userId, string $weekKey, string $observation, int $updatedBy): void { _repo(BergerRepository::class)->saveSuiviObservation($userId, $weekKey, $observation, $updatedBy); }
 function is_field_filled(array $f, $v): bool { return _repo(ReportService::class)->isFieldFilled($f, $v); }
 function compute_week_completion(array $week): int { return _repo(ReportService::class)->weekCompletion($week); }
 function compute_year_completion(int $userId, int $year): int { return _repo(ReportService::class)->yearCompletion($userId, $year); }
@@ -168,6 +167,10 @@ function calendrier_service(): \App\Services\CalendrierService { return _repo(\A
 /* ---------- Rapports du jour ---------- */
 
 function rapport_jour_service(): \App\Services\RapportJourService { return _repo(\App\Services\RapportJourService::class); }
+
+/* ---------- Nouveaux membres ---------- */
+
+function nouveau_membre_service(): \App\Services\NouveauMembreService { return _repo(\App\Services\NouveauMembreService::class); }
 
 /* ---------- Classes / écoles ---------- */
 

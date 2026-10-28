@@ -14,6 +14,52 @@ class AttendanceRepository
         return (bool) Query::one("SELECT id FROM presences WHERE user_id = ? AND $column = ? LIMIT 1", [$userId, $entityId]);
     }
 
+    /** Comme hasPresence(), mais restreint à une date précise (occurrence). */
+    public function hasPresenceOnDate(string $column, int $userId, int $entityId, string $date): bool
+    {
+        return (bool) Query::one(
+            "SELECT id FROM presences WHERE user_id = ? AND $column = ? AND date_presence = ? LIMIT 1",
+            [$userId, $entityId, $date]
+        );
+    }
+
+    /** Dates distinctes de présence validée (statut='present') pour un ensemble de cultes. */
+    public function countDistinctPresentDatesForCultes(int $userId, array $culteIds): int
+    {
+        if ($culteIds === []) {
+            return 0;
+        }
+        $placeholders = implode(',', array_fill(0, count($culteIds), '?'));
+        return (int) Query::value(
+            "SELECT COUNT(DISTINCT date_presence) FROM presences
+              WHERE user_id = ? AND statut = 'present' AND culte_id IN ($placeholders)",
+            [$userId, ...$culteIds]
+        );
+    }
+
+    /** Lignes de présence brutes d'un utilisateur pour un ensemble de cultes (suivi nouveaux membres). */
+    public function presencesForCultes(int $userId, array $culteIds): array
+    {
+        if ($culteIds === []) {
+            return [];
+        }
+        $placeholders = implode(',', array_fill(0, count($culteIds), '?'));
+        return Query::all(
+            "SELECT p.id, p.date_presence, p.statut, p.culte_id, c.nom AS culte_nom
+               FROM presences p
+               JOIN cultes c ON c.id = p.culte_id
+              WHERE p.user_id = ? AND p.culte_id IN ($placeholders)
+              ORDER BY p.date_presence DESC, p.id DESC",
+            [$userId, ...$culteIds]
+        );
+    }
+
+    /** Supprime une présence précise, bornée à son propriétaire (jamais une suppression libre par id). */
+    public function deleteById(int $id, int $userId): void
+    {
+        Query::run('DELETE FROM presences WHERE id = ? AND user_id = ?', [$id, $userId]);
+    }
+
     public function insert(int $userId, string $date, array $columns): void
     {
         $cols = implode(', ', array_keys($columns));

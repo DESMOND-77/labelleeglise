@@ -87,6 +87,6 @@ class AdminSiteController extends Controller
         $content = view('pages/admin_site_shell', $data + [
             'content' => view($view, $data),
         ]);
-        render_page(SECTION_LABELS['site_public'] . ' - ' . self::TAB_LABELS[$tab], $content);
+        render_page(SECTION_LABELS['site_public'] . ' - ' . (self::TAB_LABELS[$tab] ?? self::TAB_LABELS['centres']), $content);
     }
 }

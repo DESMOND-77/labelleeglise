@@ -45,27 +45,27 @@ if (($mode ?? 'list') === 'fiche'):
     <?= $csrf ?>
     <?php if (!empty($e['id'])): ?><input type="hidden" name="id" value="<?= (int) $e['id'] ?>"><?php endif; ?>
     <div class="form-group">
-      <label>Nom de l'événement</label>
-      <input type="text" name="nom" value="<?= $val('nom') ?>" required>
+      <label for="evtNom">Nom de l'événement</label>
+      <input id="evtNom" type="text" name="nom" value="<?= $val('nom') ?>" required>
       <?php if (!empty($errors['nom'])): ?><span class="form-error"><?= h($errors['nom']) ?></span><?php endif; ?>
     </div>
     <div class="form-grid">
       <div class="form-group">
-        <label>Début</label>
-        <input type="datetime-local" name="date_debut" value="<?= h($old['date_debut'] ?? (!empty($e['date_debut']) ? date('Y-m-d\TH:i', strtotime((string) $e['date_debut'])) : '')) ?>" required>
+        <label for="evtDebut">Début</label>
+        <input id="evtDebut" type="datetime-local" name="date_debut" value="<?= h($old['date_debut'] ?? (!empty($e['date_debut']) ? date('Y-m-d\TH:i', strtotime((string) $e['date_debut'])) : '')) ?>" required>
         <?php if (!empty($errors['date_debut'])): ?><span class="form-error"><?= h($errors['date_debut']) ?></span><?php endif; ?>
       </div>
       <div class="form-group">
-        <label>Fin (facultatif)</label>
-        <input type="datetime-local" name="date_fin" value="<?= h($old['date_fin'] ?? (!empty($e['date_fin']) ? date('Y-m-d\TH:i', strtotime((string) $e['date_fin'])) : '')) ?>">
+        <label for="evtFin">Fin (facultatif)</label>
+        <input id="evtFin" type="datetime-local" name="date_fin" value="<?= h($old['date_fin'] ?? (!empty($e['date_fin']) ? date('Y-m-d\TH:i', strtotime((string) $e['date_fin'])) : '')) ?>">
         <?php if (!empty($errors['date_fin'])): ?><span class="form-error"><?= h($errors['date_fin']) ?></span><?php endif; ?>
       </div>
     </div>
     <div class="form-grid">
-      <div class="form-group"><label>Lieu</label><input type="text" name="lieu" value="<?= $val('lieu') ?>"></div>
+      <div class="form-group"><label for="evtLieu">Lieu</label><input id="evtLieu" type="text" name="lieu" value="<?= $val('lieu') ?>"></div>
       <div class="form-group">
-        <label>Responsable</label>
-        <select name="responsable_id">
+        <label for="evtResp">Responsable</label>
+        <select id="evtResp" name="responsable_id">
           <option value="">-</option>
           <?php foreach ($responsables as $r): ?>
             <option value="<?= (int) $r['id'] ?>" <?= (int) ($old['responsable_id'] ?? ($e['responsable_id'] ?? 0)) === (int) $r['id'] ? 'selected' : '' ?>><?= h(trim($r['prenom'] . ' ' . $r['nom'])) ?></option>

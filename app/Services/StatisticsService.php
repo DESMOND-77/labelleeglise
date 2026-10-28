@@ -32,8 +32,6 @@ class StatisticsService
                 return $this->attendance->countDistinctForCultes();
             case 'basontas':
                 return $this->attendance->countDistinctForBasontas();
-            case 'nouveaux':
-                return $this->users->countNew();
             case 'bergers':
                 return $this->users->countByRoleIn(BERGER_ROLES);
             default:
@@ -70,8 +68,6 @@ class StatisticsService
                 return (int) Query::value('SELECT COUNT(DISTINCT p.user_id) FROM presences p JOIN users u ON u.id = p.user_id WHERE p.culte_id IS NOT NULL AND u.created_at < ?', [$end]);
             case 'basontas':
                 return (int) Query::value('SELECT COUNT(DISTINCT ub.user_id) FROM users_basontas ub JOIN users u ON u.id = ub.user_id WHERE u.created_at < ?', [$end]);
-            case 'nouveaux':
-                return (int) Query::value('SELECT COUNT(*) FROM users WHERE (recu_par IS NOT NULL OR date_recu IS NOT NULL OR invite_par IS NOT NULL) AND created_at < ?', [$end]);
             case 'bergers': {
                 $roles = implode(',', array_map(fn($r) => \App\Core\Database::connection()->quote($r), BERGER_ROLES));
                 return (int) Query::value("SELECT COUNT(*) FROM users WHERE role IN ($roles) AND created_at < ?", [$end]);

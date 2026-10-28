@@ -78,6 +78,12 @@ if ($user && !$isAdmin && auth_can_manage_any_centre()) {
     $navLis[] = '<li><a class="nav-item' . ($page === 'budgetBus' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'budgetBus'])) . '"><span class="ico">' . SECTION_ICONS['budgetBus'] . '</span><span class="label">' . h(SECTION_LABELS['budgetBus']) . '</span></a></li>';
 }
 
+// Nouveaux membres : lien pour berger/MS/pasteur/révérend non-admin
+// (l'admin l'a déjà via la boucle NAV_ORDER).
+if ($user && !$isAdmin && auth_can_manage_nouveaux_membres()) {
+    $navLis[] = '<li><a class="nav-item' . ($page === 'nouveaux_membres' || $page === 'nouveau_membre' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'nouveaux_membres'])) . '"><span class="ico">' . SECTION_ICONS['nouveaux_membres'] . '</span><span class="label">' . h(SECTION_LABELS['nouveaux_membres']) . '</span></a></li>';
+}
+
 /* ---------- Inscriptions en attente (admin) ---------- */
 $pendingRegistrationsCount = 0;
 if ($isAdmin) {
@@ -155,13 +161,13 @@ if (in_array($page, ['bacentas', 'cultes', 'basontas'], true) && nav('id')) {
 <title><?= h($title) ?> - <?= h(APP_NAME) ?></title>
 <!-- Espace de gestion interne (session requise) : jamais indexé. -->
 <meta name="robots" content="noindex, nofollow">
-<link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96x96.png">
-<link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml" sizes="any">
-<link rel="icon" href="assets/images/favicon.ico">
-<link rel="apple-touch-icon" href="assets/images/apple-touch-icon.png">
-<link rel="manifest" href="assets/images/site.webmanifest">
-<meta name="theme-color" content="#4F46E5" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/png" sizes="96x96" href="<?= h(asset('assets/images/favicon-96x96.png')) ?>">
+<link rel="icon" href="<?= h(asset('assets/images/favicon.svg')) ?>" type="image/svg+xml" sizes="any">
+<link rel="icon" href="<?= h(asset('assets/images/favicon.ico')) ?>">
+<link rel="apple-touch-icon" href="<?= h(asset('assets/images/apple-touch-icon.png')) ?>">
+<link rel="manifest" href="<?= h(asset('assets/images/site.webmanifest')) ?>">
+<meta name="theme-color" content="#0B1020" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0B1020" media="(prefers-color-scheme: dark)">
 
 <?php
 // Cache-busting : l'hébergeur/le navigateur gardent app.css (et ses @import) en cache.
@@ -182,7 +188,7 @@ foreach (glob(__DIR__ . '/../../assets/css/*.css') ?: [] as $cssFile) {
       <i class="fa-solid fa-chevron-left"></i>
     </button>
     <div class="brand">
-      <div class="brand-logo"><img src="/assets/images/logo.png" alt="La Belle Église Intenationale Franceville"></div>
+      <div class="brand-logo"><img src="<?= h(asset('assets/images/logo.png')) ?>" alt="La Belle Église Intenationale Franceville"></div>
       <div class="brand-text">
         <strong><?= h(APP_NAME) ?></strong>
         <span><?= h(APP_LOCATION) ?></span>

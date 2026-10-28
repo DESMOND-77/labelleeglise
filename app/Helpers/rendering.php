@@ -69,16 +69,54 @@ function tab_row(array $tabs, string $active): string
     return $html . '</div>';
 }
 
+/**
+ * Assombrit une couleur #rrggbb jusqu'à atteindre le ratio de contraste demandé
+ * sur fond blanc (3:1 = grand texte WCAG AA). Teinte conservée, la couleur
+ * d'origine est renvoyée telle quelle si elle suffit déjà.
+ */
+function readable_color(string $hex, float $minRatio = 3.0): string
+{
+    if (preg_match('/^#([0-9a-f]{6})$/i', $hex, $m) !== 1) {
+        return $hex;
+    }
+    $rgb = [hexdec(substr($m[1], 0, 2)), hexdec(substr($m[1], 2, 2)), hexdec(substr($m[1], 4, 2))];
+    $luminance = static function (array $c): float {
+        $lin = static fn(int $v): float => ($v / 255) <= 0.03928 ? ($v / 255) / 12.92 : ((($v / 255) + 0.055) / 1.055) ** 2.4;
+        return 0.2126 * $lin($c[0]) + 0.7152 * $lin($c[1]) + 0.0722 * $lin($c[2]);
+    };
+    for ($step = 0; $step <= 20; $step++) {
+        $k = 1 - $step * 0.05;
+        $c = array_map(static fn(int $v): int => (int) round($v * $k), $rgb);
+        if (1.05 / ($luminance($c) + 0.05) >= $minRatio) {
+            return sprintf('#%02x%02x%02x', $c[0], $c[1], $c[2]);
+        }
+    }
+    return '#000000';
+}
+
 function stat_card(string $label, string $value, string $color, string $sub = ''): string
 {
     return '<div class="stat-card"><div class="stat-top"><span class="stat-label">' . h($label) . '</span></div>' .
-           '<div class="stat-value" style="color:' . h($color) . '">' . $value . '</div>' .
+           '<div class="stat-value" style="color:' . h(readable_color($color)) . '">' . $value . '</div>' .
            ($sub !== '' ? '<div class="stat-label">' . h($sub) . '</div>' : '') . '</div>';
 }
 
 function total_chip(string $label, string $value): string
 {
     return '<div class="total-chip"><span>' . h($label) . '</span><b>' . $value . '</b></div>';
+}
+
+/** Bouton « Paramètres » d'une carte d'entité : point d'entrée unique de sa configuration. */
+function settings_button(string $url): string
+{
+    return '<div class="card-actions"><a class="icon-btn" title="Paramètres" aria-label="Paramètres" href="' . h($url) . '"><i class="fa-solid fa-gear"></i></a></div>';
+}
+
+/** Bloc « Zone de danger » d'une page de paramètres : suppression de l'entité (admin uniquement). */
+function danger_zone(string $text, string $deleteUrl, string $confirm, string $label): string
+{
+    return '<div class="form-page"><div class="form-card danger-zone"><h3>Zone de danger</h3><p class="form-hint">' . h($text) . '</p>'
+        . '<a class="btn btn-danger" data-confirm="' . h($confirm) . '" href="' . h($deleteUrl) . '"><i class="fa-solid fa-trash"></i> ' . h($label) . '</a></div></div>';
 }
 
 function add_button(string $label, array $params): string

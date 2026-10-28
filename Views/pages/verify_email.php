@@ -46,13 +46,13 @@ if ($copy === null) {
   <title>Vérification email - <?= h(APP_NAME) ?></title>
   <!-- Page fonctionnelle (consomme un jeton à usage unique) : jamais indexée. -->
   <meta name="robots" content="noindex, nofollow">
-  <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96x96.png">
-  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml" sizes="any">
-  <link rel="icon" href="assets/images/favicon.ico">
-  <link rel="apple-touch-icon" href="assets/images/apple-touch-icon.png">
-  <link rel="manifest" href="assets/images/site.webmanifest">
-  <meta name="theme-color" content="#4F46E5" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
+  <link rel="icon" type="image/png" sizes="96x96" href="<?= h(asset('assets/images/favicon-96x96.png')) ?>">
+  <link rel="icon" href="<?= h(asset('assets/images/favicon.svg')) ?>" type="image/svg+xml" sizes="any">
+  <link rel="icon" href="<?= h(asset('assets/images/favicon.ico')) ?>">
+  <link rel="apple-touch-icon" href="<?= h(asset('assets/images/apple-touch-icon.png')) ?>">
+  <link rel="manifest" href="<?= h(asset('assets/images/site.webmanifest')) ?>">
+  <meta name="theme-color" content="#0B1020" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0B1020" media="(prefers-color-scheme: dark)">
   <link rel="stylesheet" href="assets/css/app.css">
   <link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
 </head>
@@ -60,7 +60,7 @@ if ($copy === null) {
 <body>
   <div class="login-screen" id="loginScreen">
     <div class="login-card register-result-card">
-      <div class="login-logo"><img src="/assets/images/logo.png" alt="<?= h(APP_NAME) ?>"></div>
+      <div class="login-logo"><img src="<?= h(asset('assets/images/logo.png')) ?>" alt="<?= h(APP_NAME) ?>"></div>
       <div class="result-icon <?= h($copy['class']) ?>"><i class="<?= h($copy['icon']) ?>"></i></div>
       <h1><?= h($copy['title']) ?></h1>
       <p class="login-sub"><?= $copy['text'] ?></p>

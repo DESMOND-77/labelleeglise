@@ -56,7 +56,7 @@ define('SECTION_LABELS', [
     'centres'            => 'Centres',
     'cultes'             => 'Cultes',
     'basontas'           => 'Basontas',
-    // 'nouveaux'           => 'Nouveaux membres',
+    'nouveaux_membres'   => 'Nouveaux membres',
     'generale'           => 'Liste générale des membres',
     'bergers'            => 'Liste des bergers',
     'suiviBergers'       => 'Suivi Hebdo. des Bergers',
@@ -84,7 +84,7 @@ define('SECTION_ICONS', [
     'centres'            => '<i class="fa-solid fa-landmark"></i>',
     'cultes'             => '<i class="fa-solid fa-hands-praying"></i>',
     'basontas'           => '<i class="fa-solid fa-microphone"></i>',
-    // 'nouveaux'           => '<i class="fa-solid fa-star"></i>',
+    'nouveaux_membres'   => '<i class="fa-solid fa-user-plus"></i>',
     'generale'           => '<i class="fa-solid fa-clipboard-list"></i>',
     'bergers'            => '<i class="fa-solid fa-people-roof"></i>',
     'suiviBergers'       => '<i class="fa-solid fa-calendar-days"></i>',
@@ -111,6 +111,16 @@ define('ACCOUNT_STATUS_LABELS', [
 define('NOTIFICATION_TYPE_ICONS', [
     'new_registration' => '<i class="fa-solid fa-user-plus"></i>',
     'account_activated' => '<i class="fa-solid fa-circle-check"></i>',
+    'rapport_jour' => '<i class="fa-solid fa-file-lines"></i>',
+]);
+
+/* ---------- Nouveaux membres (suivi pré-intégration) ---------- */
+
+define('NOUVEAU_MEMBRE_STATUT_LABELS', [
+    'nouveau'          => 'Nouveau',
+    'en_suivi'         => 'En suivi',
+    'pret_integration' => 'Prêt pour intégration',
+    'integre'          => 'Intégré',
 ]);
 
 // "apropos" doit rester en toute première position du menu (exigence produit).
@@ -122,7 +132,7 @@ define('NAV_ORDER', [
     'centres',
     'cultes',
     'basontas',
-    // 'nouveaux',
+    'nouveaux_membres',
     'generale',
     'bergers',
     'suiviBergers',
@@ -188,24 +198,22 @@ define('CLASSES_CURSUS', [
 define('EXAM_STATUTS', ['non_passe' => 'Non passé', 'reussi' => 'Réussi', 'echoue' => 'Échoué']);
 
 define('SECTION_EXTRA_FIELDS', [
-    'nouveaux' => ['invite_par', 'recu_par', 'date_recu'],
     'generale' => ['invite_par', 'recu_par', 'date_recu'],
 ]);
 
 define('CHART_POLES', [
-    ['key' => 'bacentas', 'label' => 'Bacentas',               'color' => '#4F46E5'],
-    ['key' => 'centres',  'label' => 'Centres',                'color' => '#6366F1'],
-    ['key' => 'cultes',   'label' => 'Cultes',                 'color' => '#2563EB'],
-    ['key' => 'basontas', 'label' => 'Basontas',               'color' => '#22C55E'],
-    // ['key' => 'nouveaux', 'label' => 'Nouveaux membres',       'color' => '#F59E0B'],
-    ['key' => 'generale', 'label' => 'Liste générale des membres', 'color' => '#EF4444'],
-    ['key' => 'bergers',  'label' => 'Liste des bergers',      'color' => '#8B5CF6'],
+    ['key' => 'bacentas', 'label' => 'Bacentas',               'color' => '#C9A84C'],
+    ['key' => 'centres',  'label' => 'Centres',                'color' => '#2B3A67'],
+    ['key' => 'cultes',   'label' => 'Cultes',                 'color' => '#2F7F79'],
+    ['key' => 'basontas', 'label' => 'Basontas',               'color' => '#5E8C4A'],
+    ['key' => 'generale', 'label' => 'Liste générale des membres', 'color' => '#B4533C'],
+    ['key' => 'bergers',  'label' => 'Liste des bergers',      'color' => '#7A4B7A'],
 ]);
 
 define('SLIDES', [
-    ['gradient' => 'linear-gradient(135deg,#4F46E5,#6366F1)', 'title' => 'Bienvenue à La Belle Église Intenationale Franceville', 'subtitle' => 'Ensemble, grandissons dans la foi et la communion fraternelle.'],
-    ['gradient' => 'linear-gradient(135deg,#22C55E,#4F46E5)', 'title' => 'Une famille unie', 'subtitle' => 'Chaque bacenta, chaque centre, chaque basonta compte.'],
-    ['gradient' => 'linear-gradient(135deg,#2563EB,#8B5CF6)', 'title' => 'Accueillons les nouveaux membres', 'subtitle' => 'Chaque visage est important à nos yeux.'],
+    ['gradient' => 'linear-gradient(135deg,#0B1020,#1E2438)', 'title' => 'Bienvenue à La Belle Église Intenationale Franceville', 'subtitle' => 'Ensemble, grandissons dans la foi et la communion fraternelle.'],
+    ['gradient' => 'linear-gradient(135deg,#1E2438,#7C5F1F)', 'title' => 'Une famille unie', 'subtitle' => 'Chaque bacenta, chaque centre, chaque basonta compte.'],
+    ['gradient' => 'linear-gradient(135deg,#141A2E,#2B3A67)', 'title' => 'Accueillons les nouveaux membres', 'subtitle' => 'Chaque visage est important à nos yeux.'],
 ]);
 
 define('OFFERING_DAY_LABEL', ['bacentas' => 'Vendredi', 'centres' => 'Mercredi']);
@@ -226,7 +234,7 @@ define('SUIVI_FIELDS', [
     ['key' => 'livre',          'label' => 'Livre lu', 'type' => 'text'],
     ['key' => 'themeEveque',    'label' => 'Thème - Prédication de l\'Évêque écoutée', 'type' => 'text'],
     ['key' => 'themeReverend',  'label' => 'Thème - Prédication du Révérend écoutée', 'type' => 'text'],
-    ['key' => 'visites',        'label' => 'Personne(s) visitée(s) en semaine', 'type' => 'text'],
+    ['key' => 'visites',        'label' => 'Personne(s) visitée(s) en semaine', 'type' => 'textarea', 'semicolonList' => true],
     ['key' => 'invitesDimanche', 'label' => 'Personne(s) invitée(s) pour dimanche', 'type' => 'textarea', 'semicolonList' => true],
     ['key' => 'invitesApres',   'label' => 'Invité(s) après le culte / deep sea fishing', 'type' => 'textarea', 'sundayOnly' => false],
     ['key' => 'mixlr',        'label' => 'Diffusion Mixlr (lien ou statut)', 'type' => 'text', 'sundayOnly' => false],

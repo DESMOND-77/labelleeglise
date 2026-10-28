@@ -12,25 +12,25 @@ $val = fn($k, $d = '') => h($old[$k] ?? ($e[$k] ?? $d));
   <?= $csrf ?>
   <?php if (!empty($e['id'])): ?><input type="hidden" name="id" value="<?= (int) $e['id'] ?>"><?php endif; ?>
   <div class="form-group">
-    <label>Nom de la classe</label>
-    <input type="text" name="nom" value="<?= $val('nom') ?>" required>
+    <label for="classeNom">Nom de la classe</label>
+    <input id="classeNom" type="text" name="nom" value="<?= $val('nom') ?>" required>
     <?php if (!empty($errors['nom'])): ?><span class="form-error"><?= h($errors['nom']) ?></span><?php endif; ?>
   </div>
   <div class="form-grid">
     <div class="form-group">
-      <label>Formateur</label>
-      <select name="formateur_id">
+      <label for="classeFormateur">Formateur</label>
+      <select id="classeFormateur" name="formateur_id">
         <option value="">-</option>
         <?php foreach ($formateurs as $f): ?>
           <option value="<?= (int) $f['id'] ?>" <?= (int) ($old['formateur_id'] ?? ($e['formateur_id'] ?? 0)) === (int) $f['id'] ? 'selected' : '' ?>><?= h(trim($f['prenom'] . ' ' . $f['nom'])) ?></option>
         <?php endforeach; ?>
       </select>
     </div>
-    <div class="form-group"><label>Ordre de progression</label><input type="number" name="ordre" min="0" value="<?= $val('ordre', '0') ?>"></div>
-    <div class="form-group"><label>Nombre de modules</label><input type="number" name="nb_modules" min="1" value="<?= $val('nb_modules', '1') ?>">
+    <div class="form-group"><label for="classeOrdre">Ordre de progression</label><input id="classeOrdre" type="number" name="ordre" min="0" value="<?= $val('ordre', '0') ?>"></div>
+    <div class="form-group"><label for="classeModules">Nombre de modules</label><input id="classeModules" type="number" name="nb_modules" min="1" value="<?= $val('nb_modules', '1') ?>">
       <?php if (!empty($errors['nb_modules'])): ?><span class="form-error"><?= h($errors['nb_modules']) ?></span><?php endif; ?>
     </div>
-    <div class="form-group"><label>Prochaine session</label><input type="date" name="prochaine_session" value="<?= $val('prochaine_session') ?>">
+    <div class="form-group"><label for="classeSession">Prochaine session</label><input id="classeSession" type="date" name="prochaine_session" value="<?= $val('prochaine_session') ?>">
       <?php if (!empty($errors['prochaine_session'])): ?><span class="form-error"><?= h($errors['prochaine_session']) ?></span><?php endif; ?>
     </div>
     <div class="form-group"><label class="check-label"><input type="checkbox" name="actif" value="1" <?= !empty($old) ? (!empty($old['actif']) ? 'checked' : '') : (!isset($e['actif']) || $e['actif'] ? 'checked' : '') ?>> Classe active</label></div>

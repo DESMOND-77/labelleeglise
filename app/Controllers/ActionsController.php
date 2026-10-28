@@ -238,7 +238,10 @@ class ActionsController extends Controller
                 if ($id) {
                     delete_article_record($id);
                 }
-                $this->redirect('index.php', ['page' => 'centresPresentation']);
+                $centreId = (int) ($_GET['centre'] ?? 0);
+                $this->redirect('index.php', $centreId
+                    ? ['page' => 'centres', 'form' => 'centre', 'id' => $centreId]
+                    : ['page' => 'centres']);
                 break;
 
             case 'basonta_remove_member':
@@ -411,7 +414,8 @@ class ActionsController extends Controller
                 }
                 if ($nom !== '') {
                     $bacentaIds = array_values(array_unique(array_filter(array_map('intval', (array) ($_POST['bacenta_ids'] ?? [])), static fn($v) => $v > 0)));
-                    save_culte($id ?: null, $nom, $date, $debut, $fin, null, $this->scheduleDaysFromPost(), $bacentaIds);
+                    $isCulteDimanche = !empty($_POST['is_culte_dimanche']);
+                    save_culte($id ?: null, $nom, $date, $debut, $fin, null, $this->scheduleDaysFromPost(), $bacentaIds, $isCulteDimanche);
                 }
                 $this->redirect('index.php', ['page' => 'cultes']);
                 break;
@@ -504,12 +508,9 @@ class ActionsController extends Controller
                         $this->deny();
                     }
                 } else {
-                    $createAuthorized = $user['role'] === 'admin'
-                        || ($section === 'bacentas' && $entityId && auth_can_manage_bacenta($entityId))
-                        || ($section === 'centres' && $entityId && auth_can_manage_center($entityId));
-                    if (!$createAuthorized) {
-                        $this->deny();
-                    }
+                    // Création réservée à l'onglet « Nouveaux membres » (save_nouveau_membre) :
+                    // un membre n'entre dans la liste générale qu'après 3 dimanches.
+                    $this->redirect('index.php', ['page' => 'nouveau_membre', 'form' => 1]);
                 }
 
                 $data = user_data_from_post($id ?: null);
@@ -560,6 +561,31 @@ class ActionsController extends Controller
             case 'save_user': {
                 $this->requireAdmin();
                 $id = (int) ($_POST['id'] ?? 0);
+
+                if (!$id) {
+                    // Création de compte : uniquement à partir d'un membre existant sans compte.
+                    $membreId = (int) ($_POST['membre_id'] ?? 0);
+                    $email = mb_strtolower(trim((string) ($_POST['email'] ?? '')));
+                    $password = (string) ($_POST['password'] ?? '');
+                    $role = (string) ($_POST['role'] ?? 'membre');
+                    $users = _repo(\App\Repositories\UserRepository::class);
+                    if (!$membreId || !$users->hasNoAccount($membreId) || $password === ''
+                        || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                        $this->redirect('index.php', ['page' => 'parametres', 'form' => 'user', 'error' => 2]);
+                    }
+                    if (email_taken($email)) {
+                        $this->redirect('index.php', ['page' => 'parametres', 'form' => 'user', 'error' => 1]);
+                    }
+                    $users->grantAccount(
+                        $membreId,
+                        $email,
+                        password_hash($password, PASSWORD_DEFAULT),
+                        array_key_exists($role, ROLE_LABELS) ? $role : 'membre',
+                        isset($_POST['compte_actif']) ? 1 : 0
+                    );
+                    $this->redirect('index.php', ['page' => 'parametres', 'param_tab' => 'comptes']);
+                }
+
                 $data = user_data_from_post($id ?: null);
                 // Le rôle soumis doit être un rôle actif réellement
                 // sélectionnable (jamais 'responsable', jamais une valeur
@@ -788,6 +814,88 @@ class ActionsController extends Controller
                 break;
             }
 
+            /* ---------- Nouveaux membres ---------- */
+
+            case 'save_nouveau_membre': {
+                $user = $this->requireUser();
+                if (!auth_can_manage_nouveaux_membres()) {
+                    $this->deny();
+                }
+                $res = nouveau_membre_service()->register($_POST);
+                if (!$res['ok']) {
+                    $this->redirect('index.php', ['page' => 'nouveau_membre', 'form' => 1, 'error' => $res['error']]);
+                }
+                $this->redirect('index.php', ['page' => 'nouveau_membre', 'id' => $res['id']]);
+                break;
+            }
+
+            case 'assign_nouveau_membre': {
+                // Attribution/réattribution : réservée aux administrateurs (décision produit).
+                $user = $this->requireAdmin();
+                $nmId = (int) ($_POST['nouveau_membre_id'] ?? 0);
+                $responsableId = (int) ($_POST['responsable_id'] ?? 0) ?: null;
+                nouveau_membre_service()->assignResponsable($nmId, $responsableId, (int) $user['id']);
+                $this->redirect('index.php', ['page' => 'nouveau_membre', 'id' => $nmId]);
+                break;
+            }
+
+            case 'save_nouveau_membre_presence': {
+                $user = $this->requireUser();
+                $nmId = (int) ($_POST['nouveau_membre_id'] ?? 0);
+                $svc = nouveau_membre_service();
+                $nm = $nmId ? $svc->dossier($nmId) : null;
+                $isAdmin = ($user['role'] ?? '') === 'admin';
+                if (!$nm || (!$isAdmin && (int) ($nm['responsable_id'] ?? 0) !== (int) $user['id'])) {
+                    $this->deny();
+                }
+                $date = trim((string) ($_POST['date'] ?? '')) ?: date('Y-m-d');
+                $svc->recordPresence($nmId, $date, (int) $user['id']);
+                $this->redirect('index.php', ['page' => 'nouveau_membre', 'id' => $nmId]);
+                break;
+            }
+
+            case 'save_nouveaux_membres_pointage': {
+                // Pointage en masse (liste à cocher) - réutilise
+                // NouveauMembreService::pointAllForDate(), qui revalide
+                // chaque id soumis contre les attributions réelles pour un
+                // non-admin (jamais de confiance dans la liste du client).
+                $user = $this->requireUser();
+                if (!auth_can_manage_nouveaux_membres()) {
+                    $this->deny();
+                }
+                $isAdmin = ($user['role'] ?? '') === 'admin';
+                $date = trim((string) ($_POST['date'] ?? '')) ?: date('Y-m-d');
+                $ids = array_values(array_unique(array_filter(
+                    array_map('intval', (array) ($_POST['present_ids'] ?? [])),
+                    static fn($v) => $v > 0
+                )));
+                $results = nouveau_membre_service()->pointAllForDate($date, $ids, (int) $user['id'], $isAdmin ? null : (int) $user['id']);
+                $params = ['page' => 'nouveaux_membres', 'pointage' => 1, 'date' => $date];
+                $errors = array_unique(array_column(array_filter($results, static fn($r) => empty($r['ok'])), 'error'));
+                if ($errors) {
+                    $params['error'] = (string) reset($errors);
+                } else {
+                    $params['saved'] = count($results);
+                }
+                $this->redirect('index.php', $params);
+                break;
+            }
+
+            case 'cancel_nouveau_membre_presence': {
+                $user = $this->requireUser();
+                $nmId = (int) ($_POST['nouveau_membre_id'] ?? 0);
+                $presenceId = (int) ($_POST['presence_id'] ?? 0);
+                $svc = nouveau_membre_service();
+                $nm = $nmId ? $svc->dossier($nmId) : null;
+                $isAdmin = ($user['role'] ?? '') === 'admin';
+                if (!$nm || (!$isAdmin && (int) ($nm['responsable_id'] ?? 0) !== (int) $user['id'])) {
+                    $this->deny();
+                }
+                $svc->cancelPresence($nmId, $presenceId, (int) $user['id']);
+                $this->redirect('index.php', ['page' => 'nouveau_membre', 'id' => $nmId]);
+                break;
+            }
+
             /* ---------- Classes / Écoles (M6) ---------- */
 
             case 'save_classe': {
@@ -970,6 +1078,23 @@ class ActionsController extends Controller
                 break;
             }
 
+            case 'save_suivi_observation': {
+                // Observation de l'administration : écriture réservée à l'admin
+                // (lecture déjà ouverte aux bergers/MS/pasteur/révérend via la
+                // page suiviBergers elle-même) - contrôle serveur, pas seulement
+                // un bouton masqué côté vue.
+                $user = $this->requireAdmin();
+                $membre = (int) ($_POST['membre'] ?? 0);
+                $semaine = (string) ($_POST['semaine'] ?? current_week_key());
+                if (!$membre) {
+                    $this->deny();
+                }
+                $observation = trim((string) ($_POST['observation'] ?? ''));
+                save_suivi_observation($membre, $semaine, $observation, (int) $user['id']);
+                $this->redirect('index.php', ['page' => 'suiviBergers', 'membre' => $membre, 'semaine' => $semaine]);
+                break;
+            }
+
             /* ---------- Responsabilités (nouveau modèle - remplace l'ancien save_responsable ad hoc) ---------- */
 
             case 'assign_responsibility': {
@@ -1099,7 +1224,7 @@ class ActionsController extends Controller
                 $id = (int) ($_POST['id'] ?? 0);
                 $centreId = (int) ($_POST['centre_id'] ?? 0);
                 if (!$centreId) {
-                    $this->redirect('index.php', ['page' => 'centresPresentation']);
+                    $this->redirect('index.php', ['page' => 'centres']);
                 }
                 $photo = handle_photo_upload('photo');
                 $objectifs = json_encode(
@@ -1121,7 +1246,7 @@ class ActionsController extends Controller
                     'photo' => $photo,
                 ];
                 save_article_record($id ?: null, $fields);
-                $this->redirect('index.php', ['page' => 'centresPresentation']);
+                $this->redirect('index.php', ['page' => 'centres', 'form' => 'centre', 'id' => $centreId]);
                 break;
 
             /* ---------- Administration des inscriptions ---------- */

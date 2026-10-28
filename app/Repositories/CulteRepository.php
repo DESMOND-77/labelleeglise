@@ -31,19 +31,28 @@ class CulteRepository
     }
 
     /** $resp accepté pour compatibilité mais IGNORÉ - voir BacentaRepository::create(). */
-    public function create(string $nom, ?string $date, ?string $debut, ?string $fin, ?int $resp = null, ?string $jours = null, array $bacentaIds = []): int
+    public function create(string $nom, ?string $date, ?string $debut, ?string $fin, ?int $resp = null, ?string $jours = null, array $bacentaIds = [], bool $isCulteDimanche = false): int
     {
-        $id = Query::run('INSERT INTO cultes (nom, date_culte, jours_semaine, heure_debut, heure_fin) VALUES (?, ?, ?, ?, ?)',
-            [$nom, $date, $jours, $debut, $fin]);
+        $id = Query::run('INSERT INTO cultes (nom, date_culte, jours_semaine, heure_debut, heure_fin, is_culte_dimanche) VALUES (?, ?, ?, ?, ?, ?)',
+            [$nom, $date, $jours, $debut, $fin, $isCulteDimanche ? 1 : 0]);
         $this->syncBacentas($id, $bacentaIds);
         return $id;
     }
 
-    public function update(int $id, string $nom, ?string $date, ?string $debut, ?string $fin, ?int $resp = null, ?string $jours = null, array $bacentaIds = []): void
+    public function update(int $id, string $nom, ?string $date, ?string $debut, ?string $fin, ?int $resp = null, ?string $jours = null, array $bacentaIds = [], bool $isCulteDimanche = false): void
     {
-        Query::run('UPDATE cultes SET nom = ?, date_culte = ?, jours_semaine = ?, heure_debut = ?, heure_fin = ? WHERE id = ?',
-            [$nom, $date, $jours, $debut, $fin, $id]);
+        Query::run('UPDATE cultes SET nom = ?, date_culte = ?, jours_semaine = ?, heure_debut = ?, heure_fin = ?, is_culte_dimanche = ? WHERE id = ?',
+            [$nom, $date, $jours, $debut, $fin, $isCulteDimanche ? 1 : 0, $id]);
         $this->syncBacentas($id, $bacentaIds);
+    }
+
+    /** Identifiants des cultes marqués "culte du dimanche" (suivi des nouveaux membres). */
+    public function sundayCulteIds(): array
+    {
+        return array_map(
+            static fn($r) => (int) $r['id'],
+            Query::all('SELECT id FROM cultes WHERE is_culte_dimanche = 1')
+        );
     }
 
     /** Bacentas configurés pour ce culte. */

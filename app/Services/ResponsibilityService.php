@@ -16,7 +16,7 @@ use App\Repositories\UserRepository;
  */
 class ResponsibilityService
 {
-    /** target_type => [table SQL, rôles éligibles à RECEVOIR cette responsabilité]. */
+    /** target_type => table SQL à vérifier pour l'existence de la cible. */
     private const TARGET_TABLES = [
         'center'  => 'centres',
         'bacenta' => 'bacentas',
@@ -24,6 +24,14 @@ class ResponsibilityService
         'basonta' => 'basontas',
         'classe'  => 'classes',
     ];
+
+    /**
+     * Cibles "singleton" (section applicative entière, pas une ligne SQL) :
+     * un seul target_id sentinelle (1) représente "l'onglet" tout entier.
+     * Évite d'inventer une table/ligne fictive juste pour porter une
+     * permission de section (voir auth_can_manage_nouveaux_membres()).
+     */
+    private const SINGLETON_TARGETS = ['nouveaux_membres' => 1];
 
     private ResponsibilityRepository $repo;
     private UserRepository $users;
@@ -41,13 +49,14 @@ class ResponsibilityService
             'center', 'bacenta', 'basonta' => CENTER_BACENTA_RESPONSIBILITY_ROLES,
             'classe' => ['berger', 'ms', 'pasteur', 'reverant'],
             'cult' => CULT_RESPONSIBILITY_ROLES,
+            'nouveaux_membres' => BERGER_ROLES,
             default => [],
         };
     }
 
     public function isKnownTargetType(string $targetType): bool
     {
-        return isset(self::TARGET_TABLES[$targetType]);
+        return isset(self::TARGET_TABLES[$targetType]) || isset(self::SINGLETON_TARGETS[$targetType]);
     }
 
     private function targetTable(string $targetType): ?string
@@ -57,11 +66,20 @@ class ResponsibilityService
 
     public function targetExists(string $targetType, int $targetId): bool
     {
+        if (isset(self::SINGLETON_TARGETS[$targetType])) {
+            return $targetId === self::SINGLETON_TARGETS[$targetType];
+        }
         $table = $this->targetTable($targetType);
         if (!$table) {
             return false;
         }
         return (bool) Query::value("SELECT COUNT(*) FROM `$table` WHERE id = ?", [$targetId]);
+    }
+
+    /** Accès direct à l'onglet "Nouveaux membres" (section entière, cible singleton). */
+    public function isResponsibleForNouveauxMembres(int $userId): bool
+    {
+        return $this->repo->isResponsibleFor($userId, 'nouveaux_membres', self::SINGLETON_TARGETS['nouveaux_membres']);
     }
 
     /**

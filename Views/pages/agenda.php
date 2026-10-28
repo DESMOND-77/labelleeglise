@@ -125,27 +125,27 @@ $renderPanel = static function (array $detail) {
       <?= $csrf ?>
       <h3>Nouvel événement</h3>
       <div class="form-group">
-        <label>Nom de l'événement</label>
-        <input type="text" name="nom" value="<?= $val('nom') ?>" required>
+        <label for="evtNom">Nom de l'événement</label>
+        <input id="evtNom" type="text" name="nom" value="<?= $val('nom') ?>" required>
         <?php if (!empty($errors['nom'])): ?><span class="form-error"><?= h($errors['nom']) ?></span><?php endif; ?>
       </div>
       <div class="form-grid">
         <div class="form-group">
-          <label>Début</label>
-          <input type="datetime-local" name="date_debut" value="<?= h($old['date_debut'] ?? '') ?>" required>
+          <label for="evtDebut">Début</label>
+          <input id="evtDebut" type="datetime-local" name="date_debut" value="<?= h($old['date_debut'] ?? '') ?>" required>
           <?php if (!empty($errors['date_debut'])): ?><span class="form-error"><?= h($errors['date_debut']) ?></span><?php endif; ?>
         </div>
         <div class="form-group">
-          <label>Fin (facultatif)</label>
-          <input type="datetime-local" name="date_fin" value="<?= h($old['date_fin'] ?? '') ?>">
+          <label for="evtFin">Fin (facultatif)</label>
+          <input id="evtFin" type="datetime-local" name="date_fin" value="<?= h($old['date_fin'] ?? '') ?>">
           <?php if (!empty($errors['date_fin'])): ?><span class="form-error"><?= h($errors['date_fin']) ?></span><?php endif; ?>
         </div>
       </div>
       <div class="form-grid">
-        <div class="form-group"><label>Lieu</label><input type="text" name="lieu" value="<?= $val('lieu') ?>"></div>
+        <div class="form-group"><label for="evtLieu">Lieu</label><input id="evtLieu" type="text" name="lieu" value="<?= $val('lieu') ?>"></div>
         <div class="form-group">
-          <label>Responsable</label>
-          <select name="responsable_id">
+          <label for="evtResp">Responsable</label>
+          <select id="evtResp" name="responsable_id">
             <option value="">-</option>
             <?php foreach ($responsables as $r): ?>
               <option value="<?= (int) $r['id'] ?>" <?= (int) ($old['responsable_id'] ?? 0) === (int) $r['id'] ? 'selected' : '' ?>><?= h(trim($r['prenom'] . ' ' . $r['nom'])) ?></option>
@@ -162,18 +162,18 @@ $renderPanel = static function (array $detail) {
       <h3>Nouvel anniversaire</h3>
       <div class="form-grid">
         <div class="form-group">
-          <label>Nom</label>
-          <input type="text" name="nom" value="<?= h($old['nom'] ?? '') ?>" required>
+          <label for="anivNom">Nom</label>
+          <input id="anivNom" type="text" name="nom" value="<?= h($old['nom'] ?? '') ?>" required>
           <?php if (!empty($errors['nom'])): ?><span class="form-error"><?= h($errors['nom']) ?></span><?php endif; ?>
         </div>
         <div class="form-group">
-          <label>Jour</label>
-          <input type="number" name="jour" min="1" max="31" value="<?= h($old['jour'] ?? '') ?>" required>
+          <label for="anivJour">Jour</label>
+          <input id="anivJour" type="number" name="jour" min="1" max="31" value="<?= h($old['jour'] ?? '') ?>" required>
           <?php if (!empty($errors['jour'])): ?><span class="form-error"><?= h($errors['jour']) ?></span><?php endif; ?>
         </div>
         <div class="form-group">
-          <label>Mois</label>
-          <select name="mois" required>
+          <label for="anivMois">Mois</label>
+          <select id="anivMois" name="mois" required>
             <option value="">-</option>
             <?php foreach ($monthsFr as $i => $m): ?>
               <option value="<?= $i + 1 ?>" <?= (int) ($old['mois'] ?? 0) === $i + 1 ? 'selected' : '' ?>><?= h($m) ?></option>
@@ -182,8 +182,8 @@ $renderPanel = static function (array $detail) {
           <?php if (!empty($errors['mois'])): ?><span class="form-error"><?= h($errors['mois']) ?></span><?php endif; ?>
         </div>
         <div class="form-group">
-          <label>Année (facultatif)</label>
-          <input type="number" name="annee" min="1900" max="<?= (int) date('Y') ?>" value="<?= h($old['annee'] ?? '') ?>">
+          <label for="anivAnnee">Année (facultatif)</label>
+          <input id="anivAnnee" type="number" name="annee" min="1900" max="<?= (int) date('Y') ?>" value="<?= h($old['annee'] ?? '') ?>">
           <?php if (!empty($errors['annee'])): ?><span class="form-error"><?= h($errors['annee']) ?></span><?php endif; ?>
         </div>
       </div>

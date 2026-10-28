@@ -827,6 +827,89 @@ function up(): void
             $pdo->exec($alterSql);
         }
     }
+
+    /* ---- 17. Nouveaux membres (suivi pré-intégration) -------------------
+     * Une nouvelle personne enregistrée via ce flux reste dans `users`
+     * (même id, mêmes colonnes nom/prenom/telephone/quartier/date_naissance/
+     * bacenta_id réutilisées) mais sans accès de connexion tant qu'elle n'est
+     * pas intégrée : `nouveaux_membres` est une table annexe 1:1 (user_id
+     * UNIQUE) qui porte le workflow (statut, responsable de suivi, date de
+     * première visite, observations, intégration). La liste générale des
+     * membres exclut toute ligne `users` ayant un `nouveaux_membres.statut`
+     * différent de 'integre' (voir MemberRepository::generale()) - les
+     * membres déjà existants (aucune ligne `nouveaux_membres`) ne sont
+     * jamais reclassés. `is_culte_dimanche` marque, parmi les cultes
+     * existants, celui/ceux comptant pour les 3 présences exigées avant
+     * intégration (présences stockées dans `presences`, table déjà
+     * existante, sans nouvelle colonne).
+     */
+    if (!column_exists($pdo, 'users', 'sexe')) {
+        $pdo->exec("ALTER TABLE users ADD COLUMN sexe ENUM('M','F') NULL AFTER date_naissance");
+    }
+    if (!column_exists($pdo, 'cultes', 'is_culte_dimanche')) {
+        $pdo->exec("ALTER TABLE cultes ADD COLUMN is_culte_dimanche TINYINT(1) NOT NULL DEFAULT 0 AFTER jours_semaine");
+    }
+
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS nouveaux_membres (
+            id INT NOT NULL AUTO_INCREMENT,
+            user_id INT NOT NULL,
+            statut ENUM('nouveau','en_suivi','pret_integration','integre') NOT NULL DEFAULT 'nouveau',
+            responsable_id INT NULL,
+            date_premiere_visite DATE NULL,
+            observations TEXT NULL,
+            date_integration DATETIME NULL,
+            integre_par INT NULL,
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY uniq_nm_user (user_id),
+            KEY idx_nm_responsable (responsable_id),
+            KEY idx_nm_statut (statut),
+            CONSTRAINT fk_nm_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            CONSTRAINT fk_nm_responsable FOREIGN KEY (responsable_id) REFERENCES users(id) ON DELETE SET NULL,
+            CONSTRAINT fk_nm_integre_par FOREIGN KEY (integre_par) REFERENCES users(id) ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
+
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS nouveaux_membres_attributions (
+            id INT NOT NULL AUTO_INCREMENT,
+            nouveau_membre_id INT NOT NULL,
+            responsable_id INT NULL,
+            attribue_par INT NOT NULL,
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY idx_nma_nm (nouveau_membre_id),
+            CONSTRAINT fk_nma_nm FOREIGN KEY (nouveau_membre_id) REFERENCES nouveaux_membres(id) ON DELETE CASCADE,
+            CONSTRAINT fk_nma_responsable FOREIGN KEY (responsable_id) REFERENCES users(id) ON DELETE SET NULL,
+            CONSTRAINT fk_nma_attribue_par FOREIGN KEY (attribue_par) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
+
+    /* ---- 18. Observation de l'administration sur le Suivi Hebdo. des Bergers ----
+     * Additif pur : ne touche à aucune colonne/table existante. `suivi_hebdo`
+     * reste une matrice (user_id, semaine, jour, champ) inchangée ; cette
+     * nouvelle table porte UNE observation par fiche (user_id + semaine),
+     * donc la même clé logique que la fiche elle-même - jamais rattachée au
+     * seul compte de l'utilisateur qui l'a écrite. Une seule valeur courante
+     * (pas d'historique multi-versions : non demandé, rien d'existant à
+     * réutiliser) mais updated_by/updated_at tracent qui/quand.
+     */
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS suivi_hebdo_observations (
+            id INT NOT NULL AUTO_INCREMENT,
+            user_id INT NOT NULL,
+            semaine CHAR(8) NOT NULL,
+            observation TEXT NULL,
+            updated_by INT NULL,
+            updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY uniq_suivi_obs (user_id, semaine),
+            CONSTRAINT fk_suivi_obs_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            CONSTRAINT fk_suivi_obs_updated_by FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
 }
 
 /** Vérifie si une colonne existe déjà (idempotence des ALTER TABLE). */
@@ -857,7 +940,7 @@ function index_exists(\PDO $pdo, string $table, string $index): bool
 function down(): void
 {
     $pdo = Database::connection();
-    $tables = ['faq_publique', 'site_settings', 'centre_horaires', 'responsibilities', 'notifications', 'users_basontas', 'presences', 'evenements', 'anniversaires', 'rapports_jour', 'bus_budget', 'classe_inscrits', 'classes', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
+    $tables = ['suivi_hebdo_observations', 'nouveaux_membres_attributions', 'nouveaux_membres', 'faq_publique', 'site_settings', 'centre_horaires', 'responsibilities', 'notifications', 'users_basontas', 'presences', 'evenements', 'anniversaires', 'rapports_jour', 'bus_budget', 'classe_inscrits', 'classes', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
                'examens', 'veillees', 'cultes', 'basontas', 'bacentas', 'users',
                'centres_presentation', 'equipe', 'presentation', 'centres'];
     $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');

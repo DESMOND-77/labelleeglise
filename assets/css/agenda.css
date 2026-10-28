@@ -103,7 +103,7 @@
 }
 
 .agenda-day.is-adjacent {
-  opacity: 0.4;
+  color: var(--text-muted);
 }
 
 .agenda-day.is-selected {

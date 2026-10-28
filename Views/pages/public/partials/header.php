@@ -1,22 +1,30 @@
-<?php /* En-tête de la vitrine. Variables : $nav, $nom, $ctaHref, $ctaLabel. */ ?>
+<?php /* En-tête collant de la vitrine. Variables : $nav, $nom, $brand,
+   $brandSub, $ctaHref, $ctaLabel. */ ?>
 <header class="site-header">
-  <div class="wrap header-row">
-    <a class="brand" href="#accueil">
-      <img src="assets/images/logo.png" alt="" width="40" height="40">
-      <span><?= h($nom) ?></span>
+  <div class="wrap lp-header-row">
+    <a class="lp-brand" href="#accueil">
+      <span class="lp-brand-mark">
+        <img src="<?= h(asset('assets/images/logo.png')) ?>" alt="" width="46" height="46">
+      </span>
+      <span class="lp-brand-text">
+        <span class="lp-brand-name"><?= h($brand !== '' ? $brand : $nom) ?></span>
+        <?php if ($brandSub !== ''): ?>
+          <span class="lp-brand-sub"><?= h($brandSub) ?></span>
+        <?php endif; ?>
+      </span>
     </a>
-    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
+    <button class="lp-nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Ouvrir le menu">
       <i class="fa-solid fa-bars" aria-hidden="true"></i>
     </button>
-    <nav id="site-nav" class="site-nav" aria-label="Navigation principale">
+    <nav id="site-nav" class="lp-nav" aria-label="Navigation principale">
       <ul>
         <?php foreach ($nav as [$href, $label]): ?>
           <li><a href="<?= h($href) ?>"><?= h($label) ?></a></li>
         <?php endforeach; ?>
         <?php if ($ctaHref !== ''): ?>
-          <li><a class="btn btn-primary btn-nav" href="<?= h($ctaHref) ?>"><?= h($ctaLabel) ?></a></li>
+          <li><a class="lp-btn lp-btn--primary" href="<?= h($ctaHref) ?>"><?= h($ctaLabel) ?></a></li>
         <?php endif; ?>
-        <li><a class="nav-login" href="<?= h(url('index.php', ['page' => 'login'])) ?>">Connexion</a></li>
+        <li><a class="lp-nav-login" href="<?= h(url('index.php', ['page' => 'login'])) ?>">Connexion</a></li>
       </ul>
     </nav>
   </div>

@@ -61,5 +61,5 @@ table {
 }
 
 ::selection {
-  background: rgba(79, 70, 229, 0.18);
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
 }

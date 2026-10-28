@@ -113,7 +113,7 @@ labelleeglise/
 - **Inscription publique + vérification email + validation admin** (voir §7 ci-dessous).
 - **Centre de notifications** in-app (cloche topbar + page dédiée).
 - **RBAC** : admin, responsable, berger (leader/pasteur/reverant), membre, porte d'accès.
-- **Sections** : bacentas, centres, cultes (pointage), basontas, nouveaux, liste
+- **Sections** : bacentas, centres, cultes (pointage), basontas, liste
   générale, bergers.
 - **Affectation de membres aux bacentas** par leur responsable (voir §7.6).
 - **Suivi & offrandes** : visites + offrandes par bacenta/centre, totaux mois/année.
