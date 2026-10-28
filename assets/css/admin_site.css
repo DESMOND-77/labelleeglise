@@ -61,7 +61,7 @@
   border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 600;
   border: 1px solid transparent; white-space: nowrap;
 }
-.status-ok { background: var(--success-soft); color: var(--success); border-color: rgba(34, 197, 94, 0.25); }
+.status-ok { background: var(--success-soft); color: var(--success-text); border-color: rgba(34, 197, 94, 0.25); }
 .status-draft { background: var(--bg); color: var(--text-soft); border-color: var(--border-strong); }
 .status-warn { background: var(--warning-soft); color: #B45309; border-color: rgba(245, 158, 11, 0.3); }
 
@@ -97,7 +97,7 @@
 @media (min-width: 700px) { .field-grid { grid-template-columns: repeat(2, 1fr); } }
 .field-row { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: flex-start; }
 .field-note { color: var(--text-soft); font-size: 0.9rem; max-width: 280px; }
-.req { color: var(--danger); }
+.req { color: var(--danger-text); }
 .form-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-5); }
 .form-actions .btn + .btn { margin-left: 0; }
 

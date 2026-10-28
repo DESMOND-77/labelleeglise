@@ -248,7 +248,7 @@
 }
 
 .field-error {
-  color: var(--danger);
+  color: var(--danger-text);
   font-size: 12.5px;
   margin: -10px 0 12px;
 }
@@ -262,9 +262,9 @@
   margin: 8px 0 4px;
 }
 
-.result-icon.success { color: var(--success); }
-.result-icon.warning { color: var(--warning); }
-.result-icon.danger  { color: var(--danger); }
+.result-icon.success { color: var(--success-text); }
+.result-icon.warning { color: var(--warning-text); }
+.result-icon.danger  { color: var(--danger-text); }
 
 /* ---- Sélection de membres disponibles (affectation à un bacenta) ---- */
 .member-select-section {

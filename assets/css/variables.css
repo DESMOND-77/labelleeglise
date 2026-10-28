@@ -18,8 +18,8 @@
 
   /* ---- Texte ---- */
   --text: #111827;
-  --text-soft: #6B7280;
-  --text-muted: #9CA3AF;
+  --text-soft: #4B5563;
+  --text-muted: #5B6472;
 
   /* ---- État ---- */
   --success: #22C55E;
@@ -28,6 +28,11 @@
   --danger-soft: #FDEBEB;
   --warning: #F59E0B;
   --warning-soft: #FEF3E2;
+  /* Variantes pour du TEXTE (>= 4,5:1 sur blanc et sur les fonds -soft) ;
+     les couleurs ci-dessus restent pour fonds, bordures et graphiques. */
+  --success-text: #15803D;
+  --danger-text: #B91C1C;
+  --warning-text: #92400E;
 
   /* ---- Sidebar ---- */
   --sidebar-bg: #0F172A;

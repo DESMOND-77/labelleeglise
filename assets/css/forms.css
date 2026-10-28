@@ -282,7 +282,7 @@
 /* Message d'erreur de champ */
 .form-error {
   display: block;
-  color: var(--danger);
+  color: var(--danger-text);
   font-size: 13px;
   margin-top: var(--space-1);
 }
@@ -293,4 +293,4 @@
 
 /* Paramètres d'une entité : zone de danger (suppression) */
 .danger-zone { border: 1px solid var(--danger); background: var(--danger-soft); }
-.danger-zone h3 { margin: 0 0 var(--space-2); color: var(--danger); }
+.danger-zone h3 { margin: 0 0 var(--space-2); color: var(--danger-text); }

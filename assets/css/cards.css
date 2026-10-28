@@ -113,7 +113,7 @@
 
 .icon-btn.danger {
   background: var(--danger-soft);
-  color: var(--danger);
+  color: var(--danger-text);
 }
 
 .icon-btn.danger:hover {
@@ -496,7 +496,7 @@
 
 .search-clear:hover {
   background: var(--danger-soft);
-  color: var(--danger);
+  color: var(--danger-text);
 }
 
 /* ---- Résultats de recherche ---- */

@@ -14,7 +14,7 @@
 .modal-error {
   display: none;
   background: var(--danger-soft);
-  color: var(--danger);
+  color: var(--danger-text);
   border: 1px solid rgba(239, 68, 68, 0.25);
   border-radius: var(--radius);
   padding: 10px 14px;

@@ -75,13 +75,13 @@
 .badge.present,
 .badge.success {
   background: var(--success-soft);
-  color: var(--success);
+  color: var(--success-text);
 }
 
 .badge.absent,
 .badge.danger {
   background: var(--danger-soft);
-  color: var(--danger);
+  color: var(--danger-text);
 }
 
 .badge.neutral {
@@ -91,7 +91,7 @@
 
 .badge.warning {
   background: var(--warning-soft);
-  color: var(--warning);
+  color: var(--warning-text);
 }
 
 /* ---- Total chip ---- */
@@ -169,7 +169,7 @@
 }
 
 .completion-chip b {
-  color: var(--success);
+  color: var(--success-text);
   font-size: 16px;
 }
 

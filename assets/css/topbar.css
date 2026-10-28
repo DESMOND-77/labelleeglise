@@ -141,11 +141,11 @@
 }
 
 .profile-menu-item.danger {
-  color: var(--danger);
+  color: var(--danger-text);
 }
 
 .profile-menu-item.danger i {
-  color: var(--danger);
+  color: var(--danger-text);
 }
 
 .profile-menu-item.danger:hover {

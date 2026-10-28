@@ -41,14 +41,14 @@ $presenceBadge = static function (int $nb): string {
   <?php if ($filters): ?><a class="btn btn-outline" href="<?= h(url('index.php', ['page' => 'nouveaux_membres'])) ?>">Effacer</a><?php endif; ?>
 </form>
 
+<?php if (!$rows): ?>
+  <?= empty_state('fa-user-plus', 'Aucun nouveau membre pour ces filtres.') ?>
+<?php else: ?>
 <div class="table-wrap">
   <table class="data-table">
     <thead><tr><th>Nom</th><th>Téléphone</th><th>Bacenta</th><th>Présences</th><th>1ère visite</th><th>Statut</th><th></th></tr></thead>
     <tbody>
-      <?php if (!$rows): ?>
-        <tr><td colspan="7"><?= empty_state('fa-user-plus', 'Aucun nouveau membre pour ces filtres.') ?></td></tr>
-      <?php else: ?>
-        <?php foreach ($rows as $r): ?>
+      <?php foreach ($rows as $r): ?>
           <tr>
             <td><?= h(trim($r['prenom'] . ' ' . $r['nom'])) ?></td>
             <td><?= h($r['telephone'] ?? '') ?></td>
@@ -69,8 +69,8 @@ $presenceBadge = static function (int $nb): string {
               <a class="icon-btn" title="Voir le dossier" href="<?= h(url('index.php', ['page' => 'nouveau_membre', 'id' => $r['id']])) ?>"><i class="fa-solid fa-folder-open"></i></a>
             </td>
           </tr>
-        <?php endforeach; ?>
-      <?php endif; ?>
+      <?php endforeach; ?>
     </tbody>
   </table>
 </div>
+<?php endif; ?>

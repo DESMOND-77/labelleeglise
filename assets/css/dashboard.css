@@ -304,8 +304,8 @@
   font-weight: 600;
 }
 
-.trend-pill.up { background: var(--success-soft); color: var(--success); }
-.trend-pill.down { background: var(--danger-soft); color: var(--danger); }
+.trend-pill.up { background: var(--success-soft); color: var(--success-text); }
+.trend-pill.down { background: var(--danger-soft); color: var(--danger-text); }
 .trend-pill.flat { background: var(--primary-soft); color: var(--primary); }
 
 /* ---- Carte narrative ---- */

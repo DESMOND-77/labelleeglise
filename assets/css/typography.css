@@ -56,6 +56,6 @@ p {
 .text-soft { color: var(--text-soft); }
 
 .color-primary { color: var(--primary); }
-.color-success { color: var(--success); }
-.color-danger { color: var(--danger); }
-.color-warning { color: var(--warning); }
+.color-success { color: var(--success-text); }
+.color-danger { color: var(--danger-text); }
+.color-warning { color: var(--warning-text); }

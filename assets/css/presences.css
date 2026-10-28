@@ -39,17 +39,17 @@
 }
 
 .presence-cell-present {
-  color: var(--success);
+  color: var(--success-text);
   font-weight: 600;
 }
 
 .presence-cell-absent {
-  color: var(--danger);
+  color: var(--danger-text);
   font-weight: 600;
 }
 
 .presence-cell-excuse {
-  color: var(--warning);
+  color: var(--warning-text);
   font-weight: 600;
 }
 
@@ -168,19 +168,19 @@
 
 .segmented .seg-present input:checked + span {
   background: var(--success-soft);
-  color: var(--success);
+  color: var(--success-text);
   font-weight: 600;
 }
 
 .segmented .seg-absent input:checked + span {
   background: var(--danger-soft);
-  color: var(--danger);
+  color: var(--danger-text);
   font-weight: 600;
 }
 
 .segmented .seg-excuse input:checked + span {
   background: var(--warning-soft);
-  color: var(--warning);
+  color: var(--warning-text);
   font-weight: 600;
 }
 
