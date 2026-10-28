@@ -1182,6 +1182,16 @@ class ActionsController extends Controller
                 $this->redirectSitePublic($errors, ['tab' => $returnTab]);
                 break;
 
+            case 'save_about_public':
+                $this->requireAdmin();
+                // Image dédiée : nouvel upload ou valeur conservée.
+                $image = Upload::photo('about_image');
+                $_POST['about_image'] = $image !== null
+                    ? $image
+                    : (string) ($_POST['about_image_current'] ?? '');
+                $this->redirectSitePublic(public_site_service()->saveAbout($_POST), ['tab' => 'about']);
+                break;
+
             case 'save_equipe_public':
                 $this->requireAdmin();
                 public_site_service()->saveEquipe($_POST);

@@ -99,6 +99,39 @@
 .form-card-inner { border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-3) var(--space-4); margin: 0 0 var(--space-3); background: var(--bg); }
 .form-card-inner legend { font-weight: 600; padding: 0 var(--space-1); }
 .field-grid { display: grid; gap: var(--space-3); }
+
+/* ---- Champs de l'éditeur : libellé au-dessus du champ ----
+   Ciblé sur les libellés qui contiennent un vrai champ de saisie (pas les
+   cases à cocher, qui restent en ligne). */
+.admin-site-content label:has(> input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]), > textarea, > select) {
+  display: block;
+  margin-bottom: var(--space-3);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.admin-site-content label > input:not([type="checkbox"]):not([type="radio"]),
+.admin-site-content label > textarea,
+.admin-site-content label > select {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  font-weight: 400;
+}
+
+.admin-site-content label > textarea {
+  min-height: 160px;
+  resize: vertical;
+}
+
+.field-row > label { flex: 1 1 260px; }
+
+/* Le texte d'un bouton d'action passe à la ligne au lieu de déborder sur mobile */
+.admin-site-content .form-actions .btn {
+  white-space: normal;
+  text-align: center;
+}
 @media (min-width: 700px) { .field-grid { grid-template-columns: repeat(2, 1fr); } }
 .field-row { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: flex-start; }
 .field-note { color: var(--text-soft); font-size: 0.9rem; max-width: 280px; }

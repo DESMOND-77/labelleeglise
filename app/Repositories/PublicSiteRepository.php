@@ -21,6 +21,8 @@ class PublicSiteRepository
         'slogan', 'accueil_texte', 'hero_image', 'hero_image_alt', 'adresse',
         'predication_titre', 'predication_date', 'predication_url', 'lien_don', 'don_usage',
         'mentions_legales', 'confidentialite',
+        // Section « À propos » (le texte vit dans la table presentation)
+        'about_image', 'about_image_alt',
     ];
 
     /** @return array<string,string> */

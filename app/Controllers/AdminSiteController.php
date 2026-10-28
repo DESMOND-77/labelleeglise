@@ -10,7 +10,7 @@ use App\Middleware\AdminMiddleware;
  * Administration du site public (back-office).
  * Réservé aux administrateurs (contrôle serveur via AdminMiddleware).
  * Organisation par rubriques indépendantes (?page=site_public&tab=…) :
- * vue d'ensemble, identité, centres (liste + fiche), équipe,
+ * vue d'ensemble, identité, à propos, centres (liste + fiche), équipe,
  * événements, médias, FAQ, ministères, pages légales.
  */
 class AdminSiteController extends Controller
@@ -18,11 +18,12 @@ class AdminSiteController extends Controller
     /** Rubriques de gestion (ordre d'affichage) + « centre »
      * (fiche de modification, profondeur 1 - absente de la
      * navigation, rattachée visuellement à « Centres »). */
-    private const TABS = ['overview', 'identity', 'centres', 'centre', 'team', 'events', 'media', 'faq', 'ministries', 'legal'];
+    private const TABS = ['overview', 'identity', 'about', 'centres', 'centre', 'team', 'events', 'media', 'faq', 'ministries', 'legal'];
 
     private const TAB_LABELS = [
         'overview'   => 'Vue d\'ensemble',
         'identity'   => 'Identité et accueil',
+        'about'      => 'À propos',
         'centres'    => 'Centres',
         'team'       => 'Équipe pastorale',
         'events'     => 'Événements',
@@ -36,6 +37,7 @@ class AdminSiteController extends Controller
     private const TAB_ICONS = [
         'overview'   => 'fa-solid fa-chart-pie',
         'identity'   => 'fa-solid fa-id-card',
+        'about'      => 'fa-solid fa-circle-info',
         'centres'    => 'fa-solid fa-landmark',
         'team'       => 'fa-solid fa-users',
         'events'     => 'fa-solid fa-calendar-days',

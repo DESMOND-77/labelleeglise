@@ -83,7 +83,14 @@ class PublicSiteService
         $heroImage = $this->safePhoto($settings['hero_image'] ?? null);
         $heroImageAlt = $this->clean($settings['hero_image_alt'] ?? null);
         $nom = ($settings['nom_affichage'] ?? '') !== '' ? $settings['nom_affichage'] : (defined('APP_NAME') ? APP_NAME : '');
-        $about = $this->aboutImage($heroImage, $heroImageAlt, $nom, $centres);
+        $about = $this->aboutImage(
+            $this->safePhoto($settings['about_image'] ?? null),
+            $this->clean($settings['about_image_alt'] ?? null),
+            $heroImage,
+            $heroImageAlt,
+            $nom,
+            $centres
+        );
         $accueilTexte = $this->clean($settings['accueil_texte'] ?? null);
 
         return [
@@ -160,12 +167,16 @@ class PublicSiteService
     }
 
     /**
-     * Image « à propos » : image d'accueil, sinon photo d'un centre publié.
+     * Image « à propos » : image dédiée (onglet « À propos »), sinon image
+     * d'accueil, sinon photo d'un centre publié.
      * @param list<array<string,mixed>> $centres
      * @return array{src:string,alt:string}
      */
-    private function aboutImage(string $heroImage, string $heroAlt, string $nom, array $centres): array
+    private function aboutImage(string $aboutImage, string $aboutAlt, string $heroImage, string $heroAlt, string $nom, array $centres): array
     {
+        if ($aboutImage !== '') {
+            return ['src' => $aboutImage, 'alt' => $aboutAlt !== '' ? $aboutAlt : $nom];
+        }
         if ($heroImage !== '') {
             return ['src' => $heroImage, 'alt' => $heroAlt !== '' ? $heroAlt : $nom];
         }
@@ -573,6 +584,7 @@ class PublicSiteService
 
         return [
             'settings'   => $this->repo->settings(),
+            'presentation' => $this->cms->presentation(),
             'centres'    => $centres,
             'equipe'     => $this->repo->equipeForAdmin(),
             'evenements' => $this->repo->eventsForAdmin(date('Y-m-d H:i:s')),
@@ -679,7 +691,15 @@ class PublicSiteService
             'hero_image' => (string) ($settings['hero_image'] ?? '') !== '',
         ];
 
+        $presentation = $this->cms->presentation();
+        $about = [
+            'accroche' => trim((string) ($presentation['accroche'] ?? '')) !== '',
+            'histoire' => trim((string) ($presentation['histoire'] ?? '')) !== '',
+            'image' => (string) ($settings['about_image'] ?? '') !== '',
+        ];
+
         return [
+            'about' => $about,
             'centres' => ['total' => count($centres), 'publies' => $publies, 'list' => $centresList, 'noms_incomplets' => $incomplets],
             'equipe' => ['total' => count($equipe), 'publies' => $equipePublies],
             'evenements' => ['total' => count($events), 'publies' => $eventsPublies],
@@ -740,6 +760,25 @@ class PublicSiteService
 
         $this->repo->saveSettings($values);
         return $errors;
+    }
+
+    /**
+     * Section « À propos » : accroche et histoire (table presentation, déjà
+     * lue par la vitrine) + image dédiée et son texte alternatif.
+     * @param array<string,mixed> $post
+     * @return list<string> erreurs (vide = enregistré)
+     */
+    public function saveAbout(array $post): array
+    {
+        $this->cms->savePresentation(
+            mb_substr(trim((string) ($post['accroche'] ?? '')), 0, 300),
+            mb_substr(trim((string) ($post['histoire'] ?? '')), 0, 8000)
+        );
+        $this->repo->saveSettings([
+            'about_image' => $this->safePhoto((string) ($post['about_image'] ?? '')),
+            'about_image_alt' => mb_substr(trim((string) ($post['about_image_alt'] ?? '')), 0, 200),
+        ]);
+        return [];
     }
 
     private function validDate(string $s): bool

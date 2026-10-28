@@ -12,6 +12,9 @@ $todo = [];
 foreach ($missingIdentity as $k) {
     $todo[] = ['label' => $identityLabels[$k] . ' manquant', 'href' => url('index.php', ['page' => 'site_public', 'tab' => 'identity'])];
 }
+if (!$ov['about']['accroche'] && !$ov['about']['histoire']) {
+    $todo[] = ['label' => 'Section « À propos » vide (accroche et histoire manquantes)', 'href' => url('index.php', ['page' => 'site_public', 'tab' => 'about'])];
+}
 if ($ov['centres']['publies'] === 0) {
     $todo[] = ['label' => 'Aucun centre publié sur le site public', 'href' => url('index.php', ['page' => 'site_public', 'tab' => 'centres'])];
 }
