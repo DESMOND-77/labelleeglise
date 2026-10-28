@@ -79,17 +79,29 @@ class PublicSiteService
         }
 
         $ministries = $this->ministries();
+        $events = $this->events();
+        $heroImage = $this->safePhoto($settings['hero_image'] ?? null);
+        $heroImageAlt = $this->clean($settings['hero_image_alt'] ?? null);
+        $nom = ($settings['nom_affichage'] ?? '') !== '' ? $settings['nom_affichage'] : (defined('APP_NAME') ? APP_NAME : '');
+        $about = $this->aboutImage($heroImage, $heroImageAlt, $nom, $centres);
+        $accueilTexte = $this->clean($settings['accueil_texte'] ?? null);
 
         return [
             'equipe'     => $this->equipeGroups(),
-            'evenements' => $this->events(),
-            'nom'      => ($settings['nom_affichage'] ?? '') !== '' ? $settings['nom_affichage'] : (defined('APP_NAME') ? APP_NAME : ''),
+            'evenements' => $events,
+            'next_event' => $this->nextEvent($events),
+            'impact'     => $this->impact($centres, $ministries),
+            'about_image'     => $about['src'],
+            'about_image_alt' => $about['alt'],
+            'about_title'     => $histoire !== '' ? 'Notre histoire' : 'Notre église',
+            'meta_description' => $this->metaDescription($accroche, $accueilTexte),
+            'nom'      => $nom,
             'accroche' => $accroche,
             'histoire' => $histoire,
             'slogan'   => $this->clean($settings['slogan'] ?? null),
-            'accueil_texte' => $this->clean($settings['accueil_texte'] ?? null),
-            'hero_image'    => $this->safePhoto($settings['hero_image'] ?? null),
-            'hero_image_alt' => $this->clean($settings['hero_image_alt'] ?? null),
+            'accueil_texte' => $accueilTexte,
+            'hero_image'    => $heroImage,
+            'hero_image_alt' => $heroImageAlt,
             'hero_slides'   => $this->heroSlides(),
             'adresse'  => $this->clean($settings['adresse'] ?? null),
             'centres'  => $centres,
@@ -106,6 +118,89 @@ class PublicSiteService
             'has_mentions_legales' => $this->clean($settings['mentions_legales'] ?? null) !== '',
             'has_confidentialite'  => $this->clean($settings['confidentialite'] ?? null) !== '',
         ];
+    }
+
+    /**
+     * Chiffres de la section « À propos » : uniquement des valeurs publiées.
+     * L'ordre des candidats est l'ordre de priorité ; les 4 premiers sont gardés.
+     * @param list<array<string,mixed>> $centres
+     * @param array{bacentas:list<array<string,string>>,basontas:list<array<string,string>>} $ministries
+     * @return list<array{value:int,label:string}>
+     */
+    private function impact(array $centres, array $ministries): array
+    {
+        $plural = static fn(int $n, string $one, string $many): string => $n > 1 ? $many : $one;
+
+        $annees = 0;
+        $encadrement = 0;
+        foreach ($centres as $c) {
+            $stats = $c['article']['stats'] ?? [];
+            $annees = max($annees, (int) ($stats['ans d\'existence'] ?? 0));
+            $encadrement += (int) ($stats['pasteur(s)'] ?? 0) + (int) ($stats['bergers'] ?? 0);
+        }
+        $nbCentres = count($centres);
+        $nbPriere = count($ministries['bacentas'] ?? []);
+        $nbServices = count($ministries['basontas'] ?? []);
+
+        $candidates = [
+            [$nbCentres, $plural($nbCentres, 'Centre de culte', 'Centres de culte')],
+            [$annees, $plural($annees, 'Année de ministère', 'Années de ministère')],
+            [$encadrement, $plural($encadrement, 'Pasteur ou berger', 'Pasteurs et bergers')],
+            [$nbPriere, $plural($nbPriere, 'Groupe de prière', 'Groupes de prière')],
+            [$nbServices, $plural($nbServices, 'Groupe et service', 'Groupes et services')],
+        ];
+
+        $impact = [];
+        foreach ($candidates as [$value, $label]) {
+            if ($value > 0) {
+                $impact[] = ['value' => $value, 'label' => $label];
+            }
+        }
+        return array_slice($impact, 0, 4);
+    }
+
+    /**
+     * Image « à propos » : image d'accueil, sinon photo d'un centre publié.
+     * @param list<array<string,mixed>> $centres
+     * @return array{src:string,alt:string}
+     */
+    private function aboutImage(string $heroImage, string $heroAlt, string $nom, array $centres): array
+    {
+        if ($heroImage !== '') {
+            return ['src' => $heroImage, 'alt' => $heroAlt !== '' ? $heroAlt : $nom];
+        }
+        foreach ($centres as $c) {
+            if ($c['photo'] !== '') {
+                return ['src' => $c['photo'], 'alt' => $c['nom']];
+            }
+        }
+        return ['src' => '', 'alt' => $heroAlt !== '' ? $heroAlt : $nom];
+    }
+
+    /**
+     * Prochain événement publié (barre d'annonce + carte du hero), avec jour
+     * et mois courts. Null s'il n'y en a aucun.
+     * @param list<array<string,mixed>> $events
+     * @return array<string,mixed>|null
+     */
+    private function nextEvent(array $events): ?array
+    {
+        if ($events === []) {
+            return null;
+        }
+        $next = $events[0];
+        $ts = strtotime((string) $next['iso']);
+        $next['jour'] = $ts ? date('j', $ts) : '';
+        $next['mois'] = $ts ? self::MONTHS_SHORT[(int) date('n', $ts) - 1] : '';
+        return $next;
+    }
+
+    /** Description SEO : accroche, sinon texte d'accueil ; vide si rien n'est publié. */
+    private function metaDescription(string $accroche, string $accueil): string
+    {
+        $text = $accroche !== '' ? $accroche : $accueil;
+        $text = trim((string) preg_replace('/\s+/u', ' ', $text));
+        return mb_strlen($text) > 160 ? rtrim(mb_substr($text, 0, 157)) . '…' : $text;
     }
 
     /** @return list<array{question:string,reponse:string}> */
@@ -297,6 +392,7 @@ class PublicSiteService
     }
 
     private const TEAM_LABELS = ['Révérend' => 'Révérends', 'Pasteur' => 'Pasteurs', 'Berger' => 'Bergers', 'Leader' => 'Leaders', 'Autre' => 'Autres'];
+    private const MONTHS_SHORT = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
     private const MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
 
     /** @return list<array{label:string,members:list<array<string,string>>}> */

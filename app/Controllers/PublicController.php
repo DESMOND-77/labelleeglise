@@ -25,6 +25,7 @@ class PublicController extends Controller
             'content'   => view('pages/public/landing', $data),
             'brand'     => $data['nom'],
             'ogImage'   => $data['hero_image'] ?? '',
+            'metaDescription' => $data['meta_description'],
         ]);
     }
 

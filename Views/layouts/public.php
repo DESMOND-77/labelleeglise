@@ -1,9 +1,12 @@
 <?php
 /**
  * Coquille de la vitrine publique (document autonome, sans sidebar).
- * Variables : $title, $content, $brand, $canonical, $jsonLd, $hasUser.
+ * Variables : $title, $content, $brand, $canonical, $jsonLd, $hasUser,
+ * $metaDescription (optionnel), $ogImage (optionnel).
  */
-$metaDescription = 'Découvrez ' . $brand . ' : horaires des cultes, centres et contacts.';
+$metaDescription = ($metaDescription ?? '') !== ''
+    ? $metaDescription
+    : 'Découvrez ' . $brand . ' : horaires des cultes, centres et contacts.';
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -28,7 +31,6 @@ $metaDescription = 'Découvrez ' . $brand . ' : horaires des cultes, centres et 
   <link rel="icon" href="<?= h(asset('assets/images/favicon.ico')) ?>">
   <link rel="apple-touch-icon" href="<?= h(asset('assets/images/apple-touch-icon.png')) ?>">
   <meta name="theme-color" content="#0b1020">
-  <link rel="stylesheet" href="assets/vendor/fonts/inter.css">
   <link rel="stylesheet" href="assets/vendor/fonts/landing-fonts.css">
   <link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
   <link rel="stylesheet" href="assets/css/variables.css">

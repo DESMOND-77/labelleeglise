@@ -49,7 +49,7 @@
 
   /* ---- Typographie ---- */
   --lp-font-display: 'Cormorant Garamond', 'Times New Roman', Georgia, serif;
-  --lp-font-body: 'DM Sans', var(--font-sans);
+  --lp-font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --lp-fs-eyebrow: 0.75rem;
   --lp-fs-body: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
   --lp-fs-lead: clamp(1.125rem, 1.05rem + 0.4vw, 1.375rem);

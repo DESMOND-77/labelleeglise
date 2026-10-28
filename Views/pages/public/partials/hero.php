@@ -74,7 +74,7 @@ if ($adresse !== '') {
         <?php if ($facts !== []): ?>
           <ul class="lp-hero-facts">
             <?php foreach ($facts as $fact): ?>
-              <li><i class="fa-solid <?= h($fact['icon']) ?>" aria-hidden="true"></i><?= h($fact['text']) ?></li>
+              <li><i class="<?= h($fact['icon']) ?>" aria-hidden="true"></i><?= h($fact['text']) ?></li>
             <?php endforeach; ?>
           </ul>
         <?php endif; ?>

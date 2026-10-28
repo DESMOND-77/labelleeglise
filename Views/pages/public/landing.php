@@ -1,11 +1,9 @@
 <?php
 /* Landing publique v2 (spec unifiée 1.0).
-   Variables fournies par PublicSiteService::landing().
+   Variables fournies par PublicSiteService::landing() (y compris impact,
+   image « à propos » et prochain événement : aucun calcul ici).
    Chaque section n'apparaît que si ses données publiables existent :
-   rien n'est fabriqué, aucun bouton décoratif.
-   Cette vue assemble aussi les rares valeurs dérivées de la présentation
-   (compteurs d'impact, image « à propos », prochain événement) : aucune
-   règle métier, uniquement des agrégats de ce qui est déjà publié. */
+   rien n'est fabriqué, aucun bouton décoratif. */
 
 $hasCentres = $centres !== [];
 $hasEquipe  = $equipe !== [];
@@ -47,63 +45,8 @@ if (count($navPrimary) < 2) {
     $navPrimary = $navAll;
 }
 
-/* ---------- Impact : uniquement des valeurs réellement publiées ---------- */
-$impact = [];
-if ($hasCentres) {
-    $impact[] = ['value' => count($centres), 'label' => count($centres) > 1 ? 'Centres de culte' : 'Centre de culte'];
-}
-$nbBacentas = count($ministries['bacentas'] ?? []);
-$nbBasontas = count($ministries['basontas'] ?? []);
-if ($nbBacentas > 0) {
-    $impact[] = ['value' => $nbBacentas, 'label' => 'Bacentas'];
-}
-if ($nbBasontas > 0) {
-    $impact[] = ['value' => $nbBasontas, 'label' => 'Basontas'];
-}
-$annees = 0;
-$encadrement = 0;
-foreach ($centres as $c) {
-    $stats = $c['article']['stats'] ?? [];
-    $annees = max($annees, (int) ($stats['ans d\'existence'] ?? 0));
-    $encadrement += (int) ($stats['pasteur(s)'] ?? 0) + (int) ($stats['bergers'] ?? 0);
-}
-if ($annees > 0) {
-    $impact[] = ['value' => $annees, 'label' => $annees > 1 ? 'Années de ministère' : 'Année de ministère'];
-}
-if ($encadrement > 0) {
-    $impact[] = ['value' => $encadrement, 'label' => 'Pasteurs et bergers'];
-}
-if ($hasEvents) {
-    $impact[] = ['value' => count($evenements), 'label' => count($evenements) > 1 ? 'Événements à venir' : 'Événement à venir'];
-}
-$impact = array_slice($impact, 0, 4);
-
-/* ---------- Image « à propos » : image d'accueil, sinon photo d'un centre ---------- */
-$aboutImage = $hero_image;
-$aboutImageAlt = $hero_image_alt !== '' ? $hero_image_alt : $nom;
-if ($aboutImage === '') {
-    foreach ($centres as $c) {
-        if ($c['photo'] !== '') {
-            $aboutImage = $c['photo'];
-            $aboutImageAlt = $c['nom'];
-            break;
-        }
-    }
-}
-
-/* ---------- Prochain événement (barre d'annonce + carte du hero) ---------- */
-$moisCourts = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
-$nextEvent = null;
-if ($hasEvents) {
-    $e = $evenements[0];
-    $ts = strtotime($e['iso']);
-    $nextEvent = $e;
-    $nextEvent['jour'] = $ts ? date('j', $ts) : '';
-    $nextEvent['mois'] = $ts ? $moisCourts[(int) date('n', $ts) - 1] : '';
-}
-
 echo view('pages/public/partials/annonce', [
-    'nextEvent' => $nextEvent,
+    'nextEvent' => $next_event,
 ]);
 
 echo view('pages/public/partials/header', [
@@ -125,7 +68,7 @@ echo view('pages/public/partials/hero', [
     'hero_image' => $hero_image, 'hero_slides' => $hero_slides,
     'hero_image_alt' => $hero_image_alt, 'ctaHref' => $ctaHref,
     'ctaLabel' => $ctaLabel, 'hasCentres' => $hasCentres,
-    'nextEvent' => $nextEvent,
+    'nextEvent' => $next_event,
     'centres' => $centres, 'adresse' => $adresse,
 ]);
 if ($hasAbout) {
@@ -134,9 +77,9 @@ if ($hasAbout) {
         'accroche' => $accroche,
         'equipe' => $equipe,
         'impact' => $impact,
-        'image' => $aboutImage,
-        'imageAlt' => $aboutImageAlt,
-        'aboutTitle' => $histoire !== '' ? 'Notre histoire' : 'Notre église',
+        'image' => $about_image,
+        'imageAlt' => $about_image_alt,
+        'aboutTitle' => $about_title,
     ]);
 }
 if ($hasCentres) {
