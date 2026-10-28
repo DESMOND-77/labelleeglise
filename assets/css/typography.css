@@ -1,5 +1,5 @@
 /* ============================================================
-   Typographie - hiérarchie Inter
+   Typographie - DM Sans (texte) + Cormorant Garamond (titres de page)
    ============================================================ */
 
 body {
@@ -22,6 +22,26 @@ h4 {
 
 h1 {
   font-size: 22px;
+}
+
+/* Titres « éditoriaux » : mêmes polices que la vitrine, réservés aux titres
+   de page et bandeaux (les titres de cartes et de tableaux restent en DM Sans). */
+.section-toolbar h2,
+.admin-site .page-header h2,
+.welcome-banner h2,
+.slide h2,
+.about-hero h2,
+.login-card h1,
+.brand-text strong {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+table,
+.stat-value,
+.stat-num {
+  font-variant-numeric: tabular-nums;
 }
 
 h2 {

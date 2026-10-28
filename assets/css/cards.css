@@ -215,7 +215,8 @@
 
 /* ---- Équipe ---- */
 .about-hero {
-  background: linear-gradient(135deg, #17193a, #2b2f66);
+  background: linear-gradient(135deg, var(--sidebar-bg), var(--sidebar-bg-2));
+  border-bottom: 3px solid var(--accent);
   color: #fff;
   border-radius: var(--radius-lg);
   padding: var(--space-10) var(--space-8);
@@ -475,7 +476,7 @@
 
 .search-box input:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+  box-shadow: 0 0 0 3px var(--ring);
 }
 
 .search-clear {

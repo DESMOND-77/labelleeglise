@@ -166,8 +166,8 @@ if (in_array($page, ['bacentas', 'cultes', 'basontas'], true) && nav('id')) {
 <link rel="icon" href="<?= h(asset('assets/images/favicon.ico')) ?>">
 <link rel="apple-touch-icon" href="<?= h(asset('assets/images/apple-touch-icon.png')) ?>">
 <link rel="manifest" href="<?= h(asset('assets/images/site.webmanifest')) ?>">
-<meta name="theme-color" content="#4F46E5" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#0B1020" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0B1020" media="(prefers-color-scheme: dark)">
 
 <?php
 // Cache-busting : l'hébergeur/le navigateur gardent app.css (et ses @import) en cache.

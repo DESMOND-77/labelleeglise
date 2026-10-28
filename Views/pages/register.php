@@ -20,8 +20,8 @@ $v = static fn(string $k) => h($old[$k] ?? '');
   <link rel="icon" href="<?= h(asset('assets/images/favicon.ico')) ?>">
   <link rel="apple-touch-icon" href="<?= h(asset('assets/images/apple-touch-icon.png')) ?>">
   <link rel="manifest" href="<?= h(asset('assets/images/site.webmanifest')) ?>">
-  <meta name="theme-color" content="#4F46E5" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#0B1020" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0B1020" media="(prefers-color-scheme: dark)">
   <link rel="stylesheet" href="assets/css/app.css">
   <link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
 </head>

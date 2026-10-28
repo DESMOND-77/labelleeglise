@@ -202,18 +202,18 @@ define('SECTION_EXTRA_FIELDS', [
 ]);
 
 define('CHART_POLES', [
-    ['key' => 'bacentas', 'label' => 'Bacentas',               'color' => '#4F46E5'],
-    ['key' => 'centres',  'label' => 'Centres',                'color' => '#6366F1'],
-    ['key' => 'cultes',   'label' => 'Cultes',                 'color' => '#2563EB'],
-    ['key' => 'basontas', 'label' => 'Basontas',               'color' => '#22C55E'],
-    ['key' => 'generale', 'label' => 'Liste générale des membres', 'color' => '#EF4444'],
-    ['key' => 'bergers',  'label' => 'Liste des bergers',      'color' => '#8B5CF6'],
+    ['key' => 'bacentas', 'label' => 'Bacentas',               'color' => '#C9A84C'],
+    ['key' => 'centres',  'label' => 'Centres',                'color' => '#2B3A67'],
+    ['key' => 'cultes',   'label' => 'Cultes',                 'color' => '#2F7F79'],
+    ['key' => 'basontas', 'label' => 'Basontas',               'color' => '#5E8C4A'],
+    ['key' => 'generale', 'label' => 'Liste générale des membres', 'color' => '#B4533C'],
+    ['key' => 'bergers',  'label' => 'Liste des bergers',      'color' => '#7A4B7A'],
 ]);
 
 define('SLIDES', [
-    ['gradient' => 'linear-gradient(135deg,#4F46E5,#6366F1)', 'title' => 'Bienvenue à La Belle Église Intenationale Franceville', 'subtitle' => 'Ensemble, grandissons dans la foi et la communion fraternelle.'],
-    ['gradient' => 'linear-gradient(135deg,#22C55E,#4F46E5)', 'title' => 'Une famille unie', 'subtitle' => 'Chaque bacenta, chaque centre, chaque basonta compte.'],
-    ['gradient' => 'linear-gradient(135deg,#2563EB,#8B5CF6)', 'title' => 'Accueillons les nouveaux membres', 'subtitle' => 'Chaque visage est important à nos yeux.'],
+    ['gradient' => 'linear-gradient(135deg,#0B1020,#1E2438)', 'title' => 'Bienvenue à La Belle Église Intenationale Franceville', 'subtitle' => 'Ensemble, grandissons dans la foi et la communion fraternelle.'],
+    ['gradient' => 'linear-gradient(135deg,#1E2438,#7C5F1F)', 'title' => 'Une famille unie', 'subtitle' => 'Chaque bacenta, chaque centre, chaque basonta compte.'],
+    ['gradient' => 'linear-gradient(135deg,#141A2E,#2B3A67)', 'title' => 'Accueillons les nouveaux membres', 'subtitle' => 'Chaque visage est important à nos yeux.'],
 ]);
 
 define('OFFERING_DAY_LABEL', ['bacentas' => 'Vendredi', 'centres' => 'Mercredi']);

@@ -85,9 +85,9 @@ function member_recent_presence_html(array $stats, int $memberId): string
 
     return '<div class="dash-section-title"><h2><i class="fa-solid fa-clipboard-check"></i> Présences récentes</h2><span>Lecture seule</span></div>'
         . '<div class="stats-grid">'
-        . stat_card('Dernière présence', h($last), '#6C63FF')
-        . stat_card('Total de présences', (string) (int) $stats['total'], '#4CAF8E')
-        . stat_card('Taux', h($rate), '#F59E0B', (string) ($stats['rate_denominator_note'] ?? ''))
+        . stat_card('Dernière présence', h($last), '#2B3A67')
+        . stat_card('Total de présences', (string) (int) $stats['total'], '#2F7F79')
+        . stat_card('Taux', h($rate), '#C9A84C', (string) ($stats['rate_denominator_note'] ?? ''))
         . '</div>'
         . '<div class="stat-label">' . (int) ($stats['present'] ?? 0) . ' présents · '
         . (int) ($stats['absent'] ?? 0) . ' absents · ' . (int) ($stats['excuse'] ?? 0) . ' excusés</div>'

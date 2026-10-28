@@ -5,7 +5,7 @@
    L'ordre d'import est structuré (fondations → composants → responsive).
    ============================================================ */
 
-@import url('../vendor/fonts/inter.css');
+@import url('../vendor/fonts/landing-fonts.css');
 
 /* ---- Fondations ---- */
 @import url('variables.css');

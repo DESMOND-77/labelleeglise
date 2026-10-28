@@ -13,6 +13,9 @@
     var el = document.getElementById(id);
     if (!el) return null;
     if (registered[id]) { registered[id].destroy(); delete registered[id]; }
+    // Mêmes police et couleur de texte que le reste de l'application
+    Chart.defaults.font.family = "'DM Sans', sans-serif";
+    Chart.defaults.color = "#5B6472";
     var c = new Chart(el, config);
     registered[id] = c;
     return c;
@@ -39,7 +42,7 @@
           responsive: true,
           plugins: {
             legend: { display: false },
-            title: { display: true, text: "Répartition des membres par pôle", align: "start", font: { size: 13 }, color: "#8A8AA3", padding: { bottom: 14 } }
+            title: { display: true, text: "Répartition des membres par pôle", align: "start", font: { size: 13 }, color: "#5B6472", padding: { bottom: 14 } }
           },
           scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
         }
@@ -83,7 +86,7 @@
           labels: ["Bacentas", "Centres"],
           datasets: [{
             data: [charts.finance.bacentas, charts.finance.centres],
-            backgroundColor: ["#4F46E5", "#6366F1"],
+            backgroundColor: ["#C9A84C", "#2B3A67"],
             borderRadius: 8,
             maxBarThickness: 70
           }]
@@ -92,7 +95,7 @@
           responsive: true,
           plugins: {
             legend: { display: false },
-            title: { display: true, text: "Cumul des offrandes " + charts.finance.year, align: "start", font: { size: 13 }, color: "#8A8AA3", padding: { bottom: 14 } }
+            title: { display: true, text: "Cumul des offrandes " + charts.finance.year, align: "start", font: { size: 13 }, color: "#5B6472", padding: { bottom: 14 } }
           },
           scales: { y: { beginAtZero: true, ticks: { callback: function (v) { return Number(v).toLocaleString("fr-FR"); } } } }
         }
@@ -108,12 +111,12 @@
           datasets: [{
 label: "% réalisation",
             data: charts.suivi.map(function (s) { return s.pct; }),
-            borderColor: "#4F46E5",
-            backgroundColor: "#4F46E526",
+            borderColor: "#2B3A67",
+            backgroundColor: "#2B3A6726",
             tension: 0.4,
             fill: true,
             pointRadius: 3,
-            pointBackgroundColor: "#4F46E5"
+            pointBackgroundColor: "#2B3A67"
           }]
         },
         options: {
@@ -132,7 +135,7 @@ label: "% réalisation",
           labels: ["Présent", "Absent", "Non renseigné"],
           datasets: [{
 data: [charts.doughnut.present, charts.doughnut.absent, charts.doughnut.none],
-            backgroundColor: ["#22C55E", "#EF4444", "#E5E7EB"]
+            backgroundColor: ["#5E8C4A", "#B4533C", "#E7E0D1"]
           }]
         },
         options: { responsive: true, plugins: { legend: { position: "bottom" } } }

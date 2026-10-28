@@ -88,6 +88,9 @@
   .admin-table { display: none; }
 }
 
+/* ---- Titre de rubrique (même police que les titres de page) ---- */
+.admin-site .page-header h2 { font-size: 28px; line-height: 1.1; }
+
 /* ---- Formulaires ---- */
 /* Réservé aux <fieldset> de l'éditeur (:where garde la spécificité d'origine) ; sans cela la règle
    s'appliquait à TOUS les .form-group de l'application (trait parasite, marges écrasées). */

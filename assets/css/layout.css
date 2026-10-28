@@ -48,7 +48,7 @@
 }
 
 .topbar h1 {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
@@ -112,7 +112,7 @@
 .global-search input:focus {
   border-color: var(--primary);
   background: #fff;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+  box-shadow: 0 0 0 3px var(--ring);
 }
 
 .global-search::before {
@@ -165,7 +165,8 @@
 }
 
 .section-toolbar h2 {
-  font-size: 18px;
+  font-size: 28px;
+  line-height: 1.1;
 }
 
 .section-toolbar .sub {

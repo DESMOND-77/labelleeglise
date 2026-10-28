@@ -111,7 +111,7 @@
 
 .total-chip {
   background: var(--primary-soft);
-  border: 1px solid rgba(79, 70, 229, 0.15);
+  border: 1px solid color-mix(in srgb, var(--primary) 15%, transparent);
   border-radius: var(--radius);
   padding: 10px 16px;
   display: flex;
@@ -138,7 +138,7 @@
 .week-range-label {
   display: inline-block;
   background: var(--primary-soft);
-  border: 1px solid rgba(79, 70, 229, 0.15);
+  border: 1px solid color-mix(in srgb, var(--primary) 15%, transparent);
   color: var(--primary);
   border-radius: var(--radius);
   padding: 9px 14px;
