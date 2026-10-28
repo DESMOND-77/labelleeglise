@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>La Belle Église - Guide d'utilisation</title>
+<!-- Source du guide PDF. Régénérer : python3 docs/guide/build.py (Chrome requis, aucune autre dépendance).
+     Polices : celles de la vitrine (assets/vendor/fonts). Captures : docs/guide/img (données de démonstration). -->
+<link rel="stylesheet" href="../../assets/vendor/fonts/landing-fonts.css">
+<style>
+:root {
+  --ink: #141A2E; --ink-2: #1E2438; --gold: #C9A84C; --gold-ink: #7C5F1F;
+  --cream: #FAF6EE; --cream-2: #F2ECE0; --text: #1A1F33; --soft: #4B5563; --line: #E7E0D1;
+  --alert: #B4533C; --alert-bg: #FBEDE9;
+}
+@page {
+  size: A4;
+  margin: 20mm 17mm 22mm 17mm;
+  @bottom-left  { content: "La Belle Église · Guide d'utilisation"; font: 8pt 'DM Sans', sans-serif; color: #5B6472; }
+  @bottom-right { content: counter(page); font: 8pt 'DM Sans', sans-serif; color: #5B6472; }
+}
+@page :first { margin: 0; @bottom-left { content: none; } @bottom-right { content: none; } }
+* { box-sizing: border-box; }
+html { font-family: 'DM Sans', sans-serif; font-size: 10pt; line-height: 1.5; color: var(--text); }
+body { margin: 0; }
+p { margin: 0 0 6pt; }
+a { color: inherit; text-decoration: none; }
+ul, ol { margin: 0 0 8pt 15pt; padding: 0; }
+li { margin-bottom: 2.5pt; }
+
+/* ---------- Couverture ---------- */
+.cover { width: 210mm; height: 296.5mm; background: var(--ink); color: var(--cream);
+  display: flex; flex-direction: column; justify-content: space-between; padding: 26mm 24mm 22mm;
+  break-after: page; position: relative; overflow: hidden; }
+.cover::after { content: ""; position: absolute; right: -40mm; top: -40mm; width: 130mm; height: 130mm;
+  border-radius: 50%; background: radial-gradient(circle, rgba(201,168,76,.22), transparent 65%); }
+.cover .brand { display: flex; align-items: center; gap: 10mm; position: relative; z-index: 1; }
+.cover .brand img { width: 26mm; height: 26mm; border-radius: 6mm; background: #fff; }
+.cover .brand b { display: block; font: 600 22pt 'Cormorant Garamond', serif; line-height: 1.1; }
+.cover .brand span { display: block; margin-top: 2mm; font-size: 8.5pt; letter-spacing: .16em; color: var(--gold); text-transform: uppercase; font-weight: 600; }
+.cover h1 { all: unset; display: block; font: 600 50pt/1.02 'Cormorant Garamond', serif; position: relative; z-index: 1; }
+.cover .rule { width: 34mm; height: 1.2mm; background: var(--gold); margin: 9mm 0 8mm; position: relative; z-index: 1; }
+.cover .sub { font-size: 14pt; line-height: 1.4; color: #E4E0D6; max-width: 135mm; position: relative; z-index: 1; }
+.cover .foot { font-size: 8.5pt; color: #B9BDCB; position: relative; z-index: 1; line-height: 1.6; }
+.cover .foot b { color: var(--gold); }
+
+/* ---------- Titres ---------- */
+h1 { font: 600 30pt/1.05 'Cormorant Garamond', serif; color: var(--ink); margin: 0 0 12pt; padding-bottom: 7pt;
+  border-bottom: 1.6pt solid var(--gold); break-before: page; break-after: avoid; }
+h1 .n { color: var(--gold-ink); margin-right: 6pt; }
+h2 { font: 600 18pt/1.15 'Cormorant Garamond', serif; color: var(--ink); margin: 16pt 0 5pt; break-after: avoid; }
+h2 .n { color: var(--gold-ink); margin-right: 5pt; }
+h3 { font: 700 10.5pt/1.3 'DM Sans', sans-serif; color: var(--ink); margin: 11pt 0 3pt; break-after: avoid; }
+.lead { font-size: 11.5pt; color: var(--soft); margin-bottom: 10pt; }
+
+/* ---------- Composants ---------- */
+.meta { display: flex; flex-wrap: wrap; gap: 4pt 14pt; padding: 6pt 9pt; margin: 3pt 0 8pt; background: var(--cream-2);
+  border-radius: 4pt; font-size: 9pt; break-inside: avoid; }
+.meta b { color: var(--gold-ink); text-transform: uppercase; font-size: 7.5pt; letter-spacing: .08em; margin-right: 4pt; }
+.k { display: inline-block; background: var(--cream); border: .6pt solid #D6CDB8; border-radius: 3pt; padding: 0 4pt; font-size: 9pt; white-space: nowrap; }
+.callout { border-left: 3pt solid var(--gold); background: var(--cream); padding: 6pt 10pt; margin: 8pt 0; border-radius: 0 4pt 4pt 0; break-inside: avoid; }
+.callout > b { display: block; font-size: 7.5pt; text-transform: uppercase; letter-spacing: .1em; color: var(--gold-ink); margin-bottom: 1pt; }
+.callout.warn { border-left-color: var(--alert); background: var(--alert-bg); }
+.callout.warn > b { color: var(--alert); }
+.callout p:last-child { margin-bottom: 0; }
+.steps { list-style: none; margin: 4pt 0 8pt 0; counter-reset: s; }
+.steps li { counter-increment: s; position: relative; padding-left: 23pt; margin-bottom: 5pt; }
+.steps li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 15pt; height: 15pt; border-radius: 50%;
+  background: var(--gold); color: var(--ink); font-weight: 700; font-size: 8.5pt; text-align: center; line-height: 15pt; }
+figure { margin: 8pt 0 10pt; break-inside: avoid; }
+figure img { width: 100%; display: block; border: .6pt solid #D6CDB8; border-radius: 4pt; }
+figure.narrow img { width: 78%; margin: 0 auto; }
+figcaption { font-size: 8.5pt; color: var(--soft); margin-top: 3pt; text-align: center; }
+.pair { display: flex; gap: 10mm; align-items: flex-start; justify-content: center; margin: 8pt 0 10pt; break-inside: avoid; }
+.pair figure { margin: 0; flex: 0 0 auto; }
+.pair .crop { width: 44mm; height: 156mm; overflow: hidden; border: .6pt solid #D6CDB8; border-radius: 4pt; background: var(--ink); }
+.pair .crop.short { height: 62mm; }
+.pair .crop img { width: 100%; border: 0; border-radius: 0; }
+table { width: 100%; border-collapse: collapse; font-size: 9pt; margin: 6pt 0 10pt; }
+th { background: var(--ink); color: var(--cream); text-align: left; padding: 5pt 7pt; font-weight: 600; }
+td { padding: 5pt 7pt; border-bottom: .6pt solid var(--line); vertical-align: top; }
+tr { break-inside: avoid; }
+tbody tr:nth-child(even) td { background: #FCFAF5; }
+td:first-child { font-weight: 600; color: var(--ink); }
+
+/* ---------- Sommaire ---------- */
+.toc { list-style: none; margin: 8pt 0 0; font-size: 10pt; }
+.toc li { margin: 0; }
+.toc .l1 { margin-top: 8pt; font-weight: 700; color: var(--ink); }
+.toc .l2 { padding-left: 14pt; color: var(--soft); font-size: 9.5pt; }
+.toc a { display: flex; align-items: baseline; gap: 4pt; }
+.toc a::after { content: ""; order: 2; flex: 1; border-bottom: .6pt dotted #B9B2A0; transform: translateY(-2pt); }
+.toc .pg { order: 3; font-variant-numeric: tabular-nums; }
+.toc .t { order: 1; }
+</style>
+</head>
+<body>
+
+<!-- ============================ COUVERTURE ============================ -->
+<section class="cover">
+  <div class="brand">
+    <img src="../../assets/images/logo.png" alt="">
+    <div><b>La Belle Église</b><span>Internationale Franceville</span></div>
+  </div>
+  <div>
+    <h1>Guide<br>d'utilisation</h1>
+    <div class="rule"></div>
+    <p class="sub">Configurer et utiliser l'application : un parcours pour les administrateurs, les responsables et les membres.</p>
+  </div>
+  <div class="foot">
+    <b>Version du 28 octobre 2026</b><br>
+    Les captures d'écran ont été réalisées avec des données de démonstration.<br>
+    Ce guide décrit l'application telle qu'elle est installée aujourd'hui.
+  </div>
+</section>
+
+<!-- ============================ SOMMAIRE ============================ -->
+<h1 id="sommaire" style="break-before: auto">Sommaire</h1>
+<p class="lead">Ce guide est organisé par besoin. Repérez votre profil, puis allez directement au chapitre utile.</p>
+
+<table>
+  <thead><tr><th style="width:30%">Vous êtes…</th><th>Lisez en priorité</th></tr></thead>
+  <tbody>
+    <tr><td>Un visiteur</td><td>Chapitre 1 (créer un compte et se connecter).</td></tr>
+    <tr><td>Un membre</td><td>Chapitre 1 (connexion, profil, notifications) et chapitre 2 (ce que vous voyez).</td></tr>
+    <tr><td>Un berger, un MS, un pasteur, un révérend, un leader</td><td>Chapitres 1, 2 et 4 (les pages que l'administrateur vous a confiées).</td></tr>
+    <tr><td>Un administrateur</td><td>Tout, en commençant par le chapitre 3 (mise en route) puis le chapitre 5 (site public).</td></tr>
+  </tbody>
+</table>
+
+<ol class="toc" id="toc"></ol>
+
+<!-- ============================ 1 ============================ -->
+<h1 id="c1"><span class="n">1</span>Découvrir l'application</h1>
+
+<h2 id="c1-1"><span class="n">1.1</span>À quoi sert l'application</h2>
+<p>L'application a deux faces, qui partagent les mêmes informations :</p>
+<table>
+  <thead><tr><th style="width:24%">Partie</th><th>À quoi elle sert</th><th style="width:26%">Accès</th></tr></thead>
+  <tbody>
+    <tr><td>L'espace de gestion</td><td>Suivre les membres, les bacentas, les centres, les cultes et les basontas ; pointer les présences ; saisir les rapports et les offrandes ; planifier ; suivre les bergers.</td><td>Connexion obligatoire. Le menu dépend de votre profil.</td></tr>
+    <tr><td>Le site public (la vitrine)</td><td>Présenter l'église aux visiteurs : horaires des cultes, centres, événements, équipe, contact.</td><td>Ouvert à tous, sans compte. C'est le premier lien du menu : « Notre église ».</td></tr>
+  </tbody>
+</table>
+<div class="callout"><b>À retenir</b><p>Seules les informations que l'administrateur a choisi de publier apparaissent sur le site public. Rien n'est publié par défaut.</p></div>
+
+<h2 id="c1-2"><span class="n">1.2</span>Se connecter et se déconnecter</h2>
+<div class="meta"><span><b>Page</b> Connexion</span><span><b>Qui</b> Tous les comptes actifs</span></div>
+<ol class="steps">
+  <li>Ouvrez l'adresse de l'application, puis cliquez sur <span class="k">Connexion</span> en haut à droite du site public.</li>
+  <li>Saisissez votre adresse e-mail et votre mot de passe. L'icône en forme d'œil permet d'afficher le mot de passe.</li>
+  <li>Cliquez sur <span class="k">Se connecter</span>. Vous arrivez sur votre page d'accueil.</li>
+  <li>Pour quitter, cliquez sur l'icône de déconnexion en bas du menu, à côté de votre nom.</li>
+</ol>
+<figure class="narrow"><img src="img/connexion.png" alt=""><figcaption>L'écran de connexion. Le lien « Créer un compte » est tout en bas.</figcaption></figure>
+
+<h3>Si la connexion est refusée</h3>
+<table>
+  <thead><tr><th style="width:34%">Message</th><th>Que faire</th></tr></thead>
+  <tbody>
+    <tr><td>Adresse ou mot de passe invalide</td><td>Vérifiez la saisie (majuscules, espaces). Un administrateur peut vous créer un nouveau mot de passe.</td></tr>
+    <tr><td>Adresse e-mail non vérifiée</td><td>Ouvrez l'e-mail de vérification reçu à l'inscription et cliquez sur son lien.</td></tr>
+    <tr><td>Compte en attente de validation</td><td>Votre e-mail est vérifié : il reste à attendre qu'un administrateur active votre compte.</td></tr>
+    <tr><td>Compte désactivé</td><td>Contactez un administrateur.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="c1-3"><span class="n">1.3</span>Créer un compte (visiteur)</h2>
+<div class="meta"><span><b>Page</b> Créer un compte</span><span><b>Qui</b> Toute personne non connectée</span></div>
+<ol class="steps">
+  <li>Sur l'écran de connexion, cliquez sur <span class="k">Créer un compte</span>.</li>
+  <li>Renseignez prénom, nom, e-mail, téléphone, puis un mot de passe de 8 caractères au minimum, à confirmer.</li>
+  <li>Validez. Un e-mail de vérification vous est envoyé : cliquez sur son lien. Il n'est utilisable qu'une seule fois et reste valable 24 heures.</li>
+  <li>Un administrateur est prévenu de votre demande, la consulte et active votre compte. Vous recevez un e-mail de confirmation.</li>
+  <li>Vous pouvez alors vous connecter.</li>
+</ol>
+<div class="callout"><b>Bon à savoir</b><p>Un compte créé par ce formulaire a toujours le profil « Membre ». Seul un administrateur peut attribuer un autre rôle, après l'activation.</p></div>
+
+<h2 id="c1-4"><span class="n">1.4</span>Se repérer à l'écran</h2>
+<figure><img src="img/accueil.png" alt=""><figcaption>L'écran d'accueil d'un administrateur : menu à gauche, barre du haut, tableau de bord au centre.</figcaption></figure>
+<table>
+  <thead><tr><th style="width:24%">Zone</th><th>Rôle</th></tr></thead>
+  <tbody>
+    <tr><td>Menu latéral</td><td>Donne accès à vos pages. Il s'adapte à votre profil. La petite flèche en haut le réduit ; sur téléphone, le bouton à trois barres l'ouvre.</td></tr>
+    <tr><td>Titre de la page</td><td>Indique où vous vous trouvez.</td></tr>
+    <tr><td>Recherche</td><td>« Rechercher une personne… » ouvre la fiche d'un membre (réservée aux administrateurs).</td></tr>
+    <tr><td>Cloche</td><td>Vos notifications (voir 1.5).</td></tr>
+    <tr><td>Votre nom, en haut à droite</td><td>Ouvre le menu du profil : Mon profil, Notre église (le site public) et Déconnexion.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="c1-5"><span class="n">1.5</span>Les notifications</h2>
+<p>La cloche affiche un point rouge quand vous avez des notifications non lues. Cliquer sur une notification ouvre directement l'élément concerné. Selon votre profil, vous êtes prévenu d'une nouvelle inscription, de l'activation de votre compte ou d'un nouveau rapport du jour. Le lien <span class="k">Voir toutes les notifications</span>, au bas de la cloche, ouvre la page qui rassemble l'historique.</p>
+
+<h2 id="c1-6"><span class="n">1.6</span>Mon profil</h2>
+<div class="meta"><span><b>Où</b> Votre nom, en haut à droite → Mon profil</span><span><b>Qui</b> Tous les comptes</span></div>
+<table>
+  <thead><tr><th style="width:26%">Rubrique</th><th>Ce que vous pouvez faire</th></tr></thead>
+  <tbody>
+    <tr><td>Informations personnelles</td><td>Modifier prénom, nom, date de naissance, quartier et téléphone, puis <span class="k">Enregistrer</span>.</td></tr>
+    <tr><td>Photo</td><td><span class="k">Changer la photo</span> : formats JPG, PNG, GIF ou WebP.</td></tr>
+    <tr><td>Mot de passe</td><td>Saisir l'ancien mot de passe, puis le nouveau (8 caractères minimum) et sa confirmation.</td></tr>
+    <tr><td>Adresse e-mail</td><td>Saisir la nouvelle adresse. Vous êtes alors déconnecté automatiquement : vous devez vérifier la nouvelle adresse avant de pouvoir vous reconnecter.</td></tr>
+    <tr><td>Présences récentes</td><td>Lecture seule : vos dernières présences enregistrées.</td></tr>
+  </tbody>
+</table>
+<div class="callout warn"><b>Attention</b><p>Avant de changer d'adresse e-mail, assurez-vous d'avoir accès à la nouvelle boîte de réception. Sans la vérification, vous ne pourrez plus vous connecter.</p></div>
+
+<!-- ============================ 2 ============================ -->
+<h1 id="c2"><span class="n">2</span>Rôles, responsabilités et menus</h1>
+<p class="lead">Ce que vous voyez dans le menu dépend de deux choses : votre rôle et les responsabilités que l'administrateur vous a confiées.</p>
+
+<h2 id="c2-1"><span class="n">2.1</span>Le principe</h2>
+<table>
+  <thead><tr><th style="width:22%">Notion</th><th>Signification</th></tr></thead>
+  <tbody>
+    <tr><td>Rôle</td><td>Ce que la personne peut faire en général (administrateur, pasteur, berger…).</td></tr>
+    <tr><td>Responsabilité</td><td>Quelle structure précise elle gère : un centre, un bacenta, un culte, un basonta, une classe.</td></tr>
+    <tr><td>Périmètre</td><td>Jusqu'où s'étendent ses droits : être responsable d'un centre donne aussi accès aux bacentas de ce centre.</td></tr>
+  </tbody>
+</table>
+<div class="callout"><b>Exemple</b><p>Jean a le rôle « Berger ». L'administrateur le déclare responsable du bacenta « Sion ». Jean voit alors « Mes bacentas » et peut gérer Sion, mais aucun autre bacenta.</p></div>
+
+<h2 id="c2-2"><span class="n">2.2</span>Les rôles</h2>
+<table>
+  <thead><tr><th style="width:20%">Rôle</th><th>Ce que la personne peut faire</th></tr></thead>
+  <tbody>
+    <tr><td>Administrateur</td><td>Accès à toutes les sections, sans limite de périmètre : comptes, inscriptions, responsabilités, finances, site public, paramètres.</td></tr>
+    <tr><td>Pasteur</td><td>Dispose de sa fiche berger et de son suivi hebdomadaire. Peut recevoir la responsabilité d'un centre, d'un bacenta ou d'un culte.</td></tr>
+    <tr><td>Révérend</td><td>Fiche et suivi personnels. Peut recevoir la responsabilité d'un culte.</td></tr>
+    <tr><td>Berger</td><td>Fiche et suivi personnels. Peut recevoir la responsabilité d'un centre ou d'un bacenta.</td></tr>
+    <tr><td>MS</td><td>Traité comme un berger : fiche et suivi personnels, responsabilité de centre ou de bacenta.</td></tr>
+    <tr><td>Leader</td><td>Fiche et suivi personnels. Gère le bacenta auquel il appartient.</td></tr>
+    <tr><td>Membre</td><td>Aucune capacité de gestion : consulte le site public, son profil et ses notifications.</td></tr>
+  </tbody>
+</table>
+<p>Le rôle « Assistant », hérité d'une ancienne version, est traité comme un membre.</p>
+
+<h2 id="c2-3"><span class="n">2.3</span>Ce que montre le menu</h2>
+<div class="pair">
+  <figure><div class="crop"><img src="img/menu-admin.png" alt=""></div><figcaption>Menu d'un administrateur</figcaption></figure>
+  <figure><div class="crop short"><img src="img/menu-berger.png" alt=""></div><figcaption>Menu d'un berger responsable d'un bacenta</figcaption></figure>
+</div>
+<p>Pour un non-administrateur, certaines entrées n'apparaissent que si la responsabilité correspondante lui a été confiée :</p>
+<table>
+  <thead><tr><th style="width:28%">Entrée du menu</th><th>Elle apparaît si…</th></tr></thead>
+  <tbody>
+    <tr><td>Ma fiche berger, Mon suivi hebdomadaire</td><td>Vous avez le rôle berger, MS, pasteur, révérend ou leader.</td></tr>
+    <tr><td>Mes centres, Mes bacentas, Mes basontas, Mes cultes</td><td>Vous êtes responsable d'au moins un élément de ce type.</td></tr>
+    <tr><td>Rapports du Jour</td><td>Vous êtes responsable d'un bacenta.</td></tr>
+    <tr><td>Budget Bus</td><td>Vous êtes responsable d'un centre.</td></tr>
+    <tr><td>Nouveaux membres</td><td>L'administrateur vous a confié cette page.</td></tr>
+    <tr><td>Classes &amp; Écoles</td><td>Vous êtes responsable d'une classe.</td></tr>
+    <tr><td>Agenda</td><td>Vous avez une responsabilité de calendrier.</td></tr>
+  </tbody>
+</table>
+<div class="callout"><b>Astuce</b><p>Sur un écran d'ordinateur peu haut, les deux dernières entrées du menu administrateur, « Inscriptions » et « Site public », sont sous la ligne de flottaison. Faites défiler le menu pour les voir.</p></div>
+<div class="callout warn"><b>Vous ne voyez pas une page ?</b><p>Ce n'est pas une panne : l'administrateur ne vous a probablement pas confié la responsabilité correspondante. Demandez-lui (chapitre 3.4).</p></div>
+
+<!-- ============================ 3 ============================ -->
+<h1 id="c3"><span class="n">3</span>Pour l'administrateur : mise en route</h1>
+<p class="lead">Dans quel ordre configurer l'application, et comment gérer les comptes et les responsabilités.</p>
+
+<h2 id="c3-1"><span class="n">3.1</span>La liste de démarrage</h2>
+<ol class="steps">
+  <li><b>Sécuriser votre accès.</b> Dans Mon profil, changez votre mot de passe (voir 1.6).</li>
+  <li><b>Créer la structure.</b> Dans l'ordre : Centres, puis Bacentas, Cultes et Basontas. Sur chaque page, utilisez le bouton <span class="k">+ Ajouter…</span> ; la roue dentée d'une carte permet de la modifier.</li>
+  <li><b>Créer les comptes.</b> Validez les inscriptions reçues (3.2) ou créez les comptes à la main (3.3).</li>
+  <li><b>Attribuer les responsabilités.</b> Qui gère quel centre, bacenta ou culte (3.4).</li>
+  <li><b>Saisir les membres</b> dans les bacentas et la liste générale (chapitre 4).</li>
+  <li><b>Configurer le site public</b> (chapitre 5).</li>
+  <li><b>Planifier</b> les événements dans l'Agenda.</li>
+  <li><b>Accompagner les responsables</b> : présences, rapports du jour, suivi hebdomadaire.</li>
+</ol>
+
+<h2 id="c3-2"><span class="n">3.2</span>Valider les inscriptions</h2>
+<div class="meta"><span><b>Où</b> Menu → Inscriptions</span><span><b>Qui</b> Administrateurs</span></div>
+<p>Un nombre rouge à côté de « Inscriptions » indique les demandes en attente. Une notification est aussi envoyée à chaque administrateur lorsqu'un visiteur vérifie son e-mail.</p>
+<figure><img src="img/inscriptions.png" alt=""><figcaption>La liste des inscriptions en attente (ici vide). Chaque ligne indique si l'e-mail est vérifié.</figcaption></figure>
+<ol class="steps">
+  <li>Ouvrez <span class="k">Inscriptions</span> et consultez la demande.</li>
+  <li>Vérifiez l'identité de la personne et que son e-mail est bien vérifié.</li>
+  <li>Cliquez sur <span class="k">Activer le compte</span> (ou refusez la demande). La personne reçoit un e-mail de confirmation.</li>
+  <li>Ajustez ensuite son rôle si nécessaire (3.3). Le rôle de départ est toujours « Membre ».</li>
+</ol>
+
+<h2 id="c3-3"><span class="n">3.3</span>Gérer les comptes</h2>
+<div class="meta"><span><b>Où</b> Menu → Paramètres → Comptes application</span><span><b>Qui</b> Administrateurs</span></div>
+<p>Le tableau liste les comptes avec leur nom, e-mail, rôle et état actif. Chaque ligne propose trois actions : voir la fiche, modifier, supprimer. Le bouton <span class="k">+ Créer un compte pour un membre</span> crée un compte sans passer par l'inscription publique.</p>
+<div class="callout"><b>Bon à savoir</b><p>Quand vous changez le rôle d'une personne, ses responsabilités devenues incompatibles sont retirées automatiquement, et l'opération est tracée. Exemple : un pasteur responsable d'un culte qui devient berger perd cette responsabilité de culte.</p></div>
+<div class="callout warn"><b>Attention</b><p>La suppression d'un compte ou d'un élément de la structure est définitive. Vérifiez deux fois avant de supprimer.</p></div>
+
+<h2 id="c3-4"><span class="n">3.4</span>Attribuer les responsabilités</h2>
+<div class="meta"><span><b>Où</b> Menu → Paramètres → Accès &amp; Responsables</span><span><b>Qui</b> Administrateurs</span></div>
+<p>C'est ici que vous confiez à une personne un centre, un bacenta, un culte, un basonta, une classe ou la page « Nouveaux membres ». Seules les personnes éligibles sont proposées :</p>
+<table>
+  <thead><tr><th style="width:30%">Responsabilité</th><th>Rôles éligibles</th></tr></thead>
+  <tbody>
+    <tr><td>Centre, bacenta</td><td>Berger, MS, pasteur</td></tr>
+    <tr><td>Culte</td><td>Pasteur, révérend</td></tr>
+  </tbody>
+</table>
+<p>Le leader n'est pas concerné : il gère directement le bacenta auquel il appartient. Dès l'attribution, l'entrée correspondante apparaît dans le menu de la personne, à sa prochaine page affichée.</p>
+
+<!-- ============================ 4 ============================ -->
+<h1 id="c4"><span class="n">4</span>Utiliser les parties du site</h1>
+<p class="lead">Pour chaque page : à quoi elle sert, qui y accède et comment s'en servir. Les administrateurs voient toutes les pages ; les autres profils, celles de leur périmètre.</p>
+
+<h2 id="c4-1"><span class="n">4.1</span>Accueil : le tableau de bord</h2>
+<div class="meta"><span><b>Qui</b> Administrateurs</span><span><b>Où</b> Menu → Accueil</span></div>
+<p>Il résume l'activité de l'année : un bandeau avec les offrandes cumulées, un carrousel de messages, un compteur de membres par pôle (bacentas, centres, cultes, basontas, liste générale, bergers) et six graphiques d'évolution sur les six derniers mois. Les chiffres se mettent à jour à mesure que vous saisissez des données.</p>
+
+<h2 id="c4-2"><span class="n">4.2</span>Bacentas</h2>
+<div class="meta"><span><b>Qui</b> Administrateurs ; responsables de bacenta (« Mes bacentas »)</span></div>
+<figure class="narrow"><img src="img/bacentas.png" alt=""><figcaption>La liste des bacentas. Une carte par bacenta, avec son centre et son effectif.</figcaption></figure>
+<p>Cliquez sur une carte pour ouvrir le bacenta. Il comporte trois onglets :</p>
+<table>
+  <thead><tr><th style="width:26%">Onglet</th><th>Contenu</th></tr></thead>
+  <tbody>
+    <tr><td>Membres</td><td>La liste des membres, l'ajout d'un nouveau membre, et l'affectation de membres existants.</td></tr>
+    <tr><td>Présences</td><td>Le pointage des présences par date, la matrice annuelle et l'impression.</td></tr>
+    <tr><td>Suivi &amp; Offrandes</td><td>Les visites et les offrandes, avec les totaux du mois et de l'année.</td></tr>
+  </tbody>
+</table>
+<h3>Ajouter des personnes à un bacenta</h3>
+<ul>
+  <li><b>Créer un nouveau membre :</b> utilisez le formulaire d'ajout de l'onglet Membres.</li>
+  <li><b>Affecter des comptes existants :</b> la section « Ajouter des membres » liste les membres actifs, à l'e-mail vérifié, qui n'ont pas encore de bacenta. Recherchez par nom, prénom, e-mail ou téléphone, cochez les personnes, puis validez. Vous ne pouvez agir que sur les bacentas dont vous êtes responsable.</li>
+</ul>
+
+<h2 id="c4-3"><span class="n">4.3</span>Centres</h2>
+<div class="meta"><span><b>Qui</b> Administrateurs ; responsables de centre (« Mes centres »)</span></div>
+<figure class="narrow"><img src="img/centres.png" alt=""><figcaption>La liste des centres. La roue dentée ouvre les réglages d'un centre.</figcaption></figure>
+<p>Un centre regroupe plusieurs bacentas. Sa page comporte deux onglets : <span class="k">Bacentas</span>, la liste de ceux qui lui sont rattachés, et <span class="k">Offrandes</span>, le suivi des offrandes du centre. Le bouton <span class="k">+ Ajouter un centre</span> crée un centre.</p>
+
+<h2 id="c4-4"><span class="n">4.4</span>Cultes</h2>
+<div class="meta"><span><b>Qui</b> Administrateurs ; responsables de culte (« Mes cultes »)</span></div>
+<p>Chaque culte (par exemple « Culte d'Impact » ou « Culte des Leaders ») dispose de son pointage de présence. Choisissez la date du culte, cochez les personnes présentes et enregistrez. La matrice annuelle et la version imprimable donnent une vue d'ensemble de l'année.</p>
+
+<h2 id="c4-5"><span class="n">4.5</span>Basontas</h2>
+<div class="meta"><span><b>Qui</b> Administrateurs ; responsables de basonta (« Mes basontas »)</span></div>
+<p>Un basonta est un groupe ou un service (chorale, ushers, son…). Sa page comporte deux onglets : <span class="k">Membres</span> et <span class="k">Présences</span>, qui fonctionnent comme ceux d'un bacenta.</p>
+
+<h2 id="c4-6"><span class="n">4.6</span>Nouveaux membres</h2>
+<div class="meta"><span><b>Qui</b> Administrateurs ; personnes à qui l'administrateur a confié cette page</span></div>
+<figure class="narrow"><img src="img/nouveaux-membres.png" alt=""><figcaption>Le suivi des nouveaux membres (ici sans donnée). Filtres en haut, tableau en dessous.</figcaption></figure>
+<p>Cette page suit les personnes nouvellement arrivées, avant leur intégration à la liste générale.</p>
+<ol class="steps">
+  <li>Cliquez sur <span class="k">+ Ajouter un nouveau membre</span> et renseignez la fiche.</li>
+  <li>Après chaque culte du dimanche, cliquez sur <span class="k">Pointer les présences</span> et cochez les personnes présentes.</li>
+  <li>Suivez l'avancement dans la colonne « Présences » (par exemple 2/3) et dans la colonne « Statut ».</li>
+  <li>L'icône de dossier ouvre la fiche détaillée d'une personne ; les filtres retrouvent quelqu'un par nom, bacenta ou statut.</li>
+</ol>
+<table>
+  <thead><tr><th style="width:30%">Statut</th><th>Signification</th></tr></thead>
+  <tbody>
+    <tr><td>Nouveau</td><td>La personne vient d'être enregistrée.</td></tr>
+    <tr><td>En suivi</td><td>Elle est accompagnée et revient aux cultes.</td></tr>
+    <tr><td>Prêt pour intégration</td><td>Elle approche du seuil d'intégration.</td></tr>
+    <tr><td>Intégré</td><td>Elle est passée dans la liste générale des membres.</td></tr>
+  </tbody>
+</table>
+<div class="callout"><b>À retenir</b><p>L'intégration est automatique : après 3 présences à des cultes du dimanche différents, la personne est intégrée à la liste générale.</p></div>
+
+<h2 id="c4-7"><span class="n">4.7</span>Liste générale des membres</h2>
+<div class="meta"><span><b>Qui</b> Administrateurs</span></div>
+<p>Tous les membres sur une même page : nom, prénom, téléphone, quartier, bacenta, personne qui l'a invité, personne qui l'a reçu et date d'arrivée. La zone « Filtrer » en haut cherche par nom ou quartier. Le crayon, en bout de ligne, modifie la fiche.</p>
+
+<h2 id="c4-8"><span class="n">4.8</span>Liste des bergers et fiche berger</h2>
+<div class="meta"><span><b>Qui</b> Administrateurs (liste) ; chaque berger pour sa propre fiche (« Ma fiche berger »)</span></div>
+<p>La liste regroupe les bergers. La fiche d'un berger rassemble ses informations, ses dîmes, ses examens et ses veillées. Les examens ont trois états : non passé, réussi, échoué.</p>
+
+<h2 id="c4-9"><span class="n">4.9</span>Suivi hebdomadaire des bergers</h2>
+<div class="meta"><span><b>Qui</b> Les bergers, MS, pasteurs, révérends et leaders (leur suivi) ; les administrateurs (lecture globale)</span></div>
+<p>Un tableau « jour par jour » à remplir chaque semaine : temps de prière quotidien, méditation, jour de prière du flow, livre lu, prédications écoutées, personnes visitées, personnes invitées pour dimanche, diffusion Mixlr, jours de jeûne.</p>
+<ol class="steps">
+  <li>Ouvrez <span class="k">Mon suivi hebdomadaire</span>. Le titre rappelle la semaine affichée ; changez de semaine avec le champ « Date ».</li>
+  <li>Remplissez les cases de chaque jour. Dans les listes de personnes, séparez les noms par un point-virgule : chaque personne s'affichera sur sa propre ligne.</li>
+  <li>Cliquez sur <span class="k">Enregistrer la semaine</span>. Le pourcentage de réalisation se met à jour.</li>
+</ol>
+<p>Une zone « Observation de l'administration » permet à l'administrateur de laisser un commentaire sur la semaine. La page peut être imprimée.</p>
+
+<h2 id="c4-10"><span class="n">4.10</span>Finances &amp; Offrandes</h2>
+<div class="meta"><span><b>Qui</b> Administrateurs</span></div>
+<figure class="narrow"><img src="img/finances.png" alt=""><figcaption>Les trois totaux de l'année en haut, puis le détail par bacenta et par centre.</figcaption></figure>
+<p>Cette page est une synthèse en lecture : total des bacentas, total des centres, cumul global de l'année, détail semaine par semaine, total du mois et total annuel, et un graphique comparatif. Les offrandes des bacentas (le vendredi) et des centres (le mercredi) se saisissent dans l'onglet « Suivi &amp; Offrandes » de chaque bacenta, ou « Offrandes » de chaque centre.</p>
+
+<h2 id="c4-11"><span class="n">4.11</span>Agenda</h2>
+<div class="meta"><span><b>Qui</b> Administrateurs ; personnes ayant une responsabilité de calendrier</span></div>
+<figure class="narrow"><img src="img/agenda.png" alt=""><figcaption>Le calendrier du mois, le détail du jour sélectionné, puis les formulaires d'ajout.</figcaption></figure>
+<ul>
+  <li><b>Consulter :</b> naviguez de mois en mois avec les flèches, ou saisissez une date dans « Aller à une date ». <span class="k">Aujourd'hui</span> revient au jour courant. Cliquer sur un jour affiche ses événements et anniversaires.</li>
+  <li><b>Ajouter un événement :</b> nom, début, fin (facultative), lieu, responsable, puis <span class="k">Ajouter l'événement</span>.</li>
+  <li><b>Ajouter un anniversaire :</b> nom, jour, mois et année (facultative), puis <span class="k">Ajouter l'anniversaire</span>.</li>
+</ul>
+<div class="callout"><b>Lien avec le site public</b><p>Les événements à venir de l'Agenda sont ceux que l'administrateur peut choisir de publier sur la vitrine (chapitre 5.7).</p></div>
+
+<h2 id="c4-12"><span class="n">4.12</span>Rapports du Jour</h2>
+<div class="meta"><span><b>Qui</b> Administrateurs ; responsables de bacenta</span></div>
+<figure class="narrow"><img src="img/rapports.png" alt=""><figcaption>La liste des rapports, avec ses filtres par centre et par mois.</figcaption></figure>
+<ol class="steps">
+  <li>Cliquez sur <span class="k">+ Nouveau rapport</span>.</li>
+  <li>Choisissez le centre, la date (jamais postérieure à aujourd'hui) et le type : rapport d'un bacenta ou rapport du centre.</li>
+  <li>Pour un bacenta, choisissez lequel, puis <span class="k">Continuer</span>.</li>
+  <li>Renseignez les champs : nombre de présents, d'adultes, d'enfants, d'anciens, de nouveaux et de nés de nouveau ; montant de l'offrande ; noms des assistants ; livre et chapitre enseignés.</li>
+  <li>Enregistrez. Les administrateurs reçoivent une notification.</li>
+</ol>
+<p>Les responsables du centre et du bacenta sont enregistrés avec le rapport au moment de sa création. Un rapport créé par quelqu'un d'autre s'ouvre en consultation seule.</p>
+
+<h2 id="c4-13"><span class="n">4.13</span>Classes &amp; Écoles</h2>
+<div class="meta"><span><b>Qui</b> Administrateurs ; responsables de classe</span></div>
+<figure class="narrow"><img src="img/classes.png" alt=""><figcaption>Le formulaire d'ajout d'une classe, puis les sept cursus.</figcaption></figure>
+<p>Sept cursus de discipulat sont prévus, dans cet ordre : Manuel du nouveau croyant ; Sept grands principes ; Ce que signifie être un chrétien fort ; École de la fondation solide ; École de la vie victorieuse ; École de la parole ; École de l'apologétique.</p>
+<ul>
+  <li><b>Créer ou modifier une classe :</b> nom, formateur, ordre de progression, nombre de modules, prochaine session, case « Classe active ».</li>
+  <li><b>Ouvrir une classe :</b> consultez les inscrits actuels et anciens, et inscrivez de nouvelles personnes.</li>
+  <li><b>Progression automatique :</b> quand un inscrit réussit les deux examens (oral et écrit), il est marqué « terminé » et inscrit dans la classe d'ordre supérieur.</li>
+</ul>
+
+<h2 id="c4-14"><span class="n">4.14</span>Budget Bus</h2>
+<div class="meta"><span><b>Qui</b> Administrateurs ; responsables de centre</span></div>
+<figure class="narrow"><img src="img/budget-bus.png" alt=""><figcaption>Les filtres année et centre, puis le formulaire d'un nouveau mouvement.</figcaption></figure>
+<p>Cette page suit les sommes retirées pour le bus du dimanche, centre par centre.</p>
+<ol class="steps">
+  <li>Choisissez l'année et, si besoin, un centre.</li>
+  <li>Dans « Nouveau mouvement », sélectionnez le centre : la ligne « Solde disponible » s'affiche.</li>
+  <li>Indiquez la date, le montant et, au besoin, des observations, puis <span class="k">Ajouter le mouvement</span>.</li>
+</ol>
+<div class="callout"><b>Comment le solde est calculé</b><p>Solde disponible = total des offrandes du centre - total des retraits déjà enregistrés. Le montant d'un retrait ne peut pas dépasser ce solde.</p></div>
+
+<!-- ============================ 5 ============================ -->
+<h1 id="c5"><span class="n">5</span>Configurer le site public</h1>
+<p class="lead">La vitrine est la page que voient les visiteurs. Tout se règle dans l'éditeur « Site public ».</p>
+
+<h2 id="c5-1"><span class="n">5.1</span>Principes</h2>
+<div class="meta"><span><b>Où</b> Menu → Site public (tout en bas)</span><span><b>Qui</b> Administrateurs</span></div>
+<ul>
+  <li><b>Rien n'est publié par défaut.</b> Chaque centre, membre d'équipe, événement ou ministère est publié uniquement si vous le choisissez.</li>
+  <li><b>Une section vide disparaît.</b> Si vous ne renseignez rien pour une section, elle n'apparaît pas sur le site. Aucun texte n'est inventé.</li>
+  <li><b>Aucun bouton décoratif.</b> Un bouton d'action n'apparaît que s'il mène vers une vraie page.</li>
+  <li><b>Prévisualisez</b> à tout moment avec le bouton « Prévisualiser le site public ».</li>
+</ul>
+<p>L'éditeur est organisé en onglets, listés à gauche (en haut sur téléphone) :</p>
+<table>
+  <thead><tr><th style="width:30%">Onglet</th><th>Ce qu'il règle sur la vitrine</th></tr></thead>
+  <tbody>
+    <tr><td>Vue d'ensemble</td><td>L'état du site et ce qu'il reste à compléter.</td></tr>
+    <tr><td>Identité et accueil</td><td>Nom, slogan, texte d'accueil, adresse, image d'accueil, coordonnées.</td></tr>
+    <tr><td>À propos</td><td>Accroche, histoire et image de la section « À propos ».</td></tr>
+    <tr><td>Centres</td><td>Les centres affichés, leurs horaires et leurs contacts.</td></tr>
+    <tr><td>Équipe pastorale</td><td>Les personnes présentées.</td></tr>
+    <tr><td>Événements</td><td>Les événements à venir mis en avant.</td></tr>
+    <tr><td>Médias et prédications</td><td>Le lien du culte en direct, la dernière prédication.</td></tr>
+    <tr><td>FAQ</td><td>Les questions de la section « Première visite ».</td></tr>
+    <tr><td>Ministères et activités</td><td>Les bacentas et basontas présentés.</td></tr>
+    <tr><td>Pages légales</td><td>Mentions légales et politique de confidentialité.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="c5-2"><span class="n">5.2</span>Vue d'ensemble</h2>
+<figure><img src="img/site-public-vue-ensemble.png" alt=""><figcaption>Les indicateurs de publication (centres, équipe, événements, FAQ) et la liste « Actions à effectuer ».</figcaption></figure>
+<p>Commencez ici. « Actions à effectuer » liste, en clair, ce qui manque (nom d'affichage, slogan, image, centre incomplet, etc.) ; chaque ligne mène directement à l'onglet concerné. Le bloc « Ministères » indique combien de bacentas et de basontas sont publiés.</p>
+
+<h2 id="c5-3"><span class="n">5.3</span>Identité et accueil</h2>
+<table>
+  <thead><tr><th style="width:32%">Champ</th><th>Utilisation</th></tr></thead>
+  <tbody>
+    <tr><td>Nom d'affichage *</td><td>Le nom de l'église, affiché en tête du site. Obligatoire.</td></tr>
+    <tr><td>Slogan</td><td>Une phrase courte, au-dessus du titre de l'accueil.</td></tr>
+    <tr><td>Texte d'accueil</td><td>Un accueil chaleureux pour les visiteurs (500 caractères au maximum).</td></tr>
+    <tr><td>Adresse (siège)</td><td>L'adresse générale de l'église.</td></tr>
+    <tr><td>Image d'accueil</td><td>L'image de fond de l'accueil : JPG, PNG, WebP ou GIF, 4 Mo au maximum. Ajoutez un texte alternatif qui décrit l'image, pour les lecteurs d'écran.</td></tr>
+    <tr><td>Coordonnées et réseaux</td><td>Téléphone, WhatsApp (avec l'indicatif international), e-mail, et liens Facebook, YouTube, Instagram. Les liens doivent commencer par https.</td></tr>
+  </tbody>
+</table>
+<div class="callout"><b>Carrousel d'images</b><p>Le fond de l'accueil peut défiler sur plusieurs images ou vidéos. Elles se déposent dans le dossier <span class="k">assets/carousel</span> du site, nommées <span class="k">1</span>, <span class="k">2</span>, <span class="k">3</span>… avec leur extension : le numéro fixe l'ordre de passage. Cette opération se fait sur le serveur, pas dans l'éditeur.</p></div>
+
+<h2 id="c5-4"><span class="n">5.4</span>À propos</h2>
+<figure><img src="img/site-public-a-propos.png" alt=""><figcaption>L'onglet « À propos » : texte, image et rappel de ce qui est affiché automatiquement.</figcaption></figure>
+<table>
+  <thead><tr><th style="width:32%">Champ</th><th>Utilisation</th></tr></thead>
+  <tbody>
+    <tr><td>Phrase d'accroche</td><td>Une phrase d'introduction, mise en avant sous le titre.</td></tr>
+    <tr><td>Histoire de l'église</td><td>Le texte principal. Séparez les paragraphes par une ligne vide.</td></tr>
+    <tr><td>Image de la section</td><td>Une image dédiée, avec son texte alternatif. Sans image, le site utilise l'image d'accueil, puis la photo d'un centre publié.</td></tr>
+  </tbody>
+</table>
+<ul>
+  <li>La section n'apparaît que si l'accroche ou l'histoire est renseignée. Son titre devient « Notre histoire » dès qu'une histoire est saisie, sinon « Notre église ».</li>
+  <li>Les chiffres de la section (centres, années de ministère, pasteurs et bergers, groupes de prière) sont calculés automatiquement à partir des centres et des ministères publiés.</li>
+  <li>L'équipe pastorale se règle dans son propre onglet (5.6).</li>
+</ul>
+
+<h2 id="c5-5"><span class="n">5.5</span>Centres</h2>
+<p>La liste permet de rechercher et de filtrer les centres. Cliquez sur un centre pour ouvrir sa fiche : informations générales (adresse, quartier, ville), contacts propres au centre, informations publiques (responsable affiché, lien d'itinéraire) et horaires.</p>
+<ul>
+  <li><b>Horaires :</b> ajoutez une ligne par réunion (libellé, jours, heure de début, heure de fin facultative).</li>
+  <li><b>Publier :</b> cochez la case « Publier » pour afficher le centre. Un centre non publié est marqué « Brouillon - non affiché publiquement ».</li>
+</ul>
+<div class="callout warn"><b>Condition de publication</b><p>Un centre n'apparaît sur le site que s'il a une adresse, au moins un horaire et un moyen de contact : le sien, ou à défaut le contact général de l'église. La vue d'ensemble signale les centres incomplets.</p></div>
+
+<h2 id="c5-6"><span class="n">5.6</span>Équipe pastorale</h2>
+<p>Cochez les personnes que vous souhaitez présenter, puis <span class="k">Enregistrer l'équipe</span>. Le bouton « Gérer les membres » mène à la page « Présentation de l'église », où l'on ajoute, modifie ou supprime les membres de l'équipe.</p>
+<div class="callout warn"><b>Consentement requis</b><p>Une case cochée n'est pas une preuve d'autorisation. Ne publiez un nom, un rôle, une photo ou une présentation que si la personne a donné son accord explicite. La publication est désactivée par défaut pour tout nouveau membre.</p></div>
+
+<h2 id="c5-7"><span class="n">5.7</span>Événements</h2>
+<p>La liste reprend les événements à venir créés dans l'Agenda. Pour chacun, cochez « Publier », puis complétez si besoin la description publique, l'affiche (JPG, PNG, WebP ou GIF, 4 Mo au maximum) et un lien d'inscription (https). Le lien d'inscription ne doit être renseigné que si un véritable mécanisme d'inscription existe. L'événement le plus proche alimente aussi la barre d'annonce et l'accueil du site.</p>
+
+<h2 id="c5-8"><span class="n">5.8</span>Médias et prédications</h2>
+<ul>
+  <li><b>Culte en direct :</b> le lien (https) de la diffusion.</li>
+  <li><b>Dernière prédication :</b> son titre, sa date et le lien (https) vers la plateforme officielle. Sans lien valide, la prédication n'est pas affichée.</li>
+</ul>
+
+<h2 id="c5-9"><span class="n">5.9</span>FAQ</h2>
+<p>Rédigez les questions que se posent les nouveaux visiteurs, chacune avec sa réponse. Elles s'affichent dans la section « Première visite ». Une question sans réponse n'est jamais publiée. Utilisez le bouton d'ajout pour une nouvelle question ; l'icône de suppression retire une question.</p>
+
+<h2 id="c5-10"><span class="n">5.10</span>Ministères et activités</h2>
+<p>Deux listes : les bacentas (rassemblements de prière) et les basontas (groupes et services : chorale, pianistes, ushers…). Pour chaque élément, rédigez la description publique (public concerné, horaire, contact), puis cochez-le pour le publier. Un ministère sans description n'est pas publié. Aucune liste de membres n'est jamais exposée.</p>
+
+<h2 id="c5-11"><span class="n">5.11</span>Pages légales</h2>
+<p>Saisissez le texte des mentions légales et celui de la politique de confidentialité. Chaque page n'est accessible que si son texte est renseigné ; sinon, le lien correspondant n'existe pas.</p>
+
+<!-- ============================ 6 ============================ -->
+<h1 id="c6"><span class="n">6</span>Questions fréquentes</h1>
+<table>
+  <thead><tr><th style="width:36%">Problème</th><th>Solution</th></tr></thead>
+  <tbody>
+    <tr><td>Je n'arrive pas à me connecter.</td><td>Lisez le message affiché (tableau en 1.2). Si l'adresse est inconnue ou le mot de passe oublié, demandez à un administrateur.</td></tr>
+    <tr><td>Je n'ai pas reçu l'e-mail de vérification.</td><td>Regardez dans les courriers indésirables. Le lien est valable 24 heures.</td></tr>
+    <tr><td>Je ne vois pas telle page dans le menu.</td><td>Elle dépend de vos responsabilités (2.3). Demandez-les à un administrateur.</td></tr>
+    <tr><td>Où sont « Inscriptions » et « Site public » ?</td><td>Tout en bas du menu administrateur. Faites défiler le menu.</td></tr>
+    <tr><td>Où modifier le texte « À propos » du site ?</td><td>Menu → Site public → onglet « À propos ».</td></tr>
+    <tr><td>Une section du site public a disparu.</td><td>Elle n'a plus de contenu publié : une section vide est masquée. Vérifiez la vue d'ensemble.</td></tr>
+    <tr><td>Mon centre n'apparaît pas sur le site.</td><td>Vérifiez qu'il est publié et qu'il a une adresse, un horaire et un contact (5.5).</td></tr>
+    <tr><td>Mon image est refusée.</td><td>Utilisez un fichier JPG, PNG, WebP ou GIF de 4 Mo au maximum.</td></tr>
+    <tr><td>J'ai changé d'e-mail et je suis déconnecté.</td><td>C'est normal : vérifiez la nouvelle adresse avec l'e-mail reçu, puis reconnectez-vous.</td></tr>
+    <tr><td>Un nouveau membre n'est pas passé « Intégré ».</td><td>Il lui faut 3 présences à des cultes du dimanche différents, pointées dans « Nouveaux membres ».</td></tr>
+    <tr><td>Je ne peux pas retirer de l'argent du Budget Bus.</td><td>Le montant dépasse le solde disponible du centre (offrandes moins retraits).</td></tr>
+  </tbody>
+</table>
+
+<h2 id="c6-2"><span class="n">6.1</span>Bonnes pratiques</h2>
+<ul>
+  <li>Choisissez un mot de passe long, propre à cette application, et ne le partagez jamais.</li>
+  <li>Déconnectez-vous après usage sur un appareil partagé.</li>
+  <li>N'attribuez à chacun que les responsabilités dont il a besoin.</li>
+  <li>Obtenez l'accord de chaque personne avant de publier ses informations sur le site public.</li>
+  <li>Pour l'administrateur technique : sauvegardez régulièrement la base de données et le dossier <span class="k">uploads</span>, qui contient les photos et les affiches.</li>
+</ul>
+
+<!-- ============================ ANNEXES ============================ -->
+<h1 id="c7"><span class="n">7</span>Annexes</h1>
+
+<h2 id="c7-1"><span class="n">7.1</span>Glossaire</h2>
+<table>
+  <thead><tr><th style="width:24%">Terme</th><th>Définition</th></tr></thead>
+  <tbody>
+    <tr><td>Bacenta</td><td>Un rassemblement de prière en petit groupe, rattaché à un centre.</td></tr>
+    <tr><td>Centre</td><td>Un lieu de culte qui regroupe plusieurs bacentas.</td></tr>
+    <tr><td>Basonta</td><td>Un groupe ou un service : chorale, ushers, son…</td></tr>
+    <tr><td>Culte</td><td>Une réunion de l'église dont on pointe les présences.</td></tr>
+    <tr><td>Berger</td><td>Une personne qui accompagne un groupe. Elle a une fiche et un suivi hebdomadaire.</td></tr>
+    <tr><td>MS</td><td>Rôle traité comme celui de berger.</td></tr>
+    <tr><td>Responsabilité</td><td>Le centre, bacenta, culte, basonta ou la classe qu'une personne gère.</td></tr>
+    <tr><td>Vitrine</td><td>Le site public, visible par tous.</td></tr>
+    <tr><td>Publier</td><td>Rendre un élément visible sur la vitrine.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="c7-2"><span class="n">7.2</span>Adresses utiles</h2>
+<p>Elles s'écrivent à la suite de l'adresse de l'application, après <span class="k">index.php</span>.</p>
+<table>
+  <thead><tr><th style="width:42%">Page</th><th>Fin de l'adresse</th></tr></thead>
+  <tbody>
+    <tr><td>Site public</td><td>?page=eglise</td></tr>
+    <tr><td>Connexion</td><td>?page=login</td></tr>
+    <tr><td>Créer un compte</td><td>?page=register</td></tr>
+    <tr><td>Mon profil</td><td>?page=profile</td></tr>
+    <tr><td>Notifications</td><td>?page=notifications</td></tr>
+    <tr><td>Inscriptions en attente (admin)</td><td>?page=admin_inscriptions</td></tr>
+    <tr><td>Comptes et responsabilités (admin)</td><td>?page=parametres</td></tr>
+    <tr><td>Éditeur du site public (admin)</td><td>?page=site_public</td></tr>
+    <tr><td>Onglet « À propos » de l'éditeur (admin)</td><td>?page=site_public&amp;tab=about</td></tr>
+    <tr><td>Présentation de l'église, équipe (admin)</td><td>?page=apropos</td></tr>
+  </tbody>
+</table>
+
+</body>
+</html>
