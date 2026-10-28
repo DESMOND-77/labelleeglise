@@ -611,7 +611,7 @@ function members_table(string $section, ?int $entityId, string $label, int $coun
     if (in_array($section, ['generale', 'bergers'], true)) {
         $filterBox = '<form method="get" action="index.php" class="filter-row">'
             . '<input type="hidden" name="page" value="' . h($section) . '">'
-            . '<input type="search" class="search-input" name="q" placeholder="Filtrer (nom, quartier)…" value="' . h($filter ?? '') . '">'
+            . '<input type="search" class="search-input" name="q" aria-label="Filtrer la liste" placeholder="Filtrer (nom, quartier)…" value="' . h($filter ?? '') . '">'
             . '<button class="btn btn-outline btn-sm" type="submit">Filtrer</button>'
             . ($filter ? '<a class="btn btn-outline btn-sm" href="' . h(url('index.php', ['page' => $section])) . '">Effacer</a>' : '')
             . '</form>';

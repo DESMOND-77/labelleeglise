@@ -48,6 +48,10 @@
 .inline-add-form input,
 .inline-add-form select,
 .inline-resp-form select,
+.rapport-filters input:not([type="hidden"]),
+.rapport-filters select,
+.rapport-picker input:not([type="hidden"]),
+.rapport-picker select,
 .search-input {
   padding: 10px 12px;
   border: 1px solid var(--border);
@@ -76,6 +80,10 @@
 .inline-add-form input:focus,
 .inline-add-form select:focus,
 .inline-resp-form select:focus,
+.rapport-filters input:focus,
+.rapport-filters select:focus,
+.rapport-picker input:focus,
+.rapport-picker select:focus,
 .search-input:focus {
   border-color: var(--primary);
   background: #fff;
@@ -89,7 +97,9 @@
 
 .form-group select,
 .inline-add-form select,
-.inline-resp-form select {
+.inline-resp-form select,
+.rapport-filters select,
+.rapport-picker select {
   cursor: pointer;
   appearance: auto;
 }

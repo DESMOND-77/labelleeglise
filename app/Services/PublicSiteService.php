@@ -113,7 +113,7 @@ class PublicSiteService
             'don_usage' => $this->clean($settings['don_usage'] ?? null),
             'faq'      => $this->faq(),
             'ministries' => $ministries,
-            'hasMinistries' => $ministries !== [],
+            'hasMinistries' => $ministries['bacentas'] !== [] || $ministries['basontas'] !== [],
             'fuseau'   => $this->timezoneLabel(),
             'has_mentions_legales' => $this->clean($settings['mentions_legales'] ?? null) !== '',
             'has_confidentialite'  => $this->clean($settings['confidentialite'] ?? null) !== '',

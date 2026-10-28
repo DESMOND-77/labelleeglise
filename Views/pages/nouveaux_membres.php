@@ -11,7 +11,7 @@ $presenceBadge = static function (int $nb): string {
 ?>
 <div class="section-toolbar">
   <div><h2><?= h(SECTION_LABELS['nouveaux_membres']) ?></h2><div class="sub">Suivi des nouvelles personnes avant leur intégration à la liste générale</div></div>
-  <div style="display:flex;gap:8px;">
+  <div class="toolbar-actions">
     <a class="btn btn-outline" href="<?= h(url('index.php', ['page' => 'nouveaux_membres', 'pointage' => 1])) ?>"><i class="fa-solid fa-calendar-check"></i> Pointer les présences</a>
     <a class="btn btn-primary" href="<?= h(url('index.php', ['page' => 'nouveau_membre', 'form' => 1])) ?>"><i class="fa-solid fa-plus"></i> Ajouter un nouveau membre</a>
   </div>

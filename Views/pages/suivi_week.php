@@ -11,8 +11,8 @@
   <form method="get" action="index.php" class="suivi-toolbar">
     <input type="hidden" name="page" value="suiviBergers">
     <input type="hidden" name="membre" value="<?= h($member['id']) ?>">
-    <label>Date (année / mois / jour)</label>
-    <input type="date" name="semaine" value="<?= h($mondayDate) ?>" onchange="this.form.submit()">
+    <label for="suiviSemaine">Date (année / mois / jour)</label>
+    <input id="suiviSemaine" type="date" name="semaine" value="<?= h($mondayDate) ?>" onchange="this.form.submit()">
   </form>
 </div>
 <div class="week-range-label"><?= h($weekRange) ?></div>
@@ -46,18 +46,18 @@
               <?php $val = $data[$f['key']] ?? ''; ?>
               <td>
                 <?php if (($f['type'] ?? 'text') === 'select'): ?>
-                  <select name="suivi[<?= h($day) ?>][<?= h($f['key']) ?>]">
+                  <select aria-label="<?= h($f['label'] . ' - ' . $day) ?>" name="suivi[<?= h($day) ?>][<?= h($f['key']) ?>]">
                     <option value="">-</option>
                     <option value="Oui" <?= $val === 'Oui' ? 'selected' : '' ?>>Oui</option>
                     <option value="Non" <?= $val === 'Non' ? 'selected' : '' ?>>Non</option>
                   </select>
                 <?php elseif (($f['type'] ?? 'text') === 'textarea'): ?>
-                  <textarea class="<?= !empty($f['semicolonList']) ? 'semicolon-list-input' : '' ?>"
+                  <textarea aria-label="<?= h($f['label'] . ' - ' . $day) ?>" class="<?= !empty($f['semicolonList']) ? 'semicolon-list-input' : '' ?>"
                             name="suivi[<?= h($day) ?>][<?= h($f['key']) ?>]"
                             placeholder="<?= !empty($f['semicolonList']) ? 'Nom 1; Nom 2; Nom 3' : '' ?>"><?= h($val) ?></textarea>
                   <?php if (!empty($f['semicolonList'])): ?><small class="form-hint">Séparez les personnes par « ; » : chaque personne sera affichée sur une ligne.</small><?php endif; ?>
                 <?php else: ?>
-                  <input type="<?= ($f['type'] ?? 'text') === 'number' ? 'number' : 'text' ?>"
+                  <input aria-label="<?= h($f['label'] . ' - ' . $day) ?>" type="<?= ($f['type'] ?? 'text') === 'number' ? 'number' : 'text' ?>"
                          <?= ($f['type'] ?? 'text') === 'number' ? 'min="0"' : '' ?>
                          name="suivi[<?= h($day) ?>][<?= h($f['key']) ?>]" value="<?= h($val) ?>">
                 <?php endif; ?>
@@ -88,7 +88,7 @@
     <input type="hidden" name="membre" value="<?= h($member['id']) ?>">
     <input type="hidden" name="semaine" value="<?= h($weekKey) ?>">
     <div class="form-group">
-      <textarea name="observation" rows="6" placeholder="Observations, remarques, appréciations, recommandations ou instructions…"><?= h($observation['observation'] ?? '') ?></textarea>
+      <textarea name="observation" aria-label="Observation de l'administration" rows="6" placeholder="Observations, remarques, appréciations, recommandations ou instructions…"><?= h($observation['observation'] ?? '') ?></textarea>
     </div>
     <div class="modal-actions">
       <?php if (!empty($observation['updated_at'])): ?>

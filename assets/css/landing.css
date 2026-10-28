@@ -198,7 +198,7 @@ html:has(body.landing) {
   scroll-padding-top: calc(var(--lp-header-h) + var(--lp-6));
 }
 
-.skip-link {
+.landing .skip-link {
   position: absolute;
   top: calc(-1 * var(--lp-16));
   left: var(--lp-4);
@@ -211,7 +211,7 @@ html:has(body.landing) {
   text-decoration: none;
 }
 
-.skip-link:focus {
+.landing .skip-link:focus {
   top: var(--lp-2);
 }
 

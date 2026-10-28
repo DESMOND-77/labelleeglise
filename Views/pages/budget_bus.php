@@ -46,7 +46,7 @@ $yearsOpt = range((int) date('Y') + 1, (int) date('Y') - 5);
   <h3 class="form-section-title"><?= $editId ? 'Modifier un mouvement' : 'Nouveau mouvement' ?></h3>
   <div class="form-grid">
     <div class="form-group">
-      <label>Centre</label>
+      <label for="busCentreSelect">Centre</label>
       <select id="busCentreSelect" name="centre_id" data-bus-balances="<?= h(json_encode($balances, JSON_THROW_ON_ERROR)) ?>">
         <option value="">- Choisir -</option>
         <?php foreach ($centres as $c): ?>
@@ -57,20 +57,20 @@ $yearsOpt = range((int) date('Y') + 1, (int) date('Y') - 5);
       <div class="form-hint" data-bus-balance>Solde disponible : <strong><?= $fcfa($balances[(int) $val('centre_id', $edit['centre_id'] ?? 0)] ?? 0) ?> FCFA</strong></div>
     </div>
     <div class="form-group">
-      <label>Date</label>
-      <input type="date" name="date_retrait" value="<?= h((string) $val('date_retrait', date('Y-m-d'))) ?>">
+      <label for="busDate">Date</label>
+      <input id="busDate" type="date" name="date_retrait" value="<?= h((string) $val('date_retrait', date('Y-m-d'))) ?>">
       <?php if (!empty($errors['date_retrait'])): ?><span class="form-error"><?= h($errors['date_retrait']) ?></span><?php endif; ?>
     </div>
     <div class="form-group">
-      <label>Montant (FCFA)</label>
+      <label for="busAmount">Montant (FCFA)</label>
       <input id="busAmount" type="number" min="0" step="0.01" max="<?= h((string) ($balances[(int) $val('centre_id', $edit['centre_id'] ?? 0)] ?? 0)) ?>" name="montant" value="<?= h((string) $val('montant', '0')) ?>">
       <?php if (!empty($errors['montant'])): ?><span class="form-error"><?= h($errors['montant']) ?></span><?php endif; ?>
     </div>
   </div>
   <div class="form-grid">
     <div class="form-group form-group-wide">
-      <label>Observations</label>
-      <textarea name="observations" rows="2"><?= h((string) $val('observations')) ?></textarea>
+      <label for="busObs">Observations</label>
+      <textarea id="busObs" name="observations" rows="2"><?= h((string) $val('observations')) ?></textarea>
     </div>
   </div>
   <div class="modal-actions">
