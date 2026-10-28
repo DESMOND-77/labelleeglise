@@ -55,9 +55,16 @@
 /* ---- Actions de ligne ---- */
 .row-actions {
   white-space: nowrap;
-  display: flex;
-  gap: 5px;
-  justify-content: flex-end;
+  text-align: right;
+}
+
+/* Pas de display:flex sur un <td> : la cellule perdrait la bordure de ligne. */
+.row-actions > * {
+  vertical-align: middle;
+}
+
+.row-actions > * + * {
+  margin-left: 5px;
 }
 
 /* ---- Badges ---- */

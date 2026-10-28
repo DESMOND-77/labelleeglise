@@ -12,7 +12,8 @@
 .rapport-filters input:not([type="hidden"]),
 .rapport-filters select,
 .rapport-picker input:not([type="hidden"]),
-.rapport-picker select {
+.rapport-picker select,
+.bus-filters select {
   min-height: 40px;
 }
 

@@ -31,6 +31,19 @@
   margin-bottom: 0;
 }
 
+/* Rangées de champs et titre de formulaire : même rythme que les .form-group */
+.form-grid {
+  margin-bottom: var(--space-4);
+}
+
+.form-grid:last-child {
+  margin-bottom: 0;
+}
+
+.form-card > h3 {
+  margin-bottom: var(--space-4);
+}
+
 .form-group label,
 .field label,
 .field > span {
@@ -52,6 +65,7 @@
 .rapport-filters select,
 .rapport-picker input:not([type="hidden"]),
 .rapport-picker select,
+.bus-filters select,
 .search-input {
   padding: 10px 12px;
   border: 1px solid var(--border);
@@ -84,6 +98,7 @@
 .rapport-filters select:focus,
 .rapport-picker input:focus,
 .rapport-picker select:focus,
+.bus-filters select:focus,
 .search-input:focus {
   border-color: var(--primary);
   background: #fff;
@@ -99,7 +114,8 @@
 .inline-add-form select,
 .inline-resp-form select,
 .rapport-filters select,
-.rapport-picker select {
+.rapport-picker select,
+.bus-filters select {
   cursor: pointer;
   appearance: auto;
 }
@@ -235,6 +251,10 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.form-card > h3.form-section-title:first-of-type {
+  margin-top: 0;
 }
 
 .form-hint {

@@ -77,21 +77,21 @@
 }
 
 .btn-danger {
-  background: var(--danger);
+  background: var(--danger-text);
   color: #fff;
 }
 
 .btn-danger:hover {
-  background: #DC2626;
+  background: color-mix(in srgb, var(--danger-text) 82%, black);
 }
 
 .btn-success {
-  background: var(--success);
+  background: var(--success-text);
   color: #fff;
 }
 
 .btn-success:hover {
-  background: #16A34A;
+  background: color-mix(in srgb, var(--success-text) 82%, black);
 }
 
 /* ---- Tailles ---- */

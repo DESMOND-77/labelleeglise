@@ -117,7 +117,7 @@
 }
 
 .icon-btn.danger:hover {
-  background: var(--danger);
+  background: var(--danger-text);
   color: #fff;
 }
 

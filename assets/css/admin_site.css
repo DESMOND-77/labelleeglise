@@ -89,7 +89,9 @@
 }
 
 /* ---- Formulaires ---- */
-.form-group { border: none; border-top: 1px solid var(--border); margin: 0; padding: var(--space-4) 0 0; }
+/* Réservé aux <fieldset> de l'éditeur (:where garde la spécificité d'origine) ; sans cela la règle
+   s'appliquait à TOUS les .form-group de l'application (trait parasite, marges écrasées). */
+:where(fieldset).form-group { border: none; border-top: 1px solid var(--border); margin: 0; padding: var(--space-4) 0 0; }
 .form-group legend { font-weight: 600; padding: 0 var(--space-1); margin-bottom: var(--space-3); }
 .form-card-inner { border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-3) var(--space-4); margin: 0 0 var(--space-3); background: var(--bg); }
 .form-card-inner legend { font-weight: 600; padding: 0 var(--space-1); }

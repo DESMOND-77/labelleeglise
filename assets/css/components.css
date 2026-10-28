@@ -110,6 +110,11 @@
   transition: all var(--dur) var(--ease);
   background: transparent;
   padding: 0 2px;
+  /* Ne passe pas sous l'icône « afficher le mot de passe » */
+  max-width: calc(100% - 56px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .floating-field input:focus + label,
