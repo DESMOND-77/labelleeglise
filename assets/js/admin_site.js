@@ -73,21 +73,22 @@
     });
   }
 
-  /* ---- Aperçu de l'image d'accueil ---- */
-  const heroInput = document.querySelector('input[name="hero_image"]');
-  const heroPreview = document.getElementById('hero-preview');
-  if (heroInput && heroPreview) {
-    heroInput.addEventListener('change', function () {
-      const file = heroInput.files && heroInput.files[0];
-      if (!file) { heroPreview.hidden = true; return; }
+  /* ---- Aperçu des images (accueil, à propos) ---- */
+  [['hero_image', 'hero-preview'], ['about_image', 'about-preview']].forEach(function (pair) {
+    const input = document.querySelector('input[name="' + pair[0] + '"]');
+    const preview = document.getElementById(pair[1]);
+    if (!input || !preview) { return; }
+    input.addEventListener('change', function () {
+      const file = input.files && input.files[0];
+      if (!file) { preview.hidden = true; return; }
       const reader = new FileReader();
       reader.onload = function () {
-        heroPreview.src = reader.result;
-        heroPreview.hidden = false;
+        preview.src = reader.result;
+        preview.hidden = false;
       };
       reader.readAsDataURL(file);
     });
-  }
+  });
 
   /* ---- Avertissement de saisie non enregistrée ---- */
   document.querySelectorAll('form[data-track-dirty]').forEach(function (form) {
