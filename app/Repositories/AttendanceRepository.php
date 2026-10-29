@@ -134,13 +134,15 @@ class AttendanceRepository
             $sql .= ' AND p.statut = ?';
             $params[] = $statut;
         }
-        $typeCol = [
+        // $type vaut null quand aucun filtre n'est demandé : un tableau ne s'indexe pas
+        // avec null (déprécié en PHP 8.5, et converti en exception par Logger::handleError).
+        $typeCol = $type === null ? null : ([
             'culte'     => 'culte_id',
             'evenement' => 'evenement_id',
             'bacenta'   => 'bacenta_id',
             'basonta'   => 'basonta_id',
             'centre'    => 'centre_id',
-        ][$type] ?? null;
+        ][$type] ?? null);
         if ($typeCol !== null) {
             $sql .= " AND p.$typeCol IS NOT NULL";
         }
