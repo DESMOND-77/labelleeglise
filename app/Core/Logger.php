@@ -54,12 +54,30 @@ class Logger
         throw new \ErrorException($message, 0, $severity, $file, $line);
     }
 
+    /**
+     * Pile d'appels réduite à « fichier:ligne Classe->méthode », sans les arguments
+     * (ils peuvent contenir mots de passe, jetons ou données de membres).
+     *
+     * @return list<string>
+     */
+    private static function compactTrace(\Throwable $e, int $max = 10): array
+    {
+        $root = defined('BASE_PATH') ? BASE_PATH . '/' : '';
+        $frames = [];
+        foreach (array_slice($e->getTrace(), 0, $max) as $f) {
+            $where = isset($f['file']) ? str_replace($root, '', $f['file']) . ':' . ($f['line'] ?? 0) : '[interne]';
+            $frames[] = $where . ' ' . (isset($f['class']) ? $f['class'] . ($f['type'] ?? '::') : '') . ($f['function'] ?? '');
+        }
+        return $frames;
+    }
+
     /** Handler d'exception globale. */
     public static function handleException(\Throwable $e): void
     {
         self::error('Exception: ' . $e->getMessage(), [
             'file' => $e->getFile(),
             'line' => $e->getLine(),
+            'trace' => self::compactTrace($e),
         ]);
         http_response_code(500);
         if ((defined('APP_DEBUG') && APP_DEBUG) || (isset($GLOBALS['appConfig']['debug']) && $GLOBALS['appConfig']['debug'])) {
