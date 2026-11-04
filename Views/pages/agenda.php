@@ -61,7 +61,7 @@ $renderPanel = static function (array $detail) {
   <form method="get" action="index.php" class="agenda-gotobar">
     <input type="hidden" name="page" value="agenda">
     <label for="agenda-goto">Aller à une date</label>
-    <input type="date" id="agenda-goto" name="date" value="<?= h($date) ?>" onchange="this.form.submit()">
+    <input type="date" id="agenda-goto" name="date" value="<?= h($date) ?>" data-autosubmit>
     <a class="btn btn-outline" href="<?= h(url('index.php', ['page' => 'agenda'])) ?>">Aujourd'hui</a>
   </form>
 </div>

@@ -217,6 +217,9 @@ function render_unit_presence_tab(string $unitType, string $pageKey, array $unit
 
     if ($tab === 'presences_annuel') {
         $year = (int) (nav('year') ?: date('Y'));
+        if ($year < 2000 || $year > 2100) {
+            $year = (int) date('Y');
+        }
         render_page($unit['nom'], $tabRow . view('pages/presence_matrix', [
             'unit'     => $unit,
             'pageKey'  => $pageKey,
@@ -230,7 +233,10 @@ function render_unit_presence_tab(string $unitType, string $pageKey, array $unit
         return;
     }
 
-    $date = (string) (nav('date') ?: date('Y-m-d'));
+    $date = (string) nav('date');
+    if (!is_iso_date($date)) {
+        $date = date('Y-m-d');
+    }
     render_page($unit['nom'], $tabRow . view('pages/presence_occurrence', [
         'unitType'  => $unitType,
         'unit'      => $unit,

@@ -86,6 +86,8 @@ function nav(string $key, $default = null)
             'tab'        => $_GET['tab'] ?? 'membres',
             'membre'     => isset($_GET['membre']) ? (int) $_GET['membre'] : null,
             'semaine'    => $_GET['semaine'] ?? null,
+            'date'       => $_GET['date'] ?? null,
+            'year'       => isset($_GET['year']) ? (int) $_GET['year'] : null,
             'annee'      => isset($_GET['annee']) ? (int) $_GET['annee'] : null,
             'param_tab'  => $_GET['param_tab'] ?? 'comptes',
             'return'     => $_GET['return'] ?? null,
@@ -155,6 +157,16 @@ function format_date_short(DateTimeInterface $d): string
 function iso_date_of(DateTimeInterface $d): string
 {
     return $d->format('Y-m-d');
+}
+
+/** Vrai pour une date réelle au format AAAA-MM-JJ (rejette 2026-02-30, 2026-13-01, etc.). */
+function is_iso_date(string $s): bool
+{
+    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $s) !== 1) {
+        return false;
+    }
+    $d = DateTimeImmutable::createFromFormat('Y-m-d', $s);
+    return $d !== false && $d->format('Y-m-d') === $s;
 }
 
 function week_key_of(DateTimeInterface $d): string

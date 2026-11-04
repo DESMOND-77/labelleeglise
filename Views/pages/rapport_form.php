@@ -23,7 +23,7 @@ $val = function (string $k, $default = '') use ($old, $report) {
     </select>
   </label>
   <label>Date
-    <input type="date" name="date" value="<?= h($date) ?>" max="<?= h(date('Y-m-d')) ?>" onchange="this.form.submit()" <?= $report ? 'disabled' : '' ?>>
+    <input type="date" name="date" value="<?= h($date) ?>" max="<?= h(date('Y-m-d')) ?>" data-autosubmit <?= $report ? 'disabled' : '' ?>>
   </label>
   <label>Type de rapport
     <select name="type" onchange="this.form.submit()" <?= $report ? 'disabled' : '' ?>>

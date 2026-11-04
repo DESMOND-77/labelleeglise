@@ -1,5 +1,5 @@
 <?php /* Tableau de suivi hebdomadaire.
-           Variables : $backBtn, $member, $weekKey, $weekRange, $mondayDate, $week,
+           Variables : $backBtn, $member, $weekKey, $weekRange, $pickedDate, $week,
                        $fields, $days, $pct, $adminStats, $csrf, $isAdmin, $semaineNav,
                        $observation (array|null - voir BergerRepository::suiviObservation()). */ ?>
 <?= $backBtn ?>
@@ -12,7 +12,7 @@
     <input type="hidden" name="page" value="suiviBergers">
     <input type="hidden" name="membre" value="<?= h($member['id']) ?>">
     <label for="suiviSemaine">Date (année / mois / jour)</label>
-    <input id="suiviSemaine" type="date" name="semaine" value="<?= h($mondayDate) ?>" onchange="this.form.submit()">
+    <input id="suiviSemaine" type="date" name="semaine" value="<?= h($pickedDate) ?>" data-autosubmit>
   </form>
 </div>
 <div class="week-range-label"><?= h($weekRange) ?></div>

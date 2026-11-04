@@ -14,7 +14,7 @@ $segClass = ['present' => 'seg-present', 'absent' => 'seg-absent', 'excuse' => '
       <input type="hidden" name="<?= h((string) $k) ?>" value="<?= h((string) $v) ?>">
     <?php endforeach; ?>
     <label>Date</label>
-    <input type="date" name="date" value="<?= h($date) ?>" onchange="this.form.submit()">
+    <input type="date" name="date" value="<?= h($date) ?>" data-autosubmit>
     <?php if ($joursHint !== ''): ?><span class="presence-hint">Jours habituels : <?= h($joursHint) ?></span><?php endif; ?>
   </form>
 

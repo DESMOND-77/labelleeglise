@@ -13,7 +13,7 @@ $checkedCount = count(array_filter($roster, static fn($r) => !empty($r['already_
     <input type="hidden" name="page" value="nouveaux_membres">
     <input type="hidden" name="pointage" value="1">
     <label>Date
-      <input type="date" name="date" value="<?= h($date) ?>" onchange="this.form.submit()">
+      <input type="date" name="date" value="<?= h($date) ?>" data-autosubmit>
     </label>
   </form>
 </div>

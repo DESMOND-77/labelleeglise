@@ -43,7 +43,8 @@ class CalendrierController extends Controller
 
         $ym = $ymRaw;
         if (!preg_match('/^\d{4}-\d{2}$/', $ym) || (int) substr($ym, 5, 2) < 1 || (int) substr($ym, 5, 2) > 12) {
-            $ym = substr($today, 0, 7);
+            // Sans mois explicite, le mois du jour demandé prime (« Aller à une date » n'envoie que `date`).
+            $ym = substr(is_iso_date($dateRaw) ? $dateRaw : $today, 0, 7);
         }
         $year = (int) substr($ym, 0, 4);
         $monthNo = (int) substr($ym, 5, 2);

@@ -16,7 +16,7 @@
     </select>
   </label>
   <label>Mois
-    <input type="month" name="mois" value="<?= h($filterMois ?? '') ?>" onchange="this.form.submit()">
+    <input type="month" name="mois" value="<?= h($filterMois ?? '') ?>" data-autosubmit>
   </label>
   <?php if ($filterCentre || $filterMois): ?><a class="btn btn-outline" href="<?= h(url('index.php', ['page' => 'rapports'])) ?>">Effacer</a><?php endif; ?>
 </form>

@@ -93,11 +93,13 @@ function render_suivi_bergers_page(): void
         redirect('index.php', ['page' => 'suiviBergers']);
     }
 
-    $semaine = nav('semaine');
-    if ($semaine) {
-        $weekKey = preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $semaine)
-            ? week_key_of(new DateTimeImmutable($semaine))
-            : (string) $semaine;
+    $semaine = (string) nav('semaine');
+    // Le jour choisi dans le sélecteur est conservé tel quel ; la semaine en est déduite.
+    $pickedDate = is_iso_date($semaine) ? $semaine : null;
+    if ($pickedDate !== null) {
+        $weekKey = week_key_of(new DateTimeImmutable($pickedDate));
+    } elseif ($semaine !== '') {
+        $weekKey = $semaine;
     } else {
         $weekKey = current_week_key();
     }
@@ -123,7 +125,7 @@ $charts = null;
         'member'     => $member,
         'weekKey'    => $weekKey,
         'weekRange'  => format_week_range_label($weekKey),
-        'mondayDate' => monday_date_of_week_key($weekKey),
+        'pickedDate' => $pickedDate ?? monday_date_of_week_key($weekKey),
         'week'       => $week,
         'fields'     => SUIVI_FIELDS,
         'days'       => WEEK_DAYS,

@@ -189,6 +189,79 @@ data: [charts.doughnut.present, charts.doughnut.absent, charts.doughnut.none],
     });
   }
 
+  /* ---------------- Sélecteurs de date à envoi automatique ----------------
+     <input type="date|month" data-autosubmit> envoie son formulaire (GET) quand la date est
+     complète. Chrome émet `change` à chaque état intermédiaire valide pendant la frappe
+     (jour « 1 » avant « 15 », année 0002 avant 2026) : un envoi immédiat recharge la page dès
+     la première touche et efface la saisie. On attend donc la fin de la frappe au clavier ;
+     un choix dans le calendrier (aucune touche juste avant) part tout de suite, Entrée aussi. */
+
+  var AUTOSUBMIT_DELAY = 700; // ms sans frappe avant envoi
+  var KEYBOARD_WINDOW = 1500; // ms : un `change` plus récent qu'une touche vient du clavier
+
+  function initDateAutoSubmit() {
+    var timer = null;
+    var lastKeyAt = 0;
+
+    function target(e) {
+      var el = e.target;
+      return el && el.matches && el.matches("input[data-autosubmit]") ? el : null;
+    }
+
+    // Saisie effacée ou partielle : Chrome renvoie "" ; année en cours de frappe : 0002, 0020, 0202 ;
+    // année à 5-6 chiffres (Chrome en accepte jusqu'à 6) : faute de frappe, pas une date à envoyer.
+    function isComplete(el) {
+      var m = /^(\d{4})-\d{2}(-\d{2})?$/.exec(el.value);
+      return m !== null && parseInt(m[1], 10) >= 1900;
+    }
+
+    function send(el) {
+      timer = null;
+      if (!el.form || !isComplete(el) || el.value === el.defaultValue) return;
+      // requestSubmit() applique min/max : une date hors bornes affiche l'erreur au lieu de partir.
+      if (typeof el.form.requestSubmit === "function") el.form.requestSubmit();
+      else el.form.submit();
+    }
+
+    function onValueChange(e) {
+      var el = target(e);
+      if (!el) return;
+      clearTimeout(timer);
+      if (!isComplete(el)) return;
+      if (Date.now() - lastKeyAt > KEYBOARD_WINDOW) {
+        send(el);
+        return;
+      }
+      timer = setTimeout(function () { send(el); }, AUTOSUBMIT_DELAY);
+    }
+
+    document.addEventListener("keydown", function (e) {
+      var el = target(e);
+      if (!el) return;
+      lastKeyAt = Date.now();
+      if (e.key === "Enter") {
+        e.preventDefault();
+        clearTimeout(timer);
+        send(el);
+      }
+    });
+    document.addEventListener("input", onValueChange);
+    document.addEventListener("change", onValueChange);
+  }
+
+  /* ---------------- Année à 4 chiffres ----------------
+     Chrome accepte jusqu'à 6 chiffres dans le segment « année » des champs date : une touche de
+     trop (« 20261-10-15 ») passe la validation native, puis l'INSERT MySQL échoue (erreur 500) et
+     la saisie est perdue. On bloque l'envoi du formulaire avec un message clair. */
+
+  function initDateYearGuard() {
+    document.addEventListener("input", function (e) {
+      var el = e.target;
+      if (!el || !el.matches || !el.matches('input[type="date"], input[type="datetime-local"], input[type="month"]')) return;
+      el.setCustomValidity(/^\d{5,}-/.test(el.value) ? "L'année doit comporter 4 chiffres." : "");
+    });
+  }
+
   function initBusBalance() {
     var select = document.getElementById("busCentreSelect");
     var amount = document.getElementById("busAmount");
@@ -327,6 +400,11 @@ data: [charts.doughnut.present, charts.doughnut.absent, charts.doughnut.none],
   }
 
   /* ---------------- Démarrage ---------------- */
+
+  // Écouteurs délégués sur `document` : enregistrés hors de la chaîne ci-dessous pour qu'un
+  // échec de initCharts() (CDN Chart.js indisponible) n'empêche pas les sélecteurs de date.
+  initDateAutoSubmit();
+  initDateYearGuard();
 
   document.addEventListener("DOMContentLoaded", function () {
     initCharts();
