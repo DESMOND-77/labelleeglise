@@ -17,4 +17,6 @@ return [
     'user'    => env_value('DB_USER', ''),
     'pass'    => env_value('DB_PASS', ''),
     'charset' => env_value('DB_CHARSET', 'utf8mb4'),
+    // Collation de la connexion : celle des tables créées par la migration.
+    'collation' => env_value('DB_COLLATION', 'utf8mb4_unicode_ci'),
 ];

@@ -35,6 +35,15 @@ class Database
             PDO::ATTR_EMULATE_PREPARES   => false,
         ]);
 
+        // Aligne la collation de la connexion sur celle des tables. Sans cela elle reprend le
+        // défaut du jeu de caractères (utf8mb4_general_ci) alors que les tables sont en
+        // utf8mb4_unicode_ci : deux valeurs « coercibles » de collations différentes ne se
+        // comparent plus (erreur SQL 1267). Une collation d'un autre jeu de caractères est ignorée.
+        $collation = (string) ($config['collation'] ?? '');
+        if (preg_match('/^[a-z0-9_]+$/i', $collation) === 1 && str_starts_with($collation, $config['charset'] . '_')) {
+            self::$pdo->exec(sprintf('SET NAMES %s COLLATE %s', $config['charset'], $collation));
+        }
+
         return self::$pdo;
     }
 
