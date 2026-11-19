@@ -90,6 +90,63 @@
     });
   });
 
+  /* ---- Aperçu des photos importées (album) ---- */
+  const importInput = document.getElementById('album-photo-import');
+  const importPreview = document.getElementById('photo-import-preview');
+  if (importInput && importPreview) {
+    let pendingFiles = [];
+
+    function renderPreviews() {
+      importPreview.innerHTML = '';
+      if (pendingFiles.length === 0) {
+        importPreview.innerHTML =
+          '<div class="photo-import-empty">Aucune photo sélectionnée.</div>';
+        return;
+      }
+      pendingFiles.forEach(function (file, idx) {
+        const item = document.createElement('div');
+        item.className = 'photo-import-item';
+        const reader = new FileReader();
+        reader.onload = function () {
+          const img = document.createElement('img');
+          img.src = reader.result;
+          img.alt = file.name;
+          item.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'photo-import-remove';
+        remove.title = 'Retirer';
+        remove.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+        remove.addEventListener('click', function (e) {
+          e.preventDefault();
+          pendingFiles.splice(idx, 1);
+          // Rebuild the FileList for the input
+          const dt = new DataTransfer();
+          pendingFiles.forEach(function (f) { dt.items.add(f); });
+          importInput.files = dt.files;
+          renderPreviews();
+        });
+        item.appendChild(remove);
+        const name = document.createElement('div');
+        name.className = 'photo-import-name';
+        name.textContent = file.name + ' (' + Math.round(file.size / 1024) + ' Ko)';
+        item.appendChild(name);
+        importPreview.appendChild(item);
+      });
+    }
+
+    importInput.addEventListener('change', function () {
+      const newFiles = Array.prototype.slice.call(importInput.files || []);
+      pendingFiles = pendingFiles.concat(newFiles);
+      const dt = new DataTransfer();
+      pendingFiles.forEach(function (f) { dt.items.add(f); });
+      importInput.files = dt.files;
+      renderPreviews();
+    });
+  }
+
   /* ---- Avertissement de saisie non enregistrée ---- */
   document.querySelectorAll('form[data-track-dirty]').forEach(function (form) {
     form.addEventListener('input', function () {

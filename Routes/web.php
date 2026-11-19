@@ -31,6 +31,7 @@ use App\Controllers\BusController;
 use App\Controllers\PublicController;
 use App\Controllers\AdminSiteController;
 use App\Controllers\NouveauMembreController;
+use App\Controllers\AlbumController;
 
 /* ---------- Authentification (POST) ---------- */
 Router::post('login', AuthController::class, 'login');
@@ -84,6 +85,8 @@ Router::get('presencePrint', PresenceController::class, 'matrixPrint');
 
 /* ---------- Site public (accès sans connexion) ---------- */
 Router::get('eglise', PublicController::class, 'index');
+Router::get('albums', AlbumController::class, 'index');
+Router::get('album', AlbumController::class, 'detail');
 Router::get('login', PublicController::class, 'login');
 Router::get('mentions_legales', PublicController::class, 'mentionsLegales');
 Router::get('confidentialite', PublicController::class, 'confidentialite');
