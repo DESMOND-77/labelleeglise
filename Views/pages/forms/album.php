@@ -18,6 +18,7 @@ $photos  = $photos ?? [];
   <form method="post" action="index.php" class="form-card" enctype="multipart/form-data" data-track-dirty>
     <input type="hidden" name="action" value="<?= $isNew ? 'save_album_create' : 'save_album_update' ?>">
     <?php if (!$isNew): ?><input type="hidden" name="id" value="<?= (int) $album['id'] ?>"><?php endif; ?>
+    <?php if (!$isNew): ?><input type="hidden" name="album_id" value="<?= (int) $album['id'] ?>"><?php endif; ?>
     <input type="hidden" name="return_tab" value="albums">
     <?= $csrf ?>
 
@@ -113,6 +114,9 @@ $photos  = $photos ?? [];
                   <label class="check-label" style="font-size:var(--lp-fs-sm)">
                     <input type="checkbox" name="photo_publie[<?= (int) $p['id'] ?>]" value="1"<?= (int) $p['publie'] === 1 ? ' checked' : '' ?>>
                     Publier
+                  </label>
+                  <label style="font-size:var(--lp-fs-sm);margin-left:auto">Position
+                    <input type="number" name="photo_positions[<?= (int) $p['id'] ?>]" value="<?= (int) $p['position'] ?>" min="0" style="width:50px;font-size:var(--lp-fs-sm)">
                   </label>
                   <a class="btn btn-sm btn-danger" href="index.php?action=delete_album_photo&amp;id=<?= (int) $p['id'] ?>&amp;album=<?= (int) $album['id'] ?>" onclick="return confirm('Supprimer cette photo ?')" title="Supprimer"><i class="fa-solid fa-trash"></i></a>
                 </div>
