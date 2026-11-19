@@ -1254,6 +1254,8 @@ class ActionsController extends Controller
                 }
                 try {
                     album_service()->update($id, $_POST);
+                    // Mettre à jour les photos (légendes, publication, positions)
+                    album_service()->updatePhotos($id, $_POST);
                     // Importer les nouvelles photos sélectionnées
                     if (!empty($_FILES['photos']['name'])) {
                         $res = album_service()->importPhotos($id, $_FILES['photos']);
@@ -1306,6 +1308,22 @@ class ActionsController extends Controller
                     album_service()->deletePhoto($id);
                 }
                 $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'form' => 'album', 'id' => $albumId ?: null, 'saved' => 1]);
+                break;
+            }
+
+            case 'save_album_photos': {
+                $this->requireAdmin();
+                $albumId = (int) ($_POST['album_id'] ?? 0);
+                if (!$albumId) {
+                    $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums']);
+                }
+                try {
+                    album_service()->updatePhotos($albumId, $_POST);
+                    $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'form' => 'album', 'id' => $albumId, 'saved' => 1]);
+                } catch (\Throwable $e) {
+                    $_SESSION['site_public_errors'] = [$e->getMessage()];
+                    $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'form' => 'album', 'id' => $albumId]);
+                }
                 break;
             }
 

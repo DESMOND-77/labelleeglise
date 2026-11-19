@@ -26,7 +26,6 @@
     <?php else: ?>
       <form method="post" action="index.php" class="form-card" data-track-dirty>
         <input type="hidden" name="action" value="save_albums_publie">
-        <input type="hidden" name="action" value="save_albums_archive">
         <?= $csrf ?>
 
         <div class="table-wrap">

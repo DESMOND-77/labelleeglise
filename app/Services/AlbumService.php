@@ -216,6 +216,28 @@ class AlbumService
         return $row ? (int) $row['album_id'] : null;
     }
 
+    /** Mettre à jour les photos d'un album (légendes, publication, positions).
+     * @param int $albumId
+     * @param array $post Données POST contenant photo_ids[], photo_legendes[id], photo_publie[id], photo_positions[id]
+     */
+    public function updatePhotos(int $albumId, array $post): void
+    {
+        $photoIds = array_map('intval', (array) ($post['photo_ids'] ?? []));
+        $legendes = (array) ($post['photo_legendes'] ?? []);
+        $publie = (array) ($post['photo_publie'] ?? []);
+        $positions = (array) ($post['photo_positions'] ?? []);
+
+        foreach ($photoIds as $photoId) {
+            $this->repo->updatePhoto(
+                $photoId,
+                null, // fichier inchangé
+                isset($legendes[$photoId]) ? trim((string) $legendes[$photoId]) : null,
+                isset($positions[$photoId]) ? (int) $positions[$photoId] : 0,
+                isset($publie[$photoId]) ? 1 : 0
+            );
+        }
+    }
+
     /** Définir quels albums sont publiés. @param int[] $ids */
     public function setPublie(array $ids): void
     {
