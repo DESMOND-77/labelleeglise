@@ -1,7 +1,8 @@
 <?php /* Aperçu des albums publiés sur le site public.
    Variables : $albums. */ ?>
 <?php if ($albums === []): return; ?>
-<section id="albums" class="lp-section lp-section--cream2" aria-labelledby="albums-titre">
+<?php else: ?>
+<section id="albums" class="lp-section lp-section--ink" aria-labelledby="albums-titre">
   <div class="wrap">
     <div class="lp-section-head">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--lp-3)">
@@ -55,3 +56,4 @@
     <?php endif; ?>
   </div>
 </section>
+<?php endif; ?>
