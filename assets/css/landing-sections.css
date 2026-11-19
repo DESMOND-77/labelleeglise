@@ -18,6 +18,7 @@
 
 .landing .lp-section--cream2 {
   background: var(--lp-cream-2);
+  margin-top: var(--lp-section-y);
 }
 
 .landing .lp-section--ink {
@@ -315,6 +316,8 @@
   border-radius: var(--lp-radius-lg);
   box-shadow: var(--lp-shadow-lg);
   display: block;
+  position: relative;
+  z-index: 1;
 }
 
 .lp-responsable-media::after {
@@ -1532,7 +1535,7 @@
 .album-photo-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: var(--lp-gap-grid);
+  /* gap: var(--lp-gap-grid); */
 }
 
 .album-photo-item {

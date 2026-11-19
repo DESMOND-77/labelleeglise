@@ -32,15 +32,15 @@
           <table class="data-table">
             <thead>
               <tr>
-                <th style="width:40px"></th>
-                <th style="width:70px">Couverture</th>
+                <th></th>
+                <th>Couverture</th>
                 <th>Titre</th>
                 <th>Catégorie</th>
-                <th style="width:80px">Année</th>
-                <th style="width:90px">Photos</th>
-                <th style="width:130px">Événement</th>
-                <th style="width:120px">Statut</th>
-                <th style="width:170px">Actions</th>
+                <th>Année</th>
+                <th>Photos</th>
+                <th>Événement</th>
+                <th>Statut</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -54,7 +54,7 @@
                   </td>
                   <td class="album-admin-thumb">
                     <?php if (!empty($a['couverture'])): ?>
-                      <img src="<?= h($a['couverture']) ?>" alt="" width="50" height="50">
+                      <img src="<?= h($a['couverture']) ?>" alt="" loading="lazy" >
                     <?php else: ?>
                       <span class="thumb-empty">—</span>
                     <?php endif; ?>
@@ -141,18 +141,8 @@
   </section>
 </div>
 
-<?php if (!empty($albums)): ?>
+<?php if (empty($albums)): ?>
 <style>
-  .album-admin-thumb {
-    width: 60px;
-    height: 60px;
-  }
-  .album-admin-thumb img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: var(--lp-radius);
-  }
   .thumb-empty {
     display: flex;
     align-items: center;

@@ -26,7 +26,11 @@ class AlbumService
     /** @return list<array<string,mixed>> Albums publiés (site public). */
     public function published(): array
     {
-        return $this->repo->published();
+        $albums = $this->repo->published();
+        foreach ($albums as $album => $id) {
+            $albums[$album]['nb_photos'] = count($this->repo->publishedPhotos((int) $id) ?? 0);
+        }
+        return $albums;
     }
 
     /** Album publié par id (site public) avec ses photos. */
