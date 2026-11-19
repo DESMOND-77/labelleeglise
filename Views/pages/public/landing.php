@@ -44,6 +44,8 @@ foreach ($navAll as [$href, $label]) {
 if (count($navPrimary) < 2) {
     $navPrimary = $navAll;
 }
+// Lien vers la galerie Album (page dédiée, pas une ancre de section).
+$navPrimary[] = [url('index.php', ['page' => 'albums']), 'Album'];
 
 echo view('pages/public/partials/annonce', [
     'nextEvent' => $next_event,
@@ -77,6 +79,7 @@ if ($hasAbout) {
         'accroche' => $accroche,
         'equipe' => $equipe,
         'impact' => $impact,
+        'responsable' => $responsable,
         'image' => $about_image,
         'imageAlt' => $about_image_alt,
         'aboutTitle' => $about_title,
@@ -93,6 +96,9 @@ if ($hasMinistries) {
 }
 if ($hasEvents) {
     echo view('pages/public/partials/evenements', ['evenements' => $evenements]);
+}
+if ($hasAlbums) {
+    echo view('pages/public/partials/albums', ['albums' => $albums]);
 }
 if ($hasMedias) {
     echo view('pages/public/partials/medias', ['predication' => $predication, 'direct' => $direct]);

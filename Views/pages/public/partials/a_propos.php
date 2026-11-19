@@ -1,5 +1,6 @@
 <?php /* À propos et équipe. Variables : $histoire, $accroche, $equipe,
-   $impact (tuiles chiffrées réellement renseignées), $image, $imageAlt,
+   $impact (tuiles chiffrées réellement renseignées), $responsable
+   (responsable de Franceville mis en avant), $image, $imageAlt,
    $aboutTitle. Aucune statistique n'est inventée : une tuile sans valeur
    n'est pas affichée, et la section n'existe que si un texte est publié. */
 $paragraphes = $histoire !== ''
@@ -40,18 +41,30 @@ foreach ($equipe as $g) {
       </div>
     </div>
 
-    <?php if ($impact !== []): ?>
-      <div class="lp-impact" data-reveal>
-        <p class="lp-impact-label">Notre église en chiffres</p>
-        <ul class="lp-stats">
-          <?php foreach ($impact as $stat): ?>
-            <li class="lp-stat">
-              <b><?= (int) $stat['value'] ?></b>
-              <span><?= h($stat['label']) ?></span>
-            </li>
-          <?php endforeach; ?>
-        </ul>
-      </div>
+    <?php if ($responsable !== null): ?>
+      <section class="lp-section lp-section--cream2 lp-responsable" data-reveal aria-labelledby="responsable-titre">
+        <div class="wrap">
+          <div class="lp-responsable-grid">
+            <div class="lp-responsable-body">
+              <p class="lp-eyebrow">Responsable à Franceville</p>
+              <h2 class="lp-title" id="responsable-titre"><?= h($responsable['nom_affichage'] ?? '') ?></h2>
+              <?php if ($responsable['role'] !== ''): ?>
+                <span class="lp-person-role"><?= h($responsable['role']) ?></span>
+              <?php endif; ?>
+              <?php if ($responsable['bio'] !== ''): ?>
+                <p class="lp-responsable-bio"><?= nl2br(h($responsable['bio'])) ?></p>
+              <?php endif; ?>
+            </div>
+            <div class="lp-responsable-media" data-reveal>
+              <?php if (!empty($responsable['photo'])): ?>
+                <img src="<?= h($responsable['photo']) ?>" alt="<?= h($responsable['nom_affichage'] ?? '') ?>" loading="lazy" width="480" height="600">
+              <?php else: ?>
+                <div class="lp-responsable-media is-empty"><span aria-hidden="true"><?= h($responsable['emoji'] ?? '👤') ?></span></div>
+              <?php endif; ?>
+            </div>
+          </div>
+        </div>
+      </section>
     <?php endif; ?>
 
     <?php if ($teamCount > 0): ?>

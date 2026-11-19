@@ -37,6 +37,11 @@ if ($ov['evenements']['total'] === 0) {
 if ($ov['faq']['total'] === 0) {
     $todo[] = ['label' => 'Aucune question de FAQ pour les visiteurs', 'href' => url('index.php', ['page' => 'site_public', 'tab' => 'faq'])];
 }
+if ($ov['albums']['total'] === 0) {
+    $todo[] = ['label' => 'Aucun album enregistré (galerie multimédia)', 'href' => url('index.php', ['page' => 'site_public', 'tab' => 'albums', 'form' => 'album'])];
+} elseif ($ov['albums']['publies'] === 0) {
+    $todo[] = ['label' => 'Aucun album publié sur le site public', 'href' => url('index.php', ['page' => 'site_public', 'tab' => 'albums'])];
+}
 if (!$ov['identity']['contact'] && $ov['centres']['total'] === 0) {
     $todo[] = ['label' => 'Aucune coordonnée - la page publique resterait vide', 'href' => url('index.php', ['page' => 'site_public', 'tab' => 'identity'])];
 }
@@ -64,6 +69,10 @@ if (!$ov['identity']['contact'] && $ov['centres']['total'] === 0) {
   <div class="stat-card-admin">
     <span class="stat-num"><?= (int) $ov['faq']['publies'] ?><span class="stat-denom">/<?= (int) $ov['faq']['total'] ?></span></span>
     <span class="stat-lbl">Questions de FAQ publiées</span>
+  </div>
+  <div class="stat-card-admin">
+    <span class="stat-num"><?= (int) $ov['albums']['publies'] ?><span class="stat-denom">/<?= (int) $ov['albums']['total'] ?></span></span>
+    <span class="stat-lbl">Albums publiés<?= (int) $ov['albums']['archives'] > 0 ? ' (<span style="color:var(--lp-text-mute)">' . (int) $ov['albums']['archives'] . ' archivé' . ((int) $ov['albums']['archives'] > 1 ? 's' : '') . ')</span>' : '' ?></span>
   </div>
 </div>
 

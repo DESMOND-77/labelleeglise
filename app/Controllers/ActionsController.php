@@ -1222,6 +1222,93 @@ class ActionsController extends Controller
                 $this->redirectSitePublic([], ['tab' => 'ministries']);
                 break;
 
+            /* ---------- Albums / Galerie ---------------- */
+
+            case 'save_album_create': {
+                $this->requireAdmin();
+                try {
+                    $id = album_service()->create($_POST);
+                    // Importer les photos sélectionnées après création de l'album
+                    if (!empty($_FILES['photos']['name'])) {
+                        $res = album_service()->importPhotos($id, $_FILES['photos']);
+                        if ($res['erreurs'] !== []) {
+                            $_SESSION['site_public_errors'] = array_merge(
+                                $_SESSION['site_public_errors'] ?? [],
+                                $res['erreurs']
+                            );
+                        }
+                    }
+                    $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'saved' => 1]);
+                } catch (\Throwable $e) {
+                    $_SESSION['site_public_errors'] = [$e->getMessage()];
+                    $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'form' => 'album']);
+                }
+                break;
+            }
+
+            case 'save_album_update': {
+                $this->requireAdmin();
+                $id = (int) ($_POST['id'] ?? 0);
+                if (!$id) {
+                    $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums']);
+                }
+                try {
+                    album_service()->update($id, $_POST);
+                    // Importer les nouvelles photos sélectionnées
+                    if (!empty($_FILES['photos']['name'])) {
+                        $res = album_service()->importPhotos($id, $_FILES['photos']);
+                        if ($res['erreurs'] !== []) {
+                            $_SESSION['site_public_errors'] = array_merge(
+                                $_SESSION['site_public_errors'] ?? [],
+                                $res['erreurs']
+                            );
+                        }
+                    }
+                    $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'saved' => 1]);
+                } catch (\Throwable $e) {
+                    $_SESSION['site_public_errors'] = [$e->getMessage()];
+                    $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'form' => 'album', 'id' => $id]);
+                }
+                break;
+            }
+
+            case 'save_albums_publie': {
+                $this->requireAdmin();
+                $ids = array_map('intval', (array) ($_POST['publie'] ?? []));
+                album_service()->setPublie($ids);
+                $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'saved' => 1]);
+                break;
+            }
+
+            case 'save_albums_archive': {
+                $this->requireAdmin();
+                $ids = array_map('intval', (array) ($_POST['ids'] ?? []));
+                album_service()->setArchive($ids);
+                $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'saved' => 1]);
+                break;
+            }
+
+            case 'delete_album': {
+                $this->requireAdmin();
+                $id = (int) ($_GET['id'] ?? 0);
+                if ($id) {
+                    album_service()->delete($id);
+                }
+                $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'saved' => 1]);
+                break;
+            }
+
+            case 'delete_album_photo': {
+                $this->requireAdmin();
+                $id = (int) ($_GET['id'] ?? 0);
+                $albumId = (int) ($_GET['album'] ?? 0);
+                if ($id) {
+                    album_service()->deletePhoto($id);
+                }
+                $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'form' => 'album', 'id' => $albumId ?: null, 'saved' => 1]);
+                break;
+            }
+
             case 'save_centre_public':
                 $this->requireAdmin();
                 $centreId = (int) ($_POST['centre_id'] ?? 0);
