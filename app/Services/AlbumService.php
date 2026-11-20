@@ -254,6 +254,12 @@ class AlbumService
         $this->repo->setArchive($ids);
     }
 
+    /** Désarchive exactement les albums listés (passe archive = 0). @param int[] $ids */
+    public function setUnarchive(array $ids): void
+    {
+        $this->repo->setUnarchive($ids);
+    }
+
     /** Réorganiser les photos d'un album. @param array<int,int> $positions [photo_id => position] */
     public function reorderPhotos(array $positions): void
     {

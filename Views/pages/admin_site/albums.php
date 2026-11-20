@@ -77,7 +77,7 @@
                       <a class="btn btn-sm btn-outline" href="<?= h(url('index.php', ['page' => 'site_public', 'tab' => 'albums', 'form' => 'album', 'id' => (int) $a['id']])) ?>"><i class="fa-solid fa-pen"></i></a>
                       <a class="btn btn-sm btn-outline" href="<?= h(url('index.php', ['page' => 'eglise'])) ?>#albums" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-eye"></i></a>
                       <a class="btn btn-sm btn-outline" href="<?= h(url('index.php', ['page' => 'album', 'id' => (int) $a['id']])) ?>" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-external-link-alt"></i></a>
-                      <a class="btn btn-sm btn-danger" href="index.php?action=delete_album&amp;id=<?= (int) $a['id'] ?>" onclick="return confirm('Supprimer cet album et toutes ses photos ?')" title="Supprimer"><i class="fa-solid fa-trash"></i></a>
+                      <a class="icon-btn btn-danger" title="Supprimer" data-confirm="Supprimer cet album et toutes ses photos ?" href="<?= h(url('index.php', ['page' => 'site_public', 'tab' => 'albums', 'action' => 'delete_album', 'id' => (int) $a['id']])) ?>"><i class="fa-solid fa-trash"></i></a>
                     </div>
                   </td>
                 </tr>
@@ -102,7 +102,7 @@
       <p class="sub">Aucun album archivé.</p>
     <?php else: ?>
       <form method="post" action="index.php" class="form-card">
-        <input type="hidden" name="action" value="save_albums_archive">
+        <input type="hidden" name="action" value="save_albums_unarchive">
         <?= $csrf ?>
         <div class="table-wrap">
           <table class="data-table">

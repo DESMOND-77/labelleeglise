@@ -1290,6 +1290,14 @@ class ActionsController extends Controller
                 break;
             }
 
+            case 'save_albums_unarchive': {
+                $this->requireAdmin();
+                $ids = array_map('intval', (array) ($_POST['ids'] ?? []));
+                album_service()->setUnarchive($ids);
+                $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'saved' => 1]);
+                break;
+            }
+
             case 'delete_album': {
                 $this->requireAdmin();
                 $id = (int) ($_GET['id'] ?? 0);

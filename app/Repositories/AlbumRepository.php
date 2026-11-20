@@ -193,6 +193,17 @@ class AlbumRepository
         });
     }
 
+    /** Désarchive exactement les albums listés (passe archive = 0). @param int[] $ids */
+    public function setUnarchive(array $ids): void
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', $ids), static fn(int $i) => $i > 0)));
+        if ($ids === []) {
+            return;
+        }
+        $in = implode(',', array_fill(0, count($ids), '?'));
+        Query::run("UPDATE albums SET archive = 0 WHERE id IN ($in)", $ids);
+    }
+
     /** Réorganiser les photos d'un album. @param array<int,int> $positions [photo_id => position] */
     public function reorderPhotos(array $positions): void
     {
