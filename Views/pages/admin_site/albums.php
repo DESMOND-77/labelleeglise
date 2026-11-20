@@ -74,10 +74,11 @@
                   </td>
                   <td>
                     <div class="btn-group">
-                      <a class="btn btn-sm btn-outline" href="<?= h(url('index.php', ['page' => 'site_public', 'tab' => 'albums', 'form' => 'album', 'id' => (int) $a['id']])) ?>"><i class="fa-solid fa-pen"></i></a>
-                      <a class="btn btn-sm btn-outline" href="<?= h(url('index.php', ['page' => 'eglise'])) ?>#albums" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-eye"></i></a>
-                      <a class="btn btn-sm btn-outline" href="<?= h(url('index.php', ['page' => 'album', 'id' => (int) $a['id']])) ?>" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-external-link-alt"></i></a>
+                      <a class="icon-btn btn-outline" href="<?= h(url('index.php', ['page' => 'site_public', 'tab' => 'albums', 'form' => 'album', 'id' => (int) $a['id']])) ?>"><i class="fa-solid fa-pen"></i></a>
+                      <a class="icon-btn btn-outline" href="<?= h(url('index.php', ['page' => 'eglise'])) ?>#albums" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-eye"></i></a>
+                      <a class="icon-btn btn-outline" href="<?= h(url('index.php', ['page' => 'album', 'id' => (int) $a['id']])) ?>" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-external-link-alt"></i></a>
                       <a class="icon-btn btn-danger" title="Supprimer" data-confirm="Supprimer cet album et toutes ses photos ?" href="<?= h(url('index.php', ['page' => 'site_public', 'tab' => 'albums', 'action' => 'delete_album', 'id' => (int) $a['id']])) ?>"><i class="fa-solid fa-trash"></i></a>
+
                     </div>
                   </td>
                 </tr>

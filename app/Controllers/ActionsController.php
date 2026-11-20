@@ -1301,8 +1301,14 @@ class ActionsController extends Controller
             case 'delete_album': {
                 $this->requireAdmin();
                 $id = (int) ($_GET['id'] ?? 0);
-                if ($id) {
+                if (!$id) {
+                    $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums']);
+                }
+                try {
                     album_service()->delete($id);
+                } catch (\Throwable $e) {
+                    $_SESSION['site_public_errors'] = ['Erreur lors de la suppression de l\'album : ' . $e->getMessage()];
+                    $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums']);
                 }
                 $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'saved' => 1]);
                 break;
@@ -1312,8 +1318,14 @@ class ActionsController extends Controller
                 $this->requireAdmin();
                 $id = (int) ($_GET['id'] ?? 0);
                 $albumId = (int) ($_GET['album'] ?? 0);
-                if ($id) {
+                if (!$id) {
+                    $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums']);
+                }
+                try {
                     album_service()->deletePhoto($id);
+                } catch (\Throwable $e) {
+                    $_SESSION['site_public_errors'] = ['Erreur lors de la suppression de la photo : ' . $e->getMessage()];
+                    $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'form' => 'album', 'id' => $albumId ?: null]);
                 }
                 $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'form' => 'album', 'id' => $albumId ?: null, 'saved' => 1]);
                 break;
