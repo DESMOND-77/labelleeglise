@@ -102,7 +102,7 @@
       <p class="sub">Aucun album archivé.</p>
     <?php else: ?>
       <form method="post" action="index.php" class="form-card">
-        <input type="hidden" name="action" value="save_albums_archive">
+        <input type="hidden" name="action" value="save_albums_unarchive">
         <?= $csrf ?>
         <div class="table-wrap">
           <table class="data-table">
