@@ -118,7 +118,7 @@ $photos  = $photos ?? [];
                   <label style="font-size:var(--lp-fs-sm);margin-left:auto">Position
                     <input type="number" name="photo_positions[<?= (int) $p['id'] ?>]" value="<?= (int) $p['position'] ?>" min="0" style="width:50px;font-size:var(--lp-fs-sm)">
                   </label>
-                  <a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer cette photo de l\'album ?" href="<?= h(url('index.php', ['page' => 'site_public', 'tab' => 'albums', 'action' => 'delete_album_photo', 'id' => (int) $p['id'], 'album' => (int) $p['album_id']])) ?>"><i class="fa-solid fa-trash"></i></a>
+                  <a class="icon-btn danger" title="Supprimer" data-confirm="Supprimer cette photo de l\'album ?" href="<?= h(url('index.php', ['page' => 'site_public', 'tab' => 'albums', 'action' => 'delete_album_photo', 'pid' => (int) $p['id'], 'form' => 'album', 'id' => (int) $p['album_id']])) ?>"><i class="fa-solid fa-trash"></i></a>
                 </div>
               </div>
             <?php endforeach; ?>
