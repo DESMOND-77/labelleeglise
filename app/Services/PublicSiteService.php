@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Repositories\CMSRepository;
 use App\Repositories\PublicSiteRepository;
+use App\Services\AlbumService;
 
 /**
  * Logique du site public : assemble ce qui est publiable, valide ce que
@@ -16,11 +17,13 @@ class PublicSiteService
 {
     private PublicSiteRepository $repo;
     private CMSRepository $cms;
+    private AlbumService $albumService;
 
     public function __construct(?PublicSiteRepository $repo = null, ?CMSRepository $cms = null)
     {
         $this->repo = $repo ?? new PublicSiteRepository();
         $this->cms = $cms ?? new CMSRepository();
+        $this->albumService = new AlbumService();
     }
 
     /* ================= LECTURE PUBLIQUE ================= */
@@ -80,6 +83,7 @@ class PublicSiteService
 
         $ministries = $this->ministries();
         $events = $this->events();
+        $albums = $this->albumService->published();
         $heroImage = $this->safePhoto($settings['hero_image'] ?? null);
         $heroImageAlt = $this->clean($settings['hero_image_alt'] ?? null);
         $nom = ($settings['nom_affichage'] ?? '') !== '' ? $settings['nom_affichage'] : (defined('APP_NAME') ? APP_NAME : '');
@@ -93,11 +97,18 @@ class PublicSiteService
         );
         $accueilTexte = $this->clean($settings['accueil_texte'] ?? null);
 
+        $equipeGroups = $this->equipeGroups();
+        $responsable = $this->responsableFranceville($equipeGroups);
+        $equipeGroups = $this->withoutResponsable($equipeGroups, $responsable);
+
         return [
-            'equipe'     => $this->equipeGroups(),
+            'equipe'     => $equipeGroups,
+            'responsable' => $responsable,
+            'impact'     => $this->impact($centres, $ministries),
             'evenements' => $events,
             'next_event' => $this->nextEvent($events),
-            'impact'     => $this->impact($centres, $ministries),
+            'albums'     => $albums,
+            'hasAlbums'  => $albums !== [],
             'about_image'     => $about['src'],
             'about_image_alt' => $about['alt'],
             'about_title'     => $histoire !== '' ? 'Notre histoire' : 'Notre église',
@@ -125,6 +136,55 @@ class PublicSiteService
             'has_mentions_legales' => $this->clean($settings['mentions_legales'] ?? null) !== '',
             'has_confidentialite'  => $this->clean($settings['confidentialite'] ?? null) !== '',
         ];
+    }
+
+    /**
+     * Responsable de Franceville mis en avant dans « À propos » : le membre
+     * publié le plus haut placé dans la hiérarchie de l'équipe (Révérend,
+     * puis Pasteur, Berger, Leader, Autre - ordre de TEAM_LABELS, puis
+     * ordre de publication). Aucune donnée inventée : null si aucune
+     * équipe n'est publiée.
+     * @param list<array{label:string,members:list<array<string,string>>}> $groups
+     * @return array<string,string>|null
+     */
+    private function responsableFranceville(array $groups): ?array
+    {
+        foreach ($groups as $g) {
+            if (($g['members'] ?? []) !== []) {
+                return $g['members'][0];
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Retire le responsable mis en avant de la grille d'équipe (évite le
+     * doublon photo/nom) et supprime les catégories devenues vides.
+     * @param list<array{label:string,members:list<array<string,string>>}> $groups
+     * @param array<string,string>|null $responsable
+     * @return list<array{label:string,members:list<array<string,string>>}>
+     */
+    private function withoutResponsable(array $groups, ?array $responsable): array
+    {
+        if ($responsable === null) {
+            return $groups;
+        }
+        $removed = false;
+        $out = [];
+        foreach ($groups as $g) {
+            $members = [];
+            foreach ($g['members'] as $m) {
+                if (!$removed && $m === $responsable) {
+                    $removed = true;
+                    continue;
+                }
+                $members[] = $m;
+            }
+            if ($members !== []) {
+                $out[] = ['label' => $g['label'], 'members' => $members];
+            }
+        }
+        return $out;
     }
 
     /**
@@ -590,6 +650,7 @@ class PublicSiteService
             'evenements' => $this->repo->eventsForAdmin(date('Y-m-d H:i:s')),
             'faq'        => $this->repo->faqForAdmin(),
             'ministries' => $this->repo->ministriesForAdmin(),
+            'albums'     => $this->albumService->allForAdmin(),
         ];
     }
 
@@ -682,6 +743,10 @@ class PublicSiteService
             ];
         }
 
+        $albums = $this->albumService->allForAdmin();
+        $albumsPublies = count(array_filter($albums, static fn($a) => (int) $a['publie'] === 1));
+        $albumsArchives = count(array_filter($albums, static fn($a) => (int) $a['archive'] === 1));
+
         $identity = [
             'nom_affichage' => (string) ($settings['nom_affichage'] ?? '') !== '',
             'slogan' => (string) ($settings['slogan'] ?? '') !== '',
@@ -705,6 +770,7 @@ class PublicSiteService
             'evenements' => ['total' => count($events), 'publies' => $eventsPublies],
             'faq' => ['total' => count($faq), 'publies' => $faqPublies],
             'ministries' => $ministryCounts,
+            'albums' => ['total' => count($albums), 'publies' => $albumsPublies, 'archives' => $albumsArchives],
             'identity' => $identity,
             'identity_complete' => !in_array(false, $identity, true),
         ];

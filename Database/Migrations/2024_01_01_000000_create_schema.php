@@ -910,6 +910,48 @@ function up(): void
             CONSTRAINT fk_suivi_obs_updated_by FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
     );
+
+    /* ---- 19. Albums / Galerie multimédia ----------------
+    * Albums publiés sur le site public, liés optionnellement à un événement.
+    * Chaque album contient plusieurs photos avec légendes et ordre de tri.
+    */
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS albums (
+            id INT NOT NULL AUTO_INCREMENT,
+            titre VARCHAR(150) NOT NULL,
+            description TEXT NULL,
+            couverture TEXT NULL,
+            categorie VARCHAR(60) NULL,
+            annee SMALLINT NULL,
+            publie TINYINT(1) NOT NULL DEFAULT 0,
+            archive TINYINT(1) NOT NULL DEFAULT 0,
+            evenement_id INT NULL,
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY idx_album_annee (annee),
+            KEY idx_album_categorie (categorie),
+            KEY idx_album_publie (publie),
+            CONSTRAINT fk_album_evenement FOREIGN KEY (evenement_id) REFERENCES evenements(id) ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
+
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS album_photos (
+            id INT NOT NULL AUTO_INCREMENT,
+            album_id INT NOT NULL,
+            fichier TEXT NOT NULL,
+            legende VARCHAR(255) NULL,
+            position INT NOT NULL DEFAULT 0,
+            publie TINYINT(1) NOT NULL DEFAULT 1,
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY idx_photo_album (album_id),
+            KEY idx_photo_position (album_id, position),
+            CONSTRAINT fk_photo_album FOREIGN KEY (album_id) REFERENCES albums(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
+
 }
 
 /** Vérifie si une colonne existe déjà (idempotence des ALTER TABLE). */
@@ -942,7 +984,8 @@ function down(): void
     $pdo = Database::connection();
     $tables = ['suivi_hebdo_observations', 'nouveaux_membres_attributions', 'nouveaux_membres', 'faq_publique', 'site_settings', 'centre_horaires', 'responsibilities', 'notifications', 'users_basontas', 'presences', 'evenements', 'anniversaires', 'rapports_jour', 'bus_budget', 'classe_inscrits', 'classes', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
                'examens', 'veillees', 'cultes', 'basontas', 'bacentas', 'users',
-               'centres_presentation', 'equipe', 'presentation', 'centres'];
+               'centres_presentation', 'equipe', 'presentation', 'centres',
+               'album_photos', 'albums'];
     $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
     foreach ($tables as $t) {
         $pdo->exec("DROP TABLE IF EXISTS `$t`");

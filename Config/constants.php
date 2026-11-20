@@ -74,6 +74,7 @@ define('SECTION_LABELS', [
     'site_public'        => 'Site public',
     'admin_inscription'  => 'Demande d\'inscription',
     'notifications'      => 'Notifications',
+    'albums'             => 'Album',
 ]);
 
 define('SECTION_ICONS', [
@@ -98,6 +99,7 @@ define('SECTION_ICONS', [
     'parametres'         => '<i class="fa-solid fa-gear"></i>',
     'admin_inscriptions' => '<i class="fa-solid fa-user-plus"></i>',
     'site_public'        => '<i class="fa-solid fa-globe"></i>',
+    'albums'             => '<i class="fa-solid fa-images"></i>',
 ]);
 
 /* ---------- Inscription publique / statut de compte ---------- */
@@ -141,7 +143,8 @@ define('NAV_ORDER', [
     'rapports',
     'classes',
     'budgetBus',
-    'parametres'
+    'parametres',
+    'albums'
 ]);
 
 /* ---------- Champs d'un membre (table users) ---------- */

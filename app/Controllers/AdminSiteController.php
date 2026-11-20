@@ -18,7 +18,7 @@ class AdminSiteController extends Controller
     /** Rubriques de gestion (ordre d'affichage) + « centre »
      * (fiche de modification, profondeur 1 - absente de la
      * navigation, rattachée visuellement à « Centres »). */
-    private const TABS = ['overview', 'identity', 'about', 'centres', 'centre', 'team', 'events', 'media', 'faq', 'ministries', 'legal'];
+    private const TABS = ['overview', 'identity', 'about', 'centres', 'centre', 'team', 'events', 'media', 'faq', 'ministries', 'legal', 'albums'];
 
     private const TAB_LABELS = [
         'overview'   => 'Vue d\'ensemble',
@@ -31,6 +31,7 @@ class AdminSiteController extends Controller
         'faq'        => 'FAQ',
         'ministries' => 'Ministères et activités',
         'legal'      => 'Pages légales',
+        'albums'     => 'Album',
     ];
 
     /** Icônes par rubrique (FontAwesome, déjà chargé par le shell). */
@@ -45,6 +46,7 @@ class AdminSiteController extends Controller
         'faq'        => 'fa-solid fa-circle-question',
         'ministries' => 'fa-solid fa-hands-praying',
         'legal'      => 'fa-solid fa-scale-balanced',
+        'albums'     => 'fa-solid fa-images',
     ];
 
     /** GET ?page=site_public[&tab=…][&id=…] */
@@ -83,6 +85,26 @@ class AdminSiteController extends Controller
             $view = 'pages/admin_site/centre_form';
         } elseif ($tab === 'overview') {
             $data['overview'] = $service->adminOverview();
+        } elseif ($tab === 'albums') {
+            $albumService = new \App\Services\AlbumService();
+            $data['evenements'] = $albumService->evenementsPourLien();
+            $data['categories'] = $albumService->categories();
+            $data['years'] = $albumService->years();
+
+            $form = (string) ($_GET['form'] ?? '');
+            if ($form === 'album') {
+                $id = (int) ($_GET['id'] ?? 0);
+                $album = $id ? $albumService->findForAdmin($id) : null;
+                if ($id && !$album) {
+                    redirect('index.php', ['page' => 'site_public', 'tab' => 'albums']);
+                }
+                $photos = $album ? $album['photos'] : [];
+                $data['album'] = $album;
+                $data['photos'] = $photos;
+                $data['isNew'] = $id <= 0;
+                $data['cancelUrl'] = url('index.php', ['page' => 'site_public', 'tab' => 'albums']);
+                $view = 'pages/forms/album';
+            }
         }
 
         $data['csrf'] = csrf_field();

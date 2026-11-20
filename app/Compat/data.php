@@ -180,6 +180,8 @@ function classe_service(): \App\Services\ClasseService { return _repo(\App\Servi
 
 function bus_budget_service(): \App\Services\BusBudgetService { return _repo(\App\Services\BusBudgetService::class); }
 
+function album_service(): \App\Services\AlbumService { return _repo(\App\Services\AlbumService::class); }
+
 /* ---------- CRUD users ---------- */
 
 function insert_user(array $data): int { return _repo(UserRepository::class)->insert($data); }

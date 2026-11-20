@@ -269,6 +269,39 @@ class ActionsController extends Controller
                 }
                 $this->redirect('index.php', ['page' => 'parametres', 'param_tab' => 'acces']);
                 break;
+                
+            case 'delete_album': {
+                $this->requireAdmin();
+                $id = (int) ($_GET['id'] ?? 0);
+                if (!$id) {
+                    $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums']);
+                }
+                try {
+                    album_service()->delete($id);
+                } catch (\Throwable $e) {
+                    $_SESSION['site_public_errors'] = ['Erreur lors de la suppression de l\'album : ' . $e->getMessage()];
+                    $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums']);
+                }
+                $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'saved' => 1]);
+                break;
+            }
+
+            case 'delete_album_photo': {
+                $this->requireAdmin();
+                $pid = (int) ($_GET['pid'] ?? 0);
+                $albumId = (int) ($_GET['id'] ?? 0);
+                if (!$pid) {
+                    $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums']);
+                }
+                try {
+                    album_service()->deletePhoto($pid);
+                } catch (\Throwable $e) {
+                    $_SESSION['site_public_errors'] = ['Erreur lors de la suppression de la photo : ' . $e->getMessage()];
+                    $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'form' => 'album', 'id' => $albumId ?: null]);
+                }
+                $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'form' => 'album', 'id' => $albumId ?: null, 'saved' => 1]);
+                break;
+            }
 
             case 'notification_mark_read':
                 $user = current_user();
@@ -1119,6 +1152,7 @@ class ActionsController extends Controller
             // Conservée pour compatibilité de forme avec l'ancien formulaire
             // "Accès & Responsables" (un seul <select> par ligne) : même
             // contrôle d'autorisation strict, délègue à ResponsibilityService.
+            
             case 'save_responsable': {
                 $this->requireAdmin();
                 if (!auth_can_manage_responsibilities()) {
@@ -1221,6 +1255,98 @@ class ActionsController extends Controller
                 public_site_service()->saveMinistries($_POST);
                 $this->redirectSitePublic([], ['tab' => 'ministries']);
                 break;
+
+            /* ---------- Albums / Galerie ---------------- */
+
+            case 'save_album_create': {
+                $this->requireAdmin();
+                try {
+                    $id = album_service()->create($_POST);
+                    // Importer les photos sélectionnées après création de l'album
+                    if (!empty($_FILES['photos']['name'])) {
+                        $res = album_service()->importPhotos($id, $_FILES['photos']);
+                        if ($res['erreurs'] !== []) {
+                            $_SESSION['site_public_errors'] = array_merge(
+                                $_SESSION['site_public_errors'] ?? [],
+                                $res['erreurs']
+                            );
+                        }
+                    }
+                    $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'saved' => 1]);
+                } catch (\Throwable $e) {
+                    $_SESSION['site_public_errors'] = [$e->getMessage()];
+                    $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'form' => 'album']);
+                }
+                break;
+            }
+
+            case 'save_album_update': {
+                $this->requireAdmin();
+                $id = (int) ($_POST['id'] ?? 0);
+                if (!$id) {
+                    $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums']);
+                }
+                try {
+                    album_service()->update($id, $_POST);
+                    // Mettre à jour les photos (légendes, publication, positions)
+                    album_service()->updatePhotos($id, $_POST);
+                    // Importer les nouvelles photos sélectionnées
+                    if (!empty($_FILES['photos']['name'])) {
+                        $res = album_service()->importPhotos($id, $_FILES['photos']);
+                        if ($res['erreurs'] !== []) {
+                            $_SESSION['site_public_errors'] = array_merge(
+                                $_SESSION['site_public_errors'] ?? [],
+                                $res['erreurs']
+                            );
+                        }
+                    }
+                    $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'saved' => 1]);
+                } catch (\Throwable $e) {
+                    $_SESSION['site_public_errors'] = [$e->getMessage()];
+                    $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'form' => 'album', 'id' => $id]);
+                }
+                break;
+            }
+
+            case 'save_albums_publie': {
+                $this->requireAdmin();
+                $ids = array_map('intval', (array) ($_POST['publie'] ?? []));
+                album_service()->setPublie($ids);
+                $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'saved' => 1]);
+                break;
+            }
+
+            case 'save_albums_archive': {
+                $this->requireAdmin();
+                $ids = array_map('intval', (array) ($_POST['ids'] ?? []));
+                album_service()->setArchive($ids);
+                $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'saved' => 1]);
+                break;
+            }
+
+            case 'save_albums_unarchive': {
+                $this->requireAdmin();
+                $ids = array_map('intval', (array) ($_POST['ids'] ?? []));
+                album_service()->setUnarchive($ids);
+                $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'saved' => 1]);
+                break;
+            }
+
+            case 'save_album_photos': {
+                $this->requireAdmin();
+                $albumId = (int) ($_POST['album_id'] ?? 0);
+                if (!$albumId) {
+                    $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums']);
+                }
+                try {
+                    album_service()->updatePhotos($albumId, $_POST);
+                    $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'form' => 'album', 'id' => $albumId, 'saved' => 1]);
+                } catch (\Throwable $e) {
+                    $_SESSION['site_public_errors'] = [$e->getMessage()];
+                    $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'form' => 'album', 'id' => $albumId]);
+                }
+                break;
+            }
 
             case 'save_centre_public':
                 $this->requireAdmin();
