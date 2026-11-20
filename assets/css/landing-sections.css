@@ -1375,33 +1375,73 @@
 /* ============================================================
    ALBUM / GALERIE MULTIMÉDIA
    ============================================================ */
+.album-page-nav {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: var(--lp-6);
+}
+
 .album-filters {
   display: flex;
   flex-wrap: wrap;
   gap: var(--lp-3);
   justify-content: center;
-  margin-bottom: var(--lp-8);
+  margin: 0 auto var(--lp-4);
+  padding: var(--lp-4);
+  max-width: 900px;
+  background: var(--lp-surface);
+  border: var(--lp-hairline) solid var(--lp-line);
+  border-radius: var(--lp-radius-lg);
+  box-shadow: var(--lp-shadow-sm);
 }
 
 .album-filter-form {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--lp-3);
+  gap: var(--lp-4);
   align-items: flex-end;
+  width: 100%;
+}
+
+.album-filter-form label {
+  display: grid;
+  gap: var(--lp-1);
+  flex: 1 1 180px;
+  color: var(--lp-text-soft);
+  font-size: var(--lp-fs-xs);
+  font-weight: var(--lp-w-semibold);
 }
 
 .album-filter-form select {
+  width: 100%;
+  min-height: var(--lp-control-lg);
   padding: var(--lp-2) var(--lp-4);
   border: var(--lp-hairline) solid var(--lp-line);
   border-radius: var(--lp-radius);
   background: var(--lp-surface);
+  color: var(--lp-text);
   font-size: var(--lp-fs-sm);
-  min-width: 140px;
+  cursor: pointer;
+}
+
+.album-filter-form select:focus-visible,
+.album-filter-form .lp-btn:focus-visible,
+.album-card a:focus-visible,
+.album-page-nav a:focus-visible {
+  outline: 3px solid var(--lp-gold);
+  outline-offset: 3px;
+}
+
+.album-results-count {
+  margin: 0 0 var(--lp-4);
+  color: var(--lp-text-mute);
+  font-size: var(--lp-fs-sm);
+  text-align: center;
 }
 
 .album-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--lp-gap-grid);
 }
 
@@ -1420,11 +1460,23 @@
   box-shadow: var(--lp-shadow-lg);
 }
 
+.album-card:focus-within {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lp-gold) 55%, transparent), var(--lp-shadow-lg);
+}
+
 .album-card-media {
   position: relative;
   aspect-ratio: 1 / 1;
   overflow: hidden;
   background: var(--lp-cream-2);
+}
+
+.album-card-media > a {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  color: inherit;
 }
 
 .album-card-media img {
@@ -1463,6 +1515,7 @@
 }
 
 .album-card-body {
+  flex: 1;
   padding: var(--lp-5);
   display: flex;
   flex-direction: column;
@@ -1507,6 +1560,56 @@
   width: 16px;
   text-align: center;
   color: var(--lp-gold);
+}
+
+.album-card-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lp-2);
+  margin-top: var(--lp-3);
+  padding-top: var(--lp-3);
+  border-top: var(--lp-hairline) solid var(--lp-line);
+  color: var(--lp-gold-ink);
+  font-size: var(--lp-fs-sm);
+  font-weight: var(--lp-w-semibold);
+  text-decoration: none;
+}
+
+.album-card-cta i {
+  transition: transform var(--lp-dur) var(--lp-ease);
+}
+
+.album-card:hover .album-card-cta i,
+.album-card-cta:focus-visible i {
+  transform: translateX(4px);
+}
+
+.album-empty-state {
+  max-width: 680px;
+  margin: var(--lp-8) auto 0;
+  padding: clamp(var(--lp-6), 5vw, var(--lp-10));
+  background: var(--lp-surface);
+  border: var(--lp-hairline) solid var(--lp-line);
+  border-radius: var(--lp-radius-lg);
+  text-align: center;
+}
+
+.album-empty-state .emoji {
+  color: var(--lp-gold-ink);
+  font-size: var(--lp-fs-3xl);
+}
+
+.album-empty-state h2 {
+  margin: var(--lp-3) 0;
+  color: var(--lp-text);
+  font-size: var(--lp-fs-xl);
+}
+
+.album-empty-state p {
+  margin: 0 auto var(--lp-5);
+  max-width: 48ch;
+  color: var(--lp-text-soft);
 }
 
 .album-detail-meta {
@@ -1579,19 +1682,45 @@
 
 @media (min-width: 640px) {
   .album-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   .album-photo-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 @media (min-width: 1024px) {
   .album-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
   .album-photo-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .album-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .album-card-media {
+    aspect-ratio: 16 / 10;
+  }
+  .album-filter-form {
+    align-items: stretch;
+  }
+  .album-filter-form .lp-btn {
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .album-card,
+  .album-card-media img,
+  .album-card-cta i {
+    transition: none;
+  }
+  .album-card:hover {
+    transform: none;
   }
 }
 
@@ -1621,18 +1750,20 @@
 .album-lightbox-content {
   position: relative;
   z-index: 10;
-  max-width: 95vw;
-  max-height: 95vh;
-  display: flex;
+  width: min(100%, 1200px);
+  height: min(90vh, 900px);
+  height: min(90dvh, 900px);
+  display: grid;
+  grid-template-columns: var(--lp-control-lg) minmax(0, 1fr) var(--lp-control-lg);
+  grid-template-rows: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: center;
-  gap: var(--lp-6);
+  gap: var(--lp-3) var(--lp-6);
 }
 .album-lightbox-close {
-  position: absolute;
-  top: var(--lp-4);
-  right: var(--lp-4);
-  z-index: 20;
+  position: fixed;
+  top: max(var(--lp-4), env(safe-area-inset-top));
+  right: max(var(--lp-4), env(safe-area-inset-right));
+  z-index: 1010;
   width: var(--lp-control-lg);
   height: var(--lp-control-lg);
   background: color-mix(in srgb, var(--lp-ink) 70%, transparent);
@@ -1647,6 +1778,7 @@
 }
 .album-lightbox-prev,
 .album-lightbox-next {
+  grid-row: 1;
   width: var(--lp-control-lg);
   height: var(--lp-control-lg);
   background: color-mix(in srgb, var(--lp-ink) 60%, transparent);
@@ -1659,24 +1791,36 @@
   justify-content: center;
   font-size: var(--lp-fs-xl);
 }
+.album-lightbox-prev {
+  grid-column: 1;
+}
+.album-lightbox-next {
+  grid-column: 3;
+}
 .album-lightbox-prev:hover,
 .album-lightbox-next:hover,
 .album-lightbox-close:hover {
   background: color-mix(in srgb, var(--lp-ink) 85%, transparent);
 }
 .album-lightbox-image-wrap {
+  grid-column: 2;
+  grid-row: 1;
   position: relative;
-  max-width: 90vw;
-  max-height: 80vh;
-  display: flex;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
   align-items: center;
   justify-content: center;
 }
 .album-lightbox-image {
-  max-width: 100%;
-  max-height: 80vh;
-  width: auto;
-  height: auto;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  object-fit: contain;
   display: block;
   border-radius: var(--lp-radius-lg);
   box-shadow: var(--lp-shadow-lg);
@@ -1689,7 +1833,27 @@
   max-width: 60ch;
 }
 .album-lightbox-counter {
+  grid-column: 2;
+  grid-row: 2;
   margin-top: var(--lp-3);
   font-size: var(--lp-fs-xs);
   color: var(--lp-on-dark-soft);
+  text-align: center;
+}
+@media (max-width: 600px) {
+  .album-lightbox {
+    padding: var(--lp-3);
+  }
+  .album-lightbox-content {
+    width: 100%;
+    height: min(88vh, 800px);
+    height: min(88dvh, 800px);
+    grid-template-columns: var(--lp-control-lg) minmax(0, 1fr) var(--lp-control-lg);
+    gap: var(--lp-2);
+  }
+  .album-lightbox-prev,
+  .album-lightbox-next {
+    width: var(--lp-control-lg);
+    height: var(--lp-control-lg);
+  }
 }
