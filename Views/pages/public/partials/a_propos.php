@@ -47,7 +47,7 @@ foreach ($equipe as $g) {
           <div class="lp-responsable-grid">
             <div class="lp-responsable-body">
               <p class="lp-eyebrow">Responsable à Franceville</p>
-              <h2 class="lp-title" id="responsable-titre"><?= h($responsable['nom_affichage'] ?? '') ?></h2>
+              <h2 class="lp-title" id="responsable-titre"><?= h($responsable['nom'] ?? '') ?></h2>
               <?php if ($responsable['role'] !== ''): ?>
                 <span class="lp-person-role"><?= h($responsable['role']) ?></span>
               <?php endif; ?>
@@ -57,7 +57,7 @@ foreach ($equipe as $g) {
             </div>
             <div class="lp-responsable-media" data-reveal>
               <?php if (!empty($responsable['photo'])): ?>
-                <img src="<?= h($responsable['photo']) ?>" alt="<?= h($responsable['nom_affichage'] ?? '') ?>" loading="lazy" width="480" height="600">
+                <img src="<?= h($responsable['photo']) ?>" alt="<?= h($responsable['nom'] ?? '') ?>" loading="lazy" width="480" height="600">
               <?php else: ?>
                 <div class="lp-responsable-media is-empty"><span aria-hidden="true"><?= h($responsable['emoji'] ?? '👤') ?></span></div>
               <?php endif; ?>
