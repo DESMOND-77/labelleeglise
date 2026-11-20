@@ -269,6 +269,39 @@ class ActionsController extends Controller
                 }
                 $this->redirect('index.php', ['page' => 'parametres', 'param_tab' => 'acces']);
                 break;
+                
+            case 'delete_album': {
+                $this->requireAdmin();
+                $id = (int) ($_GET['id'] ?? 0);
+                if (!$id) {
+                    $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums']);
+                }
+                try {
+                    album_service()->delete($id);
+                } catch (\Throwable $e) {
+                    $_SESSION['site_public_errors'] = ['Erreur lors de la suppression de l\'album : ' . $e->getMessage()];
+                    $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums']);
+                }
+                $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'saved' => 1]);
+                break;
+            }
+
+            case 'delete_album_photo': {
+                $this->requireAdmin();
+                $pid = (int) ($_GET['pid'] ?? 0);
+                $albumId = (int) ($_GET['id'] ?? 0);
+                if (!$pid) {
+                    $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums']);
+                }
+                try {
+                    album_service()->deletePhoto($pid);
+                } catch (\Throwable $e) {
+                    $_SESSION['site_public_errors'] = ['Erreur lors de la suppression de la photo : ' . $e->getMessage()];
+                    $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'form' => 'album', 'id' => $albumId ?: null]);
+                }
+                $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'form' => 'album', 'id' => $albumId ?: null, 'saved' => 1]);
+                break;
+            }
 
             case 'notification_mark_read':
                 $user = current_user();
@@ -1119,6 +1152,7 @@ class ActionsController extends Controller
             // Conservée pour compatibilité de forme avec l'ancien formulaire
             // "Accès & Responsables" (un seul <select> par ligne) : même
             // contrôle d'autorisation strict, délègue à ResponsibilityService.
+            
             case 'save_responsable': {
                 $this->requireAdmin();
                 if (!auth_can_manage_responsibilities()) {
@@ -1290,24 +1324,11 @@ class ActionsController extends Controller
                 break;
             }
 
-            case 'delete_album': {
+            case 'save_albums_unarchive': {
                 $this->requireAdmin();
-                $id = (int) ($_GET['id'] ?? 0);
-                if ($id) {
-                    album_service()->delete($id);
-                }
+                $ids = array_map('intval', (array) ($_POST['ids'] ?? []));
+                album_service()->setUnarchive($ids);
                 $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'saved' => 1]);
-                break;
-            }
-
-            case 'delete_album_photo': {
-                $this->requireAdmin();
-                $id = (int) ($_GET['id'] ?? 0);
-                $albumId = (int) ($_GET['album'] ?? 0);
-                if ($id) {
-                    album_service()->deletePhoto($id);
-                }
-                $this->redirect('index.php', ['page' => 'site_public', 'tab' => 'albums', 'form' => 'album', 'id' => $albumId ?: null, 'saved' => 1]);
                 break;
             }
 
