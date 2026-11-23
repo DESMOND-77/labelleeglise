@@ -127,6 +127,63 @@ label: "% réalisation",
       });
     }
 
+    // Suivi des Rapports du Jour : tableau de bord
+    if (charts.rapport) {
+      var r = charts.rapport;
+      var brand = "#141A2E", brass = "#C9A84C", ok = "#22C55E", warn = "#F59E0B", danger = "#EF4444", muted = "#E7E0D1";
+
+      if (r.evolution) {
+        makeChart("rapportEvolutionChart", {
+          type: "bar",
+          data: {
+            labels: r.evolution.labels,
+            datasets: [
+              { label: "Échéances attendues", data: r.evolution.attendus, backgroundColor: muted, borderRadius: 6 },
+              { label: "Rapports soumis", data: r.evolution.soumis, backgroundColor: brand, borderRadius: 6 }
+            ]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { position: "bottom" } },
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+          }
+        });
+      }
+
+      if (r.structure) {
+        makeChart("rapportStructureChart", {
+          type: "bar",
+          data: {
+            labels: r.structure.labels,
+            datasets: [
+              { label: "Attendus", data: r.structure.attendus, backgroundColor: muted, borderRadius: 6 },
+              { label: "Soumis", data: r.structure.soumis, backgroundColor: brass, borderRadius: 6 }
+            ]
+          },
+          options: {
+            indexAxis: "y",
+            responsive: true,
+            plugins: { legend: { position: "bottom" } },
+            scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
+          }
+        });
+      }
+
+      if (r.status) {
+        makeChart("rapportStatusChart", {
+          type: "doughnut",
+          data: {
+            labels: r.status.labels,
+            datasets: [{
+              data: r.status.data,
+              backgroundColor: [muted, warn, danger, ok, "#F5C04B", "#A8A29E"]
+            }]
+          },
+          options: { responsive: true, plugins: { legend: { position: "bottom" } } }
+        });
+      }
+    }
+
     // Fiche profil : présence (donut)
     if (charts.doughnut) {
       makeChart("profileChart", {

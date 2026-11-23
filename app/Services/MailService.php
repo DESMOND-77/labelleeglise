@@ -202,6 +202,50 @@ class MailService
         );
     }
 
+    /**
+     * Rappel de rapport du jour (in-app délégué à NotificationService ; ici l'email).
+     * Ne contient que : structure, date, heure limite, lien authentifié. JAMAIS de
+     * données personnelles ni de contenu de rapport dans l'objet (§D du plan).
+     */
+    public function sendRapportReminder(array $user, array $context, string $formUrl): bool
+    {
+        $html = View::render('emails/rapport-rappel', [
+            'user'    => $user,
+            'context' => $context,
+            'formUrl' => $formUrl,
+            'appName' => defined('APP_NAME') ? APP_NAME : 'La Belle Église Intenationale Franceville',
+        ]);
+        return $this->send(
+            $user['email'],
+            trim(($user['prenom'] ?? '') . ' ' . ($user['nom'] ?? '')),
+            'Rappel - rapport du jour à compléter',
+            $html
+        );
+    }
+
+    /**
+     * Bilan hebdomadaire/mensuel personnalisé (§16.5) — strictement nominatif,
+     * jamais partagé avec d'autres responsables.
+     */
+    public function sendRapportBilan(array $user, array $context, string $ficheUrl): bool
+    {
+        $html = View::render('emails/rapport-bilan', [
+            'user'     => $user,
+            'context'  => $context,
+            'ficheUrl' => $ficheUrl,
+            'appName'  => defined('APP_NAME') ? APP_NAME : 'La Belle Église Intenationale Franceville',
+        ]);
+        $subject = ($context['periodType'] ?? '') === 'week'
+            ? 'Votre bilan hebdomadaire - Rapports du Jour'
+            : 'Votre bilan mensuel - Rapports du Jour';
+        return $this->send(
+            $user['email'],
+            trim(($user['prenom'] ?? '') . ' ' . ($user['nom'] ?? '')),
+            $subject,
+            $html
+        );
+    }
+
     /** Envoyé à la NOUVELLE adresse lors d'une demande de changement d'email (spec §12-13). */
     public function sendEmailChangeVerification(array $user, string $newEmail, string $verifyUrl, int $expiresHours = 24): bool
     {

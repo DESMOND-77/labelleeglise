@@ -70,6 +70,32 @@ class ActionsController extends Controller
                 $this->redirect('index.php');
                 break;
 
+            case 'rapport_cron': {
+                // Déclenchement externe (planificateur webcron) protégé par
+                // jeton secret — aucune session utilisateur requise. Le jeton
+                // est défini dans Paramètres > Suivi rapports (généré une fois).
+                header('Cache-Control: no-store');
+                header('Content-Type: application/json; charset=UTF-8');
+                $expected = rapport_settings_service()->cronToken();
+                $given = (string) ($_GET['token'] ?? '');
+                if ($expected === null || $given === '' || !hash_equals($expected, $given)) {
+                    http_response_code(403);
+                    echo json_encode(['ok' => false, 'error' => 'Jeton invalide.']);
+                    exit;
+                }
+                $dryRun = (string) ($_GET['dry_run'] ?? '0') === '1';
+                try {
+                    $summary = rapport_reminder_service()->processAll($dryRun);
+                } catch (\Throwable $e) {
+                    \App\Core\Logger::error('rapport_cron : échec fatal', ['error' => $e->getMessage()]);
+                    http_response_code(500);
+                    echo json_encode(['ok' => false, 'error' => 'Échec du traitement.']);
+                    exit;
+                }
+                echo json_encode(['ok' => true] + $summary, JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+
             case 'delete_centre':
                 $this->requireAdmin();
                 $id = (int) ($_GET['id'] ?? 0);
@@ -844,6 +870,156 @@ class ActionsController extends Controller
                     return;
                 }
                 $this->redirect('index.php', ['page' => 'rapport', 'id' => $res['id']]);
+                break;
+            }
+
+            /* ---------- Suivi des Rapports du Jour (module 20) ---------- */
+
+            case 'rapport_manual_relance': {
+                $user = $this->requireUser();
+                if (!auth_can_view_rapport_suivi()) {
+                    $this->deny();
+                }
+                $occurrenceId = (int) ($_POST['occurrence_id'] ?? 0);
+                $isAdmin = ($user['role'] ?? '') === 'admin';
+                if ($occurrenceId <= 0) {
+                    $this->redirect('index.php', ['page' => 'rapport_suivi', 'error' => 'Occurrence invalide.']);
+                }
+                if (!$isAdmin && !rapport_scope_service()->isInScopeForOccurrence($user, $occurrenceId)) {
+                    $this->deny();
+                }
+                try {
+                    $result = rapport_reminder_service()->manualRelance($occurrenceId, (int) $user['id']);
+                } catch (\Throwable $e) {
+                    $this->redirect('index.php', ['page' => 'rapport_suivi', 'error' => 'Relance échouée : ' . $e->getMessage()]);
+                }
+                if (!$result['ok']) {
+                    $this->redirect('index.php', ['page' => 'rapport_suivi', 'error' => $result['message']]);
+                }
+                $this->redirect('index.php', ['page' => 'rapport_suivi', 'saved' => $result['message']]);
+                break;
+            }
+
+            case 'rapport_occurrence_cancel': {
+                // Annulation d'une échéance : administration uniquement, motif obligatoire.
+                $user = $this->requireAdmin();
+                $occurrenceId = (int) ($_POST['occurrence_id'] ?? 0);
+                $motif = mb_substr(trim((string) ($_POST['motif'] ?? '')), 0, 250);
+                if ($occurrenceId <= 0 || $motif === '') {
+                    $this->redirect('index.php', ['page' => 'rapport_suivi', 'error' => 'Motif obligatoire pour annuler une échéance.']);
+                }
+                try {
+                    $ok = rapport_occurrence_service()->cancelOccurrence($occurrenceId, (int) $user['id'], $motif);
+                } catch (\Throwable $e) {
+                    $this->redirect('index.php', ['page' => 'rapport_suivi', 'error' => 'Annulation échouée : ' . $e->getMessage()]);
+                }
+                if (!$ok) {
+                    $this->redirect('index.php', ['page' => 'rapport_suivi', 'error' => 'Impossible d\'annuler cette échéance (introuvable ou motif vide).']);
+                }
+                $this->redirect('index.php', ['page' => 'rapport_suivi', 'saved' => 'Échéance annulée.']);
+                break;
+            }
+
+            case 'rapport_settings_save': {
+                $user = $this->requireAdmin();
+                $values = [
+                    'heure_limite_defaut' => $_POST['heure_limite_defaut'] ?? '',
+                    'grace_minutes' => $_POST['grace_minutes'] ?? '',
+                    'rappel_preventif_heure' => $_POST['rappel_preventif_heure'] ?? '',
+                    'rappel_relance_heure' => $_POST['rappel_relance_heure'] ?? '',
+                    'reminder_max_attempts' => $_POST['reminder_max_attempts'] ?? '',
+                    'reminder_retry_minutes' => $_POST['reminder_retry_minutes'] ?? '',
+                    'bilan_hebdo_heure' => $_POST['bilan_hebdo_heure'] ?? '',
+                    'bilan_mensuel_heure' => $_POST['bilan_mensuel_heure'] ?? '',
+                    'cumul_start_default' => $_POST['cumul_start_default'] ?? '',
+                ];
+                // Cases à cocher : absence = désactivé.
+                foreach (['rappel_preventif_enabled', 'rappel_echeance_enabled', 'rappel_relance_enabled', 'channel_inapp_enabled', 'channel_email_enabled', 'felicitations_enabled', 'bilan_hebdo_enabled', 'bilan_mensuel_enabled'] as $key) {
+                    $values[$key] = isset($_POST[$key]) ? '1' : '0';
+                }
+                try {
+                    Query::transaction(static function () use ($values) {
+                        rapport_settings_service()->save($values);
+                    });
+                } catch (\Throwable $e) {
+                    rapport_audit_repository()->log('settings_save_error', 'rapport_settings', null, 'Échec des paramètres : ' . $e->getMessage(), (int) $user['id']);
+                    $this->redirect('index.php', ['page' => 'rapport_parametres', 'error' => 'Échec de l\'enregistrement : ' . $e->getMessage()]);
+                }
+                rapport_audit_repository()->log('settings_save', 'rapport_settings', null, 'Paramètres du suivi enregistrés.', (int) $user['id']);
+                $this->redirect('index.php', ['page' => 'rapport_parametres', 'saved' => 'Paramètres enregistrés.']);
+                break;
+            }
+
+            case 'rapport_calendar_save': {
+                $user = $this->requireAdmin();
+                $type = (string) ($_POST['calendar_type'] ?? '');
+                $id = (int) ($_POST['calendar_id'] ?? 0);
+                if (!in_array($type, ['centre', 'bacenta'], true) || $id <= 0) {
+                    $this->redirect('index.php', ['page' => 'rapport_parametres', 'error' => 'Cible invalide.']);
+                }
+                $jours = array_values(array_intersect(WEEK_DAYS, (array) ($_POST['jours_semaine'] ?? [])));
+                $joursCsv = $jours ? implode(',', $jours) : '';
+                $debut = trim((string) ($_POST['heure_debut'] ?? '')) ?: null;
+                $fin = trim((string) ($_POST['heure_fin'] ?? '')) ?: null;
+                $limite = trim((string) ($_POST['heure_limite'] ?? '')) ?: null;
+                $error = rapport_settings_service()->saveCalendar($type, $id, $joursCsv !== '' ? $joursCsv : null, $debut, $fin, $limite);
+                if ($error !== null) {
+                    rapport_audit_repository()->log('calendar_error', $type, $id, $error, (int) $user['id']);
+                    $this->redirect('index.php', ['page' => 'rapport_parametres', 'error' => $error]);
+                }
+                rapport_audit_repository()->log('calendar_save', $type, $id, 'Calendrier enregistré (jours : ' . ($joursCsv !== '' ? $joursCsv : 'aucun') . ', heure limite : ' . ($limite ?? 'défaut global') . ').', (int) $user['id']);
+                $this->redirect('index.php', ['page' => 'rapport_parametres', 'saved' => 'Calendrier enregistré. Les échéances déjà générées ne sont pas modifiées.']);
+                break;
+            }
+
+            case 'rapport_rules_save': {
+                $user = $this->requireAdmin();
+                $payload = [
+                    'level_key' => $_POST['level_key'] ?? '',
+                    'label' => $_POST['label'] ?? '',
+                    'min_rate' => $_POST['min_rate'] ?? '',
+                    'max_rate' => $_POST['max_rate'] ?? '',
+                    'message_template' => $_POST['message_template'] ?? '',
+                    'sort_order' => $_POST['sort_order'] ?? '',
+                    'is_active' => isset($_POST['is_active']) ? '1' : '0',
+                ];
+                $ruleId = (int) ($_POST['rule_id'] ?? 0);
+                $errors = rapport_scoring_service()->saveRule($payload, $ruleId > 0 ? $ruleId : null, (int) $user['id']);
+                if ($errors !== []) {
+                    $params = ['page' => 'rapport_parametres', 'error' => implode(' ', $errors)];
+                    if ($ruleId > 0) {
+                        $params['edit_rule'] = $ruleId;
+                    }
+                    $this->redirect('index.php', $params);
+                }
+                rapport_audit_repository()->log('rule_save', 'scoring_rule', $ruleId > 0 ? $ruleId : null, 'Échelon de barème « ' . trim((string) ($_POST['label'] ?? '')) . ' » enregistré.', (int) $user['id']);
+                $this->redirect('index.php', ['page' => 'rapport_parametres', 'saved' => 'Barème enregistré (nouvelle version active).']);
+                break;
+            }
+
+            case 'rapport_rule_delete': {
+                $user = $this->requireAdmin();
+                $ruleId = (int) ($_POST['rule_id'] ?? 0);
+                if ($ruleId <= 0) {
+                    $this->redirect('index.php', ['page' => 'rapport_parametres', 'error' => 'Niveau invalide.']);
+                }
+                $errors = rapport_scoring_service()->deleteRule($ruleId);
+                if ($errors !== []) {
+                    $this->redirect('index.php', ['page' => 'rapport_parametres', 'error' => implode(' ', $errors)]);
+                }
+                rapport_audit_repository()->log('rule_delete', 'scoring_rule', $ruleId, 'Niveau de barème supprimé.', (int) $user['id']);
+                $this->redirect('index.php', ['page' => 'rapport_parametres', 'saved' => 'Niveau supprimé (nouvelle version active).']);
+                break;
+            }
+
+            case 'rapport_cron_run': {
+                // Exécution manuelle depuis l'administration (simulation ou réelle).
+                $user = $this->requireAdmin();
+                $dryRun = (string) ($_POST['dry_run'] ?? '0') === '1';
+                $summary = rapport_reminder_service()->processAll($dryRun);
+                $_SESSION['rapport_last_run'] = $summary;
+                rapport_audit_repository()->log('cron_manual_run', 'rapport_cron', null, ($dryRun ? 'Simulation' : 'Exécution manuelle') . ' : ' . (int) ($summary['reminders']['sent'] ?? 0) . ' rappel(s) envoyé(s).', (int) $user['id']);
+                $this->redirect('index.php', ['page' => 'rapport_parametres', 'saved' => $dryRun ? 'Simulation terminée (aucun envoi).' : 'Rappels et bilans traités.']);
                 break;
             }
 

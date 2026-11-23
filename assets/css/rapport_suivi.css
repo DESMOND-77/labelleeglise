@@ -1,0 +1,332 @@
+/* M6 — Suivi des Rapports du Jour : module 20 (checklist, tableau de bord,
+   classement, fiche responsable, paramètres). Réutilise les composants
+   génériques (data-table, form-card, badge, stats-grid) ; n'ajoute que le
+   spécifique. */
+
+/* ---- Filtres ---- */
+.suivi-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: flex-end;
+  margin-bottom: var(--space-4);
+}
+
+.suivi-filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-soft);
+}
+
+.suivi-filters input:not([type="hidden"]),
+.suivi-filters select {
+  min-height: 40px;
+  min-width: 150px;
+}
+
+.suivi-filters .filter-actions {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+/* ---- Aperçu & alertes ---- */
+.suivi-alerts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.suivi-alerts .alert {
+  margin: 0;
+}
+
+/* ---- Checklist ---- */
+.suivi-cell-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.suivi-cell-main strong {
+  font-weight: 650;
+  color: var(--text);
+}
+
+.suivi-cell-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.suivi-due {
+  font-variant-numeric: tabular-nums;
+}
+
+.suivi-due.missing {
+  color: var(--warning-text);
+  font-weight: 650;
+}
+
+.suivi-status-pending { background: var(--primary-soft); color: var(--primary); }
+.suivi-status-due { background: var(--warning-soft); color: var(--warning-text); }
+.suivi-status-overdue { background: var(--danger-soft); color: var(--danger-text); }
+.suivi-status-filled_on_time { background: var(--success-soft); color: var(--success-text); }
+.suivi-status-filled_late { background: #FDF0D8; color: #92400E; }
+.suivi-status-cancelled { background: #EDEBE6; color: #57534E; }
+
+/* ---- Pager ---- */
+.suivi-pager {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.suivi-pager .pager-info {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.suivi-pager .pager-links {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* ---- Tableau de bord ---- */
+.suivi-kpi-grid {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.suivi-kpi-delta {
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.suivi-kpi-delta.up { color: var(--success-text); }
+.suivi-kpi-delta.down { color: var(--danger-text); }
+.suivi-kpi-delta.flat { color: var(--text-muted); }
+
+.suivi-chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.suivi-chart-grid .chart-card h3,
+.chart-card h3.suivi-chart-title {
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--text-soft);
+  margin: 0 0 var(--space-3) 0;
+}
+
+.suivi-chart-wide {
+  grid-column: 1 / -1;
+}
+
+/* ---- Classement ---- */
+.suivi-rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 8px;
+  border-radius: var(--radius-full);
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.suivi-rank.top {
+  background: #F6E8C0;
+  color: var(--accent-ink);
+}
+
+.suivi-restricted-note {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 13px;
+  color: var(--text-muted);
+  background: var(--primary-soft);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+/* ---- Fiche responsable ---- */
+.suivi-blocs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.suivi-bloc-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.suivi-bloc-head h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-soft);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.suivi-bloc-figures {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+  margin: var(--space-3) 0;
+}
+
+.suivi-bloc-figures div {
+  text-align: center;
+}
+
+.suivi-bloc-figures b {
+  display: block;
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.suivi-bloc-figures span {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.suivi-bloc-rates {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+}
+
+.suivi-rate {
+  font-size: 13px;
+  color: var(--text-soft);
+}
+
+.suivi-rate b {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.suivi-level-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 650;
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.suivi-level-pill.good { background: var(--success-soft); color: var(--success-text); }
+.suivi-level-pill.watch { background: var(--warning-soft); color: var(--warning-text); }
+.suivi-level-pill.bad { background: var(--danger-soft); color: var(--danger-text); }
+.suivi-level-pill.na { background: #EDEBE6; color: #57534E; }
+
+.suivi-history-table td,
+.suivi-history-table th {
+  font-size: 13px;
+}
+
+/* ---- Paramètres ---- */
+.suivi-settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.suivi-settings-grid .form-card h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 16px;
+  margin-top: 0;
+}
+
+.suivi-settings-span {
+  grid-column: 1 / -1;
+}
+
+.suivi-days-checkboxes {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.suivi-days-checkboxes label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.suivi-matrix td,
+.suivi-matrix th {
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+.suivi-matrix input[type="time"] {
+  min-height: 34px;
+  max-width: 110px;
+}
+
+.suivi-actions-cell {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.suivi-audit-details {
+  font-size: 12px;
+  color: var(--text-soft);
+  max-width: 420px;
+}
+
+@media (max-width: 1080px) {
+  .suivi-chart-grid,
+  .suivi-settings-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .suivi-bloc-figures {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .suivi-filters input:not([type="hidden"]),
+  .suivi-filters select {
+    min-width: 0;
+    width: 100%;
+  }
+  .suivi-filters label {
+    flex: 1 1 140px;
+  }
+}

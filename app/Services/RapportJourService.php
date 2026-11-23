@@ -12,6 +12,7 @@ use App\Repositories\RapportJourRepository;
 use App\Repositories\ResponsibilityRepository;
 use App\Repositories\ContributionRepository;
 use App\Repositories\UserRepository;
+use App\Services\RapportOccurrenceService;
 
 /**
  * Rapport du Jour : validation, instantané des responsables, upsert.
@@ -26,6 +27,7 @@ class RapportJourService
     private BacentaRepository $bacentas;
     private NotificationService $notifications;
     private MailService $mail;
+    private RapportOccurrenceService $occurrences;
 
     public function __construct(
         ?RapportJourRepository $repo = null,
@@ -35,7 +37,8 @@ class RapportJourService
         ?CentreRepository $centres = null,
         ?BacentaRepository $bacentas = null,
         ?NotificationService $notifications = null,
-        ?MailService $mail = null
+        ?MailService $mail = null,
+        ?RapportOccurrenceService $occurrences = null
     ) {
         $this->repo = $repo ?? new RapportJourRepository();
         $this->resp = $resp ?? new ResponsibilityRepository();
@@ -45,6 +48,7 @@ class RapportJourService
         $this->bacentas = $bacentas ?? new BacentaRepository();
         $this->notifications = $notifications ?? new NotificationService();
         $this->mail = $mail ?? new MailService();
+        $this->occurrences = $occurrences ?? new RapportOccurrenceService();
     }
 
     public function report(int $id): ?array
@@ -211,9 +215,15 @@ class RapportJourService
             'resp_bacenta_nom' => $names['resp_bacenta_nom'],
         ]);
 
-        $id = Query::transaction(function () use ($data, $scopeType, $scopeId): int {
+        $submittedAt = date('Y-m-d H:i:s');
+        $id = Query::transaction(function () use ($data, $scopeType, $scopeId, $userId, $submittedAt): int {
             $id = $this->repo->upsert($data);
             $this->contributions->saveReportOffering($id, $scopeType, $scopeId, (string) $data['date_rapport'], (float) $data['offrande']);
+            // Suivi des occurrences : chaque soumission valide tente
+            // l'attribution du crédit (premier responsable = gagnant,
+            // atomique en base ; jamais d'exception propagée grâce au
+            // try/catch interne, et rattrapage idempotent par la synchro).
+            $this->occurrences->recordSubmission($scopeType, $scopeId, (string) $data['date_rapport'], $userId, $id, $submittedAt);
             return $id;
         });
 

@@ -66,6 +66,17 @@ if ($user && !$isAdmin && auth_can_report_any()) {
     $navLis[] = '<li><a class="nav-item' . ($page === 'rapports' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'rapports'])) . '"><span class="ico">' . SECTION_ICONS['rapports'] . '</span><span class="label">' . h(SECTION_LABELS['rapports']) . '</span></a></li>';
 }
 
+// Suivi / Checklist et tableau de bord des rapports : pour tout responsable
+// effectif de centre/bacenta non-admin (l'admin les a via NAV_ORDER).
+if ($user && !$isAdmin && auth_can_view_rapport_suivi()) {
+    $navLis[] = '<li><a class="nav-item' . ($page === 'rapport_suivi' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'rapport_suivi'])) . '"><span class="ico">' . SECTION_ICONS['rapport_suivi'] . '</span><span class="label">' . h(SECTION_LABELS['rapport_suivi']) . '</span></a></li>';
+    $navLis[] = '<li><a class="nav-item' . ($page === 'rapport_dashboard' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'rapport_dashboard'])) . '"><span class="ico">' . SECTION_ICONS['rapport_dashboard'] . '</span><span class="label">Tableau de bord</span></a></li>';
+}
+// Classement & félicitations : responsables avec périmètre uniquement (jamais public).
+if ($user && !$isAdmin && auth_can_view_rapport_classement()) {
+    $navLis[] = '<li><a class="nav-item' . ($page === 'rapport_classement' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'rapport_classement'])) . '"><span class="ico">' . SECTION_ICONS['rapport_classement'] . '</span><span class="label">' . h(SECTION_LABELS['rapport_classement']) . '</span></a></li>';
+}
+
 // Classes / Écoles : lien pour tout gestionnaire de classes non-admin
 // (l'admin l'a déjà via la boucle NAV_ORDER).
 if ($user && !$isAdmin && auth_can_manage_classes()) {
@@ -178,6 +189,7 @@ foreach (glob(__DIR__ . '/../../assets/css/*.css') ?: [] as $cssFile) {
 ?>
 <link rel="stylesheet" href="assets/css/app.css?v=<?= $cssVersion ?>">
 <?php if (($page ?? '') === 'site_public'): ?><link rel="stylesheet" href="assets/css/admin_site.css?v=<?= $cssVersion ?>"><?php endif; ?>
+<?php if (in_array($page ?? '', ['rapport_suivi', 'rapport_dashboard', 'rapport_classement', 'rapport_responsable', 'rapport_parametres'], true)): ?><link rel="stylesheet" href="assets/css/rapport_suivi.css?v=<?= $cssVersion ?>"><?php endif; ?>
 <link rel="stylesheet" href="<?= h(FONT_AWESOME_CSS) ?>">
 <script src="<?= h(CHART_JS) ?>"></script>
 </head>
