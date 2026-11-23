@@ -32,8 +32,17 @@ $heure = $s('heure_limite_defaut');
     <p class="suivi-cell-sub">
       Rappels : <?= (int) ($lastRun['reminders']['checked'] ?? 0) ?> examiné(s) · <?= (int) ($lastRun['reminders']['sent'] ?? 0) ?> envoyé(s) · <?= (int) ($lastRun['reminders']['failed'] ?? 0) ?> en échec · <?= (int) ($lastRun['reminders']['skipped'] ?? 0) ?> ignoré(s) · <?= (int) ($lastRun['reminders']['cancelled_closed'] ?? 0) ?> clôturé(s) automatiquement
     </p>
-    <?php if (!empty($lastRun['bilans'])): ?>
-      <p class="suivi-cell-sub">Bilans : <?= h(implode(' · ', (array) $lastRun['bilans'])) ?></p>
+    <?php if (isset($lastRun['locked']) && $lastRun['locked'] === false): ?>
+      <p class="suivi-cell-sub" style="color:var(--warning-text)"><i class="fa-solid fa-lock"></i> Un autre traitement était déjà en cours — rien n'a été envoyé.</p>
+    <?php endif; ?>
+    <?php $bilans = $lastRun['bilans'] ?? null; ?>
+    <?php if (is_array($bilans) && ($bilans !== [] || isset($bilans['sent']))): ?>
+      <p class="suivi-cell-sub">Bilans : <?= (int) ($bilans['sent'] ?? 0) ?> envoyé(s)
+        <?php foreach ((array) ($bilans['periods'] ?? []) as $type => $info): ?>
+          — <?= $type === 'month' ? 'mensuel' : 'hebdo' ?> <?= h((string) ($info['from'] ?? '')) ?> → <?= h((string) ($info['to'] ?? '')) ?>
+          (<?= isset($info['recipients']) ? (int) $info['recipients'] . ' destinataire(s)' : (int) ($info['sent'] ?? 0) . ' envoyé(s)' ?>)
+        <?php endforeach; ?>
+      </p>
     <?php endif; ?>
     <?php if (!empty($lastRun['details'])): ?>
       <details>
