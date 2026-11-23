@@ -510,3 +510,87 @@ En l'absence de validation, retenir les valeurs proposées comme valeurs initial
 5. réglages avancés et exports.
 
 **Règle directrice :** la qualité de ce module dépend d'abord de la justesse des échéances attendues et de l'attribution au bon responsable. Les scores et rappels ne doivent être activés qu'après validation de ce socle.
+
+
+---
+
+## 16. Décisions métier validées — version consolidée
+
+Les décisions ci-dessous ont été confirmées par le commanditaire. Elles **remplacent toute proposition contradictoire** des sections précédentes et constituent les règles de référence pour l'implémentation.
+
+### 16.1 Une occurrence pour chaque réunion de centre et de bacenta
+
+- Chaque réunion planifiée d'un centre génère une occurrence de rapport de type `centre`.
+- Chaque réunion planifiée d'un bacenta génère une occurrence de rapport de type `bacenta`.
+- Les deux types d'occurrences sont suivis indépendamment, y compris lorsqu'une réunion de centre et une réunion de bacenta ont lieu le même jour.
+- Une réunion de centre ne remplace pas les rapports attendus de ses bacentas, et inversement.
+- Le calendrier propre à chaque centre et bacenta doit être administrable et explicite. Le calendrier des centres doit être ajouté si le modèle actuel ne le permet pas.
+- La génération doit être idempotente : une réunion donnée ne produit qu'une occurrence de rapport pour sa cible et sa date.
+
+### 16.2 Tous les responsables sont notifiés, un seul reçoit le crédit
+
+- Tous les responsables actifs affectés à la cible à la date de l'occurrence reçoivent les rappels in-app et email, selon les canaux activés et la disponibilité de leurs coordonnées.
+- Le crédit de réalisation est attribué exclusivement au **premier responsable dont la soumission valide est enregistrée avec succès** pour cette occurrence.
+- L'attribution doit être atomique en base de données : en cas de soumissions concurrentes, une transaction et une contrainte/stratégie de verrouillage garantissent un seul gagnant.
+- Enregistrer séparément l'identité de l'auteur de la soumission et l'identité du responsable crédité. Si un administrateur ou un tiers autorisé soumet le rapport au nom d'un responsable, ne pas lui attribuer automatiquement le crédit : appliquer les règles explicites de soumission « pour le compte de ».
+- Les autres responsables voient l'occurrence comme remplie, mais ne reçoivent pas de crédit pour cette occurrence. Leurs statistiques doivent afficher clairement « rapport soumis par un autre responsable » plutôt que comptabiliser l'échéance comme un échec individuel.
+- Tous les rappels futurs de l'occurrence sont annulés pour tous les destinataires dès qu'un rapport valide est enregistré. Les messages déjà envoyés restent dans l'historique.
+
+**Conséquence sur le modèle :** remplacer le champ unique `responsible_user_id` dans `rapport_occurrences` par une table de liaison, par exemple `rapport_occurrence_responsables`, qui conserve tous les responsables concernés et leur statut de notification. L'occurrence porte un seul `credited_user_id` et un seul `submitted_by_user_id` (ou références équivalentes), fixés de manière atomique.
+
+### 16.3 Heure limite fixe
+
+- Ne pas calculer l'échéance comme « fin de réunion + 30 minutes ».
+- Ajouter une heure limite fixe configurable pour chaque calendrier de centre/bacenta, avec possibilité de valeur par défaut globale.
+- L'heure limite est enregistrée sur l'occurrence au moment de sa génération afin qu'une modification ultérieure des paramètres ne change pas rétroactivement les échéances déjà créées.
+- La date et l'heure locales sont interprétées dans le fuseau `Africa/Libreville`.
+- Si aucune heure limite n'est configurée, signaler une erreur de configuration à l'administration et ne pas inventer une heure.
+
+### 16.4 Calendrier des rappels confirmé
+
+Pour chaque occurrence non remplie :
+
+1. **La veille à 18 h** : rappel préventif à tous les responsables concernés.
+2. **Le jour de la réunion, après l'heure limite fixe** : rappel d'échéance à tous les responsables concernés si le rapport n'est toujours pas soumis.
+3. **Le lendemain à 09 h** : relance à tous les responsables concernés si le rapport reste absent.
+
+Les heures sont celles du fuseau `Africa/Libreville`. Chaque événement est configurable/désactivable par l'administration, et chaque couple occurrence + destinataire + type + canal est protégé contre les doublons. La soumission du rapport annule tous les rappels non encore envoyés.
+
+### 16.5 Félicitations et bilans périodiques
+
+- Envoyer une félicitation au responsable crédité lorsqu'il atteint un nouveau niveau de barème.
+- Générer et communiquer un bilan hebdomadaire et un bilan mensuel aux responsables concernés, avec leurs nombres attendus, soumis, réalisés à temps, en retard, leur taux et leur message.
+- Les bilans hebdomadaires utilisent les semaines ISO ; les bilans mensuels utilisent les mois civils.
+- Un changement de niveau ne doit produire qu'une seule notification pour la période et la version de barème concernées.
+- Les messages, seuils, calendrier d'envoi des bilans et canaux de communication doivent être configurables.
+- Les responsables qui n'ont aucune occurrence attendue dans la période reçoivent un statut « Non évalué », et non une note de 0 %.
+- Les félicitations et bilans ne doivent jamais divulguer les résultats nominatifs d'autres responsables.
+
+### 16.6 Classement à accès restreint
+
+Le classement nominatif et les résultats détaillés ne sont visibles que par les administrateurs et les responsables disposant explicitement d'une permission adaptée à leur périmètre. Aucun classement public ou accessible à tous les membres n'est prévu. Les responsables de périmètre ne voient que les données relevant de leurs autorisations.
+
+### 16.7 Cumul depuis la prise de responsabilité
+
+- Le cumul individuel commence à la date effective de début de responsabilité, issue de l'historique des affectations.
+- Les occurrences antérieures à cette date ne sont jamais incluses dans son dénominateur.
+- En cas de changement de structure ou de fonction, conserver les périodes d'affectation et calculer les résultats en fonction des responsabilités réellement exercées.
+- Si l'historique des affectations n'existe pas ou est incomplet, prévoir une date de départ initiale validée par un administrateur ; ne pas déduire ou inventer cette date.
+- La date de lancement du nouveau module ne doit pas remplacer la date de prise de responsabilité lorsqu'une date historique fiable est disponible. Si les données historiques sont absentes, documenter la limite et appliquer une date de départ explicitement validée.
+
+### 16.8 Mise à jour obligatoire du schéma et des tests
+
+Le plan d'implémentation doit être ajusté comme suit :
+
+- Ajouter un calendrier et une heure limite fixe pour les centres, et vérifier la configuration équivalente pour les bacentas.
+- Ajouter `rapport_occurrence_responsables` pour tous les destinataires d'une occurrence.
+- Ajouter un mécanisme atomique d'attribution du crédit au premier dépôt valide.
+- Distinguer auteur, responsable crédité et responsables simplement notifiés.
+- Ajouter des états de suivi individuel permettant de distinguer « crédit obtenu », « rapport soumis par un autre responsable » et « rapport non soumis ».
+- Ajouter les tests de concurrence : deux responsables soumettent simultanément, un seul reçoit le crédit.
+- Ajouter les tests garantissant que les rapports centre et bacenta sont attendus séparément.
+- Ajouter les tests de rappel multi-destinataires, d'annulation de tous les rappels après soumission, de bilan hebdomadaire/mensuel et de changement de niveau sans doublon.
+- Ajouter les tests de cumul avec prise de responsabilité en cours de mois, changement de structure et historique incomplet.
+- Restreindre explicitement les routes et requêtes du classement aux administrateurs et responsables autorisés.
+
+**Ces règles validées prévalent sur les hypothèses provisoires des sections 3, 5, 11, 12 et 14.** La phase 0 doit maintenant auditer les données et conventions existantes en appliquant ces décisions ; elle ne doit pas redemander au commanditaire de trancher les points déjà validés.
