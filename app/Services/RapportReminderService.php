@@ -17,7 +17,7 @@ use App\Repositories\UserRepository;
  * Rappels automatiques (in-app + email) et bilans périodiques.
  *
  * Garanties :
- *  - au plus UN envoi par (occurrence, destinataire, type, canal) — index
+ *  - au plus UN envoi par (occurrence, destinataire, type, canal) - index
  *    unique + écriture de la ligne d'idempotence AVANT l'envoi ;
  *  - le rapport est revérifié juste avant CHAQUE envoi ;
  *  - échecs indépendants par canal, compteur de tentatives borné
@@ -96,7 +96,7 @@ class RapportReminderService
         // Verrou applicatif : un seul traitement à la fois (un déclenchement
         // concurrent se termine immédiatement, sans rien envoyer).
         if (!$this->acquireLock(0)) {
-            $summary['details'][] = 'Un autre traitement des rappels est en cours (verrou MySQL) — abandon sans envoi.';
+            $summary['details'][] = 'Un autre traitement des rappels est en cours (verrou MySQL) - abandon sans envoi.';
             $summary['finished_at'] = date('Y-m-d H:i:s');
             return $summary;
         }
@@ -429,7 +429,7 @@ class RapportReminderService
     }
 
     /* ==================================================================
-     * Bilans périodiques (hebdomadaire / mensuel) — §16.5
+     * Bilans périodiques (hebdomadaire / mensuel) - §16.5
      * ================================================================== */
 
     /**
@@ -528,7 +528,7 @@ class RapportReminderService
         $levelLabel = $result['level']['label'] ?? null;
         $message = $result['message'];
 
-        $title = $periodType === 'week' ? 'Votre bilan hebdomadaire — Rapports du Jour' : 'Votre bilan mensuel — Rapports du Jour';
+        $title = $periodType === 'week' ? 'Votre bilan hebdomadaire - Rapports du Jour' : 'Votre bilan mensuel - Rapports du Jour';
         $body = "Période : $periodLabel.\n"
             . "Rapports attendus : {$stats['expected_count']}\n"
             . "Rapports soumis : {$stats['submitted_count']} (dont " . ($stats['filled_by_other'] ?? 0) . " soumis par un autre responsable)\n"

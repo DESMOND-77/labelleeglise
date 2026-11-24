@@ -15,7 +15,7 @@ use App\Repositories\UserRepository;
  * Règles d'or :
  *  - les seuils sont des intervalles [min, max[ en pourcentage (100 inclus),
  *    validés côté serveur : bornes 0-100, sans chevauchement, couverture
- *    complète de la plage — un barème invalide n'est jamais persisté ;
+ *    complète de la plage - un barème invalide n'est jamais persisté ;
  *  - l'historique n'est jamais réécrit : chaque résultat historisé porte la
  *    version du barème et un instantané du message ;
  *  - « Non évalué » si aucune échéance attendue (jamais 0 %) ;

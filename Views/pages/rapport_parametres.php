@@ -14,7 +14,7 @@ $heure = $s('heure_limite_defaut');
 ?>
 <?= section_toolbar(
     SECTION_LABELS['rapport_parametres'],
-    'Calendriers, échéances, rappels, bilans et barème — réservé à l’administrateur',
+    'Calendriers, échéances, rappels, bilans et barème - réservé à l’administrateur',
     '<a class="btn btn-outline btn-sm" href="' . h(url('index.php', ['page' => 'rapport_suivi'])) . '"><i class="fa-solid fa-clipboard-check"></i> Voir la checklist</a>'
 ) ?>
 
@@ -28,18 +28,18 @@ $heure = $s('heure_limite_defaut');
 
 <?php if (is_array($lastRun)): ?>
   <div class="chart-card" style="margin-bottom:var(--space-4)">
-    <h3 class="suivi-chart-title"><?= !empty($lastRun['dry_run']) ? 'Simulation (aucun envoi)' : 'Traitement manuel' ?> — <?= h((string) ($lastRun['finished_at'] ?? '')) ?></h3>
+    <h3 class="suivi-chart-title"><?= !empty($lastRun['dry_run']) ? 'Simulation (aucun envoi)' : 'Traitement manuel' ?> - <?= h((string) ($lastRun['finished_at'] ?? '')) ?></h3>
     <p class="suivi-cell-sub">
       Rappels : <?= (int) ($lastRun['reminders']['checked'] ?? 0) ?> examiné(s) · <?= (int) ($lastRun['reminders']['sent'] ?? 0) ?> envoyé(s) · <?= (int) ($lastRun['reminders']['failed'] ?? 0) ?> en échec · <?= (int) ($lastRun['reminders']['skipped'] ?? 0) ?> ignoré(s) · <?= (int) ($lastRun['reminders']['cancelled_closed'] ?? 0) ?> clôturé(s) automatiquement
     </p>
     <?php if (isset($lastRun['locked']) && $lastRun['locked'] === false): ?>
-      <p class="suivi-cell-sub" style="color:var(--warning-text)"><i class="fa-solid fa-lock"></i> Un autre traitement était déjà en cours — rien n'a été envoyé.</p>
+      <p class="suivi-cell-sub" style="color:var(--warning-text)"><i class="fa-solid fa-lock"></i> Un autre traitement était déjà en cours - rien n'a été envoyé.</p>
     <?php endif; ?>
     <?php $bilans = $lastRun['bilans'] ?? null; ?>
     <?php if (is_array($bilans) && ($bilans !== [] || isset($bilans['sent']))): ?>
       <p class="suivi-cell-sub">Bilans : <?= (int) ($bilans['sent'] ?? 0) ?> envoyé(s)
         <?php foreach ((array) ($bilans['periods'] ?? []) as $type => $info): ?>
-          — <?= $type === 'month' ? 'mensuel' : 'hebdo' ?> <?= h((string) ($info['from'] ?? '')) ?> → <?= h((string) ($info['to'] ?? '')) ?>
+          - <?= $type === 'month' ? 'mensuel' : 'hebdo' ?> <?= h((string) ($info['from'] ?? '')) ?> → <?= h((string) ($info['to'] ?? '')) ?>
           (<?= isset($info['recipients']) ? (int) $info['recipients'] . ' destinataire(s)' : (int) ($info['sent'] ?? 0) . ' envoyé(s)' ?>)
         <?php endforeach; ?>
       </p>
@@ -61,14 +61,14 @@ $heure = $s('heure_limite_defaut');
 
   <div class="form-card suivi-settings-span">
     <h3><i class="fa-solid fa-clock"></i> Exécution automatique (cron)</h3>
-    <p class="suivi-cell-sub">Planifiez l’appel de la tâche — toutes les 15 minutes conseillé. Sans exécution régulière, aucun rappel ni bilan ne partira.</p>
+    <p class="suivi-cell-sub">Planifiez l’appel de la tâche - toutes les 15 minutes conseillé. Sans exécution régulière, aucun rappel ni bilan ne partira.</p>
     <label class="suivi-cell-sub" for="cron-cli">Commande CLI</label>
     <input id="cron-cli" type="text" readonly value="php <?= h(BASE_PATH . '/cron-rapport-rappels.php') ?>" onclick="this.select()" style="width:100%;font-family:monospace">
     <?php if ($cronToken !== ''): ?>
       <label class="suivi-cell-sub" for="cron-web" style="margin-top:var(--space-3)">Alternative webcron (jeton secret)</label>
       <input id="cron-web" type="text" readonly value="<?= h(url('index.php', ['action' => 'rapport_cron', 'token' => $cronToken])) ?>" onclick="this.select()" style="width:100%;font-family:monospace">
     <?php else: ?>
-      <p class="suivi-cell-sub" style="color:var(--warning-text)">Jeton cron non configuré — seule la voie CLI est disponible.</p>
+      <p class="suivi-cell-sub" style="color:var(--warning-text)">Jeton cron non configuré - seule la voie CLI est disponible.</p>
     <?php endif; ?>
     <div class="modal-actions" style="justify-content:flex-start;margin-top:var(--space-3)">
       <form method="post" action="index.php" style="display:inline">
@@ -201,14 +201,14 @@ $heure = $s('heure_limite_defaut');
 <?php endforeach; ?>
 
 <h2 class="dash-section-title" style="margin-top:var(--space-6)"><i class="fa-solid fa-ranking-star"></i> Barème de réalisation</h2>
-<p class="suivi-cell-sub" style="margin-bottom:var(--space-3)">Échelons non chevauchants couvrant [0, 100 %] (bornés par un point parfait à 100 inclus). Toute modification crée une nouvelle version appliquée aux évaluations futures — l’historique des bilans conserve le barème qui était en vigueur.</p>
+<p class="suivi-cell-sub" style="margin-bottom:var(--space-3)">Échelons non chevauchants couvrant [0, 100 %] (bornés par un point parfait à 100 inclus). Toute modification crée une nouvelle version appliquée aux évaluations futures - l’historique des bilans conserve le barème qui était en vigueur.</p>
 
 <div class="table-wrap">
   <table class="data-table">
     <thead><tr><th>Ordre</th><th>Libellé</th><th>Intervalle</th><th>Message</th><th>État</th><th></th></tr></thead>
     <tbody>
       <?php if (!$rules): ?>
-        <tr><td colspan="6"><?= empty_state('fa-ranking-star', 'Aucun échelon — le barème par défaut devrait être présent (migration).') ?></td></tr>
+        <tr><td colspan="6"><?= empty_state('fa-ranking-star', 'Aucun échelon - le barème par défaut devrait être présent (migration).') ?></td></tr>
       <?php else: ?>
         <?php foreach ($rules as $rule): ?>
           <tr>
@@ -242,7 +242,7 @@ $heure = $s('heure_limite_defaut');
     <label>Libellé
       <input type="text" name="label" required maxlength="80" value="<?= h($editRule ? (string) $editRule['label'] : '') ?>" placeholder="Ex. Exemplaire">
     </label>
-    <label>Clé (optionnel — dérivée du libellé sinon)
+    <label>Clé (optionnel - dérivée du libellé sinon)
       <input type="text" name="level_key" maxlength="30" value="<?= h($editRule ? (string) $editRule['level_key'] : '') ?>" placeholder="ex. exemplaire" pattern="[a-z0-9_\-]+" title="minuscules, chiffres, tirets et underscores">
     </label>
     <label>Taux minimal (%)
@@ -267,7 +267,7 @@ $heure = $s('heure_limite_defaut');
 
 <h2 class="dash-section-title" style="margin-top:var(--space-6)"><i class="fa-solid fa-bell-slash"></i> Rappels en échec</h2>
 <?php if (!$failedReminders): ?>
-  <p class="suivi-cell-sub">Aucun rappel en échec — les envois fonctionnent ou aucun rappel n’est encore planifié.</p>
+  <p class="suivi-cell-sub">Aucun rappel en échec - les envois fonctionnent ou aucun rappel n’est encore planifié.</p>
 <?php else: ?>
   <div class="table-wrap">
     <table class="data-table">
@@ -276,7 +276,7 @@ $heure = $s('heure_limite_defaut');
         <?php foreach ($failedReminders as $fail): ?>
           <tr>
             <td><?= h(date('d/m/Y H:i', strtotime((string) $fail['created_at']))) ?></td>
-            <td><?= h((string) $fail['scope_type']) ?> #<?= (int) $fail['scope_id'] ?> — <?= h(date('d/m/Y', strtotime((string) $fail['report_date']))) ?></td>
+            <td><?= h((string) $fail['scope_type']) ?> #<?= (int) $fail['scope_id'] ?> - <?= h(date('d/m/Y', strtotime((string) $fail['report_date']))) ?></td>
             <td><?= h(rapport_reminder_type_labels()[$fail['reminder_type']] ?? (string) $fail['reminder_type']) ?></td>
             <td><?= $fail['channel'] === 'inapp' ? 'In-app' : 'E-mail' ?></td>
             <td><?= (int) $fail['attempt_count'] ?></td>

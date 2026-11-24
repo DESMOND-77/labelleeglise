@@ -10,7 +10,7 @@ $fmtRate = static function ($rate) {
 };
 $delta = static function ($value) {
     if ($value === null) {
-        return ['—', 'flat'];
+        return ['-', 'flat'];
     }
     $v = (float) $value;
     if (abs($v) < 0.05) {
@@ -23,7 +23,7 @@ $delta = static function ($value) {
 ?>
 <?= section_toolbar(
     SECTION_LABELS['rapport_dashboard'],
-    h((string) $period['label']) . ' — périmètre ' . ($filters['vue'] === 'mes' ? 'personnel' : 'géré') . ' · KPI en % avec numérateur et dénominateur'
+    h((string) $period['label']) . ' - périmètre ' . ($filters['vue'] === 'mes' ? 'personnel' : 'géré') . ' · KPI en % avec numérateur et dénominateur'
 ) ?>
 
 <div class="suivi-alerts">
@@ -31,10 +31,10 @@ $delta = static function ($value) {
     <div class="alert alert-danger" role="alert"><i class="fa-solid fa-triangle-exclamation"></i> <?= h((string) $problem) ?></div>
   <?php endforeach; ?>
   <?php if ($isAdmin && $failedReminders > 0): ?>
-    <div class="alert alert-warning" role="alert"><i class="fa-solid fa-bell"></i> <?= (int) $failedReminders ?> rappel(s) en échec d’envoi — voir <a href="<?= h(url('index.php', ['page' => 'rapport_parametres'])) ?>">Paramètres &gt; journal des échecs</a>.</div>
+    <div class="alert alert-warning" role="alert"><i class="fa-solid fa-bell"></i> <?= (int) $failedReminders ?> rappel(s) en échec d’envoi - voir <a href="<?= h(url('index.php', ['page' => 'rapport_parametres'])) ?>">Paramètres &gt; journal des échecs</a>.</div>
   <?php endif; ?>
   <?php if ($isAdmin && (int) $data['sans_responsable'] > 0): ?>
-    <div class="alert alert-warning" role="alert"><i class="fa-solid fa-user-group"></i> <?= (int) $data['sans_responsable'] ?> échéance(s) sans responsable affecté — personne ne sera relancée. Affecter un responsable dans la structure concernée.</div>
+    <div class="alert alert-warning" role="alert"><i class="fa-solid fa-user-group"></i> <?= (int) $data['sans_responsable'] ?> échéance(s) sans responsable affecté - personne ne sera relancée. Affecter un responsable dans la structure concernée.</div>
   <?php endif; ?>
 </div>
 
@@ -83,7 +83,7 @@ $delta = static function ($value) {
 
 <div class="suivi-chart-grid">
   <div class="chart-card suivi-chart-wide">
-    <h3 class="suivi-chart-title">Évolution quotidienne — échéances attendues vs rapports soumis</h3>
+    <h3 class="suivi-chart-title">Évolution quotidienne - échéances attendues vs rapports soumis</h3>
     <canvas id="rapportEvolutionChart" aria-label="Évolution des échéances et rapports soumis par jour"></canvas>
   </div>
   <div class="chart-card">

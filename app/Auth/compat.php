@@ -357,7 +357,7 @@ function auth_can_view_rapport_suivi(): bool
 /**
  * Classement & félicitations : administrateur, ou responsable disposant
  * d'un périmètre (le classement est alors limité à ce périmètre ; jamais
- * public, jamais ouvert à tous les membres — §16.6).
+ * public, jamais ouvert à tous les membres - §16.6).
  */
 function auth_can_view_rapport_classement(): bool
 {

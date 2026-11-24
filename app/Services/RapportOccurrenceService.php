@@ -160,7 +160,7 @@ class RapportOccurrenceService
     {
         try {
             // Assure les liaisons responsables (règle « created_at ≤ date »)
-            // avant l'attribution — indispensable si la sync n'a pas encore
+            // avant l'attribution - indispensable si la sync n'a pas encore
             // vu cette occurrence.
             $occ = $this->occurrences->findByScopeDate($scopeType, $scopeId, $date);
             if ($occ && $occ['status'] !== 'cancelled') {

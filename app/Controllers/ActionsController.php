@@ -72,7 +72,7 @@ class ActionsController extends Controller
 
             case 'rapport_cron': {
                 // Déclenchement externe (planificateur webcron) protégé par
-                // jeton secret — aucune session utilisateur requise. Le jeton
+                // jeton secret - aucune session utilisateur requise. Le jeton
                 // est défini dans Paramètres > Suivi rapports (généré une fois).
                 header('Cache-Control: no-store');
                 header('Content-Type: application/json; charset=UTF-8');

@@ -281,7 +281,7 @@ class RapportAnalyticsService
      * @param ?array<int,array{type:string,id:int}> $scopePairs Périmètre du spectateur :
      *        null = aucune restriction (administrateur / soi-même) ; sinon les
      *        statistiques sont limitées au périmètre (les résultats de bilan
-     *        historisés — globaux par construction — ne sont alors PAS exposés).
+     *        historisés - globaux par construction - ne sont alors PAS exposés).
      * @return array{week:array,month:array,cumul:array,cumul_start:?string,cumul_source:string,history:array}
      */
     public function responsableSheet(int $userId, ?array $scopePairs = null): array

@@ -156,7 +156,7 @@ class RapportSettingsService
     /**
      * Enregistre (de façon validée) les paramètres soumis par le formulaire
      * d'administration. Toute valeur invalide lève une RuntimeException avec
-     * un message français — rien n'est silencieusement corrigé.
+     * un message français - rien n'est silencieusement corrigé.
      * @param array<string,mixed> $values
      */
     public function save(array $values): void

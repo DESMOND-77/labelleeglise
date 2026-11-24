@@ -20,7 +20,7 @@ $statusOptions = [
 ?>
 <?= section_toolbar(
     SECTION_LABELS['rapport_suivi'],
-    $total . ' échéance(s) sur la période — taux affichés avec numérateur et dénominateur',
+    $total . ' échéance(s) sur la période - taux affichés avec numérateur et dénominateur',
     '<a class="btn btn-outline btn-sm" href="' . h(url('index.php', $exportQuery)) . '"><i class="fa-solid fa-file-csv"></i> Exporter CSV</a>'
 ) ?>
 
@@ -139,14 +139,14 @@ $statusOptions = [
               </div>
             </td>
             <td><?= $r['scope_type'] === 'centre' ? 'Centre' : 'Bacenta' ?></td>
-            <td><?= h((string) ($r['responsables_noms'] ?? '')) ?: '<span class="suivi-cell-sub">aucun responsable — à signaler à l’administrateur</span>' ?></td>
+            <td><?= h((string) ($r['responsables_noms'] ?? '')) ?: '<span class="suivi-cell-sub">aucun responsable - à signaler à l’administrateur</span>' ?></td>
             <td><span class="badge suivi-status-<?= h($status) ?>"><?= h($statusLabels[$status] ?? $status) ?></span></td>
             <td>
               <?php if ($isFilled && !empty($r['submitted_report_id'])): ?>
                 <a class="btn btn-outline btn-sm" href="<?= h(url('index.php', ['page' => 'rapport', 'id' => (int) $r['submitted_report_id']])) ?>"><i class="fa-solid fa-eye"></i> Voir</a>
                 <?php if (!empty($r['auteur_nom'])): ?><div class="suivi-cell-sub">par <?= h((string) $r['auteur_nom']) ?></div><?php endif; ?>
               <?php elseif ($isCancelled): ?>
-                <span class="suivi-cell-sub">—</span>
+                <span class="suivi-cell-sub">-</span>
               <?php else: ?>
                 <a class="btn btn-primary btn-sm" href="<?= h(url('index.php', $formParams)) ?>"><i class="fa-solid fa-pen"></i> Remplir</a>
               <?php endif; ?>
@@ -180,7 +180,7 @@ $statusOptions = [
 
 <?php if ($pages > 1): ?>
   <div class="suivi-pager">
-    <span class="pager-info">Page <?= (int) $page ?> / <?= (int) $pages ?> — <?= (int) $total ?> échéance(s)</span>
+    <span class="pager-info">Page <?= (int) $page ?> / <?= (int) $pages ?> - <?= (int) $total ?> échéance(s)</span>
     <div class="pager-links">
       <?php if ($page > 1): ?>
         <a class="btn btn-outline btn-sm" href="<?= h(url('index.php', array_merge(['page' => 'rapport_suivi'], $filterQuery, ['p' => $page - 1]))) ?>"><i class="fa-solid fa-chevron-left"></i> Précédent</a>

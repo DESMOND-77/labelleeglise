@@ -56,7 +56,7 @@
                     <?php if (!empty($a['couverture'])): ?>
                       <img src="<?= h($a['couverture']) ?>" alt="" loading="lazy" >
                     <?php else: ?>
-                      <span class="thumb-empty">—</span>
+                      <span class="thumb-empty">-</span>
                     <?php endif; ?>
                   </td>
                   <td><strong><?= h($a['titre']) ?></strong></td>

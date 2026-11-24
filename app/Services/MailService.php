@@ -224,7 +224,7 @@ class MailService
     }
 
     /**
-     * Bilan hebdomadaire/mensuel personnalisé (§16.5) — strictement nominatif,
+     * Bilan hebdomadaire/mensuel personnalisé (§16.5) - strictement nominatif,
      * jamais partagé avec d'autres responsables.
      */
     public function sendRapportBilan(array $user, array $context, string $ficheUrl): bool

@@ -175,7 +175,7 @@ class RapportOccurrenceRepository
         }
     }
 
-    /** Retire les liaisons des utilisateurs qui ne sont plus responsables (occurrences FUTURES/DU JOUR uniquement — n'altère jamais l'historique passé). */
+    /** Retire les liaisons des utilisateurs qui ne sont plus responsables (occurrences FUTURES/DU JOUR uniquement - n'altère jamais l'historique passé). */
     public function removeStaleLinks(int $occurrenceId, array $keepUserIds, string $reportDate, string $today): void
     {
         if ($reportDate < $today) {
@@ -223,7 +223,7 @@ class RapportOccurrenceRepository
 
         // Étape 1 : renseigner le dépôt + accorder le crédit au premier
         // responsable (le premier déposant gagne ; soumis_at et
-        // submitted_by restent ceux du PREMIER dépôt valide — les éditions
+        // submitted_by restent ceux du PREMIER dépôt valide - les éditions
         // ultérieures du rapport ne modifient ni l'horodatage ni l'auteur
         // initial ; seul le crédit peut encore être attribué à un
         // responsable si personne n'a encore été crédité).

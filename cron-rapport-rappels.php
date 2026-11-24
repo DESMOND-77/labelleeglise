@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Tâche planifiée — Rappels & bilans des Rapports du Jour (module 20).
+ * Tâche planifiée - Rappels & bilans des Rapports du Jour (module 20).
  * -------------------------------------------------------------------
  * Usage CLI (à planifier, par ex. toutes les 15 minutes) :
  *   * /usr/bin/php /home/xxx/labelleeglise/cron-rapport-rappels.php
@@ -11,7 +11,7 @@
  *   index.php?action=rapport_cron&token=<cron_token>[&dry_run=1]
  * (jeton secret côté Paramètres > Suivi rapports).
  *
- * Sécurité : verrou MySQL (GET_LOCK) — un seul traitement à la fois, même
+ * Sécurité : verrou MySQL (GET_LOCK) - un seul traitement à la fois, même
  * si deux déclenchements se chevauchent. Aucune sortie n'expose de données
  * personnelles ; le retour est un récapitulatif chiffré (JSON).
  */

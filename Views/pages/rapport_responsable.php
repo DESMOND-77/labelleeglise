@@ -20,13 +20,13 @@ $targetName = trim((string) ($target['prenom'] ?? '') . ' ' . (string) ($target[
 $cumulSourceLabel = [
     'affectations' => 'calculé depuis l’historique des affectations',
     'parametre_admin' => 'date de départ définie par l’administration',
-    'absent' => 'non évalué — aucune affectation trouvée et aucune date de départ configurée',
+    'absent' => 'non évalué - aucune affectation trouvée et aucune date de départ configurée',
 ];
 ?>
 <?= section_toolbar(
     'Suivi de ' . ($isSelf ? 'vous-même' : h($targetName)),
     $isSelf
-        ? 'Vos indicateurs de réalisation — visibles uniquement par vous et les administrateurs'
+        ? 'Vos indicateurs de réalisation - visibles uniquement par vous et les administrateurs'
         : 'Indicateurs de réalisation sur la période et depuis la prise de responsabilité'
 ) ?>
 
@@ -48,7 +48,7 @@ $cumulSourceLabel = [
       </div>
       <?php if ($bloc === null): ?>
         <div class="empty-state"><div class="emoji"><i class="fa-solid fa-circle-question"></i></div>
-          <p>Non évalué<?= $key === 'cumul' ? ' — ' . h($cumulSourceLabel[$sheet['cumul_source']] ?? '') : '' ?></p>
+          <p>Non évalué<?= $key === 'cumul' ? ' - ' . h($cumulSourceLabel[$sheet['cumul_source']] ?? '') : '' ?></p>
         </div>
       <?php else: ?>
         <div class="suivi-bloc-figures">
@@ -77,7 +77,7 @@ $cumulSourceLabel = [
   <?php else: ?>
     <ul style="margin:0;padding-left:var(--space-5)">
       <?php foreach ($responsabilites as $resp): ?>
-        <li><?= $resp['target_type'] === 'center' ? 'Centre' : 'Bacenta' ?> — <strong><?= h((string) ($resp['cible_nom'] ?? ('#' . (int) $resp['target_id']))) ?></strong> — depuis le <?= h(date('d/m/Y', strtotime((string) $resp['created_at']))) ?></li>
+        <li><?= $resp['target_type'] === 'center' ? 'Centre' : 'Bacenta' ?> - <strong><?= h((string) ($resp['cible_nom'] ?? ('#' . (int) $resp['target_id']))) ?></strong> - depuis le <?= h(date('d/m/Y', strtotime((string) $resp['created_at']))) ?></li>
       <?php endforeach; ?>
     </ul>
     <p class="suivi-cell-sub" style="margin-top:var(--space-2)">Le cumul débute à la plus ancienne prise de responsabilité (<?= h($cumulSourceLabel[$sheet['cumul_source']] ?? '') ?>).</p>

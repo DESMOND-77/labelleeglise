@@ -52,7 +52,7 @@ $fmtRate = static function ($rate) {
     </thead>
     <tbody>
       <?php if (!$rows): ?>
-        <tr><td colspan="8"><?= empty_state('fa-trophy', 'Aucune échéance attendue sur la période — classement « Non évalué ».') ?></td></tr>
+        <tr><td colspan="8"><?= empty_state('fa-trophy', 'Aucune échéance attendue sur la période - classement « Non évalué ».') ?></td></tr>
       <?php else: ?>
         <?php foreach ($rows as $r):
           $isSelf = (int) $r['user_id'] === (int) $currentUserId;

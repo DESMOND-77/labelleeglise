@@ -1,9 +1,9 @@
-# Plan d'implémentation — Suivi, motivation et rappels des Rapports du Jour
+# Plan d'implémentation - Suivi, motivation et rappels des Rapports du Jour
 
 - **Projet :** La Belle Église
 - **Dépôt :** `DESMOND-77/labelleeglise`
 - **Branche de travail :** `docs/rapport-jour-suivi-motivation-plan`
-- **Statut :** plan d'implémentation détaillé — aucune fonctionnalité applicative n'est modifiée par ce document
+- **Statut :** plan d'implémentation détaillé - aucune fonctionnalité applicative n'est modifiée par ce document
 - **Canaux de rappel retenus :** notifications in-app et email
 - **Fuseau horaire métier :** `Africa/Libreville` (à centraliser dans la configuration)
 
@@ -357,7 +357,7 @@ Le cron ne doit pas être déclenché par une requête HTTP publique. Si l'hébe
 
 ## 11. Plan de réalisation par phases
 
-### Phase 0 — Audit et décisions métier
+### Phase 0 - Audit et décisions métier
 
 - [ ] Cartographier migrations, schéma SQL et index existants.
 - [ ] Lire intégralement `RapportJourService`, `RapportJourRepository`, `MailService`, `NotificationService`, les contrôleurs d'administration et le routeur.
@@ -367,7 +367,7 @@ Le cron ne doit pas être déclenché par une requête HTTP publique. Si l'hébe
 - [ ] Faire valider les règles de responsabilité, les heures limites et les messages.
 - **Livrable :** note d'audit et décisions métier, sans migration destructive.
 
-### Phase 1 — Modèle de données et occurrence attendue
+### Phase 1 - Modèle de données et occurrence attendue
 
 - [ ] Écrire les migrations réversibles pour occurrences et journaux.
 - [ ] Ajouter les index et contraintes d'unicité.
@@ -377,7 +377,7 @@ Le cron ne doit pas être déclenché par une requête HTTP publique. Si l'hébe
 - [ ] Tester les dates limites, changements de semaine/mois et absence de calendrier.
 - **Livrable :** échéancier fiable et testable.
 
-### Phase 2 — Checklist et statut des rapports
+### Phase 2 - Checklist et statut des rapports
 
 - [ ] Relier chaque occurrence à un rapport existant par cible et date.
 - [ ] Implémenter les états à venir, à remplir, en retard, rempli à temps/tard, annulé.
@@ -386,7 +386,7 @@ Le cron ne doit pas être déclenché par une requête HTTP publique. Si l'hébe
 - [ ] Ajouter liens vers formulaire et rapport existant.
 - **Livrable :** visibilité opérationnelle des rapports attendus et manquants.
 
-### Phase 3 — Notifications automatiques
+### Phase 3 - Notifications automatiques
 
 - [ ] Créer la commande CLI et le verrou d'exécution.
 - [ ] Implémenter les trois fenêtres de rappel configurables.
@@ -397,7 +397,7 @@ Le cron ne doit pas être déclenché par une requête HTTP publique. Si l'hébe
 - [ ] Configurer le cron de production et documenter son installation.
 - **Livrable :** rappels in-app/email fiables, sans doublons.
 
-### Phase 4 — Barème et félicitations
+### Phase 4 - Barème et félicitations
 
 - [ ] Ajouter configuration des seuils et messages.
 - [ ] Développer calcul hebdomadaire, mensuel et cumulé.
@@ -407,7 +407,7 @@ Le cron ne doit pas être déclenché par une requête HTTP publique. Si l'hébe
 - [ ] Décider si une notification de félicitations est envoyée à la clôture ou au changement de niveau.
 - **Livrable :** système de motivation configurable et explicable.
 
-### Phase 5 — Dashboard et classement
+### Phase 5 - Dashboard et classement
 
 - [ ] Développer agrégats SQL et filtres par périmètre.
 - [ ] Créer les cartes KPI, graphiques et tableau comparatif.
@@ -417,7 +417,7 @@ Le cron ne doit pas être déclenché par une requête HTTP publique. Si l'hébe
 - [ ] Vérifier les performances sur un volume représentatif.
 - **Livrable :** pilotage global et individuel.
 
-### Phase 6 — Paramètres, recette et déploiement
+### Phase 6 - Paramètres, recette et déploiement
 
 - [ ] Écran admin de configuration des seuils, messages, heures et canaux.
 - [ ] Journal d'audit des changements.
@@ -514,7 +514,7 @@ En l'absence de validation, retenir les valeurs proposées comme valeurs initial
 
 ---
 
-## 16. Décisions métier validées — version consolidée
+## 16. Décisions métier validées - version consolidée
 
 Les décisions ci-dessous ont été confirmées par le commanditaire. Elles **remplacent toute proposition contradictoire** des sections précédentes et constituent les règles de référence pour l'implémentation.
 

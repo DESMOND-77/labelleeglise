@@ -15,7 +15,7 @@ use App\Core\Query;
  *    bacentas de ce centre (héritage §17, comme le reste de l'app) ;
  *  - responsable « manager » d'un bacenta : occurrences du bacenta uniquement ;
  *  - tout autre utilisateur : aucune donnée de suivi nominative (sauf sa
- *    propre fiche et ses propres occurrences — « Mes échéances »).
+ *    propre fiche et ses propres occurrences - « Mes échéances »).
  */
 class RapportScopeService
 {
