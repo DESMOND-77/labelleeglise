@@ -748,12 +748,12 @@ function render_centre_form(): void
 {
     $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
     $c = $id ? get_centre($id) : null;
-    $content = view('pages/forms/name', [
-        'title'     => $c ? 'Paramètres du centre' : 'Ajouter un centre',
-        'action'    => 'save_centre',
+    $content = view('pages/forms/centre', [
+        'centre'     => $c,
         'nom'       => $c['nom'] ?? '',
-        'extra'     => csrf_field() . ($id ? '<input type="hidden" name="id" value="' . $id . '">' : ''),
+        'csrf'     => csrf_field(),
         'cancelUrl' => url('index.php', ['page' => 'centres']),
+        'respUrl'   => url('index.php', ['page' => 'parametres', 'param_tab' => 'acces']),
     ]);
     if ($c && current_user()['role'] === 'admin') {
         $content .= centre_article_panel($c);

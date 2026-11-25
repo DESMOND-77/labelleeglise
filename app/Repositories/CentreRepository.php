@@ -28,9 +28,9 @@ class CentreRepository
         return Query::run('INSERT INTO centres (nom) VALUES (?)', [$nom]);
     }
 
-    public function update(int $id, string $nom): void
+    public function update(int $id, string $nom,?int $respId = null, ?string $jours = null, ?string $debut = null, ?string $fin = null): void
     {
-        Query::run('UPDATE centres SET nom = ? WHERE id = ?', [$nom, $id]);
+        Query::run('UPDATE centres SET nom = ?, jours_semaine = ?, heure_debut = ?, heure_fin = ?  WHERE id = ?', [$nom, $jours, $debut, $fin, $id,]);
     }
 
     public function delete(int $id): void

@@ -432,7 +432,10 @@ class ActionsController extends Controller
                 $id = (int) ($_POST['id'] ?? 0);
                 $nom = trim((string) ($_POST['nom'] ?? ''));
                 if ($nom !== '') {
-                    save_centre($id ?: null, $nom);
+                    $jours = $this->scheduleDaysFromPost();
+                    $debut = trim((string) ($_POST['heure_debut'] ?? '')) ?: null;
+                    $fin   = trim((string) ($_POST['heure_fin'] ?? '')) ?: null;
+                    save_centre($id ?: null, $nom, null, $jours, $debut, $fin);
                 }
                 $this->redirect('index.php', ['page' => 'centres']);
                 break;
