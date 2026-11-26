@@ -49,7 +49,7 @@
         <h2><?= $hasActiveFilters ? 'Aucun album ne correspond à votre recherche' : 'Galerie bientôt disponible' ?></h2>
         <p><?= $hasActiveFilters ? 'Essayez de modifier vos filtres ou réinitialisez-les pour afficher tous les albums.' : 'Aucun album n’a encore été publié. Revenez bientôt découvrir nos photos.' ?></p>
         <?php if ($hasActiveFilters): ?>
-          <a class="lp-btn lp-btn--primary" href="index.php?page=albums">Afficher tous les albums</a>
+          <a class="lp-btn lp-btn--primary" href="<?= h(url('index.php', ['page' => 'albums'])) ?>">Afficher tous les albums</a>
         <?php endif; ?>
       </div>
     <?php else: ?>

@@ -1,5 +1,5 @@
 <?php /* Rapport du Jour : sélecteur (centre + date) puis formulaire.
-  Variables : $centres, $centreId, $date, $report, $bacentas, $bacentaId, $fields, $derived, $canEdit, $errors, $old, $csrf. */
+  Variables : $centres, $centreId, $date, $report, $bacentas, $bacentaId, $fields, $derived, $canEdit, $errors, $old, $csrf, $retour (optionnel). */
 $val = function (string $k, $default = '') use ($old, $report) {
     if (array_key_exists($k, $old)) {
         return $old[$k];
@@ -9,7 +9,7 @@ $val = function (string $k, $default = '') use ($old, $report) {
 ?>
 <div class="section-toolbar">
   <div><h2><?= h(SECTION_LABELS['rapports']) ?></h2><div class="sub">Formulaire de saisie</div></div>
-  <a class="btn btn-outline" href="<?= h(url('index.php', ['page' => 'rapports'])) ?>"><i class="fa-solid fa-arrow-left"></i> Retour à la liste</a>
+  <a class="btn btn-outline" href="<?= h(url('index.php', ['page' => !empty($retour) ? $retour : 'rapports'])) ?>"><i class="fa-solid fa-arrow-left"></i> <?= !empty($retour) ? 'Retour' : 'Retour à la liste' ?></a>
 </div>
 
 <form method="get" action="index.php" class="rapport-picker">
@@ -62,6 +62,7 @@ $val = function (string $k, $default = '') use ($old, $report) {
   <form method="post" action="index.php" class="form-card rapport-form">
     <input type="hidden" name="action" value="save_rapport_jour">
     <?= $csrf ?>
+    <?php if (!empty($retour)): ?><input type="hidden" name="retour" value="<?= h($retour) ?>"><?php endif; ?>
     <input type="hidden" name="centre_id" value="<?= (int) $centreId ?>">
     <input type="hidden" name="date_rapport" value="<?= h($date) ?>">
     <input type="hidden" name="scope_type" value="<?= h($scopeType ?? 'bacenta') ?>">

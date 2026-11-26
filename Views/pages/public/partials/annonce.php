@@ -7,7 +7,7 @@
       <span class="lp-announce-label">Prochain rendez-vous</span>
       <span>
         <a href="#evenements"><?= h($nextEvent['nom']) ?></a>
-        — <?= h($nextEvent['quand']) ?><?= $nextEvent['lieu'] !== '' ? ' · ' . h($nextEvent['lieu']) : '' ?>
+        - <?= h($nextEvent['quand']) ?><?= $nextEvent['lieu'] !== '' ? ' · ' . h($nextEvent['lieu']) : '' ?>
       </span>
     </div>
   </aside>

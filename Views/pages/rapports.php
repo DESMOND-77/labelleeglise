@@ -1,8 +1,10 @@
 <?php /* Liste des Rapports du Jour.
-   Variables : $rows, $centres, $filterCentre, $filterMois, $isAdmin, $currentUserId. */ ?>
+   Variables : $rows, $centres, $filterCentre, $filterMois, $isAdmin, $currentUserId, $saved. */ ?>
+<?= view('pages/partials/rapport_tabs', ['active' => 'suivi', 'sub' => 'list', 'retour' => 'rapports']) ?>
+<?php if (!empty($saved)): ?><div class="suivi-alerts"><div class="alert alert-success" role="status"><?= h($saved) ?></div></div><?php endif; ?>
 <div class="section-toolbar">
   <div><h2><?= h(SECTION_LABELS['rapports']) ?></h2><div class="sub">Remontées terrain par centre et par date</div></div>
-  <a class="btn btn-primary" href="<?= h(url('index.php', ['page' => 'rapport'])) ?>"><i class="fa-solid fa-plus"></i> Nouveau rapport</a>
+  <a class="btn btn-primary" href="<?= h(url('index.php', ['page' => 'rapport', 'retour' => 'rapports'])) ?>"><i class="fa-solid fa-plus"></i> Nouveau rapport</a>
 </div>
 
 <form method="get" action="index.php" class="rapport-filters">

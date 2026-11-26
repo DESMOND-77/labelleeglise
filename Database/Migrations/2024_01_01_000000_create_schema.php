@@ -6,6 +6,9 @@
  * Tables : centres, users, bacentas, basontas, users_basontas, cultes,
  * presences, offrandes, dimes, visites, suivi_hebdo, examens, veillees,
  * presentation, equipe, centres_presentation.
+ * Bloc 20 : rapport_occurrences, rapport_occurrence_responsables,
+ * rapport_reminder_logs, rapport_scoring_rules, rapport_scoring_results,
+ * rapport_settings, rapport_audit_logs (+ calendrier/heure_limite centres).
  *
  * NB : ces instructions sont volontairement idempotentes-friendly
  * (voir Database\Seeders pour la réinitialisation complète).
@@ -952,6 +955,247 @@ function up(): void
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
     );
 
+    /* ---- 20. Suivi des Rapports du Jour (occurrences, rappels, barème) --
+     * Additif pur. Calendrier explicite des centres (calqué sur celui des
+     * bacentas/cultes : jours CSV WEEK_DAYS + plage horaire facultative) et
+     * heure limite FIXE par calendrier (jamais « fin de réunion + X », voir
+     * §16.3 du plan) : l'heure limite est capturée dans `due_at` à la
+     * génération de l'occurrence. Aucune heure limite configurable ⇒
+     * `due_at` reste NULL et l'administration voit une erreur de
+     * configuration (jamais d'heure inventée).
+     *
+     * Tables nouvelles :
+     * - rapport_occurrences : échéances attendues (1 par réunion planifiée,
+     *   centre OU bacenta - §16.1). `centre_id` dénormalisé (bacenta ⇒
+     *   centre parent à la génération) pour les filtres de périmètre.
+     *   `credited_user_id` / `submitted_by_user_id` renseignés de façon
+     *   ATOMIQUE dans la transaction de sauvegarde du rapport : le premier
+     *   dépôt valide gagne (UPDATE … WHERE credited_user_id IS NULL).
+     *   Un rapport soumis par un tiers (non responsable) satisfait
+     *   l'occurrence sans attribuer de crédit (§16.2, règle « pour le
+     *   compte de »).
+     * - rapport_occurrence_responsables : tous les responsables de
+     *   l'occurrence allaient être notifiés ; statut individuel distinct
+     *   (credited / filled_by_other / missing) - le crédit n'est JAMAIS
+     *   double-compté.
+     * - rapport_reminder_logs : journal + idempotence (clé unique) des
+     *   rappels (préventif / échéance / relance / manuel) par canal.
+     * - rapport_scoring_rules / _results : barème configurable + résultats
+     *   historisés (rules_version + message_snapshot ⇒ l'historique n'est
+     *   jamais réécrit par un changement de configuration).
+     * - rapport_settings : paramètres globaux du module (clé/valeur).
+     * - rapport_audit_logs : journal des modifications de barème,
+     *   calendriers, annulations et relances manuelles.
+     */
+
+    // 20a. Calendrier explicite des centres (mêmes conventions que bacentas).
+    $centreCalendarColumns = [
+        'jours_semaine' => "ALTER TABLE centres ADD COLUMN jours_semaine VARCHAR(60) NULL AFTER nom",
+        'heure_debut'   => "ALTER TABLE centres ADD COLUMN heure_debut TIME NULL AFTER jours_semaine",
+        'heure_fin'     => "ALTER TABLE centres ADD COLUMN heure_fin TIME NULL AFTER heure_debut",
+        'heure_limite'  => "ALTER TABLE centres ADD COLUMN heure_limite TIME NULL AFTER heure_fin",
+    ];
+    foreach ($centreCalendarColumns as $column => $alterSql) {
+        if (!column_exists($pdo, 'centres', $column)) {
+            $pdo->exec($alterSql);
+        }
+    }
+    if (!column_exists($pdo, 'bacentas', 'heure_limite')) {
+        $pdo->exec("ALTER TABLE bacentas ADD COLUMN heure_limite TIME NULL AFTER heure_fin");
+    }
+
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS rapport_occurrences (
+            id INT NOT NULL AUTO_INCREMENT,
+            scope_type ENUM('centre','bacenta') NOT NULL,
+            scope_id INT NOT NULL,
+            centre_id INT NOT NULL,
+            report_date DATE NOT NULL,
+            due_at DATETIME NULL,
+            status ENUM('pending','due','overdue','filled_on_time','filled_late','cancelled') NOT NULL DEFAULT 'pending',
+            submitted_report_id INT NULL,
+            submitted_by_user_id INT NULL,
+            credited_user_id INT NULL,
+            submitted_at DATETIME NULL,
+            cancelled_at DATETIME NULL,
+            cancelled_by INT NULL,
+            cancellation_reason VARCHAR(255) NULL,
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY uniq_rapport_occurrence (scope_type, scope_id, report_date),
+            KEY idx_rapport_occ_date (report_date, status),
+            KEY idx_rapport_occ_due (due_at),
+            KEY idx_rapport_occ_centre (centre_id, report_date),
+            KEY idx_rapport_occ_credited (credited_user_id),
+            CONSTRAINT fk_rapport_occ_report       FOREIGN KEY (submitted_report_id)  REFERENCES rapports_jour(id) ON DELETE SET NULL,
+            CONSTRAINT fk_rapport_occ_submitted_by FOREIGN KEY (submitted_by_user_id) REFERENCES users(id)         ON DELETE SET NULL,
+            CONSTRAINT fk_rapport_occ_credited     FOREIGN KEY (credited_user_id)     REFERENCES users(id)         ON DELETE SET NULL,
+            CONSTRAINT fk_rapport_occ_cancelled_by FOREIGN KEY (cancelled_by)         REFERENCES users(id)         ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
+
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS rapport_occurrence_responsables (
+            id INT NOT NULL AUTO_INCREMENT,
+            occurrence_id INT NOT NULL,
+            user_id INT NOT NULL,
+            individual_status ENUM('missing','credited','filled_by_other','cancelled') NOT NULL DEFAULT 'missing',
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY uniq_rapport_occ_resp (occurrence_id, user_id),
+            KEY idx_rapport_occ_resp_user (user_id, individual_status),
+            CONSTRAINT fk_rapport_occ_resp_occurrence FOREIGN KEY (occurrence_id) REFERENCES rapport_occurrences(id) ON DELETE CASCADE,
+            CONSTRAINT fk_rapport_occ_resp_user       FOREIGN KEY (user_id)       REFERENCES users(id)               ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
+
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS rapport_reminder_logs (
+            id INT NOT NULL AUTO_INCREMENT,
+            occurrence_id INT NOT NULL,
+            recipient_user_id INT NOT NULL,
+            reminder_type ENUM('preventif','echeance','relance','manuel') NOT NULL,
+            channel ENUM('inapp','email') NOT NULL,
+            status ENUM('pending','sent','failed','skipped','cancelled') NOT NULL DEFAULT 'pending',
+            idempotency_key VARCHAR(190) NOT NULL,
+            attempt_count INT NOT NULL DEFAULT 0,
+            last_error VARCHAR(255) NULL,
+            sent_at DATETIME NULL,
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY uniq_rapport_reminder_idem (idempotency_key),
+            UNIQUE KEY uniq_rapport_reminder (occurrence_id, recipient_user_id, reminder_type, channel),
+            KEY idx_rapport_reminder_recipient (recipient_user_id, status),
+            CONSTRAINT fk_rapport_reminder_occurrence FOREIGN KEY (occurrence_id)     REFERENCES rapport_occurrences(id) ON DELETE CASCADE,
+            CONSTRAINT fk_rapport_reminder_user       FOREIGN KEY (recipient_user_id) REFERENCES users(id)               ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
+
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS rapport_scoring_rules (
+            id INT NOT NULL AUTO_INCREMENT,
+            name VARCHAR(80) NOT NULL,
+            period_type VARCHAR(20) NOT NULL DEFAULT 'all',
+            min_rate DECIMAL(5,2) NOT NULL,
+            max_rate DECIMAL(5,2) NOT NULL,
+            level_key VARCHAR(30) NOT NULL,
+            label VARCHAR(80) NOT NULL,
+            message_template TEXT NOT NULL,
+            is_active TINYINT(1) NOT NULL DEFAULT 1,
+            sort_order INT NOT NULL DEFAULT 0,
+            created_by INT NULL,
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY idx_rapport_scoring_active (is_active, sort_order),
+            CONSTRAINT fk_rapport_scoring_creator FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
+
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS rapport_scoring_results (
+            id INT NOT NULL AUTO_INCREMENT,
+            user_id INT NOT NULL,
+            period_type ENUM('week','month','cumul') NOT NULL,
+            period_start DATE NOT NULL,
+            period_end DATE NOT NULL,
+            expected_count INT NOT NULL DEFAULT 0,
+            submitted_count INT NOT NULL DEFAULT 0,
+            on_time_count INT NOT NULL DEFAULT 0,
+            late_count INT NOT NULL DEFAULT 0,
+            completion_rate DECIMAL(5,2) NULL,
+            punctuality_rate DECIMAL(5,2) NULL,
+            level_key VARCHAR(30) NULL,
+            message_snapshot TEXT NULL,
+            rules_version VARCHAR(64) NULL,
+            notified_at DATETIME NULL,
+            notified_level_key VARCHAR(30) NULL,
+            calculated_at DATETIME NOT NULL,
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY uniq_rapport_scoring_result (user_id, period_type, period_start, period_end),
+            KEY idx_rapport_scoring_user (user_id, period_type),
+            CONSTRAINT fk_rapport_scoring_result_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
+
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS rapport_settings (
+            cle VARCHAR(80) NOT NULL,
+            valeur TEXT NULL,
+            updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (cle)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
+
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS rapport_audit_logs (
+            id INT NOT NULL AUTO_INCREMENT,
+            actor_user_id INT NULL,
+            action VARCHAR(60) NOT NULL,
+            entity_type VARCHAR(40) NULL,
+            entity_id INT NULL,
+            details TEXT NULL,
+            created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY idx_rapport_audit_action (action, created_at),
+            CONSTRAINT fk_rapport_audit_actor FOREIGN KEY (actor_user_id) REFERENCES users(id) ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
+
+    // 20b. Paramètres par défaut (insérés seulement s'ils sont absents -
+    // jamais écrasés par une re-migration).
+    $defaultSettings = [
+        'heure_limite_defaut'     => '',   // ⚠ vide = erreur de configuration signalée, JAMAIS d'heure inventée (§16.3)
+        'grace_minutes'           => '720',
+        'rappel_preventif_enabled'=> '1',
+        'rappel_preventif_heure'  => '18:00',
+        'rappel_echeance_enabled' => '1',
+        'rappel_relance_enabled'  => '1',
+        'rappel_relance_heure'    => '09:00',
+        'channel_inapp_enabled'   => '1',
+        'channel_email_enabled'   => '1',
+        'reminder_max_attempts'   => '3',
+        'bilan_hebdo_enabled'     => '1',
+        'bilan_hebdo_heure'       => '08:00',
+        'bilan_mensuel_enabled'   => '1',
+        'bilan_mensuel_heure'     => '08:00',
+        'felicitations_enabled'   => '1',
+        'cumul_start_default'     => '',   // vide = « Non évalué » si aucune affectation trouvée (§16.7)
+    ];
+    // Jeton de déclenchement web du cron : généré une seule fois, jamais réinitialisé par une re-migration.
+    $cronTokenExists = (int) $pdo->query("SELECT COUNT(*) FROM rapport_settings WHERE cle = 'cron_token'")->fetchColumn();
+    if ($cronTokenExists === 0) {
+        $token = bin2hex(random_bytes(16));
+        $pdo->prepare('INSERT INTO rapport_settings (cle, valeur) VALUES (?, ?)')->execute(['cron_token', $token]);
+    }
+    $settingStmt = $pdo->prepare('INSERT IGNORE INTO rapport_settings (cle, valeur) VALUES (?, ?)');
+    foreach ($defaultSettings as $cle => $valeur) {
+        $settingStmt->execute([$cle, $valeur]);
+    }
+
+    // 20c. Barème par défaut (§3.3/§16.5) - inséré seulement si vide.
+    $rulesCount = (int) $pdo->query('SELECT COUNT(*) FROM rapport_scoring_rules')->fetchColumn();
+    if ($rulesCount === 0) {
+        $defaultRules = [
+            ['Barème Rapports du Jour', 'all', 100.00, 100.00, 'exemplaire', 'Exemplaire', "Félicitations ! Toutes vos échéances ont été respectées.", 10],
+            ['Barème Rapports du Jour', 'all', 90.00,  100.00, 'excellent',  'Excellent',  "Excellent engagement, continuez ainsi !", 20],
+            ['Barème Rapports du Jour', 'all', 75.00,   90.00, 'tres_bien',  'Très bien',  "Bravo pour votre régularité et vos efforts.", 30],
+            ['Barème Rapports du Jour', 'all', 50.00,   75.00, 'a_encourager', 'À encourager', "Votre progression est encourageante, poursuivez vos efforts.", 40],
+            ['Barème Rapports du Jour', 'all',  0.00,   50.00, 'a_accompagner', 'À accompagner', "Nous vous encourageons à reprendre un rythme régulier.", 50],
+        ];
+        $ruleStmt = $pdo->prepare(
+            'INSERT INTO rapport_scoring_rules (name, period_type, min_rate, max_rate, level_key, label, message_template, sort_order)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+        );
+        foreach ($defaultRules as $rule) {
+            $ruleStmt->execute($rule);
+        }
+    }
+
 }
 
 /** Vérifie si une colonne existe déjà (idempotence des ALTER TABLE). */
@@ -982,7 +1226,7 @@ function index_exists(\PDO $pdo, string $table, string $index): bool
 function down(): void
 {
     $pdo = Database::connection();
-    $tables = ['suivi_hebdo_observations', 'nouveaux_membres_attributions', 'nouveaux_membres', 'faq_publique', 'site_settings', 'centre_horaires', 'responsibilities', 'notifications', 'users_basontas', 'presences', 'evenements', 'anniversaires', 'rapports_jour', 'bus_budget', 'classe_inscrits', 'classes', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
+    $tables = ['rapport_audit_logs', 'rapport_scoring_results', 'rapport_scoring_rules', 'rapport_reminder_logs', 'rapport_occurrence_responsables', 'rapport_occurrences', 'rapport_settings', 'suivi_hebdo_observations', 'nouveaux_membres_attributions', 'nouveaux_membres', 'faq_publique', 'site_settings', 'centre_horaires', 'responsibilities', 'notifications', 'users_basontas', 'presences', 'evenements', 'anniversaires', 'rapports_jour', 'bus_budget', 'classe_inscrits', 'classes', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
                'examens', 'veillees', 'cultes', 'basontas', 'bacentas', 'users',
                'centres_presentation', 'equipe', 'presentation', 'centres',
                'album_photos', 'albums'];

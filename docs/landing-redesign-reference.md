@@ -1,4 +1,4 @@
-# Vitrine publique — relevé de la référence daghewardmills.org
+# Vitrine publique - relevé de la référence daghewardmills.org
 
 Date : 27 octobre 2026. Objet : documenter les valeurs **mesurées** de la
 référence avant de refondre la vitrine de La Belle Église. Ce fichier ne décrit

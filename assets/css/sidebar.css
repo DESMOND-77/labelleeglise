@@ -274,3 +274,120 @@
   background: rgba(255, 255, 255, 0.15);
   border-radius: var(--radius-full);
 }
+
+/* ---- Groupes de navigation repliables (domaines) ---- */
+.nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.nav-group-toggle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 8px var(--space-3);
+  border-radius: var(--radius);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--sidebar-text);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: left;
+  white-space: nowrap;
+  transition: color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+
+.nav-group-toggle:hover {
+  color: var(--sidebar-text-active);
+  background: var(--sidebar-hover);
+}
+
+.nav-group-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.nav-group-toggle .ico {
+  width: 22px;
+  text-align: center;
+  font-size: 13px;
+  flex-shrink: 0;
+  color: var(--sidebar-text);
+}
+
+.nav-group-toggle .label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-group-count {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--sidebar-text-active);
+  background: rgba(244, 241, 234, 0.12);
+  border-radius: var(--radius-full);
+  padding: 1px 7px;
+  line-height: 1.5;
+}
+
+.nav-group-caret {
+  font-size: 11px;
+  transition: transform var(--dur) var(--ease);
+  color: var(--sidebar-text);
+}
+
+.nav-group.is-collapsed .nav-group-caret {
+  transform: rotate(-90deg);
+}
+
+.nav-group-items {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-left: 10px;
+  border-left: 1px solid rgba(255, 255, 255, 0.07);
+  margin-left: 13px;
+}
+
+.nav-group.is-collapsed .nav-group-items {
+  display: none;
+}
+
+/* Groupe contenant la page active : repère discret même refermé */
+.nav-group.has-active > .nav-group-toggle {
+  color: var(--sidebar-text-active);
+}
+
+.nav-group.has-active > .nav-group-toggle .ico {
+  color: var(--accent);
+}
+
+/* ---- État replié de la sidebar (icônes uniquement) ---- */
+.sidebar.collapsed .nav-group-toggle {
+  display: none;
+}
+
+.sidebar.collapsed .nav-group {
+  gap: 3px;
+}
+
+.sidebar.collapsed .nav-group-items {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-left: 0;
+  border-left: none;
+  margin-left: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-group-caret {
+    transition: none;
+  }
+}
