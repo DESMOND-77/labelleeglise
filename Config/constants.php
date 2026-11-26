@@ -63,7 +63,7 @@ define('SECTION_LABELS', [
     'agenda'             => 'Agenda',
     'calendrier'         => 'Calendrier',
     'anniversaires'      => 'Anniversaires',
-    'rapports'           => 'Rapports du Jour',
+    'rapports'           => 'Rapports',
     'rapport_suivi'      => 'Suivi des rapports',
     'rapport_dashboard'  => 'Tableau de bord - Rapports',
     'rapport_classement' => 'Classement & félicitations',
@@ -94,6 +94,7 @@ define('SECTION_ICONS', [
     'generale'           => '<i class="fa-solid fa-clipboard-list"></i>',
     'bergers'            => '<i class="fa-solid fa-people-roof"></i>',
     'suiviBergers'       => '<i class="fa-solid fa-calendar-days"></i>',
+    'bergerFiche'        => '<i class="fa-solid fa-clipboard-list"></i>',
     'agenda'             => '<i class="fa-solid fa-calendar-days"></i>',
     'calendrier'         => '<i class="fa-solid fa-calendar-day"></i>',
     'anniversaires'      => '<i class="fa-solid fa-cake-candles"></i>',
@@ -137,30 +138,56 @@ define('NOUVEAU_MEMBRE_STATUT_LABELS', [
     'integre'          => 'Intégré',
 ]);
 
-// "apropos" doit rester en toute première position du menu (exigence produit).
-define('NAV_ORDER', [
-    'apropos',
-    'centresPresentation',
-    'accueil',
-    'bacentas',
-    'centres',
-    'cultes',
-    'basontas',
-    'nouveaux_membres',
-    'generale',
-    'bergers',
-    'suiviBergers',
-    'finances',
-    'agenda',
+// Navigation latérale par domaines fonctionnels (plan §13).
+// "apropos" et "centresPresentation" restent en première position (exigence produit) :
+// ils sont fournis par le bloc public de la coquille, hors groupes repliables.
+// Les groupes sont des conteneurs visuels repliables : PAS de nouvelles permissions.
+// Chaque lien conserve son contrôle d'accès actuel ; un utilisateur ne voit que
+// les éléments qu'il est autorisé à ouvrir ; un groupe vide n'est pas rendu.
+define('NAV_GROUPS', [
+    'perso' => [
+        'label' => 'Mon espace',
+        'icon'  => 'fa-solid fa-user',
+        'items' => ['bergerFiche', 'suiviBergers'],
+    ],
+    'structures' => [
+        'label' => 'Structures',
+        'icon'  => 'fa-solid fa-sitemap',
+        'items' => ['bacentas', 'centres', 'cultes', 'basontas'],
+    ],
+    'membres' => [
+        'label' => 'Membres & équipes',
+        'icon'  => 'fa-solid fa-users',
+        'items' => ['nouveaux_membres', 'generale', 'bergers'],
+    ],
+    'activites' => [
+        'label' => 'Activités',
+        'icon'  => 'fa-solid fa-calendar-check',
+        'items' => ['agenda', 'classes'],
+    ],
+    'gestion' => [
+        'label' => 'Gestion & finances',
+        'icon'  => 'fa-solid fa-briefcase',
+        'items' => ['rapports', 'budgetBus', 'finances'],
+    ],
+    'administration' => [
+        'label' => 'Administration',
+        'icon'  => 'fa-solid fa-shield-halved',
+        'items' => ['parametres', 'admin_inscriptions', 'site_public', 'albums'],
+    ],
+]);
+
+// Pages conservées mais servies par les onglets internes de l'espace « Rapports » :
+// elles mettent en évidence l'entrée « Rapports » dans le menu latéral.
+define('NAV_RAPPORTS_ALIAS_PAGES', [
+    'rapport',
     'rapports',
-    'rapport_dashboard',
     'rapport_suivi',
+    'rapport_suivi_export',
+    'rapport_dashboard',
     'rapport_classement',
+    'rapport_responsable',
     'rapport_parametres',
-    'classes',
-    'budgetBus',
-    'parametres',
-    'albums'
 ]);
 
 /* ---------- Champs d'un membre (table users) ---------- */

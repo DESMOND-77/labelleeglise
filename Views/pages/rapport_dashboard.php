@@ -1,5 +1,6 @@
 <?php /* Tableau de bord des Rapports du Jour.
-   Variables : $data, $filters, $filterQuery, $isAdmin, $configProblems, $failedReminders. */ ?>
+   Variables : $data, $filters, $filterQuery, $isAdmin, $configProblems, $failedReminders, $saved. */ ?>
+<?= view('pages/partials/rapport_tabs', ['active' => 'dashboard', 'retour' => 'rapport_dashboard']) ?>
 <?php
 $period = $data['period'];
 $current = $data['current'];
@@ -27,6 +28,7 @@ $delta = static function ($value) {
 ) ?>
 
 <div class="suivi-alerts">
+  <?php if (!empty($saved)): ?><div class="alert alert-success" role="status"><?= h($saved) ?></div><?php endif; ?>
   <?php foreach ($configProblems as $problem): ?>
     <div class="alert alert-danger" role="alert"><i class="fa-solid fa-triangle-exclamation"></i> <?= h((string) $problem) ?></div>
   <?php endforeach; ?>

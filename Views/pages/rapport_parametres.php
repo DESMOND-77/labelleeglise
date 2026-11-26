@@ -12,6 +12,7 @@ $bool = static function (string $key, bool $default = true) use ($s) {
 };
 $heure = $s('heure_limite_defaut');
 ?>
+<?= view('pages/partials/rapport_tabs', ['active' => 'parametres', 'retour' => 'rapport_suivi']) ?>
 <?= section_toolbar(
     SECTION_LABELS['rapport_parametres'],
     'Calendriers, échéances, rappels, bilans et barème - réservé à l’administrateur',

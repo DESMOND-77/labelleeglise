@@ -14,96 +14,132 @@ $publicLis = [
     '<li><a class="nav-item' . ($page === 'eglise' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'eglise'])) . '"><span class="ico">' . SECTION_ICONS['apropos'] . '</span><span class="label">Notre église</span></a></li>',
 ];
 
-$navLis = [];
+// Normalisation de la mise en évidence : toutes les routes du module « Rapports »
+// activent l'entrée unique « Rapports » ; « nouveau_membre » active « Nouveaux membres ».
+$navActiveKey = $page;
+if (in_array($page, NAV_RAPPORTS_ALIAS_PAGES, true)) {
+    $navActiveKey = 'rapports';
+} elseif ($page === 'nouveau_membre') {
+    $navActiveKey = 'nouveaux_membres';
+} elseif ($page === 'admin_inscription') {
+    $navActiveKey = 'admin_inscriptions';
+}
+
+// Badge « échéances de rapport en retard » : visible uniquement par qui voit le module.
+$rapportOverdue = function_exists('rapport_suivi_overdue_count') ? (int) rapport_suivi_overdue_count($user) : 0;
+$rapportsBadge = $rapportOverdue > 0 ? '<span class="nav-badge" title="Échéances de rapport en retard">' . $rapportOverdue . '</span>' : '';
+
+$navItems = [];
+$makeNavItem = static function (string $key, string $label, string $icon, array $params = [], string $badge = '') use ($navActiveKey): string {
+    $active = $navActiveKey === $key;
+    $cls = 'nav-item' . ($active ? ' active' : '');
+    $aria = $active ? ' aria-current="page"' : '';
+    if ($params === []) {
+        $params = ['page' => $key];
+    }
+    return '<li><a class="' . $cls . '"' . $aria . ' href="' . h(url('index.php', $params)) . '"><span class="ico">' . $icon . '</span><span class="label">' . h($label) . '</span>' . $badge . '</a></li>';
+};
+
 if ($scope && $scope['kind'] === 'berger') {
-    $navLis[] = '<li><a class="nav-item' . ($page === 'bergerFiche' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'bergerFiche', 'membre' => $scope['user_id']])) . '"><span class="ico"><i class="fa-solid fa-clipboard-list"></i></span><span class="label">Ma fiche berger</span></a></li>';
-    $navLis[] = '<li><a class="nav-item' . ($page === 'suiviBergers' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'suiviBergers', 'membre' => $scope['user_id']])) . '"><span class="ico"><i class="fa-solid fa-calendar-days"></i></span><span class="label">Mon suivi hebdomadaire</span></a></li>';
+    // Accès personnels du berger (jamais retirés de la navigation).
+    $navItems['bergerFiche'] = $makeNavItem('bergerFiche', 'Ma fiche berger', '<i class="fa-solid fa-clipboard-list"></i>', ['page' => 'bergerFiche', 'membre' => $scope['user_id']]);
+    $navItems['suiviBergers'] = $makeNavItem('suiviBergers', 'Mon suivi hebdomadaire', '<i class="fa-solid fa-calendar-days"></i>', ['page' => 'suiviBergers', 'membre' => $scope['user_id']]);
 
     // Responsabilités réelles (table `responsibilities`, spec §17) : liens
     // additifs vers les sections de gestion correspondantes, indépendants
     // du rôle lui-même (ROLE ≠ RESPONSABILITÉ).
     if (!empty($scope['responsible_center_ids'])) {
-        $navLis[] = '<li><a class="nav-item' . ($page === 'centres' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'centres'])) . '"><span class="ico"><i class="fa-solid fa-landmark"></i></span><span class="label">Mes centres</span></a></li>';
+        $navItems['centres'] = $makeNavItem('centres', 'Mes centres', '<i class="fa-solid fa-landmark"></i>');
     }
     if (!empty($scope['responsible_bacenta_ids'])) {
-        $navLis[] = '<li><a class="nav-item' . ($page === 'bacentas' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'bacentas'])) . '"><span class="ico">' . SECTION_ICONS['bacentas'] . '</span><span class="label">Mes bacentas</span></a></li>';
+        $navItems['bacentas'] = $makeNavItem('bacentas', 'Mes bacentas', SECTION_ICONS['bacentas']);
     }
     if (!empty($scope['responsible_basonta_ids'])) {
-        $navLis[] = '<li><a class="nav-item' . ($page === 'basontas' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'basontas'])) . '"><span class="ico">' . SECTION_ICONS['basontas'] . '</span><span class="label">Mes basontas</span></a></li>';
+        $navItems['basontas'] = $makeNavItem('basontas', 'Mes basontas', SECTION_ICONS['basontas']);
     }
     if (!empty($scope['responsible_cult_ids'])) {
-        $navLis[] = '<li><a class="nav-item' . ($page === 'cultes' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'cultes'])) . '"><span class="ico">' . SECTION_ICONS['cultes'] . '</span><span class="label">Mes cultes</span></a></li>';
+        $navItems['cultes'] = $makeNavItem('cultes', 'Mes cultes', SECTION_ICONS['cultes']);
     }
 } elseif ($scope && $scope['kind'] === 'responsable') {
     $target = scope_target();
-    $navLis[] = '<li><a class="nav-item' . ($page === 'bacentas' ? ' active' : '') . '" href="' . h(url('index.php', $target)) . '"><span class="ico"><i class="fa-solid fa-lock"></i></span><span class="label">Mon Bacenta</span></a></li>';
+    $navItems['bacentas'] = $makeNavItem('bacentas', 'Mon Bacenta', '<i class="fa-solid fa-lock"></i>', $target ?: ['page' => 'bacentas']);
+} elseif ($user && $user['role'] === 'admin') {
+    $navItems['accueil'] = $makeNavItem('accueil', SECTION_LABELS['accueil'], SECTION_ICONS['accueil']);
+    foreach (['bacentas', 'centres', 'cultes', 'basontas', 'nouveaux_membres', 'generale', 'bergers',
+              'agenda', 'classes', 'rapports', 'budgetBus', 'finances',
+              'parametres', 'albums'] as $key) {
+        $navItems[$key] = $makeNavItem(
+            $key,
+            SECTION_LABELS[$key],
+            SECTION_ICONS[$key],
+            ['page' => $key],
+            $key === 'rapports' ? $rapportsBadge : ''
+        );
+    }
 } elseif ($user && $user['role'] !== 'admin') {
     // compte public : pages publiques uniquement
-} else {
-    // 'apropos' et 'centresPresentation' sont déjà fournis par $publicLis
-    // (toujours en première position - voir array_merge ci-dessous) : les
-    // ignorer ici pour ne pas les afficher deux fois dans le menu admin.
-    foreach (NAV_ORDER as $key) {
-        if (in_array($key, ['apropos', 'centresPresentation'], true)) {
-            continue;
-        }
-        $active = $page === $key ? ' active' : '';
-        $navLis[] = '<li><a class="nav-item' . $active . '" href="' . h(url('index.php', ['page' => $key])) . '"><span class="ico">' . SECTION_ICONS[$key] . '</span><span class="label">' . h(SECTION_LABELS[$key]) . '</span></a></li>';
+}
+
+// Liens conditionnels non-admin (identiques aux permissions actuelles) :
+// chacun conserve son contrôle d'accès ; rien n'est ajouté pour les comptes sans droit.
+if ($user && !$isAdmin) {
+    if (auth_can_manage_calendar()) {
+        $navItems['agenda'] = $makeNavItem('agenda', SECTION_LABELS['agenda'], SECTION_ICONS['agenda']);
+    }
+    // Espace « Rapports » consolidé : une seule entrée (onglets internes sur les écrans).
+    // Cible : la liste si l'utilisateur peut saisir, sinon la checklist de suivi.
+    if (auth_can_report_any() || auth_can_view_rapport_suivi()) {
+        $rapportTarget = auth_can_report_any() ? 'rapports' : 'rapport_suivi';
+        $navItems['rapports'] = $makeNavItem('rapports', SECTION_LABELS['rapports'], SECTION_ICONS['rapports'], ['page' => $rapportTarget], $rapportsBadge);
+    }
+    if (auth_can_manage_classes()) {
+        $navItems['classes'] = $makeNavItem('classes', SECTION_LABELS['classes'], SECTION_ICONS['classes']);
+    }
+    if (auth_can_manage_any_centre()) {
+        $navItems['budgetBus'] = $makeNavItem('budgetBus', SECTION_LABELS['budgetBus'], SECTION_ICONS['budgetBus']);
+    }
+    if (auth_can_manage_nouveaux_membres()) {
+        $navItems['nouveaux_membres'] = $makeNavItem('nouveaux_membres', SECTION_LABELS['nouveaux_membres'], SECTION_ICONS['nouveaux_membres']);
     }
 }
 
-// Calendriers : lien pour tout gestionnaire de calendrier non-admin
-// (l'admin les a déjà via la boucle NAV_ORDER ci-dessus).
-if ($user && !$isAdmin && auth_can_manage_calendar()) {
-    foreach (['agenda'] as $ck) {
-        $navLis[] = '<li><a class="nav-item' . ($page === $ck ? ' active' : '') . '" href="' . h(url('index.php', ['page' => $ck])) . '"><span class="ico">' . SECTION_ICONS[$ck] . '</span><span class="label">' . h(SECTION_LABELS[$ck]) . '</span></a></li>';
-    }
-}
-
-// Rapport du Jour : lien pour tout responsable de bacenta non-admin
-// (l'admin l'a déjà via la boucle NAV_ORDER).
-if ($user && !$isAdmin && auth_can_report_any()) {
-    $navLis[] = '<li><a class="nav-item' . ($page === 'rapports' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'rapports'])) . '"><span class="ico">' . SECTION_ICONS['rapports'] . '</span><span class="label">' . h(SECTION_LABELS['rapports']) . '</span></a></li>';
-}
-
-// Suivi / Checklist et tableau de bord des rapports : pour tout responsable
-// effectif de centre/bacenta non-admin (l'admin les a via NAV_ORDER).
-if ($user && !$isAdmin && auth_can_view_rapport_suivi()) {
-    $navLis[] = '<li><a class="nav-item' . ($page === 'rapport_suivi' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'rapport_suivi'])) . '"><span class="ico">' . SECTION_ICONS['rapport_suivi'] . '</span><span class="label">' . h(SECTION_LABELS['rapport_suivi']) . '</span></a></li>';
-    $navLis[] = '<li><a class="nav-item' . ($page === 'rapport_dashboard' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'rapport_dashboard'])) . '"><span class="ico">' . SECTION_ICONS['rapport_dashboard'] . '</span><span class="label">Tableau de bord</span></a></li>';
-}
-// Classement & félicitations : responsables avec périmètre uniquement (jamais public).
-if ($user && !$isAdmin && auth_can_view_rapport_classement()) {
-    $navLis[] = '<li><a class="nav-item' . ($page === 'rapport_classement' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'rapport_classement'])) . '"><span class="ico">' . SECTION_ICONS['rapport_classement'] . '</span><span class="label">' . h(SECTION_LABELS['rapport_classement']) . '</span></a></li>';
-}
-
-// Classes / Écoles : lien pour tout gestionnaire de classes non-admin
-// (l'admin l'a déjà via la boucle NAV_ORDER).
-if ($user && !$isAdmin && auth_can_manage_classes()) {
-    $navLis[] = '<li><a class="nav-item' . ($page === 'classes' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'classes'])) . '"><span class="ico">' . SECTION_ICONS['classes'] . '</span><span class="label">' . h(SECTION_LABELS['classes']) . '</span></a></li>';
-}
-
-// Budget Bus : lien pour tout responsable réel de centre non-admin
-// (l'admin l'a déjà via la boucle NAV_ORDER).
-if ($user && !$isAdmin && auth_can_manage_any_centre()) {
-    $navLis[] = '<li><a class="nav-item' . ($page === 'budgetBus' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'budgetBus'])) . '"><span class="ico">' . SECTION_ICONS['budgetBus'] . '</span><span class="label">' . h(SECTION_LABELS['budgetBus']) . '</span></a></li>';
-}
-
-// Nouveaux membres : lien pour berger/MS/pasteur/révérend non-admin
-// (l'admin l'a déjà via la boucle NAV_ORDER).
-if ($user && !$isAdmin && auth_can_manage_nouveaux_membres()) {
-    $navLis[] = '<li><a class="nav-item' . ($page === 'nouveaux_membres' || $page === 'nouveau_membre' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'nouveaux_membres'])) . '"><span class="ico">' . SECTION_ICONS['nouveaux_membres'] . '</span><span class="label">' . h(SECTION_LABELS['nouveaux_membres']) . '</span></a></li>';
-}
-
-/* ---------- Inscriptions en attente (admin) ---------- */
-$pendingRegistrationsCount = 0;
+// Inscriptions en attente et Site public : réservés aux administrateurs.
 if ($isAdmin) {
     $pendingRegistrationsCount = count(get_pending_registrations());
-    $badge = $pendingRegistrationsCount ? '<span class="nav-badge">' . $pendingRegistrationsCount . '</span>' : '';
-    $navLis[] = '<li><a class="nav-item' . ($page === 'admin_inscriptions' || $page === 'admin_inscription' ? ' active' : '')
-        . '" href="' . h(url('index.php', ['page' => 'admin_inscriptions'])) . '"><span class="ico">' . SECTION_ICONS['admin_inscriptions']
-        . '</span><span class="label">Inscriptions</span>' . $badge . '</a></li>';
-    $navLis[] = '<li><a class="nav-item' . ($page === 'site_public' ? ' active' : '') . '" href="' . h(url('index.php', ['page' => 'site_public'])) . '"><span class="ico">' . SECTION_ICONS['site_public'] . '</span><span class="label">' . h(SECTION_LABELS['site_public']) . '</span></a></li>';
+    $pendingBadge = $pendingRegistrationsCount ? '<span class="nav-badge">' . $pendingRegistrationsCount . '</span>' : '';
+    $navItems['admin_inscriptions'] = $makeNavItem('admin_inscriptions', 'Inscriptions', SECTION_ICONS['admin_inscriptions'], ['page' => 'admin_inscriptions'], $pendingBadge);
+    $navItems['site_public'] = $makeNavItem('site_public', SECTION_LABELS['site_public'], SECTION_ICONS['site_public']);
+}
+
+/* ---------- Regroupement par domaines (repliables, aucun doublon) ---------- */
+$navLis = [];
+// « Accueil » reste une synthèse générale hors groupes (toujours visible, une entrée).
+if (isset($navItems['accueil'])) {
+    $navLis[] = $navItems['accueil'];
+    unset($navItems['accueil']);
+}
+foreach (NAV_GROUPS as $groupId => $group) {
+    $items = [];
+    foreach ($group['items'] as $key) {
+        if (isset($navItems[$key])) {
+            $items[$key] = $navItems[$key];
+        }
+    }
+    if ($items === []) {
+        continue; // groupe vide : non rendu
+    }
+    $hasActive = isset($items[$navActiveKey]);
+    $count = count($items);
+    $navLis[] = '<li class="nav-group' . ($hasActive ? ' has-active' : '') . '" data-group="' . h($groupId) . '">'
+        . '<button type="button" class="nav-group-toggle" aria-expanded="true" aria-controls="nav-group-' . h($groupId) . '">'
+        . '<span class="ico"><i class="' . h($group['icon']) . '" aria-hidden="true"></i></span>'
+        . '<span class="label">' . h($group['label']) . '</span>'
+        . '<span class="nav-group-count" aria-hidden="true">' . $count . '</span>'
+        . '<i class="fa-solid fa-chevron-down nav-group-caret" aria-hidden="true"></i>'
+        . '</button>'
+        . '<ul class="nav-group-items" id="nav-group-' . h($groupId) . '">'
+        . implode('', $items)
+        . '</ul></li>';
 }
 
 /* ---------- Notifications (dropdown topbar) ---------- */
@@ -124,7 +160,21 @@ if ($notifItemsHtml === '') {
 }
 
 /* ---------- Fil d'Ariane ---------- */
-$crumbs = [['label' => SECTION_LABELS[$page] ?? $title, 'url' => url('index.php', ['page' => $page])]];
+if (in_array($page, NAV_RAPPORTS_ALIAS_PAGES, true)) {
+    // Espace « Rapports » : la fiche est une page de détail rattachée au module.
+    $rapportHome = ($user && (($user['role'] ?? '') === 'admin' || auth_can_report_any())) ? 'rapports' : 'rapport_suivi';
+    $crumbChild = [
+        'rapports' => 'Liste des rapports',
+        'rapport' => 'Saisie de rapport',
+        'rapport_suivi_export' => SECTION_LABELS['rapport_suivi'],
+    ][$page] ?? (SECTION_LABELS[$page] ?? $title);
+    $crumbs = [
+        ['label' => SECTION_LABELS['rapports'], 'url' => url('index.php', ['page' => $rapportHome])],
+        ['label' => $crumbChild, 'url' => ''],
+    ];
+} else {
+    $crumbs = [['label' => SECTION_LABELS[$page] ?? $title, 'url' => url('index.php', ['page' => $page])]];
+}
 if (in_array($page, ['bacentas', 'cultes', 'basontas'], true) && nav('id')) {
     if ($page === 'bacentas') {
         $b = get_bacenta(nav('id'));
@@ -189,7 +239,7 @@ foreach (glob(__DIR__ . '/../../assets/css/*.css') ?: [] as $cssFile) {
 ?>
 <link rel="stylesheet" href="assets/css/app.css?v=<?= $cssVersion ?>">
 <?php if (($page ?? '') === 'site_public'): ?><link rel="stylesheet" href="assets/css/admin_site.css?v=<?= $cssVersion ?>"><?php endif; ?>
-<?php if (in_array($page ?? '', ['rapport_suivi', 'rapport_dashboard', 'rapport_classement', 'rapport_responsable', 'rapport_parametres'], true)): ?><link rel="stylesheet" href="assets/css/rapport_suivi.css?v=<?= $cssVersion ?>"><?php endif; ?>
+<?php if (in_array($page ?? '', ['rapports', 'rapport', 'rapport_suivi', 'rapport_dashboard', 'rapport_classement', 'rapport_responsable', 'rapport_parametres'], true)): ?><link rel="stylesheet" href="assets/css/rapport_suivi.css?v=<?= $cssVersion ?>"><?php endif; ?>
 <link rel="stylesheet" href="<?= h(FONT_AWESOME_CSS) ?>">
 <script src="<?= h(CHART_JS) ?>"></script>
 </head>

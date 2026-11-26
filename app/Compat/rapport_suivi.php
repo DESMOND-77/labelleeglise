@@ -93,3 +93,36 @@ function rapport_occurrence_repository_for_filters(array $filters, ?array $pairs
         $pairs
     );
 }
+
+/**
+ * Nombre d'échéances en retard (ou à traiter aujourd'hui passées sans remise)
+ * pour l'utilisateur courant - utilisé par le badge de navigation.
+ * Ne lève jamais d'exception : 0 en cas d'erreur (module non migré, base
+ * indisponible…). Résultat mis en cache 60 s par utilisateur.
+ */
+function rapport_suivi_overdue_count(?array $user = null): int
+{
+    try {
+        $user = $user ?? current_user();
+        if (!$user) {
+            return 0;
+        }
+        if (!function_exists('auth_can_view_rapport_suivi') || !auth_can_view_rapport_suivi()) {
+            return 0;
+        }
+        $uid = (int) $user['id'];
+        $cached = \App\Core\Cache::remember('rapport_overdue_' . $uid, 60, static function () use ($user, $uid) {
+            $pairs = rapport_scope_service()->pairsForUser($user);
+            $filters = ['status' => 'overdue'];
+            $isAdmin = ($user['role'] ?? '') === 'admin';
+            if (!$isAdmin && !rapport_scope_service()->hasManagerScope($user)) {
+                // Hors périmètre de gestion : seules SES échéances comptent.
+                $filters['vue'] = 'mes';
+            }
+            return rapport_occurrence_repository()->checklistCount($filters, $pairs, $uid);
+        });
+        return max(0, (int) $cached);
+    } catch (\Throwable $e) {
+        return 0;
+    }
+}

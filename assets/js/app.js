@@ -353,6 +353,44 @@ data: [charts.doughnut.present, charts.doughnut.absent, charts.doughnut.none],
     });
   }
 
+  /* ---------------- Groupes de navigation repliables (domaines) ---------------- */
+  // État mémorisé en localStorage (lbegf_nav_groups : { id: true|false }, true = déplié).
+  // Le groupe contenant la page active reste toujours déplié.
+
+  function initNavGroups() {
+    var groups = document.querySelectorAll(".nav-group");
+    if (!groups.length) return;
+
+    var KEY = "lbegf_nav_groups";
+    var saved = {};
+    try {
+      saved = JSON.parse(localStorage.getItem(KEY) || "{}") || {};
+    } catch (e) {
+      saved = {};
+    }
+
+    groups.forEach(function (group) {
+      var toggle = group.querySelector(".nav-group-toggle");
+      if (!toggle) return;
+      var id = group.getAttribute("data-group") || "";
+      var hasActive = group.classList.contains("has-active");
+      // Défaut : déplié ; l'utilisateur peut replier, sauf si la page active s'y trouve.
+      var expanded = hasActive || saved[id] !== false;
+      group.classList.toggle("is-collapsed", !expanded);
+      toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+
+      toggle.addEventListener("click", function () {
+        var collapsed = group.classList.toggle("is-collapsed");
+        var nowExpanded = !collapsed;
+        toggle.setAttribute("aria-expanded", nowExpanded ? "true" : "false");
+        saved[id] = nowExpanded;
+        try {
+          localStorage.setItem(KEY, JSON.stringify(saved));
+        } catch (e) { /* stockage indisponible : l'état n'est pas persisté */ }
+      });
+    });
+  }
+
   /* ---------------- Repli de la sidebar (desktop) ---------------- */
 
   function initSidebarCollapse() {
@@ -469,6 +507,7 @@ data: [charts.doughnut.present, charts.doughnut.absent, charts.doughnut.none],
     initConfirms();
     initBusBalance();
     initMenuToggle();
+    initNavGroups();
     initSidebarCollapse();
     initSidebarScrollRestore();
     initProfileMenu();

@@ -1,5 +1,6 @@
 <?php /* Classement des responsables (admin + périmètre autorisé).
    Variables : $rows, $filters, $filterQuery, $isAdmin, $scopeRestricted, $currentUserId. */ ?>
+<?= view('pages/partials/rapport_tabs', ['active' => 'classement', 'retour' => 'rapport_suivi']) ?>
 <?php
 $filterQuery = $filterQuery ?? [];
 $fmtRate = static function ($rate) {

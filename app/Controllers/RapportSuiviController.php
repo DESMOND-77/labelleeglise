@@ -267,7 +267,9 @@ class RapportSuiviController extends Controller
             ],
         ];
 
+        $savedDash = (string) (Request::get('saved') ?? '');
         render_page(SECTION_LABELS['rapport_dashboard'], view('pages/rapport_dashboard', [
+            'saved' => $savedDash,
             'data' => $data,
             'filters' => $filters,
             'filterQuery' => $this->filterQueryParams($filters),

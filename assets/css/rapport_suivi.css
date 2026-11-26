@@ -330,3 +330,141 @@
     flex: 1 1 140px;
   }
 }
+
+/* ============================================================
+   Espace « Rapports » - onglets internes (plan §13.1)
+   ============================================================ */
+.rapport-tabs {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3);
+  border-bottom: 2px solid var(--border);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.rapport-tabs-list {
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.rapport-tabs-list::-webkit-scrollbar {
+  display: none;
+}
+
+.rapport-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 10px 14px;
+  border: none;
+  background: transparent;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  color: var(--text-soft);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  border-radius: var(--radius) var(--radius) 0 0;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+
+.rapport-tab:hover {
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.rapport-tab:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}
+
+.rapport-tab.is-active {
+  color: var(--primary);
+  border-bottom-color: var(--accent);
+}
+
+.rapport-tab-badge {
+  background: var(--danger);
+  color: #fff;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.5;
+  padding: 0 7px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.rapport-tabs-cta {
+  flex-shrink: 0;
+  margin-bottom: 6px;
+}
+
+/* Sous-navigation « Suivi » : liste ↔ checklist */
+.rapport-subnav {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: calc(-1 * var(--space-2));
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.rapport-subnav-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--card);
+  color: var(--text-soft);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.rapport-subnav-item:hover {
+  border-color: var(--border-strong);
+  color: var(--primary);
+}
+
+.rapport-subnav-item:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.rapport-subnav-item.is-active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #FBF8F1;
+}
+
+@media (max-width: 640px) {
+  .rapport-tabs {
+    align-items: stretch;
+  }
+
+  .rapport-tabs-cta {
+    width: 100%;
+    justify-content: center;
+    order: 2;
+    margin-bottom: var(--space-2);
+  }
+
+  .rapport-tabs-list {
+    width: 100%;
+    order: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rapport-tab {
+    transition: none;
+  }
+}

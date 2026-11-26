@@ -44,6 +44,7 @@ class RapportController extends Controller
             'filterMois'    => $filterMois,
             'isAdmin'       => $isAdmin,
             'currentUserId' => (int) $user['id'],
+            'saved'         => (string) (Request::get('saved') ?? ''),
         ]));
     }
 
@@ -59,6 +60,12 @@ class RapportController extends Controller
 
         $id = (int) (Request::get('id') ?? 0);
         $report = $id ? $svc->report($id) : null;
+
+        // Retour au contexte de suivi après enregistrement (plan §13.1) : whitelist stricte.
+        $retour = trim((string) (Request::get('retour') ?? ''));
+        if (!in_array($retour, ['rapports', 'rapport_suivi', 'rapport_dashboard'], true)) {
+            $retour = '';
+        }
 
         $centreId = $report ? (int) $report['centre_id'] : ((int) (Request::get('centre') ?? 0) ?: null);
         $date = $report
@@ -105,6 +112,7 @@ class RapportController extends Controller
             'canEdit'   => $canEdit,
             'errors'    => [],
             'old'       => [],
+            'retour'    => $retour,
             'csrf'      => csrf_field(),
         ]));
     }

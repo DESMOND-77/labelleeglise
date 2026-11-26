@@ -33,8 +33,16 @@
 
 ### Phase 6 - Paramètres, navigation, audit
 - `rapport_parametres` (admin) : exécution cron (CLI + webcron + boutons dry-run/réel), paramètres généraux (heure limite globale, grâce, rappels on/off + heures, canaux in-app/email, tentatives, félicitations, bilans, départ de cumul), **éditeur de calendriers** centres & bacentas (jours/heure début/fin/heure limite), **éditeur de barème** (CRUD avec validation de couverture), journal d'audit, journal des échecs d'envoi.
-- Navigation : groupe « Rapport du Jour » (NAV_ORDER admin), hoist non-admin (checklist + tableau de bord + classement selon périmètre) ;Paramètres admin-only ; CSS dédié `assets/css/rapport_suivi.css` (pages chargées uniquement sur le module).
+- Navigation : voir « Navigation (plan §13) » ci-dessous ; CSS dédié `assets/css/rapport_suivi.css` (chargé aussi sur la liste et le formulaire Rapports).
 - Audit : `rapport_audit_logs` - annulations, relances manuelles, modifications barème/calendrier/paramètres, bilans, exécutions cron manuelles.
+
+### Navigation (plan §13) - réalisé
+- Menu latéral **par domaines repliables** : « Mon espace » (berger uniquement), **Structures** (Bacentas, Centres, Cultes, Basontas), **Membres & équipes** (Nouveaux membres, Liste générale, Liste des bergers), **Activités** (Agenda, Classes & Écoles), **Gestion & finances** (Rapports, Budget Bus, Finances & Offrandes), **Administration** (Paramètres, Inscriptions en attente [badge], Site public, Album). Conteneurs repliables (`<button aria-expanded aria-controls>`, état mémorisé en `localStorage` `lbegf_nav_groups`, page active toujours visible, focus visible, `aria-current="page"`) ; groupes vides non rendus ; aucun doublon admin/non-admin ; routes inchangées.
+- Entrée unique **« Rapports »** (renommée, badge des échéances en retard - cache 60 s, silencieuse si le module n'est pas migré) : active pour toutes les routes du module (`rapports`, `rapport`, `rapport_suivi`, `rapport_suivi_export`, `rapport_dashboard`, `rapport_classement`, `rapport_responsable`, `rapport_parametres`).
+- **Conteneur « Rapports » à 4 onglets** (partiel `Views/pages/partials/rapport_tabs.php`) : « Suivi des rapports » (sous-vues **Rapports enregistrés** `rapports` et **Échéances & checklist** `rapport_suivi`), « Tableau de bord » (`rapport_dashboard`), « Classements & félicitations » (`rapport_classement`), « Paramètres » (`rapport_parametres`, admin uniquement) ; « Nouveau rapport » visible en permanence (CTA de l'en-tête) et **retour automatique au contexte de suivi** après enregistrement (`retour` whitelisté `rapports|rapport_suivi|rapport_dashboard`).
+- **« Suivi Hebdo. des Bergers » retiré** du menu des gestionnaires/admins ; route `suiviBergers`, vue, impression et autorisations **conservées** ; action explicite « Suivi hebdomadaire » déjà présente par ligne de « Liste des bergers » ; « Mon suivi hebdomadaire » conservé pour le berger (groupe « Mon espace ») ; liens profil/fiche berger inchangés.
+- `NAV_ORDER` supprimé ; `NAV_GROUPS` + `NAV_RAPPORTS_ALIAS_PAGES` dans `Config/constants.php` ; fils d'Ariane du module rattachés à « Rapports ».
+- **Vérifié :** lint syntaxique statique (`php-parser`) sur tous les fichiers modifiés ; cohérence statique du menu (constantes/routes/vues) - `tests/navigation-smoke.php` (`php tests/navigation-smoke.php`, sans base de données). **Non vérifié ici :** rendu réel (pas de runtime PHP/MySQL dans le bac à sable) - la recette par rôle reste obligatoire (menu par profil, onglets clavier, mobile).
 
 ## 2. Limites connues (documentées - pas de supposition)
 
@@ -67,6 +75,6 @@ Puis :
 
 ## 4. Points ouverts (hors périmètre ce lot)
 
-- Tests automatisés (PHPUnit absent du projet, pas de runtime de test ici) - la stratégie TDD du plan reste à jouer côté CI avec base jetable.
+- Tests automatisés : `tests/navigation-smoke.php` (statique, sans base) ajouté pour la navigation ; PHPUnit absent du projet, pas de runtime de test ici - la stratégie TDD du plan reste à jouer côté CI avec base jetable (§13.5 : clavier, badges, mobile, retours de formulaire, menus par rôle).
 - WhatsApp/SMS/push : hors scope V1 (in-app + email uniquement).
 - Classement public : exclu par §16.6.

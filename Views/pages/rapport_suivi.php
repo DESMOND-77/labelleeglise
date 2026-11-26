@@ -18,6 +18,7 @@ $statusOptions = [
     'cancelled' => 'Annulés',
 ];
 ?>
+<?= view('pages/partials/rapport_tabs', ['active' => 'suivi', 'sub' => 'checklist', 'retour' => 'rapport_suivi']) ?>
 <?= section_toolbar(
     SECTION_LABELS['rapport_suivi'],
     $total . ' échéance(s) sur la période - taux affichés avec numérateur et dénominateur',

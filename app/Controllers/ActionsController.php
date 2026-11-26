@@ -868,9 +868,14 @@ class ActionsController extends Controller
                         'canEdit'  => $existing === null || $isAdmin || (int) $existing['auteur_id'] === $uid,
                         'errors'   => $res['errors'],
                         'old'      => $_POST,
+                        'retour'   => in_array(trim((string) ($_POST['retour'] ?? '')), ['rapports', 'rapport_suivi', 'rapport_dashboard'], true) ? trim((string) $_POST['retour']) : '',
                         'csrf'     => csrf_field(),
                     ]));
                     return;
+                }
+                $retour = trim((string) ($_POST['retour'] ?? ''));
+                if (in_array($retour, ['rapports', 'rapport_suivi', 'rapport_dashboard'], true)) {
+                    $this->redirect('index.php', ['page' => $retour, 'saved' => 'Rapport enregistré.']);
                 }
                 $this->redirect('index.php', ['page' => 'rapport', 'id' => $res['id']]);
                 break;
