@@ -192,6 +192,9 @@ $publicController = $read('app/Controllers/PublicController.php');
 $ok(strpos($publicController, "pwa_mark_public_cacheable('eglise')") !== false, 'vitrine marquée mettable en cache côté serveur');
 $albums = $read('app/Controllers/AlbumController.php');
 $ok(strpos($albums, "pwa_mark_public_cacheable('albums')") !== false, 'albums publiés marqués côté serveur');
+$uploadsHtaccess = $read('uploads/.htaccess');
+$ok(strpos($uploadsHtaccess, 'no-store') !== false, 'uploads/ jamais conservé par un cache HTTP (dossier mixte)');
+$ok(strpos($read('.htaccess'), '<If "') === false, '.htaccess racine sans directive <If> (compatible Apache 2.2)');
 
 echo "\n== Résultat : " . ($checks - count($failures)) . "/{$checks} vérifications ==\n";
 if ($failures) {

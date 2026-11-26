@@ -87,7 +87,10 @@
    jamais à la file d'un autre utilisateur ; ce champ est ignoré du serveur et
    exclu des brouillons.
 6. **`uploads/` jamais mis en cache.** Le dossier est mixte (photos de
-   profil privées + albums publics) : hors ligne, les pages d'albums restent
+   profil privées + albums publics) : le Service Worker le laisse en réseau
+   seul, `uploads/.htaccess` y pose `Cache-Control: no-store, private` (aucun
+   cache HTTP, donc aucune copie survivante sur un appareil partagé), et le
+   dossier est absent du précachage. Hors ligne, les pages d'albums restent
    lisibles mais leurs images nécessitent le réseau. Limite documentée.
 7. **Manifeste dynamique, fichier statique conservé.**
    `index.php?api=pwa/v1/manifest` résout `id`, `start_url`, `scope` et les

@@ -67,6 +67,10 @@ ServerSignature Off
   </IfModule>
 </FilesMatch>
 
+# ---- uploads/ : dossier MIXTE (photos de profil privées + albums publics) ----
+# Ni le Service Worker (réseau seul, voir sw.js) ni un cache HTTP ne doit en
+# conserver une copie : la règle `no-store` est posée dans uploads/.htaccess.
+
 <IfModule mod_rewrite.c>
   RewriteEngine On
 

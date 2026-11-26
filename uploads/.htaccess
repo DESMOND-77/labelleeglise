@@ -19,3 +19,16 @@ AddHandler cgi-script .php .php3 .php4 .php5 .php7 .php8 .phtml .pl .py .jsp .as
     Deny from all
   </IfModule>
 </FilesMatch>
+
+# ---- Jamais de copie en cache (plan PWA §5.2) ----
+# Ce dossier est MIXTE : photos de profil privées et photos d'albums publics.
+# Le Service Worker ne l'intercepte pas (réseau seul) et aucun cache HTTP ne
+# doit en conserver une copie : une image privée ne doit pas survivre dans le
+# cache d'un appareil partagé, ni apparaître dans un cache hors ligne.
+<IfModule mod_headers.c>
+  Header always set Cache-Control "no-store, private"
+  Header always set Pragma "no-cache"
+</IfModule>
+<IfModule mod_expires.c>
+  ExpiresActive Off
+</IfModule>
