@@ -2,8 +2,9 @@
 
 - **Projet :** La Belle Église
 - **Dépôt :** `DESMOND-77/labelleeglise`
-- **Branche de travail :** `docs/rapport-jour-suivi-motivation-plan`
-- **Statut :** plan d'implémentation détaillé - aucune fonctionnalité applicative n'est modifiée par ce document
+- **Référence d'implémentation :** Pull Request [#16](https://github.com/DESMOND-77/labelleeglise/pull/16) (ouverte)
+- **Branche de mise à jour documentaire :** `arena/ed931e2b-labelleeglise` (branche source de la PR #16)
+- **Statut :** plan consolidé avec l'état du code présent dans la PR #16 ; les recommandations de navigation ci-dessous restent à implémenter
 - **Canaux de rappel retenus :** notifications in-app et email
 - **Fuseau horaire métier :** `Africa/Libreville` (à centraliser dans la configuration)
 
@@ -360,6 +361,7 @@ Le cron ne doit pas être déclenché par une requête HTTP publique. Si l'hébe
 ### Phase 0 - Audit et décisions métier
 
 - [ ] Cartographier migrations, schéma SQL et index existants.
+- [ ] Reprendre l'état réel de la PR #16 comme base de travail : comparer les fichiers déjà ajoutés/modifiés avec ce plan et ne pas réimplémenter les composants déjà présents.
 - [ ] Lire intégralement `RapportJourService`, `RapportJourRepository`, `MailService`, `NotificationService`, les contrôleurs d'administration et le routeur.
 - [ ] Vérifier la gestion des responsables principaux/suppléants et les dates d'affectation.
 - [ ] Vérifier calendrier des centres et bacentas.
@@ -477,17 +479,72 @@ Le cron ne doit pas être déclenché par une requête HTTP publique. Si l'hébe
 - Les rapports et écrans existants continuent de fonctionner.
 - Le système signale clairement les données manquantes (email, calendrier, responsable) au lieu de les deviner.
 
-## 13. Proposition de navigation
+## 13. Navigation cible et organisation des modules
 
-Dans le menu « Rapport du Jour », regrouper :
+La navigation doit être consolidée en deux niveaux : des domaines fonctionnels dans le menu latéral, puis des onglets internes pour les modules qui possèdent plusieurs écrans liés. Cette évolution concerne la présentation et les points d'entrée ; elle ne doit pas supprimer les routes métier, les permissions ni les fonctions existantes.
 
-- **Rapports** : liste et formulaire actuels ;
-- **Suivi / Checklist** : échéances et statuts ;
-- **Dashboard** : synthèse et évolution ;
-- **Classement & félicitations** : résultats individuels et classement ;
-- **Paramètres** (administrateurs uniquement) : barème, messages, rappels et calendrier.
+### 13.1 Espace « Rapports »
 
-Ne pas exposer le classement nominatif à tous les utilisateurs par défaut. Les vues doivent respecter les permissions existantes.
+Renommer l'entrée principale « Rapport du Jour » en **« Rapports »** et regrouper les écrans du suivi dans un espace unique avec quatre onglets internes, dans cet ordre :
+
+1. **Suivi des rapports** — onglet d'entrée recommandé : liste existante et formulaire de création, checklist des occurrences attendues, filtres, historique, statuts, accès aux détails et export autorisé. Conserver une action clairement visible **« Nouveau rapport »**.
+2. **Tableau de bord** — indicateurs, évolutions, graphiques et accès contextuels à la checklist filtrée.
+3. **Classements & félicitations** — résultats individuels, niveaux, bilans et classement nominatif, toujours soumis aux permissions et au périmètre.
+4. **Paramètres** — calendriers des centres et bacentas, heures limites, rappels, barèmes, messages et préférences d'envoi. Onglet visible et modifiable par les administrateurs uniquement, sauf permission explicitement accordée.
+
+Les routes existantes de la PR #16 sont à préserver : `rapports`, `rapport_suivi`, `rapport_dashboard`, `rapport_classement`, `rapport_responsable` et `rapport_parametres`. Les onglets doivent simplement naviguer entre ces écrans au sein d'un même conteneur visuel. La fiche `rapport_responsable` reste une page de détail accessible depuis les lignes, graphiques ou classements ; elle n'a pas besoin d'un onglet principal supplémentaire.
+
+Ne pas créer un deuxième formulaire. Le formulaire actuel reste la source unique de création/sauvegarde ; depuis le suivi, l'action « Nouveau rapport » ouvre ce formulaire et, après enregistrement, revient vers le contexte de suivi pertinent.
+
+### 13.2 Organisation du menu latéral par domaines
+
+Organisation cible pour les comptes qui disposent des permissions correspondantes :
+
+- **Accueil** : vue générale de l'église.
+- **Structures** : Bacentas, Centres, Cultes, Basontas.
+- **Membres & équipes** : Nouveaux membres, Liste générale, Liste des bergers.
+- **Activités** : Agenda, Classes & Écoles.
+- **Gestion & finances** : Rapports, Budget Bus, Finances & Offrandes.
+- **Administration** : Paramètres généraux, Inscriptions, Site public et fonctions réservées aux administrateurs.
+
+Les groupes sont des conteneurs de navigation repliables, pas de nouvelles permissions. Chaque lien conserve son contrôle d'accès actuel ; un utilisateur ne voit que les éléments qu'il est autorisé à ouvrir. Ne pas déplacer une fonctionnalité vers un domaine qui changerait implicitement son audience.
+
+Les entrées « Budget Bus » et « Finances & Offrandes » restent distinctes : elles correspondent à des processus différents. Les modules Bacentas, Centres, Cultes et Basontas restent également des pages métier autonomes, même s'ils sont présentés sous un groupe « Structures ».
+
+### 13.3 Suivi hebdomadaire des bergers
+
+Retirer l'entrée générale « Suivi Hebdo. des Bergers » du menu de navigation des administrateurs/gestionnaires lorsque le suivi individuel est accessible depuis l'action de chaque ligne de « Liste des bergers ».
+
+Cette suppression est uniquement une simplification de navigation :
+
+- conserver la route `suiviBergers`, le contrôleur, la vue, les données, l'impression et les autorisations ;
+- conserver dans « Liste des bergers » une action explicite **« Suivi hebdomadaire »** ou **« Voir le suivi »** pour ouvrir le suivi du berger concerné ;
+- conserver l'accès personnel **« Mon suivi hebdomadaire »** dans le menu des bergers eux-mêmes : il ne doit pas disparaître ;
+- conserver les liens de la fiche membre/profil qui ouvrent le suivi ;
+- préserver l'accès aux semaines antérieures et aux fonctionnalités de saisie, consultation et impression.
+
+### 13.4 Autres modules : décisions de navigation
+
+- **Accueil** reste une synthèse générale de l'église. Ne pas dupliquer dans cet écran le tableau de bord spécialisé des rapports.
+- **Bacentas, Centres, Cultes, Basontas** restent autonomes sous « Structures ».
+- **Nouveaux membres** reste distinct de la liste générale : le premier est un processus d'intégration, la seconde un répertoire des membres.
+- **Agenda** reste un point d'entrée unique pour les événements et anniversaires.
+- **Classes & Écoles** reste un module autonome.
+- **Budget Bus** et **Finances & Offrandes** restent deux modules distincts.
+- Les paramètres propres au module Rapports restent dans l'onglet « Paramètres » de Rapports ; les paramètres généraux de l'application restent dans « Administration ». Éviter les réglages dupliqués ou contradictoires.
+
+### 13.5 Exigences UX et accessibilité
+
+- Afficher clairement l'onglet actif et conserver le contexte des filtres lors des changements d'onglet lorsque cela est pertinent.
+- Prévoir des compteurs/badges pour les rapports en retard ou à traiter, sans exposer d'information nominative hors périmètre.
+- Les onglets internes doivent être utilisables au clavier et annoncer leur état actif aux technologies d'assistance.
+- Sur mobile, transformer les onglets en navigation compacte sans masquer l'action « Nouveau rapport ».
+- Les URLs directes et les liens historiques doivent continuer à fonctionner ; si une URL change, prévoir une redirection compatible.
+- Les groupes du menu latéral doivent être repliables, garder un état actif cohérent pour les pages enfants et ne pas introduire de doublons entre les menus admin et non-admin.
+
+## 14. Décisions déjà validées
+
+Les décisions métier des sections 16.1 à 16.8 sont confirmées et ne doivent pas être redemandées. Les décisions de navigation de la section 13 sont également validées par le commanditaire. La phase 0 doit se concentrer sur l'audit de compatibilité avec le code de la PR #16, les permissions réelles et les liens existants.
 
 ## 14. Décisions restant à valider avant le code
 
@@ -594,3 +651,47 @@ Le plan d'implémentation doit être ajusté comme suit :
 - Restreindre explicitement les routes et requêtes du classement aux administrateurs et responsables autorisés.
 
 **Ces règles validées prévalent sur les hypothèses provisoires des sections 3, 5, 11, 12 et 14.** La phase 0 doit maintenant auditer les données et conventions existantes en appliquant ces décisions ; elle ne doit pas redemander au commanditaire de trancher les points déjà validés.
+
+
+---
+
+## 17. Alignement avec la Pull Request #16
+
+La PR #16 est la base applicative de référence pour cette évolution et demeure ouverte. Elle contient déjà une implémentation substantielle du suivi, de la motivation et des rappels (notamment les écrans/routes de checklist, tableau de bord, classement, fiche responsable et paramètres, ainsi que les éléments de migration, services et tests décrits dans sa description).
+
+### 17.1 Règle de reprise
+
+- Ne pas repartir de la branche par défaut ni écraser les changements récents de la PR #16.
+- Auditer le contenu réel de la tête de PR avant toute modification applicative.
+- Réutiliser les services, repositories, routes, migrations, contrôles d'accès et vues déjà livrés dans la PR ; ne pas créer de doublons.
+- Les décisions validées de la section 16 priment sur les hypothèses historiques des sections antérieures et sur toute implémentation provisoire contradictoire.
+- Cette mise à jour documentaire ne vaut pas validation de la migration Bloc 20 ni de la recette de production : les réserves de la description de la PR restent applicables.
+
+### 17.2 État de navigation observé dans la PR
+
+La tête de PR conserve actuellement des entrées séparées dans le menu pour `rapports`, `rapport_suivi`, `rapport_dashboard` et `rapport_classement`. La route `rapport_parametres` existe et son accès doit rester réservé à l'administration. Le suivi hebdomadaire des bergers conserve la route `suiviBergers` et un accès personnel spécifique aux bergers.
+
+La prochaine évolution doit donc intégrer ces écrans sous un conteneur « Rapports » et transformer les groupes de navigation en regroupements visuels, sans supprimer les routes sous-jacentes.
+
+### 17.3 Travail restant sur la PR #16
+
+- [ ] Réconcilier les routes `rapports` et `rapport_suivi` dans l'onglet « Suivi des rapports » sans perdre la liste ni le formulaire existants.
+- [ ] Créer le conteneur/les onglets internes « Suivi des rapports », « Tableau de bord », « Classements & félicitations », « Paramètres ».
+- [ ] Garder « Nouveau rapport » visible et réutiliser le formulaire existant.
+- [ ] Consolider les entrées Rapports dans le menu pour chaque profil, avec visibilité des onglets conforme aux permissions.
+- [ ] Ajouter les groupes de menu « Structures », « Membres & équipes », « Activités », « Gestion & finances » et « Administration ».
+- [ ] Retirer uniquement l'entrée de menu gestionnaire redondante « Suivi Hebdo. des Bergers » ; conserver « Mon suivi hebdomadaire » pour le profil berger.
+- [ ] Ajouter/adapter les tests de navigation, permissions, routes directes, retours de formulaire, liens de fiche berger et menus par rôle.
+- [ ] Vérifier les états actifs, les badges, la navigation clavier et l'affichage mobile.
+- [ ] Vérifier qu'aucune route, autorisation, donnée, fonction d'impression ou action de suivi hebdomadaire n'a été supprimée.
+- [ ] Exécuter les tests PHP disponibles et la recette manuelle par rôle avant de considérer la navigation comme terminée.
+
+### 17.4 Séquencement conseillé
+
+1. Faire un inventaire des menus et permissions pour administrateur, responsable de centre, responsable de bacenta et berger.
+2. Introduire le regroupement visuel sans changer les routes.
+3. Intégrer les écrans du module Rapports dans leur conteneur et valider le parcours liste → création → retour.
+4. Déplacer l'accès au suivi hebdomadaire gestionnaire vers la ligne du berger et vérifier l'accès personnel.
+5. Ajouter les tests de non-régression et réaliser une recette par rôle.
+
+**Périmètre de cette mise à jour :** documentation et critères d'implémentation. Elle ne modifie pas les fichiers applicatifs de la PR #16.
