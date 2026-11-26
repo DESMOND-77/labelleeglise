@@ -544,19 +544,7 @@ Cette suppression est uniquement une simplification de navigation :
 
 ## 14. Décisions déjà validées
 
-Les décisions métier des sections 16.1 à 16.8 sont confirmées et ne doivent pas être redemandées. Les décisions de navigation de la section 13 sont également validées par le commanditaire. La phase 0 doit se concentrer sur l'audit de compatibilité avec le code de la PR #16, les permissions réelles et les liens existants.
-
-## 14. Décisions restant à valider avant le code
-
-1. **Centre :** un rapport est-il attendu à chaque réunion du centre, en plus des rapports des bacentas ?
-2. **Responsable :** si plusieurs responsables sont affectés, lequel reçoit le crédit et les rappels ?
-3. **Échéance :** confirmer la règle « fin de réunion + 30 minutes » ou définir une heure limite fixe.
-4. **Relances :** confirmer veille 18 h, jour même après réunion et lendemain 09 h.
-5. **Félicitations :** notification au responsable à chaque nouveau niveau ou seulement bilan hebdomadaire/mensuel ?
-6. **Classement :** visible uniquement aux administrateurs/responsables autorisés ou publication plus large ?
-7. **Cumul :** depuis la date de prise de responsabilité ou depuis le lancement du nouveau système ?
-
-En l'absence de validation, retenir les valeurs proposées comme valeurs initiales configurables, mais ne pas les figer dans le code.
+Les règles métier détaillées des sections 16.1 à 16.8 sont confirmées. Les décisions de navigation de la section 13 sont également validées. Aucun arbitrage métier listé dans les anciennes versions du plan ne doit être redemandé. La phase 0 doit se concentrer sur l'audit de compatibilité avec le code de la PR #16, les permissions réelles et les liens existants.
 
 ## 15. Ordre de priorité recommandé
 
