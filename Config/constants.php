@@ -80,6 +80,7 @@ define('SECTION_LABELS', [
     'admin_inscription'  => 'Demande d\'inscription',
     'notifications'      => 'Notifications',
     'albums'             => 'Album',
+    'pwa_offline'        => 'Données hors ligne',
 ]);
 
 define('SECTION_ICONS', [
@@ -111,6 +112,7 @@ define('SECTION_ICONS', [
     'admin_inscriptions' => '<i class="fa-solid fa-user-plus"></i>',
     'site_public'        => '<i class="fa-solid fa-globe"></i>',
     'albums'             => '<i class="fa-solid fa-images"></i>',
+    'pwa_offline'        => '<i class="fa-solid fa-cloud-arrow-down"></i>',
 ]);
 
 /* ---------- Inscription publique / statut de compte ---------- */

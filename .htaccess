@@ -54,6 +54,19 @@ ServerSignature Off
   </IfModule>
 </Files>
 
+# ---- PWA : types MIME et fraîcheur du Service Worker / manifeste ----
+# Le Service Worker et le manifeste doivent être revalidés à chaque visite :
+# un SW mis en cache HTTP trop longtemps retarde les mises à jour (plan §11).
+<IfModule mod_mime.c>
+  AddType application/manifest+json .webmanifest
+  AddType text/javascript .js
+</IfModule>
+<FilesMatch "^(sw\.js|site\.webmanifest)$">
+  <IfModule mod_headers.c>
+    Header set Cache-Control "no-cache, must-revalidate"
+  </IfModule>
+</FilesMatch>
+
 <IfModule mod_rewrite.c>
   RewriteEngine On
 

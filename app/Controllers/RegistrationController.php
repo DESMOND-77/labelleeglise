@@ -22,6 +22,12 @@ class RegistrationController extends Controller
     /** GET ?page=register - formulaire d'inscription publique. */
     public function form(): void
     {
+        // Formulaire public : la copie anonyme peut être servie hors ligne,
+        // ce qui permet de préparer une demande d'inscription sans réseau
+        // (plan §9.1). Un jeton CSRF n'est jamais mis en file : le client en
+        // redemande un frais au moment de l'envoi.
+        pwa_mark_public_cacheable('register');
+
         echo view('pages/register', [
             'errors' => [],
             'old'    => [],

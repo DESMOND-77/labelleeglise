@@ -30,7 +30,10 @@ $metaDescription = ($metaDescription ?? '') !== ''
   <link rel="icon" href="<?= h(asset('assets/images/favicon.svg')) ?>" type="image/svg+xml" sizes="any">
   <link rel="icon" href="<?= h(asset('assets/images/favicon.ico')) ?>">
   <link rel="apple-touch-icon" href="<?= h(asset('assets/images/apple-touch-icon.png')) ?>">
-  <meta name="theme-color" content="#0b1020">
+  <meta name="theme-color" content="#0B1020">
+  <!-- PWA : manifest résolu pour la racine réelle de déploiement + client hors ligne.
+       La vitrine publique est installable au même titre que l'espace de gestion. -->
+  <?= pwa_head_tags() ?>
   <link rel="stylesheet" href="assets/vendor/fonts/landing-fonts.css">
   <link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
   <link rel="stylesheet" href="assets/css/variables.css">
@@ -45,6 +48,7 @@ $metaDescription = ($metaDescription ?? '') !== ''
   <a class="skip-link" href="#contenu">Aller au contenu</a>
   <?= $content ?>
   <script src="assets/js/landing.js" defer></script>
+  <?= pwa_foot_tags() ?>
 </body>
 
 </html>

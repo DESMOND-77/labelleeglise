@@ -39,8 +39,21 @@ $v = static fn(string $k) => h($old[$k] ?? '');
         <a class="btn btn-primary btn-block btn-lg" href="index.php?page=login">Retour à la connexion</a>
       </div>
     <?php else: ?>
-      <form class="login-card register-card" method="post" action="index.php" novalidate>
+<?php
+      /* Demande d'inscription préparée hors ligne (plan §9.1) : les champs non
+         secrets peuvent être conservés sur l'appareil ; le mot de passe n'est
+         JAMAIS stocké localement (plan §6.1) et sera redemandé au moment de
+         l'envoi, une fois le réseau revenu. Champ piège anti-robot inclus. */
+      $pwaRegisterAttrs = pwa_form_attrs('public_register', 'submit', '', [], [
+          'data-pwa-form-url' => url('index.php', ['page' => 'register']),
+          'data-pwa-no-store' => 'password,password_confirm',
+      ]);
+?>
+      <form class="login-card register-card" method="post" action="index.php" novalidate<?= $pwaRegisterAttrs ?>>
         <input type="hidden" name="action" value="register">
+        <!-- Champ piège : invisible pour un humain, obligatoire à laisser vide. -->
+        <div class="pwa-hp" aria-hidden="true"><label for="regWebsite">Site web</label>
+          <input type="text" id="regWebsite" name="website" tabindex="-1" autocomplete="off" value=""></div>
         <?= csrf_field() ?>
         <div class="login-logo"><img src="<?= h(asset('assets/images/logo.png')) ?>" alt="<?= h(APP_NAME) ?>"></div>
         <h1>Créer un compte</h1>

@@ -15,6 +15,11 @@ class AlbumController extends Controller
     /** GET ?page=albums - Listing public des albums publiés. */
     public function index(): void
     {
+        // Albums publiés uniquement (AlbumService::published) : la copie
+        // anonyme peut être conservée hors ligne. Les images `uploads/` ne
+        // sont jamais mises en cache (dossier mixte, plan §5.2).
+        pwa_mark_public_cacheable('albums');
+
         $service = new AlbumService();
         $albums = $service->published();
         $years = $service->years();
@@ -61,6 +66,8 @@ class AlbumController extends Controller
         if ($album === null) {
             redirect('index.php', ['page' => 'albums']);
         }
+
+        pwa_mark_public_cacheable('album');
 
         echo view('layouts/public', [
             'title'         => $album['titre'] . ' - ' . APP_NAME,

@@ -13,6 +13,11 @@ class PublicController extends Controller
     /** GET ?page=eglise (et `/` pour un visiteur anonyme). */
     public function index(): void
     {
+        // Vitrine publique : seule page dont la copie anonyme peut être
+        // conservée par le Service Worker (plan §10). L'en-tête n'est posé
+        // que si la réponse est réellement anonyme - voir pwa_mark_public_cacheable().
+        pwa_mark_public_cacheable('eglise');
+
         $service = public_site_service();
         $data = $service->landing();
         $canonical = str_starts_with(APP_URL, 'http') ? url('index.php', ['page' => 'eglise']) : '';
@@ -60,6 +65,8 @@ class PublicController extends Controller
         if ($text === '') {
             $this->redirect('index.php', ['page' => 'eglise']);
         }
+
+        pwa_mark_public_cacheable($route);
 
         echo view('layouts/public', [
             'title'     => $title . ' - ' . $data['nom'],

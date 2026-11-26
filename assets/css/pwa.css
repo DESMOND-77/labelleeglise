@@ -1,0 +1,240 @@
+/* ============================================================
+   La Belle Église Internationale Franceville - PWA / hors ligne
+   ------------------------------------------------------------
+   Pastille d'état, toasts, tiroir « Données hors ligne »,
+   modales de conflit, bannière de mise à jour, champ piège.
+   Tokens repris de variables.css (encre / crème / laiton).
+   ============================================================ */
+
+/* ---------- Champ piège anti-robot (jamais visible) ---------- */
+.pwa-hp {
+  position: absolute !important;
+  left: -9999px !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---------- Pastille d'état ---------- */
+.pwa-pill {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 1200;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: min(92vw, 26rem);
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong, #D6CDB8);
+  background: var(--card, #fff);
+  color: var(--text, #1A1F33);
+  font: 600 0.82rem/1.2 var(--font-sans, system-ui, sans-serif);
+  box-shadow: 0 10px 26px rgba(11, 16, 32, 0.16);
+  cursor: pointer;
+}
+.pwa-pill[hidden] { display: none; }
+.pwa-pill i { font-size: 0.9rem; }
+.pwa-pill-ok { border-color: var(--success, #22C55E); color: var(--success-text, #15803D); background: var(--success-soft, #E7F8EE); }
+.pwa-pill-offline { border-color: var(--warning, #F59E0B); color: var(--warning-text, #92400E); background: var(--warning-soft, #FEF3E2); }
+.pwa-pill-pending,
+.pwa-pill-draft { border-color: var(--accent, #C9A84C); color: var(--accent-ink, #7C5F1F); background: var(--primary-soft, #F2ECE0); }
+.pwa-pill-syncing { border-color: var(--accent, #C9A84C); color: var(--accent-ink, #7C5F1F); background: var(--primary-soft, #F2ECE0); }
+.pwa-pill-conflict,
+.pwa-pill-warn,
+.pwa-pill-auth { border-color: var(--danger, #EF4444); color: var(--danger-text, #B91C1C); background: var(--danger-soft, #FDEBEB); }
+
+/* ---------- Toasts ---------- */
+.pwa-toasts {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 64px;
+  z-index: 1300;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(94vw, 30rem);
+}
+.pwa-toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius, 12px);
+  border: 1px solid var(--border-strong, #D6CDB8);
+  background: var(--card, #fff);
+  color: var(--text, #1A1F33);
+  font: 500 0.86rem/1.4 var(--font-sans, system-ui, sans-serif);
+  box-shadow: 0 12px 30px rgba(11, 16, 32, 0.18);
+}
+.pwa-toast span { flex: 1; }
+.pwa-toast-ok { border-color: var(--success, #22C55E); background: var(--success-soft, #E7F8EE); }
+.pwa-toast-warn { border-color: var(--danger, #EF4444); background: var(--danger-soft, #FDEBEB); }
+.pwa-toast-pending,
+.pwa-toast-info { border-color: var(--accent, #C9A84C); background: var(--primary-soft, #F2ECE0); }
+.pwa-toast button {
+  border: 1px solid var(--border-strong, #D6CDB8);
+  background: var(--card, #fff);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font: 600 0.78rem/1.2 var(--font-sans, system-ui, sans-serif);
+  color: var(--text, #1A1F33);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.pwa-toast-close { border: none !important; background: transparent !important; font-size: 1.1rem; padding: 0 4px !important; }
+
+/* ---------- Tiroir ---------- */
+.pwa-drawer { position: fixed; inset: 0; z-index: 1400; }
+.pwa-drawer[hidden] { display: none; }
+.pwa-drawer-backdrop { position: absolute; inset: 0; background: rgba(11, 16, 32, 0.45); }
+.pwa-drawer-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(96vw, 30rem);
+  background: var(--bg, #FAF6EE);
+  border-left: 1px solid var(--border, #E7E0D1);
+  display: flex;
+  flex-direction: column;
+  box-shadow: -18px 0 44px rgba(11, 16, 32, 0.22);
+}
+body.pwa-drawer-open { overflow: hidden; }
+.pwa-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: var(--sidebar-bg, #0B1020);
+  color: #F4F1EA;
+}
+.pwa-drawer-head h2 { margin: 0; font: 600 1rem/1.2 var(--font-sans, system-ui, sans-serif); }
+.pwa-drawer-close {
+  background: transparent;
+  border: none;
+  color: #F4F1EA;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.pwa-drawer-body { padding: 16px 18px 32px; overflow-y: auto; }
+
+/* Conteneur de la page dédiée (même rendu que le tiroir) */
+.pwa-panel { display: block; }
+.pwa-loading { color: var(--text-muted, #5B6472); font-size: 0.9rem; }
+
+/* ---------- Sections du panneau ---------- */
+.pwa-section {
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #E7E0D1);
+  border-radius: var(--radius, 12px);
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+.pwa-section h3 { margin: 0 0 8px; font: 600 0.95rem/1.3 var(--font-sans, system-ui, sans-serif); color: var(--text, #1A1F33); }
+.pwa-section-danger { border-color: var(--danger, #EF4444); background: var(--danger-soft, #FDEBEB); }
+.pwa-hint { margin: 4px 0; color: var(--text-muted, #5B6472); font-size: 0.83rem; line-height: 1.5; }
+.pwa-error { margin: 4px 0; color: var(--danger-text, #B91C1C); font-size: 0.83rem; }
+.pwa-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; align-items: center; }
+.pwa-actions .btn { margin: 0; }
+
+.pwa-item {
+  border: 1px solid var(--border, #E7E0D1);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin: 8px 0;
+  background: var(--bg, #FAF6EE);
+}
+.pwa-item-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.pwa-item-head strong { font-size: 0.88rem; color: var(--text, #1A1F33); }
+
+.pwa-pin-input {
+  border: 1px solid var(--border-strong, #D6CDB8);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font: 500 0.86rem/1.2 var(--font-sans, system-ui, sans-serif);
+  background: var(--card, #fff);
+  color: var(--text, #1A1F33);
+  width: 100%;
+  margin: 4px 0;
+}
+
+/* ---------- Modales ---------- */
+.pwa-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+  background: rgba(11, 16, 32, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+.pwa-modal-box {
+  background: var(--card, #fff);
+  border-radius: var(--radius, 12px);
+  border: 1px solid var(--border, #E7E0D1);
+  padding: 18px 20px;
+  max-width: min(94vw, 40rem);
+  max-height: 86vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 60px rgba(11, 16, 32, 0.3);
+}
+.pwa-modal-box h3 { margin: 0 0 8px; font: 600 1rem/1.3 var(--font-sans, system-ui, sans-serif); }
+
+.pwa-conflict-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+  font-size: 0.82rem;
+}
+.pwa-conflict-table th,
+.pwa-conflict-table td {
+  border: 1px solid var(--border, #E7E0D1);
+  padding: 6px 8px;
+  text-align: left;
+  vertical-align: top;
+  word-break: break-word;
+}
+.pwa-conflict-table th { background: var(--primary-soft, #F2ECE0); color: var(--text, #1A1F33); }
+
+/* ---------- Bannière de mise à jour ---------- */
+.pwa-update-banner {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 12px;
+  z-index: 1600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--accent, #C9A84C);
+  background: var(--primary-soft, #F2ECE0);
+  color: var(--accent-ink, #7C5F1F);
+  font: 600 0.85rem/1.2 var(--font-sans, system-ui, sans-serif);
+  box-shadow: 0 12px 30px rgba(11, 16, 32, 0.2);
+}
+
+/* ---------- Page dédiée & divers ---------- */
+.pwa-alerts { margin-bottom: 12px; }
+.pwa-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.pwa-chips .badge { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.pwa-notes { margin: 6px 0 0; padding-left: 1.2rem; color: var(--text-soft, #4B5563); font-size: 0.88rem; line-height: 1.6; }
+.pwa-restore { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 12px; }
+.pwa-restore span { flex: 1 1 100%; }
+
+@media (max-width: 640px) {
+  .pwa-pill { right: 10px; bottom: 10px; font-size: 0.76rem; }
+  .pwa-toasts { bottom: 56px; }
+}
+
+@media print {
+  .pwa-pill, .pwa-toasts, .pwa-drawer, .pwa-update-banner, .pwa-modal { display: none !important; }
+}

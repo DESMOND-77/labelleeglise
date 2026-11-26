@@ -1196,6 +1196,48 @@ function up(): void
         }
     }
 
+    /* ---- 21. PWA - Journal d'idempotence de la synchronisation hors ligne ----
+     * Plan `docs/plans/pwa-offline-sync-implementation-plan.md` §7.3.
+     *
+     * Une ligne = une opération métier envoyée par le client hors ligne,
+     * identifiée par un UUID généré côté client. La contrainte UNIQUE sur
+     * `operation_id` est ce qui garantit qu'une opération rejouée (réponse
+     * réseau perdue, lot partiellement traité, double clic) n'est jamais
+     * appliquée deux fois.
+     *
+     * Aucune donnée de formulaire n'est stockée ici : uniquement l'empreinte
+     * SHA-256 du payload (détection de l'anomalie « même UUID, contenu
+     * différent »), l'état final, l'entité produite et l'accusé de réception
+     * amputé de l'état serveur (rechargé à la demande en cas de conflit).
+     */
+    $pdo->exec("CREATE TABLE IF NOT EXISTS pwa_sync_operations (
+        id INT NOT NULL AUTO_INCREMENT,
+        operation_id CHAR(36) NOT NULL,
+        user_id INT NULL,
+        account_scope VARCHAR(32) NULL,
+        op_type VARCHAR(40) NOT NULL,
+        op_action VARCHAR(40) NOT NULL,
+        schema_version SMALLINT NOT NULL DEFAULT 1,
+        payload_hash CHAR(64) NOT NULL,
+        entity_type VARCHAR(40) NULL,
+        entity_id INT NULL,
+        status VARCHAR(20) NOT NULL DEFAULT 'processing',
+        result_code VARCHAR(40) NULL,
+        result_message VARCHAR(255) NULL,
+        ack_json MEDIUMTEXT NULL,
+        attempts INT NOT NULL DEFAULT 1,
+        correlation_id CHAR(36) NOT NULL,
+        ip_hash CHAR(64) NULL,
+        created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY (id),
+        UNIQUE KEY uniq_pwa_operation (operation_id),
+        KEY idx_pwa_user_status (user_id, status),
+        KEY idx_pwa_entity (entity_type, entity_id),
+        KEY idx_pwa_public_rate (ip_hash, created_at),
+        CONSTRAINT fk_pwa_sync_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
 }
 
 /** Vérifie si une colonne existe déjà (idempotence des ALTER TABLE). */
@@ -1226,7 +1268,7 @@ function index_exists(\PDO $pdo, string $table, string $index): bool
 function down(): void
 {
     $pdo = Database::connection();
-    $tables = ['rapport_audit_logs', 'rapport_scoring_results', 'rapport_scoring_rules', 'rapport_reminder_logs', 'rapport_occurrence_responsables', 'rapport_occurrences', 'rapport_settings', 'suivi_hebdo_observations', 'nouveaux_membres_attributions', 'nouveaux_membres', 'faq_publique', 'site_settings', 'centre_horaires', 'responsibilities', 'notifications', 'users_basontas', 'presences', 'evenements', 'anniversaires', 'rapports_jour', 'bus_budget', 'classe_inscrits', 'classes', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
+    $tables = ['pwa_sync_operations', 'rapport_audit_logs', 'rapport_scoring_results', 'rapport_scoring_rules', 'rapport_reminder_logs', 'rapport_occurrence_responsables', 'rapport_occurrences', 'rapport_settings', 'suivi_hebdo_observations', 'nouveaux_membres_attributions', 'nouveaux_membres', 'faq_publique', 'site_settings', 'centre_horaires', 'responsibilities', 'notifications', 'users_basontas', 'presences', 'evenements', 'anniversaires', 'rapports_jour', 'bus_budget', 'classe_inscrits', 'classes', 'offrandes', 'visites', 'suivi_hebdo', 'dimes',
                'examens', 'veillees', 'cultes', 'basontas', 'bacentas', 'users',
                'centres_presentation', 'equipe', 'presentation', 'centres',
                'album_photos', 'albums'];

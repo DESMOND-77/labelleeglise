@@ -59,7 +59,29 @@ $val = function (string $k, $default = '') use ($old, $report) {
   <?php if (!empty($errors['_form'])): ?><div class="alert alert-danger"><?= h($errors['_form']) ?></div><?php endif; ?>
   <?php if ($report && !$canEdit): ?><div class="alert alert-info">Rapport créé par une autre personne - consultation seule.</div><?php endif; ?>
 
-  <form method="post" action="index.php" class="form-card rapport-form">
+<?php
+  /* Formulaire EXPLICITEMENT compatible hors ligne (plan §9.1) : brouillon
+     local chiffré, puis soumission revalidée côté serveur (période,
+     occurrence, responsable, règles de crédit). L'empreinte de base vient du
+     serveur : elle sert à détecter tout changement intervenu entre la lecture
+     et l'envoi - jamais à autoriser quoi que ce soit. */
+  $pwaRapportState = $report ? pwa_sync_service()->rapportState($report) : [];
+  $pwaRapportFingerprint = $report ? pwa_sync_service()->rapportFingerprint($report) : '';
+  $pwaRapportUrl = $report
+      ? url('index.php', ['page' => 'rapport', 'id' => (int) $report['id']])
+      : url('index.php', array_filter([
+          'page' => 'rapport',
+          'centre' => (int) $centreId,
+          'date' => $date,
+          'type' => $scopeType ?? 'bacenta',
+          'bacenta' => (int) ($bacentaId ?? 0) ?: null,
+      ], static fn($v) => $v !== null && $v !== ''));
+  $pwaAttrs = $canEdit ? pwa_form_attrs('rapport_jour', 'save', $pwaRapportFingerprint, $pwaRapportState, [
+      'data-pwa-entity-id' => (string) (int) ($report['id'] ?? 0),
+      'data-pwa-form-url'  => $pwaRapportUrl,
+  ]) : '';
+?>
+  <form method="post" action="index.php" class="form-card rapport-form"<?= $pwaAttrs ?>>
     <input type="hidden" name="action" value="save_rapport_jour">
     <?= $csrf ?>
     <?php if (!empty($retour)): ?><input type="hidden" name="retour" value="<?= h($retour) ?>"><?php endif; ?>

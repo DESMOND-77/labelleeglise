@@ -17,7 +17,21 @@
 </div>
 <div class="week-range-label"><?= h($weekRange) ?></div>
 
-<form method="post" action="index.php">
+<?php
+/* Formulaire EXPLICITEMENT compatible hors ligne (plan §9.1) : saisie du suivi
+   hebdomadaire personnel. Le propriétaire (ou l'admin) est recontrôlé au
+   commit ; l'empreinte de base détecte toute modification concurrente de la
+   semaine et impose une résolution explicite. */
+$pwaSuiviFingerprint = pwa_sync_service()->suiviFingerprint((int) $member['id'], (string) $weekKey, (array) $week);
+$pwaSuiviSnapshot = pwa_sync_service()->suiviState((array) $week);
+$pwaSuiviCanWrite = $isAdmin || (int) $member['id'] === (int) (current_user()['id'] ?? 0);
+$pwaSuiviAttrs = $pwaSuiviCanWrite ? pwa_form_attrs('suivi_hebdo', 'save', $pwaSuiviFingerprint, $pwaSuiviSnapshot, [
+    'data-pwa-entity-id' => (string) (int) $member['id'],
+    'data-pwa-entity-key' => (int) $member['id'] . '|' . $weekKey,
+    'data-pwa-form-url'  => url('index.php', ['page' => 'suiviBergers', 'membre' => (int) $member['id'], 'semaine' => $weekKey]),
+]) : '';
+?>
+<form method="post" action="index.php"<?= $pwaSuiviAttrs ?>>
   <input type="hidden" name="action" value="save_suivi">
   <?= $csrf ?>
   <input type="hidden" name="membre" value="<?= h($member['id']) ?>">

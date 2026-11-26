@@ -1,12 +1,17 @@
 {
-  "name": "La Belle Église Intenationale Franceville",
+  "name": "La Belle Église Internationale Franceville",
   "short_name": "LBEGF",
-  "description": "Plateforme de gestion des membres, bacentas, centres et finances de La Belle Église Intenationale Franceville.",
-  "start_url": "../../index.php",
+  "description": "Vitrine publique et espace de gestion de La Belle Église Internationale Franceville : horaires, centres, membres, bacentas, rapports et finances.",
+  "id": "/",
+  "start_url": "/index.php",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#4F46E5",
-  "orientation": "portrait-primary",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "background_color": "#0B1020",
+  "theme_color": "#0B1020",
   "icons": [
     {
       "src": "favicon.svg",
@@ -15,16 +20,34 @@
       "purpose": "any"
     },
     {
+      "src": "favicon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
       "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "categories": [

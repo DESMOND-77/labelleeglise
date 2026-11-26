@@ -124,6 +124,9 @@ labelleeglise/
 - **Paramètres** : comptes (CRUD users) + attribution des responsables.
 - **Présentation** : à propos + équipe + articles des centres.
 - **Recherche globale** (admin) → fiche profil avec donut de présence.
+- **PWA & mode hors ligne** : installation Android/desktop, vitrine publique
+  consultable hors connexion, brouillons chiffrés et synchronisation
+  idempotente des saisies autorisées (voir §8).
 
 ---
 
@@ -146,6 +149,9 @@ labelleeglise/
 - [ARCHITECTURE.md](ARCHITECTURE.md) - décision d'architecture, principes SOLID/DRY/KISS.
 - [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) - rôle de chaque dossier/fichier.
 - [CONTRIBUTING.md](CONTRIBUTING.md) - conventions, PSR-12, workflow de contribution.
+- [docs/plans/pwa-offline-sync-implementation-plan.md](docs/plans/pwa-offline-sync-implementation-plan.md) -
+  spécification PWA / hors ligne ; état d'implémentation dans
+  [docs/plans/pwa-offline-sync-implementation-status.md](docs/plans/pwa-offline-sync-implementation-status.md).
 
 ---
 
@@ -299,4 +305,52 @@ tout dans une transaction SQL unique (`Query::transaction()`).
 | Activer / refuser une inscription     | `role = admin` uniquement (contrôle serveur) |
 | Voir/marquer ses notifications        | Le destinataire connecté (`recipient_id`) |
 | Affecter des membres à un bacenta     | `role = admin`, ou `role = responsable` **uniquement pour les bacentas qu'il gère** |
-</content>
+
+---
+
+## 8. PWA & mode hors ligne (vitrine + espace de gestion)
+
+Spécification : [docs/plans/pwa-offline-sync-implementation-plan.md](docs/plans/pwa-offline-sync-implementation-plan.md).
+État et recette : [docs/plans/pwa-offline-sync-implementation-status.md](docs/plans/pwa-offline-sync-implementation-status.md).
+
+### 8.1 Ce que fait la PWA
+
+- **Installation** de la vitrine publique et de l'espace de gestion
+  (Android, desktop) : manifeste corrigé, Service Worker à la racine,
+  icônes `any` + `maskable`, aucune orientation imposée.
+- **Consultation hors ligne** de la vitrine publique déjà visitée et des
+  ressources statiques ; page de secours avec date de dernière actualisation.
+  Les pages de gestion, JSON privés, cookies, exports et `uploads/` ne sont
+  **jamais** mis en cache.
+- **Saisie hors ligne** des opérations explicitement autorisées
+  (`Config/pwa.php`) : brouillons de rapport du jour, suivi hebdomadaire
+  personnel, demande d'inscription publique (mot de passe redemandé à
+  l'envoi). Brouillons chiffrés AES-GCM dans IndexedDB, cloisonnés par compte.
+- **Synchronisation** au retour du réseau : jeton CSRF frais, ré-authentification,
+  ré-autorisation (rôle, responsabilité, périmètre relus en base), revalidation,
+  idempotence par UUID (`pwa_sync_operations`), accusés individuels, conflits
+  résolus explicitement (jamais d'écrasement silencieux).
+- **Écran « Données hors ligne »** (menu profil) : file d'attente, conflits,
+  coffre PIN, conservation, purge par compte, journal serveur.
+
+### 8.2 Règle fondamentale
+
+Une saisie hors ligne n'est **ni validée ni enregistrée** tant que le serveur
+ne l'a pas authentifiée, autorisée, validée et commitée. L'interface affiche
+toujours « en attente de synchronisation », jamais « enregistré ».
+
+### 8.3 Configuration et rollback
+
+Variables `.env` (voir `.env.example`) : `PWA_ENABLED`, `PWA_OFFLINE_CAPTURE`,
+`PWA_SERVICE_WORKER`, `PWA_VAULT_MODE` (`simple`|`pin`), `PWA_RETENTION_DAYS`,
+`PWA_LOGOUT_POLICY`, `PWA_OP_RAPPORT_JOUR`, `PWA_OP_SUIVI_HEBDO`,
+`PWA_OP_PUBLIC_REGISTER`. Chaque fonctionnalité est désactivable sans
+toucher au code ; l'application classique continue de fonctionner.
+
+### 8.4 Vérifications
+
+```bash
+php tests/pwa-smoke.php          # cohérence config/routes/manifest/SW/layouts
+node --check sw.js               # syntaxe du Service Worker
+for f in assets/js/pwa/*.js; do node --check "$f"; done
+```

@@ -119,3 +119,20 @@ define('UPLOAD_DIR', (isset($appConfig['upload_dir']) && $appConfig['upload_dir'
     ? $appConfig['upload_dir']
     : APP_PUBLIC_PATH . '/' . ($appConfig['upload_dir'] ?? 'uploads'));
 define('MAX_PHOTO_BYTES', $appConfig['max_upload'] ?? 4 * 1024 * 1024);
+
+/* ---------- PWA / mode hors ligne (plan docs/plans/pwa-offline-sync-*) ---------- */
+
+// Helpers dédiés (configuration, racine de déploiement, en-têtes de cache,
+// empreintes de concurrence, injection dans les layouts).
+require_once APP_PATH . '/app/Helpers/pwa.php';
+
+// Toute réponse dynamique de l'application est non conservable par défaut
+// (plan §5.2) : aucune page de gestion, aucun JSON privé, aucune réponse
+// liée à une session ne doit finir dans un cache HTTP ou dans Cache Storage.
+// Les pages publiques allowlistées sont promues explicitement par
+// pwa_mark_public_cacheable() côté contrôleur - l'autorisation de mise en
+// cache reste donc une décision serveur, jamais une hypothèse du client.
+if (PHP_SAPI !== 'cli' && !headers_sent()) {
+    header('X-Content-Type-Options: nosniff', true);
+    pwa_send_no_store_headers();
+}

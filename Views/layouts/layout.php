@@ -226,9 +226,14 @@ if (in_array($page, ['bacentas', 'cultes', 'basontas'], true) && nav('id')) {
 <link rel="icon" href="<?= h(asset('assets/images/favicon.svg')) ?>" type="image/svg+xml" sizes="any">
 <link rel="icon" href="<?= h(asset('assets/images/favicon.ico')) ?>">
 <link rel="apple-touch-icon" href="<?= h(asset('assets/images/apple-touch-icon.png')) ?>">
+<?php if (!pwa_enabled()): ?>
 <link rel="manifest" href="<?= h(asset('assets/images/site.webmanifest')) ?>">
+<?php endif; ?>
 <meta name="theme-color" content="#0B1020" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0B1020" media="(prefers-color-scheme: dark)">
+<!-- PWA : manifest dynamique (URLs résolues selon la racine de déploiement),
+     feuille de style et charge utile d'amorçage du client hors ligne. -->
+<?= pwa_head_tags() ?>
 
 <?php
 // Cache-busting : l'hébergeur/le navigateur gardent app.css (et ses @import) en cache.
@@ -316,6 +321,7 @@ foreach (glob(__DIR__ . '/../../assets/css/*.css') ?: [] as $cssFile) {
               <span><?= h(ROLE_LABELS[$user['role']] ?? $user['role']) ?></span>
             </div>
             <a class="profile-menu-item" href="<?= h(url('index.php', ['page' => 'profile'])) ?>"><i class="fa-solid fa-user-pen"></i> Mon profil</a>
+            <?php if (pwa_enabled()): ?><a class="profile-menu-item" href="<?= h(url('index.php', ['page' => 'pwa_offline'])) ?>"><i class="fa-solid fa-cloud-arrow-down"></i> Données hors ligne</a><?php endif; ?>
             <a class="profile-menu-item" href="<?= h(url('index.php', ['page' => 'eglise'])) ?>"><i class="fa-solid fa-circle-info"></i> Notre église</a>
             <a class="profile-menu-item danger" href="<?= h(url('index.php', ['action' => 'logout'])) ?>"><i class="fa-solid fa-arrow-right-from-bracket"></i> Déconnexion</a>
           </div>
@@ -338,5 +344,6 @@ foreach (glob(__DIR__ . '/../../assets/css/*.css') ?: [] as $cssFile) {
 <script src="assets/js/table-paginate.js" defer></script>
 <?php if (($page ?? '') === 'site_public'): ?><script src="assets/js/admin_site.js" defer></script><?php endif; ?>
 <?php if (($page ?? '') === 'agenda'): ?><script src="assets/js/agenda.js" defer></script><?php endif; ?>
+<?= pwa_foot_tags() ?>
 </body>
 </html>

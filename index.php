@@ -22,6 +22,24 @@ if (isset($_GET['action']) && $_GET['action'] !== '') {
 
 use App\Controllers\RegistrationController;
 
+/* ---------- API JSON (PWA : synchronisation hors ligne) ----------
+ * Placée AVANT le dispatch des POST : une requête `POST index.php?api=...`
+ * ne doit jamais retomber dans ActionsController::postAction(). Le routeur
+ * maison reste l'unique table de routage (pas de second front controller).
+ */
+if (isset($_GET['api']) && trim((string) $_GET['api']) !== '') {
+    require_once __DIR__ . '/Routes/web.php';
+    $apiMethod = ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' ? 'POST' : 'GET';
+    if (Router::dispatch($apiMethod, trim((string) $_GET['api']))) {
+        exit;
+    }
+    App\Core\Response::json([
+        'ok'      => false,
+        'error'   => 'unknown_endpoint',
+        'message' => 'Point d’API introuvable.',
+    ], 404);
+}
+
 /* ---------- Actions en POST (écritures, login, porte d'accès, inscription) ---------- */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $route = $_POST['action'] ?? '';

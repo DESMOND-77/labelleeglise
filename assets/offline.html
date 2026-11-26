@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0B1020">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Hors connexion — La Belle Église Internationale Franceville</title>
+  <!-- Page de secours statique : aucune donnée privée, aucun appel serveur.
+       Seul le stockage local (Cache Storage) est lu pour afficher la date de
+       dernière actualisation connue de la vitrine publique. -->
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      font-family: "DM Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: #f5f6fa; color: #1c2333; padding: 24px;
+    }
+    .card {
+      background: #fff; border: 1px solid #e3e6ee; border-radius: 16px;
+      padding: 32px; max-width: 34rem; width: 100%;
+      box-shadow: 0 12px 32px rgba(11, 16, 32, .08); text-align: center;
+    }
+    .card img { width: 72px; height: auto; margin-bottom: 8px; }
+    h1 { font-size: 1.4rem; margin: .4rem 0 .2rem; color: #0b1020; }
+    p { line-height: 1.55; color: #4a5265; }
+    .status {
+      display: inline-flex; align-items: center; gap: .5rem; margin-top: 4px;
+      background: #fdf3e7; color: #8a5a12; border: 1px solid #f0d9b5;
+      border-radius: 999px; padding: .35rem .9rem; font-size: .85rem; font-weight: 600;
+    }
+    .status .dot { width: 8px; height: 8px; border-radius: 50%; background: #d9822b; }
+    .meta { font-size: .82rem; color: #7a8194; margin-top: 12px; }
+    .actions { margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: .45rem; border-radius: 10px;
+      padding: .6rem 1.1rem; font-size: .92rem; font-weight: 600; text-decoration: none;
+      border: 1px solid transparent; cursor: pointer;
+    }
+    .btn-primary { background: #2b3a67; color: #fff; }
+    .btn-outline { background: #fff; color: #2b3a67; border-color: #c8cede; }
+    ul { text-align: left; color: #4a5265; font-size: .9rem; line-height: 1.6; padding-left: 1.2rem; }
+  </style>
+</head>
+
+<body>
+  <main class="card">
+    <img src="assets/images/logo.png" alt="La Belle Église Internationale Franceville">
+    <h1>Vous êtes hors connexion</h1>
+    <span class="status"><span class="dot"></span> Réseau indisponible</span>
+    <p>
+      Cette page ne peut pas être affichée sans réseau, et aucune copie locale
+      n’est autorisée pour les contenus privés ou non consultés récemment.
+    </p>
+    <ul>
+      <li>Vos saisies en attente sont conservées <strong>sur cet appareil</strong> :
+        elles partiront automatiquement au retour du réseau.</li>
+      <li>La vitrine publique déjà consultée reste lisible depuis l’application installée.</li>
+      <li>Horaires, événements et albums peuvent avoir changé depuis votre dernière visite.</li>
+      <li>Cartes, vidéos et contenus externes ne sont pas garantis hors ligne.</li>
+    </ul>
+    <p class="meta" id="lastRefresh">Dernière actualisation connue de la vitrine : inconnue.</p>
+    <div class="actions">
+      <button class="btn btn-primary" type="button" onclick="location.reload()">Réessayer</button>
+      <a class="btn btn-outline" href="index.php">Ouvrir l’application</a>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+      // Date de dernière actualisation : écrite par le Service Worker dans
+      // Cache Storage lorsqu'une page publique a été mise en cache. Aucune
+      // donnée privée n'y figure.
+      if (!("caches" in window)) { return; }
+      caches.keys().then(function (names) {
+        // Le Service Worker écrit le marqueur d'actualisation dans le cache
+        // public (lbe-public-<version>) ; on balaie aussi les caches statiques
+        // par prudence, sans jamais toucher au stockage local (IndexedDB).
+        var candidates = names.filter(function (n) {
+          return n.indexOf("lbe-public-") === 0 || n.indexOf("lbe-static-") === 0;
+        });
+        var chain = Promise.resolve(null);
+        candidates.forEach(function (name) {
+          chain = chain.then(function (found) {
+            if (found) { return found; }
+            return caches.open(name).then(function (cache) {
+              return cache.keys().then(function (requests) {
+                var hit = null;
+                requests.forEach(function (r) {
+                  if (r.url.indexOf("__lbe_pwa_config__?refreshed") !== -1) { hit = r; }
+                });
+                return hit ? cache.match(hit) : null;
+              });
+            }).then(function (response) {
+              return response ? response.json() : null;
+            }).catch(function () { return null; });
+          });
+        });
+        return chain;
+      }).then(function (info) {
+        var el = document.getElementById("lastRefresh");
+        if (!el) { return; }
+        if (info && info.refreshed_at) {
+          var date = new Date(info.refreshed_at);
+          el.textContent = "Dernière actualisation connue de la vitrine : "
+            + date.toLocaleDateString("fr-FR") + " à " + date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) + ".";
+        }
+      }).catch(function () { /* silence : l'affichage par défaut suffit */ });
+    })();
+  </script>
+</body>
+
+</html>

@@ -33,6 +33,7 @@ use App\Controllers\PublicController;
 use App\Controllers\AdminSiteController;
 use App\Controllers\NouveauMembreController;
 use App\Controllers\AlbumController;
+use App\Controllers\PwaSyncController;
 
 /* ---------- Authentification (POST) ---------- */
 Router::post('login', AuthController::class, 'login');
@@ -115,3 +116,19 @@ Router::get('admin_inscription', AdminRegistrationController::class, 'show');
 
 /* ---------- Centre de notifications ---------- */
 Router::get('notifications', NotificationController::class, 'index');
+
+/* ---------- PWA : API JSON de synchronisation hors ligne ----------
+ * Le mode hors ligne n'est jamais un contournement de l'autorisation serveur
+ * (plan §1) : ces routes ré-authentifient, ré-autorisent et revalident chaque
+ * opération avant de la committer. Elles ne réutilisent PAS le POST HTML
+ * historique comme API (plan §7.1).
+ */
+Router::get('pwa/v1/manifest', PwaSyncController::class, 'manifest');
+Router::get('pwa/v1/assets', PwaSyncController::class, 'assets');
+Router::get('pwa/v1/bootstrap', PwaSyncController::class, 'bootstrap');
+Router::get('pwa/v1/status', PwaSyncController::class, 'status');
+Router::post('pwa/v1/sync', PwaSyncController::class, 'sync');
+Router::post('pwa/v1/public/register', PwaSyncController::class, 'publicRegister');
+
+/* ---------- PWA : écran de gestion des données hors ligne (session requise) ---------- */
+Router::get('pwa_offline', PwaSyncController::class, 'panel');
