@@ -17,12 +17,12 @@ use App\Core\Query;
 /* ---------- Centres ---------- */
 
 function delete_centre(int $id): void { _repo(CentreRepository::class)->delete($id); }
-function save_centre(?int $id, string $nom): void
+function save_centre(?int $id, string $nom, ?int $respId, ?string $jours = null, ?string $debut = null, ?string $fin = null): void
 {
     if ($id) {
-        _repo(CentreRepository::class)->update($id, $nom);
+        _repo(CentreRepository::class)->update($id, $nom, $respId, $jours, $debut, $fin);
     } else {
-        _repo(CentreRepository::class)->create($nom);
+        _repo(CentreRepository::class)->create($nom, $respId, $jours, $debut, $fin);
     }
 }
 

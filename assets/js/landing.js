@@ -1,4 +1,4 @@
-/* Vitrine publique — interactions légères (aucune dépendance).
+/* Vitrine publique - interactions légères (aucune dépendance).
    1. Marqueur `js` posé immédiatement (dégradation sans JS).
    2. Menu mobile accessible (aria-expanded, Échap, retour du focus).
    3. En-tête densifié après défilement.

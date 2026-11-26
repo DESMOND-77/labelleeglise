@@ -63,7 +63,12 @@ define('SECTION_LABELS', [
     'agenda'             => 'Agenda',
     'calendrier'         => 'Calendrier',
     'anniversaires'      => 'Anniversaires',
-    'rapports'           => 'Rapports du Jour',
+    'rapports'           => 'Rapports',
+    'rapport_suivi'      => 'Suivi des rapports',
+    'rapport_dashboard'  => 'Tableau de bord - Rapports',
+    'rapport_classement' => 'Classement & félicitations',
+    'rapport_responsable'=> 'Suivi d\'un responsable',
+    'rapport_parametres' => 'Suivi rapports - Paramètres',
     'classes'            => 'Classes & Écoles',
     'budgetBus'          => 'Budget Bus',
     'finances'           => 'Finances & Offrandes',
@@ -89,10 +94,16 @@ define('SECTION_ICONS', [
     'generale'           => '<i class="fa-solid fa-clipboard-list"></i>',
     'bergers'            => '<i class="fa-solid fa-people-roof"></i>',
     'suiviBergers'       => '<i class="fa-solid fa-calendar-days"></i>',
+    'bergerFiche'        => '<i class="fa-solid fa-clipboard-list"></i>',
     'agenda'             => '<i class="fa-solid fa-calendar-days"></i>',
     'calendrier'         => '<i class="fa-solid fa-calendar-day"></i>',
     'anniversaires'      => '<i class="fa-solid fa-cake-candles"></i>',
     'rapports'           => '<i class="fa-solid fa-file-lines"></i>',
+    'rapport_suivi'      => '<i class="fa-solid fa-clipboard-check"></i>',
+    'rapport_dashboard'  => '<i class="fa-solid fa-chart-line"></i>',
+    'rapport_classement' => '<i class="fa-solid fa-trophy"></i>',
+    'rapport_responsable'=> '<i class="fa-solid fa-user-check"></i>',
+    'rapport_parametres' => '<i class="fa-solid fa-sliders"></i>',
     'classes'            => '<i class="fa-solid fa-graduation-cap"></i>',
     'budgetBus'          => '<i class="fa-solid fa-bus"></i>',
     'finances'           => '<i class="fa-solid fa-sack-dollar"></i>',
@@ -114,6 +125,8 @@ define('NOTIFICATION_TYPE_ICONS', [
     'new_registration' => '<i class="fa-solid fa-user-plus"></i>',
     'account_activated' => '<i class="fa-solid fa-circle-check"></i>',
     'rapport_jour' => '<i class="fa-solid fa-file-lines"></i>',
+    'rapport_rappel' => '<i class="fa-solid fa-bell"></i>',
+    'rapport_bilan' => '<i class="fa-solid fa-ranking-star"></i>',
 ]);
 
 /* ---------- Nouveaux membres (suivi pré-intégration) ---------- */
@@ -125,26 +138,56 @@ define('NOUVEAU_MEMBRE_STATUT_LABELS', [
     'integre'          => 'Intégré',
 ]);
 
-// "apropos" doit rester en toute première position du menu (exigence produit).
-define('NAV_ORDER', [
-    'apropos',
-    'centresPresentation',
-    'accueil',
-    'bacentas',
-    'centres',
-    'cultes',
-    'basontas',
-    'nouveaux_membres',
-    'generale',
-    'bergers',
-    'suiviBergers',
-    'finances',
-    'agenda',
+// Navigation latérale par domaines fonctionnels (plan §13).
+// "apropos" et "centresPresentation" restent en première position (exigence produit) :
+// ils sont fournis par le bloc public de la coquille, hors groupes repliables.
+// Les groupes sont des conteneurs visuels repliables : PAS de nouvelles permissions.
+// Chaque lien conserve son contrôle d'accès actuel ; un utilisateur ne voit que
+// les éléments qu'il est autorisé à ouvrir ; un groupe vide n'est pas rendu.
+define('NAV_GROUPS', [
+    'perso' => [
+        'label' => 'Mon espace',
+        'icon'  => 'fa-solid fa-user',
+        'items' => ['bergerFiche', 'suiviBergers'],
+    ],
+    'structures' => [
+        'label' => 'Structures',
+        'icon'  => 'fa-solid fa-sitemap',
+        'items' => ['bacentas', 'centres', 'cultes', 'basontas'],
+    ],
+    'membres' => [
+        'label' => 'Membres & équipes',
+        'icon'  => 'fa-solid fa-users',
+        'items' => ['nouveaux_membres', 'generale', 'bergers'],
+    ],
+    'activites' => [
+        'label' => 'Activités',
+        'icon'  => 'fa-solid fa-calendar-check',
+        'items' => ['agenda', 'classes'],
+    ],
+    'gestion' => [
+        'label' => 'Gestion & finances',
+        'icon'  => 'fa-solid fa-briefcase',
+        'items' => ['rapports', 'budgetBus', 'finances'],
+    ],
+    'administration' => [
+        'label' => 'Administration',
+        'icon'  => 'fa-solid fa-shield-halved',
+        'items' => ['parametres', 'admin_inscriptions', 'site_public', 'albums'],
+    ],
+]);
+
+// Pages conservées mais servies par les onglets internes de l'espace « Rapports » :
+// elles mettent en évidence l'entrée « Rapports » dans le menu latéral.
+define('NAV_RAPPORTS_ALIAS_PAGES', [
+    'rapport',
     'rapports',
-    'classes',
-    'budgetBus',
-    'parametres',
-    'albums'
+    'rapport_suivi',
+    'rapport_suivi_export',
+    'rapport_dashboard',
+    'rapport_classement',
+    'rapport_responsable',
+    'rapport_parametres',
 ]);
 
 /* ---------- Champs d'un membre (table users) ---------- */

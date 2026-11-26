@@ -328,3 +328,45 @@ function verify_credentials(string $name, string $password): bool
 {
     return auth_service()->verifyCredentials($name, $password);
 }
+
+/* ================= Suivi des Rapports du Jour (module 20) ================= */
+
+/**
+ * Accès au module de suivi (checklist / tableau de bord / fiche) :
+ * administrateur, ou responsable effectif d'au moins une cible (centre ou
+ * bacenta). Les autres utilisateurs n'y ont pas accès (aucune donnée de
+ * suivi nominative hors de leur périmètre n'est exposée).
+ */
+function auth_can_view_rapport_suivi(): bool
+{
+    $u = current_user();
+    if (!$u) {
+        return false;
+    }
+    if (($u['role'] ?? '') === 'admin') {
+        return true;
+    }
+    $uid = (int) $u['id'];
+    return (int) \App\Core\Query::value(
+        "SELECT COUNT(*) FROM responsibilities
+          WHERE user_id = ? AND responsibility_type = 'manager' AND target_type IN ('center', 'bacenta')",
+        [$uid]
+    ) > 0;
+}
+
+/**
+ * Classement & félicitations : administrateur, ou responsable disposant
+ * d'un périmètre (le classement est alors limité à ce périmètre ; jamais
+ * public, jamais ouvert à tous les membres - §16.6).
+ */
+function auth_can_view_rapport_classement(): bool
+{
+    return auth_can_view_rapport_suivi();
+}
+
+/** Paramètres du module de suivi (barème, rappels, calendriers) : administrateur uniquement. */
+function auth_can_manage_rapport_settings(): bool
+{
+    $u = current_user();
+    return $u && ($u['role'] ?? '') === 'admin';
+}
